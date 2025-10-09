@@ -1,0 +1,1 @@
+:  /home/user/angol/angol/web/index.html
