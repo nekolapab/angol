@@ -5,8 +5,11 @@
   channel = "stable-24.05"; # or "unstable"
   # Use https://search.nixos.org/packages to find packages
   packages = [
+    pkgs.flutter
+    pkgs.dart
     pkgs.jdk21
     pkgs.unzip
+    pkgs.firefox
   ];
   # Sets environment variables in the workspace
   env = {};
