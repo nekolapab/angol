@@ -21,15 +21,9 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -53,12 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAc5R4gMQA4hhkawcuykTHE5ZXMcsluH6c',
-    appId: '1:1052139610067:web:6beea5f754a3dd46fc1926',
-    messagingSenderId: '1052139610067',
-    projectId: 'angol-20090898-cb6fd',
-    authDomain: 'angol-20090898-cb6fd.firebaseapp.com',
-    storageBucket: 'angol-20090898-cb6fd.appspot.com',
+    apiKey: 'AIzaSyDUZZLgF2AmrMiRxLyf6QNxgUFXQosVhAs',
+    appId: '1:697321034497:web:90642338da14ca26da8100',
+    messagingSenderId: '697321034497',
+    projectId: 'angol-38753',
+    authDomain: 'angol-38753.firebaseapp.com',
+    storageBucket: 'angol-38753.firebasestorage.app',
+    measurementId: 'G-DK3PN3HXJM',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyC9r4nG7Aw-HUNam1APnEQjQzdfW-hYpng',
+    appId: '1:697321034497:ios:f1bc5af9a8345bbfda8100',
+    messagingSenderId: '697321034497',
+    projectId: 'angol-38753',
+    storageBucket: 'angol-38753.firebasestorage.app',
+    iosBundleId: 'com.example.angol',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyA90vksMh_iC-Bn2q0TiprVA2Ue1J8E0Uw',
+    appId: '1:697321034497:android:a077e11aa9631f59da8100',
+    messagingSenderId: '697321034497',
+    projectId: 'angol-38753',
+    storageBucket: 'angol-38753.firebasestorage.app',
   );
 
 }

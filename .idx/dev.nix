@@ -29,7 +29,9 @@
       enable = true;
       previews = {
         web = {
-          command = ["flutter" "run" "--machine" "-d" "web-server" "--web-hostname" "0.0.0.0" "--web-port" "$PORT"];
+          # Use Firefox as the target device for web previews
+          # Forcing a reload by adding this comment
+          command = ["flutter" "run" "--machine" "-d" "firefox" "--web-hostname" "0.0.0.0" "--web-port" "$PORT"];
           manager = "flutter";
         };
         android = {
