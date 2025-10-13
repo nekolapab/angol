@@ -74,7 +74,6 @@ class _AngolScreenState extends State<AngolScreen> {
   }
 
   HexGeometry get geometry => HexGeometry(
-    hexSize: 72,
     center: const HexagonPosition(x: 0, y: 0),
     isLetterMode: inputService.isLetterMode,
   );
@@ -155,14 +154,14 @@ class _AngolScreenState extends State<AngolScreen> {
             children: [
               Icon(
                 inputService.isLetterMode ? Icons.text_fields : Icons.numbers,
-                color: _angolPressed ? Colors.black : Colors.white,
+                color: _angolPressed ? Colors.white : Colors.black,
                 size: 24,
               ),
               const SizedBox(height: 4),
               Text(
                 inputService.getDisplayText(),
                 style: TextStyle(
-                  color: _angolPressed ? Colors.black : Colors.white,
+                  color: _angolPressed ? Colors.white : Colors.black,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -180,7 +179,7 @@ class _AngolScreenState extends State<AngolScreen> {
   Widget _buildModuleRing() {
     // Always show module hexagons around center
     final innerCoords = geometry.getInnerRingCoordinates();
-    
+
     return Stack(
       children: innerCoords.asMap().entries.map((entry) {
         final index = entry.key;
@@ -191,14 +190,17 @@ class _AngolScreenState extends State<AngolScreen> {
         return Positioned(
           left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
           top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
-          child: HexagonWidget(
-            label: module.name,
-            backgroundColor: module.color,
-            textColor: Colors.white,
-            size: geometry.hexWidth,
-            isPressed: false,
-            rotationAngle: geometry.rotationAngle,
-            onTap: () => _toggleModule(index),
+          child: Container(
+            margin: const EdgeInsets.all(2), // Add margin to remove space between hexagons
+            child: HexagonWidget(
+              label: module.name,
+              backgroundColor: module.color,
+              textColor: Colors.white,
+              size: geometry.hexWidth,
+              isPressed: false,
+              rotationAngle: geometry.rotationAngle,
+              onTap: () => _toggleModule(index),
+            ),
           ),
         );
       }).toList(),
@@ -210,7 +212,7 @@ class _AngolScreenState extends State<AngolScreen> {
     if (!inputService.isTextFieldFocused) {
       return const SizedBox.shrink();
     }
-    
+
     final innerCoords = geometry.getInnerRingCoordinates();
     final innerLabels = inputService.isLetterMode
         ? KeypadConfig.innerLetterMode
@@ -218,7 +220,7 @@ class _AngolScreenState extends State<AngolScreen> {
     final innerLongPress = inputService.isLetterMode
         ? List.filled(6, '')
         : KeypadConfig.innerLongPressNumber;
-    
+
     return Stack(
       children: innerCoords.asMap().entries.map((entry) {
         final index = entry.key;
@@ -226,7 +228,7 @@ class _AngolScreenState extends State<AngolScreen> {
         final tapLabel = innerLabels[index];
         final longPressLabel = innerLongPress[index];
         final position = geometry.axialToPixel(coord.q, coord.r);
-        
+
         // Rainbow colors for letter mode, yellow for number mode
         final hexColor = inputService.isLetterMode
             ? KeypadConfig.rainbowColors[index % 6]
@@ -235,18 +237,21 @@ class _AngolScreenState extends State<AngolScreen> {
         return Positioned(
           left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
           top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
-          child: HexagonWidget(
-            label: tapLabel,
-            secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
-            backgroundColor: hexColor,
-            textColor: Colors.black,
-            size: geometry.hexWidth,
-            isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
-            rotationAngle: geometry.rotationAngle,
-            onTap: () => _onHexTap(tapLabel),
-            onLongPress: longPressLabel.isNotEmpty 
-                ? () => _onHexLongPress(longPressLabel)
-                : null,
+          child: Container(
+            margin: const EdgeInsets.all(2), // Add margin to remove space between hexagons
+            child: HexagonWidget(
+              label: tapLabel,
+              secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
+              backgroundColor: hexColor,
+              textColor: Colors.black,
+              size: geometry.hexWidth,
+              isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
+              rotationAngle: geometry.rotationAngle,
+              onTap: () => _onHexTap(tapLabel),
+              onLongPress: longPressLabel.isNotEmpty
+                  ? () => _onHexLongPress(longPressLabel)
+                  : null,
+            ),
           ),
         );
       }).toList(),
@@ -258,7 +263,7 @@ class _AngolScreenState extends State<AngolScreen> {
     if (!inputService.isTextFieldFocused) {
       return const SizedBox.shrink();
     }
-    
+
     final outerCoords = geometry.getOuterRingCoordinates();
 
     return Stack(
@@ -273,16 +278,19 @@ class _AngolScreenState extends State<AngolScreen> {
         return Positioned(
           left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
           top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
-          child: HexagonWidget(
-            label: tapLabel,
-            secondaryLabel: longPressLabel,
-            backgroundColor: hexColor,
-            textColor: Colors.white,
-            size: geometry.hexWidth,
-            isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
-            rotationAngle: geometry.rotationAngle,
-            onTap: () => _onHexTap(tapLabel),
-            onLongPress: () => _onHexLongPress(longPressLabel),
+          child: Container(
+            margin: const EdgeInsets.all(2), // Add margin to remove space between hexagons
+            child: HexagonWidget(
+              label: tapLabel,
+              secondaryLabel: longPressLabel,
+              backgroundColor: hexColor,
+              textColor: Colors.white,
+              size: geometry.hexWidth,
+              isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
+              rotationAngle: geometry.rotationAngle,
+              onTap: () => _onHexTap(tapLabel),
+              onLongPress: () => _onHexLongPress(longPressLabel),
+            ),
           ),
         );
       }).toList(),

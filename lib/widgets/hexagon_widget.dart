@@ -46,6 +46,11 @@ class _HexagonWidgetState extends State<HexagonWidget> {
         ? KeypadConfig.getComplementaryColor(widget.textColor)
         : widget.textColor;
 
+    // Use complementary color for text when not pressed
+    final finalTextColor = widget.isPressed
+        ? displayTextColor
+        : KeypadConfig.getComplementaryColor(widget.textColor);
+
     return MouseRegion(
       onEnter: (_) {
         setState(() => _isHovering = true);
@@ -79,7 +84,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                                 Text(
                                   widget.label,
                                   style: TextStyle(
-                                    color: displayTextColor,
+                                    color: finalTextColor,
                                     fontSize: widget.size * 0.35,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -87,14 +92,14 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                                 Text(
                                   '-',
                                   style: TextStyle(
-                                    color: displayTextColor.withOpacity(0.5),
+                                    color: finalTextColor.withOpacity(0.5),
                                     fontSize: widget.size * 0.25,
                                   ),
                                 ),
                                 Text(
                                   widget.secondaryLabel!,
                                   style: TextStyle(
-                                    color: displayTextColor.withOpacity(0.7),
+                                    color: finalTextColor.withOpacity(0.7),
                                     fontSize: widget.size * 0.3,
                                     fontWeight: FontWeight.normal,
                                   ),
@@ -104,7 +109,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                           : Text(
                               widget.label,
                               style: TextStyle(
-                                color: displayTextColor,
+                                color: finalTextColor,
                                 fontSize: widget.size * 0.35,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -151,6 +156,15 @@ class HexagonPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
     canvas.drawPath(path, borderPaint);
+
+    // Add complementary color border when pressed
+    if (glowIntensity > 0) {
+      final complementaryPaint = Paint()
+        ..color = KeypadConfig.getComplementaryColor(color)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
+      canvas.drawPath(path, complementaryPaint);
+    }
   }
 
   Path _createHexagonPath(Size size) {

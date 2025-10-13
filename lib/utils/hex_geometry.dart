@@ -7,7 +7,7 @@ class HexGeometry {
   final bool isLetterMode;
   
   const HexGeometry({
-    required this.hexSize,
+    this.hexSize = 80,
     required this.center,
     this.isLetterMode = true,
   });
