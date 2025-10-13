@@ -42,14 +42,9 @@ class _HexagonWidgetState extends State<HexagonWidget> {
     final displayBgColor = widget.isPressed
         ? KeypadConfig.getComplementaryColor(widget.backgroundColor)
         : widget.backgroundColor;
-    final displayTextColor = widget.isPressed
-        ? KeypadConfig.getComplementaryColor(widget.textColor)
-        : widget.textColor;
 
-    // Use complementary color for text when not pressed
-    final finalTextColor = widget.isPressed
-        ? displayTextColor
-        : KeypadConfig.getComplementaryColor(widget.textColor);
+    // Text color is always complementary to the current background color
+    final finalTextColor = KeypadConfig.getComplementaryColor(displayBgColor);
 
     return MouseRegion(
       onEnter: (_) {
