@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/hexagon_models.dart';
@@ -75,7 +74,7 @@ class _AngolScreenState extends State<AngolScreen> {
   }
 
   HexGeometry get geometry => HexGeometry(
-    hexSize: 35,
+    hexSize: 72,
     center: const HexagonPosition(x: 0, y: 0),
     isLetterMode: inputService.isLetterMode,
   );
@@ -126,7 +125,19 @@ class _AngolScreenState extends State<AngolScreen> {
         onTapDown: (_) => setState(() => _angolPressed = true),
         onTapUp: (_) => setState(() => _angolPressed = false),
         onTapCancel: () => setState(() => _angolPressed = false),
-        onTap: () => inputService.toggleMode(),
+        onTap: () {
+          // Tap: space in letter mode, period in number mode
+          if (inputService.isLetterMode) {
+            inputService.addCharacter(' ');
+          } else {
+            inputService.addCharacter('.');
+          }
+          _textController.text = inputService.inputText;
+        },
+        onLongPress: () {
+          // Long press: toggle mode
+          inputService.toggleMode();
+        },
         onVerticalDragUpdate: (details) {
           if (details.delta.dy < -5) {
             inputService.setCapitalize();
@@ -145,14 +156,14 @@ class _AngolScreenState extends State<AngolScreen> {
               Icon(
                 inputService.isLetterMode ? Icons.text_fields : Icons.numbers,
                 color: _angolPressed ? Colors.black : Colors.white,
-                size: 16,
+                size: 24,
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 inputService.getDisplayText(),
                 style: TextStyle(
                   color: _angolPressed ? Colors.black : Colors.white,
-                  fontSize: 8,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
@@ -166,11 +177,8 @@ class _AngolScreenState extends State<AngolScreen> {
     );
   }
 
-  Widget _buildInnerRing() {
-    if (!_angolPressed && !inputService.isTextFieldFocused) {
-      return const SizedBox.shrink();
-    }
-    
+  Widget _buildModuleRing() {
+    // Always show module hexagons around center
     final innerCoords = geometry.getInnerRingCoordinates();
     
     return Stack(
@@ -197,13 +205,12 @@ class _AngolScreenState extends State<AngolScreen> {
     );
   }
 
-  Widget _buildOuterRing() {
-    final keypadModule = modules.firstWhere((m) => m.id == 'keypad');
-    if (!keypadModule.isActive && !inputService.isTextFieldFocused) {
+  Widget _buildInnerRing() {
+    // Show inner ring when text field is focused
+    if (!inputService.isTextFieldFocused) {
       return const SizedBox.shrink();
     }
     
-    final outerCoords = geometry.getOuterRingCoordinates();
     final innerCoords = geometry.getInnerRingCoordinates();
     final innerLabels = inputService.isLetterMode
         ? KeypadConfig.innerLetterMode
@@ -211,65 +218,74 @@ class _AngolScreenState extends State<AngolScreen> {
     final innerLongPress = inputService.isLetterMode
         ? List.filled(6, '')
         : KeypadConfig.innerLongPressNumber;
+    
+    return Stack(
+      children: innerCoords.asMap().entries.map((entry) {
+        final index = entry.key;
+        final coord = entry.value;
+        final tapLabel = innerLabels[index];
+        final longPressLabel = innerLongPress[index];
+        final position = geometry.axialToPixel(coord.q, coord.r);
+        
+        // Rainbow colors for letter mode, yellow for number mode
+        final hexColor = inputService.isLetterMode
+            ? KeypadConfig.rainbowColors[index % 6]
+            : const Color(0xFFFFFF00);
+
+        return Positioned(
+          left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
+          top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
+          child: HexagonWidget(
+            label: tapLabel,
+            secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
+            backgroundColor: hexColor,
+            textColor: Colors.black,
+            size: geometry.hexWidth,
+            isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
+            rotationAngle: geometry.rotationAngle,
+            onTap: () => _onHexTap(tapLabel),
+            onLongPress: longPressLabel.isNotEmpty 
+                ? () => _onHexLongPress(longPressLabel)
+                : null,
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildOuterRing() {
+    // Always show outer ring when text field focused
+    if (!inputService.isTextFieldFocused) {
+      return const SizedBox.shrink();
+    }
+    
+    final outerCoords = geometry.getOuterRingCoordinates();
 
     return Stack(
-      children: [
-        // Outer ring - rainbow colors
-        ...outerCoords.asMap().entries.map((entry) {
-          final index = entry.key;
-          final coord = entry.value;
-          final tapLabel = KeypadConfig.outerTap[index];
-          final longPressLabel = KeypadConfig.outerLongPress[index];
-          final position = geometry.axialToPixel(coord.q, coord.r);
-          final hexColor = KeypadConfig.rainbowColors[index];
+      children: outerCoords.asMap().entries.map((entry) {
+        final index = entry.key;
+        final coord = entry.value;
+        final tapLabel = KeypadConfig.outerTap[index];
+        final longPressLabel = KeypadConfig.outerLongPress[index];
+        final position = geometry.axialToPixel(coord.q, coord.r);
+        final hexColor = KeypadConfig.rainbowColors[index];
 
-          return Positioned(
-            left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
-            top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
-            child: HexagonWidget(
-              label: tapLabel,
-              secondaryLabel: longPressLabel,
-              backgroundColor: hexColor,
-              textColor: Colors.white,
-              size: geometry.hexWidth,
-              isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
-              rotationAngle: geometry.rotationAngle,
-              onTap: () => _onHexTap(tapLabel),
-              onLongPress: () => _onHexLongPress(longPressLabel),
-            ),
-          );
-        }),
-        
-        // Inner ring - keypad characters
-        ...innerCoords.asMap().entries.map((entry) {
-          final index = entry.key;
-          final coord = entry.value;
-          final tapLabel = innerLabels[index];
-          final longPressLabel = innerLongPress[index];
-          final position = geometry.axialToPixel(coord.q, coord.r);
-          
-          final scaledX = position.x * 0.5;
-          final scaledY = position.y * 0.5;
-
-          return Positioned(
-            left: MediaQuery.of(context).size.width / 2 + scaledX - geometry.hexWidth / 2,
-            top: MediaQuery.of(context).size.height / 2 + scaledY - geometry.hexHeight / 2,
-            child: HexagonWidget(
-              label: tapLabel,
-              secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
-              backgroundColor: keypadModule.color.withOpacity(0.9),
-              textColor: Colors.black,
-              size: geometry.hexWidth,
-              isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
-              rotationAngle: geometry.rotationAngle,
-              onTap: () => _onHexTap(tapLabel),
-              onLongPress: longPressLabel.isNotEmpty 
-                  ? () => _onHexLongPress(longPressLabel)
-                  : null,
-            ),
-          );
-        }),
-      ],
+        return Positioned(
+          left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
+          top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
+          child: HexagonWidget(
+            label: tapLabel,
+            secondaryLabel: longPressLabel,
+            backgroundColor: hexColor,
+            textColor: Colors.white,
+            size: geometry.hexWidth,
+            isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
+            rotationAngle: geometry.rotationAngle,
+            onTap: () => _onHexTap(tapLabel),
+            onLongPress: () => _onHexLongPress(longPressLabel),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -295,6 +311,7 @@ class _AngolScreenState extends State<AngolScreen> {
                 Center(
                   child: Stack(
                     children: [
+                      // Order: outer, inner, center (so center is on top)
                       _buildOuterRing(),
                       _buildInnerRing(),
                       _buildCenterAngol(),
@@ -307,18 +324,24 @@ class _AngolScreenState extends State<AngolScreen> {
                   right: 0,
                   child: Center(
                     child: Container(
+                      width: 300,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.7),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFF4A90E2), width: 2),
+                        border: Border.all(
+                          color: inputService.isTextFieldFocused 
+                              ? const Color(0xFF60A5FA) 
+                              : const Color(0xFF4A90E2), 
+                          width: 2,
+                        ),
                       ),
                       child: TextField(
                         controller: _textController,
                         focusNode: _textFieldFocus,
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                         decoration: const InputDecoration(
-                          hintText: 'Focus here for cursor mode...',
+                          hintText: 'Tap to activate',
                           hintStyle: TextStyle(color: Colors.white38),
                           border: InputBorder.none,
                           isDense: true,
@@ -349,10 +372,10 @@ class _AngolScreenState extends State<AngolScreen> {
                           fontSize: 12,
                         ),
                       ),
-                      if (_angolPressed || inputService.isTextFieldFocused)
-                        Text(
-                          inputService.isTextFieldFocused ? 'Cursor Mode' : 'Pointer Mode',
-                          style: const TextStyle(
+                      if (inputService.isTextFieldFocused)
+                        const Text(
+                          'Cursor Mode',
+                          style: TextStyle(
                             color: Colors.greenAccent,
                             fontSize: 10,
                           ),

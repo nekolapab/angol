@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../models/keypad_config.dart';
@@ -81,7 +80,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                                   widget.label,
                                   style: TextStyle(
                                     color: displayTextColor,
-                                    fontSize: widget.size * 0.2,
+                                    fontSize: widget.size * 0.35,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -89,14 +88,14 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                                   '-',
                                   style: TextStyle(
                                     color: displayTextColor.withOpacity(0.5),
-                                    fontSize: widget.size * 0.15,
+                                    fontSize: widget.size * 0.25,
                                   ),
                                 ),
                                 Text(
                                   widget.secondaryLabel!,
                                   style: TextStyle(
                                     color: displayTextColor.withOpacity(0.7),
-                                    fontSize: widget.size * 0.18,
+                                    fontSize: widget.size * 0.3,
                                     fontWeight: FontWeight.normal,
                                   ),
                                 ),
@@ -106,7 +105,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                               widget.label,
                               style: TextStyle(
                                 color: displayTextColor,
-                                fontSize: widget.size * 0.25,
+                                fontSize: widget.size * 0.35,
                                 fontWeight: FontWeight.bold,
                               ),
                               textAlign: TextAlign.center,
@@ -158,7 +157,7 @@ class HexagonPainter extends CustomPainter {
     final path = Path();
     final centerX = size.width / 2;
     final centerY = size.height / 2;
-    final radius = math.min(centerX, centerY) - 1;
+    final radius = math.min(centerX, centerY);
 
     for (int i = 0; i < 6; i++) {
       double angle = (i * 60 - 30) * (math.pi / 180);
