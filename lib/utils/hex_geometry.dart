@@ -5,22 +5,30 @@ class HexGeometry {
   final double hexSize;
   final HexagonPosition center;
   final bool isLetterMode;
-  
+
   const HexGeometry({
     this.hexSize = 80,
     required this.center,
     this.isLetterMode = true,
   });
-  
-  double get hexWidth => sqrt(3) * hexSize;
-  double get hexHeight => 2 * hexSize;
-  
+
+  double get hexWidth => isLetterMode ? sqrt(3) * hexSize : 2 * hexSize;
+  double get hexHeight => isLetterMode ? 2 * hexSize : sqrt(3) * hexSize;
+
   // Rotation angle: 0° for letter mode (pointed top), 30° for number mode (flat top)
   double get rotationAngle => isLetterMode ? 0.0 : pi / 6;
-  
+
   HexagonPosition axialToPixel(int q, int r) {
-    final x = hexSize * (sqrt(3) * q + sqrt(3) / 2 * r);
-    final y = hexSize * (3 / 2) * r;
+    double x, y;
+    if (isLetterMode) {
+      // Pointed-top
+      x = hexSize * (sqrt(3) * q + sqrt(3) / 2 * r);
+      y = hexSize * (3 / 2) * r;
+    } else {
+      // Flat-top
+      x = hexSize * (3 / 2 * q);
+      y = hexSize * (sqrt(3) / 2 * q + sqrt(3) * r);
+    }
     return HexagonPosition(
       x: center.x + x,
       y: center.y + y,
