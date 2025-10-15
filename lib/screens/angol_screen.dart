@@ -1,10 +1,11 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/hexagon_models.dart';
 import '../models/keypad_config.dart';
 import '../utils/hex_geometry.dart';
 import '../services/input_service.dart';
-import '../services/firebase_service.dart';
+// import '../services/firebase_service.dart'; // Removed to fix redirect loop
 import '../widgets/hexagon_widget.dart';
 
 class AngolScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class AngolScreen extends StatefulWidget {
 
 class _AngolScreenState extends State<AngolScreen> {
   final InputService inputService = InputService();
-  late final FirebaseService firebaseService;
+  // late final FirebaseService firebaseService; // Removed to fix redirect loop
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
 
@@ -35,7 +36,7 @@ class _AngolScreenState extends State<AngolScreen> {
   @override
   void initState() {
     super.initState();
-    firebaseService = FirebaseService();
+    // firebaseService = FirebaseService(); // Removed to fix redirect loop
     _textFieldFocus.addListener(() {
       inputService.setTextFieldFocus(_textFieldFocus.hasFocus);
     });
@@ -354,3 +355,4 @@ class _AngolScreenState extends State<AngolScreen> {
     super.dispose();
   }
 }
+
