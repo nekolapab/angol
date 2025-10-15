@@ -9,7 +9,6 @@
     pkgs.dart
     pkgs.jdk21
     pkgs.unzip
-    pkgs.firefox
   ];
   # Sets environment variables in the workspace
   env = {};
@@ -29,8 +28,8 @@
       enable = true;
       previews = {
         web = {
-          # Use Firefox as the target device for web previews
-          command = ["flutter" "run" "--machine" "-d" "firefox" "--web-hostname" "0.0.0.0" "--web-port" "$PORT"];
+          # Use web-server as the target device for web previews
+          command = ["flutter" "run" "--machine" "-d" "web-server" "--web-hostname" "0.0.0.0" "--web-port" "$PORT"];
           manager = "flutter";
         };
         android = {
