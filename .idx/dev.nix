@@ -30,7 +30,7 @@
   # IDX extensions to be installed in the workspace.
   # Use "idx extensions" command to list available extensions.
   extensions = [
-    "dart-code.dart-code"
+    "dart-code.dart-code",
     "dart-code.flutter"
   ];
   # Defines a command to be run when the workspace is first created.
@@ -40,7 +40,9 @@
   #   # Open a file once the workspace is created
   #   default.openFiles = [ "README.md" ];
   # };
-    # Defines a set of tasks to be run in the workspace.
+  # Defines a command to be run when the workspace is started.
+  onStart = {};
+  # Defines a set of tasks to be run in the workspace.
   # See https://developers.google.com/idx/guides/customize-idx-env#configure_tasks
   # tasks = {
   #   # Example:
@@ -49,7 +51,6 @@
   #     command = "npm run lint";
   #   };
   # };
-
   # Port forwarding for the workspace.
   # ports = {
   #   # Example:
@@ -58,7 +59,6 @@
   #     onOpen = "open-preview";
   #   };
   # };
-
   # Preview configuration for the workspace.
   # See https://developers.google.com/idx/guides/customize-idx-env#previews
   previews = {
@@ -68,16 +68,15 @@
     previews = {
       web = {
         # Use web-server as the target device for web previews
-        command = ["flutter" "run" "--machine" "-d" "web-server" "--web-hostname" "0.0.0.0" "--web-port" "$PORT"];
+        command = ["flutter", "run", "--machine", "-d", "web-server", "--web-hostname", "0.0.0.0", "--web-port", "$PORT"];
         manager = "flutter";
       };
       android = {
-        command = ["flutter" "run" "--machine" "-d" "android" "-d" "localhost:5555"];
+        command = ["flutter", "run", "--machine", "-d", "android", "-d", "localhost:5555"];
         manager = "flutter";
       };
     };
   };
-
   # Main-branch git integration.
   # When enabled, IDX will create a new workspace from the main branch,
   # and push changes to a new branch.
@@ -89,5 +88,4 @@
   #     prefix = "idx-";
   #   };
   # };
-
 }
