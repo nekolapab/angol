@@ -40,12 +40,7 @@
   #   # Open a file once the workspace is created
   #   default.openFiles = [ "README.md" ];
   # };
-  # Defines a command to be run when the workspace is started.
-  onStart = {
-    # This is a harmless command to force an environment rebuild.
-    echo = "echo 'Forcing environment rebuild to fix debugger attachment issue.'";
-  };
-  # Defines a set of tasks to be run in the workspace.
+    # Defines a set of tasks to be run in the workspace.
   # See https://developers.google.com/idx/guides/customize-idx-env#configure_tasks
   # tasks = {
   #   # Example:
