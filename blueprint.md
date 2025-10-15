@@ -1,64 +1,61 @@
+# Angol: Project Blueprint
 
-# Project Blueprint
+## 1. Overview
 
-## Overview
+**Purpose:** Angol is a Flutter application designed as a hexagonal modular input system. The goal is to create a unique and intuitive way for users to input text or commands through a dynamic, grid-based interface.
 
-`angol` is a Flutter application designed as a hexagonal modular input system. It is integrated with Firebase for backend services, including Authentication and Firestore database.
+**Core Capabilities:**
+-   **Hexagonal Input:** A custom-built UI featuring a grid of interactive hexagonal tiles.
+-   **Modular System:** The input logic is designed to be modular, allowing for potential customization and expansion.
+-   **Firebase Integration:** User data, inputs, and configurations are stored and synced using Firebase Auth and Cloud Firestore.
+-   **State Management:** The app uses the `provider` package to manage state efficiently between the input service and the UI.
+-   **Cross-Platform:** The application is built with Flutter and supports web as its primary initial platform.
 
-## Style, Design, and Features
+---
 
-*   **Framework:** Flutter
-*   **Backend:** Firebase
-    *   Firebase Authentication
-    *   Cloud Firestore
-*   **Dependencies:**
-    *   `firebase_core`
-    *   `firebase_auth`
-    *   `cloud_firestore`
-    *   `intl`
-    *   `provider`
+## 2. Implemented Features & Project State
 
-## Development Log
+This section documents the project's structure and features as they have been implemented so far.
 
-### Initial Setup & Debugging
+### **Style & Design:**
+-   **Theme:** The application uses a `ThemeData` with `brightness: Brightness.dark` and a `primarySwatch` of `Colors.blue`.
+-   **Layout:** The main screen is `AngolScreen`, which serves as the canvas for the input system.
 
-This section details the extensive debugging process required to get the application running correctly after initial setup.
+### **Application Architecture:**
+-   **Entry Point:** `lib/main.dart` initializes Firebase and sets up the root `MyApp` widget.
+-   **State Management:**
+    -   `ChangeNotifierProvider` is used for `InputService`.
+    -   `Provider` is used for `FirebaseService`.
+-   **Services:**
+    -   `InputService (`services/input\_service.dart`): A `ChangeNotifier` responsible for managing the state of the user's input.
+    -   `FirebaseService (`services/firebase\_service.dart`): A service class to handle all interactions with Firebase backends (Authentication and Firestore).
+-   **Screens:**
+    -   `AngolScreen` (`screens/angol_screen.dart`): The primary user-facing screen that will contain the hexagonal UI.
 
-**1. The Initial Problem: "Permission Denied"**
+### **Dependencies:**
+-   **`firebase_core`**: For initializing the Firebase app.
+-   **`firebase_auth`**: For user authentication.
+-   **`cloud_firestore`**: For database operations.
+-   **`provider`**: For state management.
+-   **`intl`**: For internationalization and formatting (though not yet used).
 
-*   **Symptom:** The application would compile, but the web preview would be a blank white screen. The browser's developer console showed a "permission-denied" error when trying to connect to Firestore.
-*   **Initial Action:** The active Firebase project was switched from the incorrect `angol-20090898-cb6fd` to the correct `angol-38753`.
-*   **Result:** This did **not** solve the problem.
+### **Version Control & Build:**
+-   **Git:** The project is under Git version control. The repository has been cleaned, with all work consolidated onto the `main` branch.
+-   **Web:** The project is configured for web deployment. The unnecessary `linux` directory has been removed.
 
-**2. Incorrect Diagnosis: Authorized Domains**
+---
 
-*   **Hypothesis:** The "permission-denied" error was caused by the application's domain not being on the Firebase project's "Authorized Domains" list.
-*   **Action:** Attempted to add the preview domain (`*.web.app`, `*.firebaseapp.com`) to the list.
-*   **Result:** This was a red herring. The core issue was not related to the authorized domains.
+## 3. Plan for Current Request: Initial Setup
 
-**3. Incorrect Diagnosis: Stale Application Process**
+**Request:** "Let's start by creating a new Flutter application and setting up a Git repository for it."
 
-*   **Hypothesis:** A "stale" or "zombie" process of the old, broken application was still running, preventing the newly configured version from starting. This was supported by `Address already in use` errors.
-*   **Actions:**
-    *   Attempted to kill the process using `ps`, `awk`, and `kill`. These commands failed.
-    *   Attempted to use `fuser` to free the port. The command was not available in the environment.
-    *   Attempted to use `idx previews restart`. The command was not available.
-*   **Result:** All attempts to programmatically restart the server failed, leading to significant wasted time and frustration.
+**Status: Completed**
 
-**4. The Real Problem: Hardcoded Project Configuration**
-
-*   **Correct Diagnosis (with user guidance):** The user correctly pointed out that the problem was deeper. A review of `lib/firebase_options.dart` revealed the root cause: the `projectId` was **hardcoded** to the incorrect project (`angol-20090898-cb6fd`).
-*   **The Solution Path:**
-    1.  **Attempt `flutterfire configure`:** The command `flutterfire configure --project=angol-38753` was run to regenerate the options file.
-    2.  **Tooling Failure:** This command failed because the `flutterfire_cli` tool was out of date.
-    3.  **Update Tooling:** The command `dart pub global activate flutterfire_cli` was run to update the CLI tool.
-    4.  **Process Conflict (User Diagnosis):** The user brilliantly identified that multiple, conflicting `flutterfire` processes were running simultaneously, causing the command to hang.
-    5.  **Kill Conflicts:** The conflicting processes were killed using a `ps | grep | kill` chain.
-    6.  **Successful Configuration:** `flutterfire configure` was run one last time. It required interactive user input to select the `web` platform and confirm overwriting the existing file.
-    7.  **Confirmation:** The contents of `lib/firebase_options.dart` were read and confirmed to contain the correct `projectId: 'angol-38753'`.
-
-### Current Plan: Finalization
-
-*   **Action:** Update Firebase dependencies in `pubspec.yaml` to the latest stable versions.
-*   **Action:** Run `flutter pub get` to install the updated packages.
-*   **Goal:** Run the application, which should now successfully connect to the correct Firebase project.
+The following steps have been successfully executed:
+1.  **Application Created:** A new Flutter project named "angol" was generated.
+2.  **Initial Dependencies Added:** `firebase_core`, `firebase_auth`, `cloud_firestore`, and `provider` were added to `pubspec.yaml`.
+3.  **Project Structure Created:** Basic services (`InputService`, `FirebaseService`) and a main screen (`AngolScreen`) were created to establish the architecture.
+4.  **Firebase Initialized:** The `main.dart` file was updated to initialize Firebase before running the app.
+5.  **Git Repository Initialized:** A Git repository was created and linked to the remote on GitHub.
+6.  **Repository Cleanup:** Branching issues were resolved, with all work merged into the `main` branch and the extraneous `master` branch deleted.
+7.  **Build Configuration:** The `web/index.html` was configured for proper server interaction, and the unused `linux` build directory was removed.
