@@ -43,7 +43,6 @@ class _HexagonWidgetState extends State<HexagonWidget> {
         ? KeypadConfig.getComplementaryColor(widget.backgroundColor)
         : widget.backgroundColor;
 
-    // Text color is always complementary to the current background color
     final finalTextColor = KeypadConfig.getComplementaryColor(displayBgColor);
 
     return MouseRegion(
@@ -62,7 +61,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
           angle: widget.rotationAngle,
           child: SizedBox(
             width: widget.size,
-            height: widget.size,
+            height: widget.size * 2 / math.sqrt(3),
             child: CustomPaint(
               painter: HexagonPainter(
                 color: displayBgColor,
@@ -152,7 +151,6 @@ class HexagonPainter extends CustomPainter {
       ..strokeWidth = 1;
     canvas.drawPath(path, borderPaint);
 
-    // Add complementary color border when pressed
     if (glowIntensity > 0) {
       final complementaryPaint = Paint()
         ..color = KeypadConfig.getComplementaryColor(color)
@@ -163,23 +161,14 @@ class HexagonPainter extends CustomPainter {
   }
 
   Path _createHexagonPath(Size size) {
-    final path = Path();
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-    final radius = math.min(centerX, centerY);
-
-    for (int i = 0; i < 6; i++) {
-      double angle = (i * 60 - 30) * (math.pi / 180);
-      double x = centerX + radius * math.cos(angle);
-      double y = centerY + radius * math.sin(angle);
-
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
+    final path = Path()
+      ..moveTo(size.width * 0.5, 0)
+      ..lineTo(size.width, size.height * 0.25)
+      ..lineTo(size.width, size.height * 0.75)
+      ..lineTo(size.width * 0.5, size.height)
+      ..lineTo(0, size.height * 0.75)
+      ..lineTo(0, size.height * 0.25)
+      ..close();
     return path;
   }
 
