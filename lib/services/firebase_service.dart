@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/hexagon_models.dart';
@@ -10,8 +11,8 @@ class FirebaseService {
     try {
       final githubProvider = GithubAuthProvider();
       await _auth.signInWithProvider(githubProvider);
-    } catch (e) {
-      print('GitHub sign-in error: $e');
+    } catch (e, s) {
+      developer.log('GitHub sign-in error', name: 'FirebaseService', error: e, stackTrace: s);
       rethrow;
     }
   }
@@ -38,8 +39,8 @@ class FirebaseService {
         'modules': modules.map((m) => m.toJson()).toList(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-    } catch (e) {
-      print('Error saving layout: $e');
+    } catch (e, s) {
+      developer.log('Error saving layout', name: 'FirebaseService', error: e, stackTrace: s);
     }
   }
   

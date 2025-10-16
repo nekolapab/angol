@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/angol_screen.dart';
@@ -35,9 +36,15 @@ class AuthWrapper extends StatelessWidget {
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      // Use signInWithPopup for compatibility with iframe environments like Firebase Studio
-      await FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider());
+      if (kIsWeb) {
+        // Use signInWithRedirect for web to avoid popup blockers
+        await FirebaseAuth.instance.signInWithRedirect(GoogleAuthProvider());
+      } else {
+        // Use signInWithPopup for mobile platforms
+        await FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider());
+      }
     } catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.redAccent,

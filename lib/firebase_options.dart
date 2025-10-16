@@ -17,12 +17,13 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBGxVHOplqH8dZN9vQY0xK_ZL6mJ3gP8nE',
-    appId: '1:697321034497:web:YOUR_WEB_APP_ID',
+    apiKey: 'AIzaSyDUZZLgF2AmrMiRxLyf6QNxgUFXQosVhAs',
+    appId: '1:697321034497:web:90642338da14ca26da8100',
     messagingSenderId: '697321034497',
     projectId: 'angol-38753',
     authDomain: 'angol-38753.firebaseapp.com',
-    storageBucket: 'angol-38753.appspot.com',
+    storageBucket: 'angol-38753.firebasestorage.app',
+    measurementId: 'G-DK3PN3HXJM',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

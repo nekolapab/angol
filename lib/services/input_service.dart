@@ -2,11 +2,11 @@ import 'package:flutter/foundation.dart';
 
 class InputService extends ChangeNotifier {
   static final InputService _instance = InputService._internal();
-  
+
   factory InputService() {
     return _instance;
   }
-  
+
   InputService._internal();
 
   String _inputText = '';
@@ -40,7 +40,6 @@ class InputService extends ChangeNotifier {
   void deleteRight() {
     deleteLeft();
   }
-
   void toggleMode() {
     _isLetterMode = !_isLetterMode;
     notifyListeners();
@@ -64,11 +63,5 @@ class InputService extends ChangeNotifier {
   void clearText() {
     _inputText = '';
     notifyListeners();
-  }
-
-  // Don't dispose singleton
-  @override
-  void dispose() {
-    // Do nothing - singleton should persist
   }
 }
