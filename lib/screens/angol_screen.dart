@@ -61,7 +61,16 @@ class _AngolScreenState extends State<AngolScreen> {
     setState(() => _pressedHex = char);
     HapticFeedback.lightImpact();
     inputService.addCharacter(char);
+<<<<<<< Updated upstream
     Future.delayed(const Duration(milliseconds: 200), () {
+=======
+    _textController.text = inputService.inputText;
+    _textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _textController.text.length),
+    );
+    
+    Future.delayed(const Duration(milliseconds: 0), () {
+>>>>>>> Stashed changes
       if (mounted) setState(() => _pressedHex = '');
     });
   }
@@ -74,7 +83,16 @@ class _AngolScreenState extends State<AngolScreen> {
     } else {
       inputService.addCharacter(char);
     }
+<<<<<<< Updated upstream
     Future.delayed(const Duration(milliseconds: 200), () {
+=======
+    _textController.text = inputService.inputText;
+    _textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _textController.text.length),
+    );
+    
+    Future.delayed(const Duration(milliseconds: 0), () {
+>>>>>>> Stashed changes
       if (mounted) setState(() => _pressedHex = '');
     });
   }
@@ -159,7 +177,16 @@ class _AngolScreenState extends State<AngolScreen> {
   }
 
   Widget _buildModuleRing() {
+<<<<<<< Updated upstream
     if (_isKeypadVisible) return const SizedBox.shrink();
+=======
+    // Hide module hexagons when text field is focused (keypad is active)
+    if (inputService.isTextFieldFocused) {
+      return const SizedBox.shrink();
+    }
+
+    final innerCoords = geometry.getInnerRingCoordinates();
+>>>>>>> Stashed changes
 
     final innerCoords = geometry.getInnerRingCoordinates();
     return Stack(
@@ -169,6 +196,7 @@ class _AngolScreenState extends State<AngolScreen> {
         final module = modules.firstWhere((m) => m.position == index);
         final position = geometry.axialToPixel(coord.q, coord.r);
         return Positioned(
+<<<<<<< Updated upstream
           left: MediaQuery.of(context).size.width / 2 +
               position.x -
               geometry.hexWidth / 2,
@@ -183,15 +211,39 @@ class _AngolScreenState extends State<AngolScreen> {
             isPressed: module.isActive,
             rotationAngle: geometry.rotationAngle,
             onTap: () => _toggleModule(index),
+=======
+          left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
+          top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
+          child: Container(
+            margin: const EdgeInsets.all(2),
+            child: HexagonWidget(
+              label: module.name,
+              backgroundColor: module.color,
+              textColor: Colors.white,
+              size: geometry.hexWidth,
+              isPressed: false,
+              rotationAngle: geometry.rotationAngle,
+              onTap: () => _toggleModule(index),
+            ),
+>>>>>>> Stashed changes
           ),
         );
       }).toList(),
     );
   }
 
+<<<<<<< Updated upstream
   Widget _buildInnerRing() {
     if (!_isKeypadVisible) return const SizedBox.shrink();
+=======
+  Widget _buildKeypadRing() {
+    // Show inner and outer rings when text field is focused
+    if (!inputService.isTextFieldFocused) {
+      return const SizedBox.shrink();
+    }
+>>>>>>> Stashed changes
 
+    // Build inner ring
     final innerCoords = geometry.getInnerRingCoordinates();
     final innerLabels =
         inputService.isLetterMode ? KeypadConfig.innerLetterMode : KeypadConfig.innerNumberMode;
@@ -199,6 +251,7 @@ class _AngolScreenState extends State<AngolScreen> {
         ? List.filled(6, '')
         : KeypadConfig.innerLongPressNumber;
 
+<<<<<<< Updated upstream
     return Stack(
       children: innerCoords.asMap().entries.map((entry) {
         final index = entry.key;
@@ -236,8 +289,42 @@ class _AngolScreenState extends State<AngolScreen> {
 
   Widget _buildOuterRing() {
     if (!_isKeypadVisible) return const SizedBox.shrink();
+=======
+    final innerRingWidgets = innerCoords.asMap().entries.map((entry) {
+      final index = entry.key;
+      final coord = entry.value;
+      final tapLabel = innerLabels[index];
+      final longPressLabel = innerLongPress[index];
+      final position = geometry.axialToPixel(coord.q, coord.r);
 
+      // Rainbow colors for letter mode, yellow for number mode
+      final hexColor = inputService.isLetterMode
+          ? KeypadConfig.rainbowColors[index % 6]
+          : const Color(0xFFFFFF00);
+
+      return Positioned(
+        left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
+        top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
+        child: HexagonWidget(
+          label: tapLabel,
+          secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
+          backgroundColor: hexColor,
+          textColor: KeypadConfig.getComplementaryColor(hexColor),
+          size: geometry.hexWidth,
+          isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
+          rotationAngle: geometry.rotationAngle,
+          onTap: () => _onHexTap(tapLabel),
+          onLongPress: longPressLabel.isNotEmpty
+              ? () => _onHexLongPress(longPressLabel)
+              : null,
+        ),
+      );
+    }).toList();
+>>>>>>> Stashed changes
+
+    // Build outer ring
     final outerCoords = geometry.getOuterRingCoordinates();
+<<<<<<< Updated upstream
     return Stack(
       children: outerCoords.asMap().entries.map((entry) {
         final index = entry.key;
@@ -267,6 +354,38 @@ class _AngolScreenState extends State<AngolScreen> {
           ),
         );
       }).toList(),
+=======
+    final outerRingWidgets = outerCoords.asMap().entries.map((entry) {
+      final index = entry.key;
+      final coord = entry.value;
+      final tapLabel = KeypadConfig.outerTap[index];
+      final longPressLabel = KeypadConfig.outerLongPress[index];
+      final position = geometry.axialToPixel(coord.q, coord.r);
+      final hexColor = KeypadConfig.rainbowColors[index];
+
+      return Positioned(
+        left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
+        top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
+        child: HexagonWidget(
+          label: tapLabel,
+          secondaryLabel: longPressLabel,
+          backgroundColor: hexColor,
+          textColor: KeypadConfig.getComplementaryColor(hexColor),
+          size: geometry.hexWidth,
+          isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
+          rotationAngle: geometry.rotationAngle,
+          onTap: () => _onHexTap(tapLabel),
+          onLongPress: () => _onHexLongPress(longPressLabel),
+        ),
+      );
+    }).toList();
+
+    return Stack(
+      children: [
+        ...outerRingWidgets,
+        ...innerRingWidgets,
+      ],
+>>>>>>> Stashed changes
     );
   }
 
@@ -287,6 +406,7 @@ class _AngolScreenState extends State<AngolScreen> {
               decoration: const InputDecoration(border: InputBorder.none),
             ),
           ),
+<<<<<<< Updated upstream
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -309,6 +429,52 @@ class _AngolScreenState extends State<AngolScreen> {
                           _buildModuleRing(),
                           _buildCenterAngol(),
                         ],
+=======
+        ),
+        child: ListenableBuilder(
+          listenable: inputService,
+          builder: (context, _) {
+            return Stack(
+              children: [
+                Center(
+                  child: Stack(
+                    children: [
+                      // Order: outer ring (bottom), inner ring, module ring, center (top)
+                      _buildKeypadRing(),
+                      _buildModuleRing(),
+                      _buildCenterAngol(),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: 40,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      width: 300,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: inputService.isTextFieldFocused 
+                              ? const Color(0xFF60A5FA) 
+                              : const Color(0xFF4A90E2), 
+                          width: 2,
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _textController,
+                        focusNode: _textFieldFocus,
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        decoration: const InputDecoration(
+                          hintText: 'Tap to activate',
+                          hintStyle: TextStyle(color: Colors.white38),
+                          border: InputBorder.none,
+                          isDense: true,
+                        ),
+>>>>>>> Stashed changes
                       ),
                     ),
                     Positioned(
