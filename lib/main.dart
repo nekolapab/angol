@@ -31,8 +31,28 @@ class AngolApp extends StatelessWidget {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    if (kIsWeb) {
+      // Handle the redirect result to complete the sign-in process
+      FirebaseAuth.instance.getRedirectResult().then((result) {
+        // The auth state will be updated automatically via the stream
+        // No need to do anything here unless you want to handle success/failure
+      }).catchError((error) {
+        // Silently ignore if no redirect is pending, or log if needed
+        // You can add logging here if desired
+      });
+    }
+  }
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {

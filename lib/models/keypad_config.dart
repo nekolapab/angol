@@ -11,8 +11,8 @@ class KeypadConfig {
   ];
   
   static const List<String> outerLongPress = [
-    'z', 'lh', 'h', 'n', 'y', 'r', 
-    'j', 'ng', 'q', 'v', 'w', 'm'
+    'z', 'lh', 'h', 'n', 'y', 'r',
+    'j', 'nq', 'q', 'v', 'w', 'm'
   ];
   
   static const List<String> innerLongPressNumber = ['-', '/', ':', ')', '}', ''];

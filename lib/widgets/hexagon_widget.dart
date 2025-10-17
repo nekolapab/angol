@@ -36,10 +36,11 @@ class HexagonWidget extends StatefulWidget {
 
 class _HexagonWidgetState extends State<HexagonWidget> {
   bool _isHovering = false;
+  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
-    final displayBgColor = widget.isPressed
+    final displayBgColor = (widget.isPressed || _isPressed)
         ? KeypadConfig.getComplementaryColor(widget.backgroundColor)
         : widget.backgroundColor;
 
@@ -55,6 +56,9 @@ class _HexagonWidgetState extends State<HexagonWidget> {
         widget.onHover?.call(false);
       },
       child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
         onTap: widget.onTap,
         onLongPress: widget.onLongPress,
         child: Transform.rotate(
@@ -84,18 +88,19 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                                   ),
                                 ),
                                 Text(
-                                  '-',
+                                  ' ',
                                   style: TextStyle(
-                                    color: finalTextColor.withOpacity(0.5),
-                                    fontSize: widget.size * 0.25,
+                                    color: finalTextColor,
+                                    fontSize: widget.size * 0.35,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 Text(
                                   widget.secondaryLabel!,
                                   style: TextStyle(
-                                    color: finalTextColor.withOpacity(0.7),
-                                    fontSize: widget.size * 0.3,
-                                    fontWeight: FontWeight.normal,
+                                    color: finalTextColor,
+                                    fontSize: widget.size * 0.35,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],

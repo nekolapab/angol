@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/hexagon_models.dart';
@@ -30,7 +29,6 @@ class _AngolScreenState extends State<AngolScreen> {
     const ModuleData(id: 'module6', name: '', color: Color(0xFFFF00FF), position: 5),
   ];
 
-  String _pressedHex = '';
   bool _angolPressed = false;
 
   @override
@@ -58,25 +56,17 @@ class _AngolScreenState extends State<AngolScreen> {
       );
 
   void _onHexTap(String char) {
-    setState(() => _pressedHex = char);
     HapticFeedback.lightImpact();
     inputService.addCharacter(char);
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) setState(() => _pressedHex = '');
-    });
   }
 
   void _onHexLongPress(String char) {
-    setState(() => _pressedHex = char);
     HapticFeedback.mediumImpact();
     if (char == '⌫') {
       inputService.deleteRight();
     } else {
       inputService.addCharacter(char);
     }
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) setState(() => _pressedHex = '');
-    });
   }
 
   void _toggleModule(int index) {
@@ -223,7 +213,7 @@ class _AngolScreenState extends State<AngolScreen> {
             backgroundColor: hexColor,
             textColor: KeypadConfig.getComplementaryColor(hexColor),
             size: geometry.hexWidth,
-            isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
+            isPressed: false,
             rotationAngle: geometry.rotationAngle,
             onTap: () => _onHexTap(tapLabel),
             onLongPress:
@@ -260,7 +250,7 @@ class _AngolScreenState extends State<AngolScreen> {
             backgroundColor: hexColor,
             textColor: KeypadConfig.getComplementaryColor(hexColor),
             size: geometry.hexWidth,
-            isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
+            isPressed: false,
             rotationAngle: geometry.rotationAngle,
             onTap: () => _onHexTap(tapLabel),
             onLongPress: () => _onHexLongPress(longPressLabel),

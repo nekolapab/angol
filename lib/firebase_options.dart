@@ -27,19 +27,20 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBGxVHOplqH8dZN9vQY0xK_ZL6mJ3gP8nE',
-    appId: '1:697321034497:android:YOUR_ANDROID_APP_ID',
+    apiKey: 'AIzaSyA90vksMh_iC-Bn2q0TiprVA2Ue1J8E0Uw',
+    appId: '1:697321034497:android:a077e11aa9631f59da8100',
     messagingSenderId: '697321034497',
     projectId: 'angol-38753',
     storageBucket: 'angol-38753.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBGxVHOplqH8dZN9vQY0xK_ZL6mJ3gP8nE',
-    appId: '1:697321034497:ios:YOUR_IOS_APP_ID',
+    apiKey: 'AIzaSyC9r4nG7Aw-HUNam1APnEQjQzdfW-hYpng',
+    appId: '1:697321034497:ios:54764b52235a4565da8100',
     messagingSenderId: '697321034497',
     projectId: 'angol-38753',
     storageBucket: 'angol-38753.appspot.com',
     iosBundleId: 'com.nekolapab.angol',
   );
+
 }
