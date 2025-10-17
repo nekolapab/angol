@@ -1,4 +1,9 @@
 {
   "IDX.agenticWorkspace": true,
+<<<<<<< Updated upstream
   "dart.devToolsBrowser": "default"
+=======
+  "blackbox.mcp.mode": "server-use-only",
+  "blackbox.mcpMarketplace.enabled": false
+>>>>>>> Stashed changes
 }

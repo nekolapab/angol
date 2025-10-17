@@ -17,8 +17,16 @@ class HexGeometry {
   double get rotationAngle => isLetterMode ? 0.0 : pi / 6;
 
   HexagonPosition axialToPixel(int q, int r) {
-    final x = hexSize * (sqrt(3) * q + sqrt(3) / 2 * r);
-    final y = hexSize * (3 / 2) * r;
+    double x, y;
+    if (isLetterMode) {
+      // Pointed-top
+      x = hexSize * (sqrt(3) * q + sqrt(3) / 2 * r);
+      y = hexSize * (3 / 2) * r;
+    } else {
+      // Flat-top - adjusted for no spacing between hexagons
+      x = hexSize * 2 * q;
+      y = hexSize * sqrt(3) * r;
+    }
     return HexagonPosition(
       x: center.x + x,
       y: center.y + y,

@@ -64,4 +64,10 @@ class InputService extends ChangeNotifier {
     _inputText = '';
     notifyListeners();
   }
+
+  // Don't dispose singleton
+  @override
+  void dispose() {
+    // Do nothing - singleton should persist
+  }
 }
