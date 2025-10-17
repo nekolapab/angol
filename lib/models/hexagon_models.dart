@@ -44,18 +44,18 @@ class ModuleData {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'color': color.value,
-    'position': position,
-    'isActive': isActive,
-  };
+        'id': id,
+        'name': name,
+        'color': color.value,
+        'position': position,
+        'isActive': isActive,
+      };
 
   factory ModuleData.fromJson(Map<String, dynamic> json) => ModuleData(
-    id: json['id'],
-    name: json['name'],
-    color: Color(json['color']),
-    position: json['position'],
-    isActive: json['isActive'] ?? false,
-  );
+        id: json['id'],
+        name: json['name'],
+        color: Color(json['color']),
+        position: json['position'],
+        isActive: json['isActive'] ?? false,
+      );
 }

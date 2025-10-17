@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
@@ -42,5 +43,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'angol-38753.appspot.com',
     iosBundleId: 'com.nekolapab.angol',
   );
-
 }

@@ -3,20 +3,47 @@ import 'package:flutter/material.dart';
 class KeypadConfig {
   static const List<String> innerLetterMode = ['a', 'e', 'i', 'u', 'o', '⌫'];
   static const List<String> innerNumberMode = ['+', '*', '=', '(', '{', '⌫'];
-  
+
   // Clockwise from 1 o'clock
   static const List<String> outerTap = [
-    's', 'l', 'lx', 'x', 'd', 't', 
-    'c', 'g', 'k', 'f', 'b', 'p'
+    's',
+    'l',
+    'lx',
+    'x',
+    'd',
+    't',
+    'c',
+    'g',
+    'k',
+    'f',
+    'b',
+    'p'
   ];
-  
+
   static const List<String> outerLongPress = [
-    'z', 'lh', 'h', 'n', 'y', 'r',
-    'j', 'nq', 'q', 'v', 'w', 'm'
+    'z',
+    'lh',
+    'h',
+    'n',
+    'y',
+    'r',
+    'j',
+    'nq',
+    'q',
+    'v',
+    'w',
+    'm'
   ];
-  
-  static const List<String> innerLongPressNumber = ['-', '/', ':', ')', '}', ''];
-  
+
+  static const List<String> innerLongPressNumber = [
+    '-',
+    '/',
+    ':',
+    ')',
+    '}',
+    ''
+  ];
+
   // 12 rainbow colors for outer ring
   static const List<Color> rainbowColors = [
     Color(0xFFFF0000), // red
@@ -32,7 +59,7 @@ class KeypadConfig {
     Color(0xFFFF00FF), // fuchsia
     Color(0xFF800000), // maroon
   ];
-  
+
   // Complementary colors
   static Color getComplementaryColor(Color color) {
     return Color.fromARGB(

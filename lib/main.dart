@@ -100,7 +100,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.blue.shade900,
                 backgroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
               onPressed: () => _signInWithGoogle(context),
               child: const Text('Sign in with Google'),

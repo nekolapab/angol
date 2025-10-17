@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 
 class InputService extends ChangeNotifier {
-  static final InputService _instance = InputService._internal();
+  static final InputService _instance = InputService._();
 
   factory InputService() {
     return _instance;
   }
 
-  InputService._internal();
+  InputService._();
 
   String _inputText = '';
   bool _isLetterMode = true;
@@ -23,7 +23,7 @@ class InputService extends ChangeNotifier {
       deleteLeft();
       return;
     }
-    
+
     String finalChar = _shouldCapitalize ? char.toUpperCase() : char;
     _inputText += finalChar;
     _shouldCapitalize = false;
@@ -40,6 +40,7 @@ class InputService extends ChangeNotifier {
   void deleteRight() {
     deleteLeft();
   }
+
   void toggleMode() {
     _isLetterMode = !_isLetterMode;
     notifyListeners();
@@ -63,11 +64,5 @@ class InputService extends ChangeNotifier {
   void clearText() {
     _inputText = '';
     notifyListeners();
-  }
-
-  // Don't dispose singleton
-  @override
-  void dispose() {
-    // Do nothing - singleton should persist
   }
 }

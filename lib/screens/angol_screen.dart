@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/hexagon_models.dart';
@@ -20,12 +19,18 @@ class _AngolScreenState extends State<AngolScreen> {
   final TextEditingController _textController = TextEditingController();
 
   List<ModuleData> modules = [
-    const ModuleData(id: 'dayl', name: 'dayl', color: Color(0xFFFF0000), position: 0),
-    const ModuleData(id: 'keypad', name: 'kepad', color: Color(0xFFFFFF00), position: 1),
-    const ModuleData(id: 'module3', name: '', color: Color(0xFF00FF00), position: 2),
-    const ModuleData(id: 'module4', name: '', color: Color(0xFF00FFFF), position: 3),
-    const ModuleData(id: 'module5', name: '', color: Color(0xFF0000FF), position: 4),
-    const ModuleData(id: 'module6', name: '', color: Color(0xFFFF00FF), position: 5),
+    const ModuleData(
+        id: 'dayl', name: 'dayl', color: Color(0xFFFF0000), position: 0),
+    const ModuleData(
+        id: 'keypad', name: 'kepad', color: Color(0xFFFFFF00), position: 1),
+    const ModuleData(
+        id: 'module3', name: '', color: Color(0xFF00FF00), position: 2),
+    const ModuleData(
+        id: 'module4', name: '', color: Color(0xFF00FFFF), position: 3),
+    const ModuleData(
+        id: 'module5', name: '', color: Color(0xFF0000FF), position: 4),
+    const ModuleData(
+        id: 'module6', name: '', color: Color(0xFFFF00FF), position: 5),
   ];
 
   String _pressedHex = '';
@@ -187,14 +192,15 @@ class _AngolScreenState extends State<AngolScreen> {
       }).toList(),
     );
   }
-  
+
   Widget _buildKeypadRing() {
     if (!_isKeypadVisible) return const SizedBox.shrink();
-    
+
     // Build inner ring
     final innerCoords = geometry.getInnerRingCoordinates();
-    final innerLabels =
-        inputService.isLetterMode ? KeypadConfig.innerLetterMode : KeypadConfig.innerNumberMode;
+    final innerLabels = inputService.isLetterMode
+        ? KeypadConfig.innerLetterMode
+        : KeypadConfig.innerNumberMode;
     final innerLongPress = inputService.isLetterMode
         ? List.filled(6, '')
         : KeypadConfig.innerLongPressNumber;
@@ -211,8 +217,12 @@ class _AngolScreenState extends State<AngolScreen> {
           : const Color(0xFFFFFF00);
 
       return Positioned(
-        left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
-        top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
+        left: MediaQuery.of(context).size.width / 2 +
+            position.x -
+            geometry.hexWidth / 2,
+        top: MediaQuery.of(context).size.height / 2 +
+            position.y -
+            geometry.hexHeight / 2,
         child: HexagonWidget(
           label: tapLabel,
           secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
@@ -240,8 +250,12 @@ class _AngolScreenState extends State<AngolScreen> {
       final hexColor = KeypadConfig.rainbowColors[index];
 
       return Positioned(
-        left: MediaQuery.of(context).size.width / 2 + position.x - geometry.hexWidth / 2,
-        top: MediaQuery.of(context).size.height / 2 + position.y - geometry.hexHeight / 2,
+        left: MediaQuery.of(context).size.width / 2 +
+            position.x -
+            geometry.hexWidth / 2,
+        top: MediaQuery.of(context).size.height / 2 +
+            position.y -
+            geometry.hexHeight / 2,
         child: HexagonWidget(
           label: tapLabel,
           secondaryLabel: longPressLabel,
@@ -309,7 +323,9 @@ class _AngolScreenState extends State<AngolScreen> {
                             ),
                           ),
                           Text(
-                            inputService.isLetterMode ? 'Letter Mode' : 'Number Mode',
+                            inputService.isLetterMode
+                                ? 'Letter Mode'
+                                : 'Number Mode',
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
@@ -318,7 +334,8 @@ class _AngolScreenState extends State<AngolScreen> {
                           const SizedBox(height: 20),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.7),
                               borderRadius: BorderRadius.circular(8),
@@ -332,7 +349,8 @@ class _AngolScreenState extends State<AngolScreen> {
                             child: TextField(
                               controller: _textController,
                               focusNode: _textFieldFocus,
-                              style: const TextStyle(color: Colors.white, fontSize: 16),
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 16),
                               decoration: const InputDecoration(
                                 hintText: 'Tap to activate keypad',
                                 hintStyle: TextStyle(color: Colors.white38),

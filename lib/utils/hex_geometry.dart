@@ -32,7 +32,7 @@ class HexGeometry {
       y: center.y + y,
     );
   }
-  
+
   List<AxialCoordinate> getInnerRingCoordinates() {
     return const [
       AxialCoordinate(q: 1, r: -1),
@@ -43,7 +43,7 @@ class HexGeometry {
       AxialCoordinate(q: 0, r: -1),
     ];
   }
-  
+
   List<AxialCoordinate> getOuterRingCoordinates() {
     return const [
       AxialCoordinate(q: 2, r: -2),
