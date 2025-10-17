@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'screens/angol_screen.dart';
+import 'services/input_service.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -10,7 +12,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const AngolApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => InputService(),
+      child: const AngolApp(),
+    ),
+  );
 }
 
 class AngolApp extends StatelessWidget {
