@@ -15,6 +15,7 @@ dependencies:
   speech_to_text: any
   flutter_tts: any
   flutter_overlay_window: any
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:

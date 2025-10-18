@@ -1,0 +1,11 @@
+# This is a generated file; do not edit or check into version control.
+cloud_firestore=/home/user/.pub-cache/hosted/pub.dev/cloud_firestore-6.0.3/
+cloud_firestore_web=/home/user/.pub-cache/hosted/pub.dev/cloud_firestore_web-5.0.3/
+firebase_auth=/home/user/.pub-cache/hosted/pub.dev/firebase_auth-6.1.1/
+firebase_auth_web=/home/user/.pub-cache/hosted/pub.dev/firebase_auth_web-6.0.4/
+firebase_core=/home/user/.pub-cache/hosted/pub.dev/firebase_core-4.2.0/
+firebase_core_web=/home/user/.pub-cache/hosted/pub.dev/firebase_core_web-3.2.0/
+flutter_overlay_window=/home/user/.pub-cache/hosted/pub.dev/flutter_overlay_window-0.5.0/
+flutter_tts=/home/user/.pub-cache/hosted/pub.dev/flutter_tts-4.2.3/
+speech_to_text=/home/user/.pub-cache/hosted/pub.dev/speech_to_text-7.3.0/
+speech_to_text_windows=/home/user/.pub-cache/hosted/pub.dev/speech_to_text_windows-1.0.0+beta.8/

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../models/hexagon_models.dart';
-import '../models/keypad_config.dart';
 import '../utils/hex_geometry.dart';
 import '../services/input_service.dart';
-import '../widgets/hexagon_widget.dart';
+import '../widgets/center_angol_widget.dart';
+import '../widgets/keypad_ring_widget.dart';
+import '../widgets/module_ring_widget.dart';
 
 class AngolScreen extends StatefulWidget {
   const AngolScreen({super.key});
@@ -14,7 +16,7 @@ class AngolScreen extends StatefulWidget {
 }
 
 class _AngolScreenState extends State<AngolScreen> {
-  final InputService inputService = InputService();
+  late InputService inputService;
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
 
@@ -39,6 +41,7 @@ class _AngolScreenState extends State<AngolScreen> {
   @override
   void initState() {
     super.initState();
+    inputService = Provider.of<InputService>(context, listen: false);
     _textFieldFocus.addListener(() {
       inputService.setTextFieldFocus(_textFieldFocus.hasFocus);
     });
@@ -103,181 +106,6 @@ class _AngolScreenState extends State<AngolScreen> {
     return inputService.isTextFieldFocused || keypadModule.isActive;
   }
 
-  Widget _buildCenterAngol() {
-    const centerColor = Colors.black;
-    final complementaryColor = KeypadConfig.getComplementaryColor(centerColor);
-    return Positioned(
-      left: MediaQuery.of(context).size.width / 2 - geometry.hexWidth / 2,
-      top: MediaQuery.of(context).size.height / 2 - geometry.hexHeight / 2,
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _angolPressed = true),
-        onTapUp: (_) => setState(() => _angolPressed = false),
-        onTapCancel: () => setState(() => _angolPressed = false),
-        onTap: () {
-          if (inputService.isLetterMode) {
-            inputService.addCharacter(' ');
-          } else {
-            inputService.addCharacter('.');
-          }
-        },
-        onLongPress: () => inputService.toggleMode(),
-        onVerticalDragUpdate: (details) {
-          if (details.delta.dy < -5) inputService.setCapitalize();
-        },
-        child: HexagonWidget(
-          label: '',
-          backgroundColor: centerColor,
-          textColor: complementaryColor,
-          size: geometry.hexWidth,
-          isPressed: _angolPressed,
-          rotationAngle: geometry.rotationAngle,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                inputService.isLetterMode ? Icons.text_fields : Icons.numbers,
-                color: _angolPressed
-                    ? complementaryColor
-                    : KeypadConfig.getComplementaryColor(complementaryColor),
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                inputService.getDisplayText(),
-                style: TextStyle(
-                  color: _angolPressed
-                      ? complementaryColor
-                      : KeypadConfig.getComplementaryColor(complementaryColor),
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildModuleRing() {
-    if (_isKeypadVisible) return const SizedBox.shrink();
-
-    final innerCoords = geometry.getInnerRingCoordinates();
-    return Stack(
-      children: innerCoords.asMap().entries.map((entry) {
-        final index = entry.key;
-        final coord = entry.value;
-        final module = modules.firstWhere((m) => m.position == index);
-        final position = geometry.axialToPixel(coord.q, coord.r);
-        return Positioned(
-          left: MediaQuery.of(context).size.width / 2 +
-              position.x -
-              geometry.hexWidth / 2,
-          top: MediaQuery.of(context).size.height / 2 +
-              position.y -
-              geometry.hexHeight / 2,
-          child: HexagonWidget(
-            label: module.name,
-            backgroundColor: module.color,
-            textColor: KeypadConfig.getComplementaryColor(module.color),
-            size: geometry.hexWidth,
-            isPressed: module.isActive,
-            rotationAngle: geometry.rotationAngle,
-            onTap: () => _toggleModule(index),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildKeypadRing() {
-    if (!_isKeypadVisible) return const SizedBox.shrink();
-
-    // Build inner ring
-    final innerCoords = geometry.getInnerRingCoordinates();
-    final innerLabels = inputService.isLetterMode
-        ? KeypadConfig.innerLetterMode
-        : KeypadConfig.innerNumberMode;
-    final innerLongPress = inputService.isLetterMode
-        ? List.filled(6, '')
-        : KeypadConfig.innerLongPressNumber;
-
-    final innerRingWidgets = innerCoords.asMap().entries.map((entry) {
-      final index = entry.key;
-      final coord = entry.value;
-      final tapLabel = innerLabels[index];
-      final longPressLabel = innerLongPress[index];
-      final position = geometry.axialToPixel(coord.q, coord.r);
-
-      final hexColor = inputService.isLetterMode
-          ? KeypadConfig.rainbowColors[index % 6]
-          : const Color(0xFFFFFF00);
-
-      return Positioned(
-        left: MediaQuery.of(context).size.width / 2 +
-            position.x -
-            geometry.hexWidth / 2,
-        top: MediaQuery.of(context).size.height / 2 +
-            position.y -
-            geometry.hexHeight / 2,
-        child: HexagonWidget(
-          label: tapLabel,
-          secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
-          backgroundColor: hexColor,
-          textColor: KeypadConfig.getComplementaryColor(hexColor),
-          size: geometry.hexWidth,
-          isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
-          rotationAngle: geometry.rotationAngle,
-          onTap: () => _onHexTap(tapLabel),
-          onLongPress: longPressLabel.isNotEmpty
-              ? () => _onHexLongPress(longPressLabel)
-              : null,
-        ),
-      );
-    }).toList();
-
-    // Build outer ring
-    final outerCoords = geometry.getOuterRingCoordinates();
-    final outerRingWidgets = outerCoords.asMap().entries.map((entry) {
-      final index = entry.key;
-      final coord = entry.value;
-      final tapLabel = KeypadConfig.outerTap[index];
-      final longPressLabel = KeypadConfig.outerLongPress[index];
-      final position = geometry.axialToPixel(coord.q, coord.r);
-      final hexColor = KeypadConfig.rainbowColors[index];
-
-      return Positioned(
-        left: MediaQuery.of(context).size.width / 2 +
-            position.x -
-            geometry.hexWidth / 2,
-        top: MediaQuery.of(context).size.height / 2 +
-            position.y -
-            geometry.hexHeight / 2,
-        child: HexagonWidget(
-          label: tapLabel,
-          secondaryLabel: longPressLabel,
-          backgroundColor: hexColor,
-          textColor: KeypadConfig.getComplementaryColor(hexColor),
-          size: geometry.hexWidth,
-          isPressed: _pressedHex == tapLabel || _pressedHex == longPressLabel,
-          rotationAngle: geometry.rotationAngle,
-          onTap: () => _onHexTap(tapLabel),
-          onLongPress: () => _onHexLongPress(longPressLabel),
-        ),
-      );
-    }).toList();
-
-    return Stack(
-      children: [
-        ...outerRingWidgets,
-        ...innerRingWidgets,
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -292,17 +120,33 @@ class _AngolScreenState extends State<AngolScreen> {
                 stops: [0.0, 0.5, 1.0],
               ),
             ),
-            child: ListenableBuilder(
-              listenable: inputService,
-              builder: (context, _) {
+            child: Consumer<InputService>(
+              builder: (context, inputService, _) {
                 return Stack(
                   children: [
                     Center(
                       child: Stack(
                         children: [
-                          _buildKeypadRing(),
-                          _buildModuleRing(),
-                          _buildCenterAngol(),
+                          if (_isKeypadVisible)
+                            KeypadRingWidget(
+                              geometry: geometry,
+                              pressedHex: _pressedHex,
+                              onHexTap: _onHexTap,
+                              onHexLongPress: _onHexLongPress,
+                            )
+                          else
+                            ModuleRingWidget(
+                              geometry: geometry,
+                              modules: modules,
+                              onToggleModule: _toggleModule,
+                            ),
+                          CenterAngolWidget(
+                            geometry: geometry,
+                            isPressed: _angolPressed,
+                            onTapDown: () => setState(() => _angolPressed = true),
+                            onTapUp: () => setState(() => _angolPressed = false),
+                            onTapCancel: () => setState(() => _angolPressed = false),
+                          ),
                         ],
                       ),
                     ),
@@ -377,7 +221,6 @@ class _AngolScreenState extends State<AngolScreen> {
     _textFieldFocus.dispose();
     _textController.dispose();
     inputService.removeListener(_syncTextController);
-    inputService.dispose();
     super.dispose();
   }
 }
