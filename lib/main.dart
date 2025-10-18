@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'screens/angol_screen.dart';
 import 'services/input_service.dart';
 import 'firebase_options.dart';
+import 'dart:developer';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,11 +53,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
     if (kIsWeb) {
       // Handle the redirect result to complete the sign-in process
       FirebaseAuth.instance.getRedirectResult().then((result) {
-        // The auth state will be updated automatically via the stream
-        // No need to do anything here unless you want to handle success/failure
+        log('getRedirectResult success: ${result.user}');
       }).catchError((error) {
-        // Silently ignore if no redirect is pending, or log if needed
-        // You can add logging here if desired
+        log('getRedirectResult error: $error');
       });
     }
   }
@@ -86,6 +85,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        log('Auth state snapshot: $snapshot');
         // User is logged in
         if (snapshot.hasData) {
           return const AngolScreen();
