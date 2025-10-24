@@ -46,6 +46,7 @@ class ModuleData {
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
+        // ignore: deprecated_member_use
         'color': color.value,
         'position': position,
         'isActive': isActive,

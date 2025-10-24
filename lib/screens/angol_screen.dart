@@ -17,8 +17,7 @@ class AngolScreen extends StatefulWidget {
 
 class _AngolScreenState extends State<AngolScreen> {
   late InputService inputService;
-  final FocusNode _textFieldFocus = FocusNode();
-  final TextEditingController _textController = TextEditingController();
+
 
   List<ModuleData> modules = [
     const ModuleData(
@@ -42,19 +41,6 @@ class _AngolScreenState extends State<AngolScreen> {
   void initState() {
     super.initState();
     inputService = Provider.of<InputService>(context, listen: false);
-    _textFieldFocus.addListener(() {
-      inputService.setTextFieldFocus(_textFieldFocus.hasFocus);
-    });
-    inputService.addListener(_syncTextController);
-  }
-
-  void _syncTextController() {
-    if (_textController.text != inputService.inputText) {
-      _textController.text = inputService.inputText;
-      _textController.selection = TextSelection.fromPosition(
-        TextPosition(offset: _textController.text.length),
-      );
-    }
   }
 
   HexGeometry get geometry => HexGeometry(
@@ -63,27 +49,21 @@ class _AngolScreenState extends State<AngolScreen> {
       );
 
   void _onHexTap(String char) {
-    HapticFeedback.lightImpact();
     inputService.addCharacter(char);
-    _syncTextController();
+    // _syncTextController();
     setState(() => _pressedHex = char);
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) setState(() => _pressedHex = '');
-    });
+    if (mounted) setState(() => _pressedHex = '');
   }
 
   void _onHexLongPress(String char) {
-    HapticFeedback.mediumImpact();
     if (char == '⌫') {
       inputService.deleteRight();
     } else {
       inputService.addCharacter(char);
     }
-    _syncTextController();
+    // _syncTextController();
     setState(() => _pressedHex = char);
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) setState(() => _pressedHex = '');
-    });
+    if (mounted) setState(() => _pressedHex = '');
   }
 
   void _toggleModule(int index) {
@@ -103,7 +83,7 @@ class _AngolScreenState extends State<AngolScreen> {
 
   bool get _isKeypadVisible {
     final keypadModule = modules.firstWhere((m) => m.id == 'keypad');
-    return inputService.isTextFieldFocused || keypadModule.isActive;
+    return keypadModule.isActive;
   }
 
   @override
@@ -133,6 +113,7 @@ class _AngolScreenState extends State<AngolScreen> {
                               pressedHex: _pressedHex,
                               onHexTap: _onHexTap,
                               onHexLongPress: _onHexLongPress,
+                              moduleColors: modules.map((m) => m.color).toList(),
                             )
                           else
                             ModuleRingWidget(
@@ -150,62 +131,7 @@ class _AngolScreenState extends State<AngolScreen> {
                         ],
                       ),
                     ),
-                    Positioned(
-                      top: 100,
-                      left: 20,
-                      right: 20,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text(
-                            'ANGOL',
-                            style: TextStyle(
-                              color: Color(0xFF4A90E2),
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          Text(
-                            inputService.isLetterMode
-                                ? 'Letter Mode'
-                                : 'Number Mode',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: _textFieldFocus.hasFocus
-                                    ? const Color(0xFF60A5FA)
-                                    : const Color(0xFF4A90E2),
-                                width: 2,
-                              ),
-                            ),
-                            child: TextField(
-                              controller: _textController,
-                              focusNode: _textFieldFocus,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 16),
-                              decoration: const InputDecoration(
-                                hintText: 'Tap to activate keypad',
-                                hintStyle: TextStyle(color: Colors.white38),
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+
                   ],
                 );
               },
@@ -218,9 +144,6 @@ class _AngolScreenState extends State<AngolScreen> {
 
   @override
   void dispose() {
-    _textFieldFocus.dispose();
-    _textController.dispose();
-    inputService.removeListener(_syncTextController);
     super.dispose();
   }
 }

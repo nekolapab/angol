@@ -15,6 +15,8 @@ class HexagonWidget extends StatefulWidget {
   final Widget? child;
   final double rotationAngle;
 
+  final double? fontSize;
+
   const HexagonWidget({
     super.key,
     required this.label,
@@ -28,6 +30,7 @@ class HexagonWidget extends StatefulWidget {
     this.onHover,
     this.child,
     this.rotationAngle = 0.0,
+    this.fontSize,
   });
 
   @override
@@ -40,7 +43,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final displayBgColor = (widget.isPressed || _isPressed)
+    final displayBgColor = _isPressed
         ? KeypadConfig.getComplementaryColor(widget.backgroundColor)
         : widget.backgroundColor;
 
@@ -70,50 +73,47 @@ class _HexagonWidgetState extends State<HexagonWidget> {
               painter: HexagonPainter(
                 color: displayBgColor,
                 glowIntensity: _isHovering ? 0.8 : 0.0,
+                size: Size(widget.size, widget.size * 2 / math.sqrt(3)),
               ),
               child: Transform.rotate(
                 angle: -widget.rotationAngle,
-                child: Center(
-                  child: widget.child ??
-                      (widget.secondaryLabel != null
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  widget.label,
-                                  style: TextStyle(
-                                    color: finalTextColor,
-                                    fontSize: widget.size * 0.35,
-                                    fontWeight: FontWeight.bold,
+                child: Transform.translate(
+                  offset: Offset(0, 0), // Remove vertical offset
+                  child: Center(
+                    child: widget.child ??
+                        (widget.secondaryLabel != null
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    widget.label,
+                                    style: TextStyle(
+                                      color: finalTextColor,
+                                      fontSize: widget.fontSize ?? widget.size * 0.35,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  ' ',
-                                  style: TextStyle(
-                                    color: finalTextColor,
-                                    fontSize: widget.size * 0.35,
-                                    fontWeight: FontWeight.bold,
+                                  const SizedBox(width: 12), // Add space between labels
+                                  Text(
+                                    widget.secondaryLabel!,
+                                    style: TextStyle(
+                                      color: finalTextColor,
+                                      fontSize: widget.fontSize ?? widget.size * 0.35,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
+                                ],
+                              )
+                            : Text(
+                                widget.label,
+                                style: TextStyle(
+                                  color: finalTextColor,
+                                  fontSize: widget.fontSize ?? widget.size * 0.35,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                Text(
-                                  widget.secondaryLabel!,
-                                  style: TextStyle(
-                                    color: finalTextColor,
-                                    fontSize: widget.size * 0.35,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              widget.label,
-                              style: TextStyle(
-                                color: finalTextColor,
-                                fontSize: widget.size * 0.35,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            )),
+                                textAlign: TextAlign.center,
+                              )),
+                  ),
                 ),
               ),
             ),
@@ -127,10 +127,12 @@ class _HexagonWidgetState extends State<HexagonWidget> {
 class HexagonPainter extends CustomPainter {
   final Color color;
   final double glowIntensity;
+  final Size size;
 
   HexagonPainter({
     required this.color,
     this.glowIntensity = 0.0,
+    required this.size,
   });
 
   @override
@@ -143,7 +145,7 @@ class HexagonPainter extends CustomPainter {
 
     if (glowIntensity > 0) {
       final glowPaint = Paint()
-        ..color = color.withOpacity(glowIntensity * 0.6)
+        ..color = color.withAlpha((255 * glowIntensity * 0.6).round())
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
       canvas.drawPath(path, glowPaint);
     }
@@ -151,7 +153,7 @@ class HexagonPainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     final borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.2)
+      ..color = Colors.white.withAlpha(51)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
     canvas.drawPath(path, borderPaint);

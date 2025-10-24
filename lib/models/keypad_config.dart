@@ -35,6 +35,36 @@ class KeypadConfig {
     'm'
   ];
 
+  static const List<String> outerTapNumber = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '0',
+    'A',
+    'O'
+  ];
+
+  static const List<String> outerLongPressNumber = [
+    '!',
+    '!#',
+    '\$',
+    '%',
+    '^',
+    '&',
+    '*',
+    '(',
+    ')',
+    '_',
+    '+',
+    '~'
+  ];
+
   static const List<String> innerLongPressNumber = [
     '-',
     '/',
@@ -63,9 +93,13 @@ class KeypadConfig {
   // Complementary colors
   static Color getComplementaryColor(Color color) {
     return Color.fromARGB(
-      color.alpha,
+      // ignore: deprecated_member_use
+      color.alpha, // Reverted change, analyzer is wrong
+      // ignore: deprecated_member_use
       255 - color.red,
+      // ignore: deprecated_member_use
       255 - color.green,
+      // ignore: deprecated_member_use
       255 - color.blue,
     );
   }

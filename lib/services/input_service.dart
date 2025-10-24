@@ -58,7 +58,7 @@ class InputService extends ChangeNotifier {
   String getDisplayText() {
     if (_inputText.isEmpty) return '';
     if (_inputText.length <= 7) return _inputText;
-    return '...${_inputText.substring(_inputText.length - 7)}';
+    return _inputText.substring(_inputText.length - 7);
   }
 
   void clearText() {

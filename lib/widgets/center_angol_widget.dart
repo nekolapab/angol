@@ -52,31 +52,20 @@ class CenterAngolWidget extends StatelessWidget {
           size: geometry.hexWidth,
           isPressed: isPressed,
           rotationAngle: geometry.rotationAngle,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                inputService.isLetterMode ? Icons.text_fields : Icons.numbers,
-                color: isPressed
-                    ? complementaryColor
-                    : KeypadConfig.getComplementaryColor(complementaryColor),
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
+          child: Consumer<InputService>(
+            builder: (context, inputService, child) {
+              return Text(
                 inputService.getDisplayText(),
                 style: TextStyle(
-                  color: isPressed
-                      ? complementaryColor
-                      : KeypadConfig.getComplementaryColor(complementaryColor),
-                  fontSize: 12,
+                  color: complementaryColor,
+                  fontSize: geometry.hexWidth * 0.25,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),

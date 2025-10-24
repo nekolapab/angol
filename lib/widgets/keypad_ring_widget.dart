@@ -10,6 +10,7 @@ class KeypadRingWidget extends StatelessWidget {
   final String pressedHex;
   final Function(String) onHexTap;
   final Function(String) onHexLongPress;
+  final List<Color> moduleColors;
 
   const KeypadRingWidget({
     super.key,
@@ -17,6 +18,7 @@ class KeypadRingWidget extends StatelessWidget {
     required this.pressedHex,
     required this.onHexTap,
     required this.onHexLongPress,
+    required this.moduleColors,
   });
 
   @override
@@ -39,9 +41,7 @@ class KeypadRingWidget extends StatelessWidget {
       final longPressLabel = innerLongPress[index];
       final position = geometry.axialToPixel(coord.q, coord.r);
 
-      final hexColor = inputService.isLetterMode
-          ? KeypadConfig.rainbowColors[index % 6]
-          : const Color(0xFFFFFF00);
+      final hexColor = moduleColors[index];
 
       return Positioned(
         left: MediaQuery.of(context).size.width / 2 +
@@ -62,17 +62,25 @@ class KeypadRingWidget extends StatelessWidget {
           onLongPress: longPressLabel.isNotEmpty
               ? () => onHexLongPress(longPressLabel)
               : null,
+          fontSize: geometry.hexWidth * 0.5,
         ),
       );
     }).toList();
 
     // Build outer ring
     final outerCoords = geometry.getOuterRingCoordinates();
+    final outerTapLabels = inputService.isLetterMode
+        ? KeypadConfig.outerTap
+        : KeypadConfig.outerTapNumber;
+    final outerLongPressLabels = inputService.isLetterMode
+        ? KeypadConfig.outerLongPress
+        : KeypadConfig.outerLongPressNumber;
+
     final outerRingWidgets = outerCoords.asMap().entries.map((entry) {
       final index = entry.key;
       final coord = entry.value;
-      final tapLabel = KeypadConfig.outerTap[index];
-      final longPressLabel = KeypadConfig.outerLongPress[index];
+      final tapLabel = outerTapLabels[index];
+      final longPressLabel = outerLongPressLabels[index];
       final position = geometry.axialToPixel(coord.q, coord.r);
       final hexColor = KeypadConfig.rainbowColors[index];
 
@@ -85,14 +93,17 @@ class KeypadRingWidget extends StatelessWidget {
             geometry.hexHeight / 2,
         child: HexagonWidget(
           label: tapLabel,
-          secondaryLabel: longPressLabel,
+          secondaryLabel: inputService.isLetterMode ? longPressLabel : null,
           backgroundColor: hexColor,
           textColor: KeypadConfig.getComplementaryColor(hexColor),
           size: geometry.hexWidth,
           isPressed: pressedHex == tapLabel || pressedHex == longPressLabel,
           rotationAngle: geometry.rotationAngle,
           onTap: () => onHexTap(tapLabel),
-          onLongPress: () => onHexLongPress(longPressLabel),
+          onLongPress: inputService.isLetterMode
+              ? () => onHexLongPress(longPressLabel)
+              : null,
+          fontSize: geometry.hexWidth * 0.5,
         ),
       );
     }).toList();
