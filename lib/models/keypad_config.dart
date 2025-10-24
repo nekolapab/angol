@@ -90,6 +90,15 @@ class KeypadConfig {
     Color(0xFF800000), // maroon
   ];
 
+  static final List<Color> innerRingColors = [
+    rainbowColors[0], // red
+    rainbowColors[2], // yellow
+    rainbowColors[4], // green
+    rainbowColors[6], // aqua
+    rainbowColors[8], // blue
+    rainbowColors[10], // fuchsia
+  ];
+
   // Complementary colors
   static Color getComplementaryColor(Color color) {
     return Color.fromARGB(

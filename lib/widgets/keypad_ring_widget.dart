@@ -7,18 +7,14 @@ import 'hexagon_widget.dart';
 
 class KeypadRingWidget extends StatelessWidget {
   final HexGeometry geometry;
-  final String pressedHex;
   final Function(String) onHexTap;
   final Function(String) onHexLongPress;
-  final List<Color> moduleColors;
 
   const KeypadRingWidget({
     super.key,
     required this.geometry,
-    required this.pressedHex,
     required this.onHexTap,
     required this.onHexLongPress,
-    required this.moduleColors,
   });
 
   @override
@@ -41,7 +37,7 @@ class KeypadRingWidget extends StatelessWidget {
       final longPressLabel = innerLongPress[index];
       final position = geometry.axialToPixel(coord.q, coord.r);
 
-      final hexColor = moduleColors[index];
+      final hexColor = KeypadConfig.innerRingColors[index % 6];
 
       return Positioned(
         left: MediaQuery.of(context).size.width / 2 +
@@ -56,13 +52,12 @@ class KeypadRingWidget extends StatelessWidget {
           backgroundColor: hexColor,
           textColor: KeypadConfig.getComplementaryColor(hexColor),
           size: geometry.hexWidth,
-          isPressed: pressedHex == tapLabel || pressedHex == longPressLabel,
           rotationAngle: geometry.rotationAngle,
           onTap: () => onHexTap(tapLabel),
           onLongPress: longPressLabel.isNotEmpty
               ? () => onHexLongPress(longPressLabel)
               : null,
-          fontSize: geometry.hexWidth * 0.5,
+          fontSize: inputService.isLetterMode ? geometry.hexWidth * 0.5 : geometry.hexWidth * 0.67,
         ),
       );
     }).toList();
@@ -97,13 +92,12 @@ class KeypadRingWidget extends StatelessWidget {
           backgroundColor: hexColor,
           textColor: KeypadConfig.getComplementaryColor(hexColor),
           size: geometry.hexWidth,
-          isPressed: pressedHex == tapLabel || pressedHex == longPressLabel,
           rotationAngle: geometry.rotationAngle,
           onTap: () => onHexTap(tapLabel),
           onLongPress: inputService.isLetterMode
               ? () => onHexLongPress(longPressLabel)
               : null,
-          fontSize: geometry.hexWidth * 0.5,
+          fontSize: inputService.isLetterMode ? geometry.hexWidth * 0.5 : geometry.hexWidth * 0.67,
         ),
       );
     }).toList();

@@ -34,13 +34,28 @@ class _AngolScreenState extends State<AngolScreen> {
         id: 'module6', name: '', color: Color(0xFFFF00FF), position: 5),
   ];
 
-  String _pressedHex = '';
+  final FocusNode _textFieldFocus = FocusNode();
+  final TextEditingController _textController = TextEditingController();
+
   bool _angolPressed = false;
 
   @override
   void initState() {
     super.initState();
     inputService = Provider.of<InputService>(context, listen: false);
+    _textFieldFocus.addListener(() {
+      inputService.setTextFieldFocus(_textFieldFocus.hasFocus);
+    });
+    inputService.addListener(_syncTextController);
+  }
+
+  void _syncTextController() {
+    if (_textController.text != inputService.inputText) {
+      _textController.text = inputService.inputText;
+      _textController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _textController.text.length),
+      );
+    }
   }
 
   HexGeometry get geometry => HexGeometry(
@@ -49,21 +64,19 @@ class _AngolScreenState extends State<AngolScreen> {
       );
 
   void _onHexTap(String char) {
+    HapticFeedback.lightImpact();
     inputService.addCharacter(char);
-    // _syncTextController();
-    setState(() => _pressedHex = char);
-    if (mounted) setState(() => _pressedHex = '');
+    _syncTextController();
   }
 
   void _onHexLongPress(String char) {
+    HapticFeedback.mediumImpact();
     if (char == '⌫') {
       inputService.deleteRight();
     } else {
       inputService.addCharacter(char);
     }
-    // _syncTextController();
-    setState(() => _pressedHex = char);
-    if (mounted) setState(() => _pressedHex = '');
+    _syncTextController();
   }
 
   void _toggleModule(int index) {
@@ -110,10 +123,8 @@ class _AngolScreenState extends State<AngolScreen> {
                           if (_isKeypadVisible)
                             KeypadRingWidget(
                               geometry: geometry,
-                              pressedHex: _pressedHex,
                               onHexTap: _onHexTap,
                               onHexLongPress: _onHexLongPress,
-                              moduleColors: modules.map((m) => m.color).toList(),
                             )
                           else
                             ModuleRingWidget(
@@ -144,6 +155,9 @@ class _AngolScreenState extends State<AngolScreen> {
 
   @override
   void dispose() {
+    _textFieldFocus.dispose();
+    _textController.dispose();
+    inputService.removeListener(_syncTextController);
     super.dispose();
   }
 }

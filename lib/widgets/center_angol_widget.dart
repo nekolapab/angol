@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/input_service.dart';
-import '../models/keypad_config.dart';
 import '../utils/hex_geometry.dart';
 import 'hexagon_widget.dart';
 
@@ -24,8 +23,8 @@ class CenterAngolWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inputService = Provider.of<InputService>(context);
-    const centerColor = Colors.black;
-    final complementaryColor = KeypadConfig.getComplementaryColor(centerColor);
+    final centerHexBackgroundColor = inputService.isLetterMode ? Colors.white : Colors.black;
+    final centerHexTextColor = inputService.isLetterMode ? Colors.black : Colors.white;
 
     return Positioned(
       left: MediaQuery.of(context).size.width / 2 - geometry.hexWidth / 2,
@@ -46,9 +45,9 @@ class CenterAngolWidget extends StatelessWidget {
           if (details.delta.dy < -5) inputService.setCapitalize();
         },
         child: HexagonWidget(
-          label: '',
-          backgroundColor: centerColor,
-          textColor: complementaryColor,
+          label: inputService.isLetterMode ? ' ' : '.',
+          backgroundColor: centerHexBackgroundColor,
+          textColor: centerHexTextColor,
           size: geometry.hexWidth,
           isPressed: isPressed,
           rotationAngle: geometry.rotationAngle,
@@ -57,7 +56,7 @@ class CenterAngolWidget extends StatelessWidget {
               return Text(
                 inputService.getDisplayText(),
                 style: TextStyle(
-                  color: complementaryColor,
+                  color: centerHexTextColor,
                   fontSize: geometry.hexWidth * 0.25,
                   fontWeight: FontWeight.bold,
                 ),

@@ -59,9 +59,15 @@ class _HexagonWidgetState extends State<HexagonWidget> {
         widget.onHover?.call(false);
       },
       child: GestureDetector(
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTapCancel: () => setState(() => _isPressed = false),
+        onTapDown: (_) {
+          setState(() => _isPressed = true);
+        },
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+        },
+        onTapCancel: () {
+          setState(() => _isPressed = false);
+        },
         onTap: widget.onTap,
         onLongPress: widget.onLongPress,
         child: Transform.rotate(
@@ -104,16 +110,15 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                                   ),
                                 ],
                               )
-                            : Text(
-                                widget.label,
-                                style: TextStyle(
-                                  color: finalTextColor,
-                                  fontSize: widget.fontSize ?? widget.size * 0.35,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              )),
-                  ),
+                                                                                    : Text(
+                                                                                        widget.label,
+                                                                                        style: TextStyle(
+                                                                                          color: finalTextColor,
+                                                                                          fontSize: widget.fontSize ?? widget.size * 0.35,
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                        ),
+                                                                                        textAlign: TextAlign.center,
+                                                                                      )),                  ),
                 ),
               ),
             ),
@@ -123,7 +128,6 @@ class _HexagonWidgetState extends State<HexagonWidget> {
     );
   }
 }
-
 class HexagonPainter extends CustomPainter {
   final Color color;
   final double glowIntensity;
