@@ -37,8 +37,6 @@ class _AngolScreenState extends State<AngolScreen> {
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
 
-  bool _angolPressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -134,10 +132,6 @@ class _AngolScreenState extends State<AngolScreen> {
                             ),
                           CenterAngolWidget(
                             geometry: geometry,
-                            isPressed: _angolPressed,
-                            onTapDown: () => setState(() => _angolPressed = true),
-                            onTapUp: () => setState(() => _angolPressed = false),
-                            onTapCancel: () => setState(() => _angolPressed = false),
                           ),
                         ],
                       ),

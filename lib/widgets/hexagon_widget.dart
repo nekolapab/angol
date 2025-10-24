@@ -11,6 +11,7 @@ class HexagonWidget extends StatefulWidget {
   final bool isPressed;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final Function(DragUpdateDetails)? onVerticalDragUpdate;
   final Function(bool)? onHover;
   final Widget? child;
   final double rotationAngle;
@@ -27,6 +28,7 @@ class HexagonWidget extends StatefulWidget {
     this.isPressed = false,
     this.onTap,
     this.onLongPress,
+    this.onVerticalDragUpdate,
     this.onHover,
     this.child,
     this.rotationAngle = 0.0,
@@ -38,7 +40,6 @@ class HexagonWidget extends StatefulWidget {
 }
 
 class _HexagonWidgetState extends State<HexagonWidget> {
-  bool _isHovering = false;
   bool _isPressed = false;
 
   @override
@@ -51,11 +52,9 @@ class _HexagonWidgetState extends State<HexagonWidget> {
 
     return MouseRegion(
       onEnter: (_) {
-        setState(() => _isHovering = true);
         widget.onHover?.call(true);
       },
       onExit: (_) {
-        setState(() => _isHovering = false);
         widget.onHover?.call(false);
       },
       child: GestureDetector(
@@ -70,6 +69,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
         },
         onTap: widget.onTap,
         onLongPress: widget.onLongPress,
+        onVerticalDragUpdate: widget.onVerticalDragUpdate,
         child: Transform.rotate(
           angle: widget.rotationAngle,
           child: SizedBox(
@@ -78,7 +78,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
             child: CustomPaint(
               painter: HexagonPainter(
                 color: displayBgColor,
-                glowIntensity: _isHovering ? 0.8 : 0.0,
+                glowIntensity: _isPressed ? 0.8 : 0.0,
                 size: Size(widget.size, widget.size * 2 / math.sqrt(3)),
               ),
               child: Transform.rotate(

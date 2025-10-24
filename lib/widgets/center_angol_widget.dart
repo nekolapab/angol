@@ -6,33 +6,27 @@ import 'hexagon_widget.dart';
 
 class CenterAngolWidget extends StatelessWidget {
   final HexGeometry geometry;
-  final bool isPressed;
-  final VoidCallback onTapDown;
-  final VoidCallback onTapUp;
-  final VoidCallback onTapCancel;
 
   const CenterAngolWidget({
     super.key,
     required this.geometry,
-    required this.isPressed,
-    required this.onTapDown,
-    required this.onTapUp,
-    required this.onTapCancel,
   });
 
   @override
   Widget build(BuildContext context) {
     final inputService = Provider.of<InputService>(context);
-    final centerHexBackgroundColor = inputService.isLetterMode ? Colors.white : Colors.black;
-    final centerHexTextColor = inputService.isLetterMode ? Colors.black : Colors.white;
+    final centerHexBackgroundColor = inputService.isLetterMode ? Colors.black : Colors.white;
+    final centerHexTextColor = inputService.isLetterMode ? Colors.white : Colors.black;
 
     return Positioned(
       left: MediaQuery.of(context).size.width / 2 - geometry.hexWidth / 2,
       top: MediaQuery.of(context).size.height / 2 - geometry.hexHeight / 2,
-      child: GestureDetector(
-        onTapDown: (_) => onTapDown(),
-        onTapUp: (_) => onTapUp(),
-        onTapCancel: onTapCancel,
+      child: HexagonWidget(
+        label: inputService.isLetterMode ? ' ' : '.',
+        backgroundColor: centerHexBackgroundColor,
+        textColor: centerHexTextColor,
+        size: geometry.hexWidth,
+        rotationAngle: geometry.rotationAngle,
         onTap: () {
           if (inputService.isLetterMode) {
             inputService.addCharacter(' ');
@@ -44,28 +38,26 @@ class CenterAngolWidget extends StatelessWidget {
         onVerticalDragUpdate: (details) {
           if (details.delta.dy < -5) inputService.setCapitalize();
         },
-        child: HexagonWidget(
-          label: inputService.isLetterMode ? ' ' : '.',
-          backgroundColor: centerHexBackgroundColor,
-          textColor: centerHexTextColor,
-          size: geometry.hexWidth,
-          isPressed: isPressed,
-          rotationAngle: geometry.rotationAngle,
-          child: Consumer<InputService>(
-            builder: (context, inputService, child) {
-              return Text(
-                inputService.getDisplayText(),
-                style: TextStyle(
-                  color: centerHexTextColor,
-                  fontSize: geometry.hexWidth * 0.25,
-                  fontWeight: FontWeight.bold,
+        child: Consumer<InputService>(
+          builder: (context, inputService, child) {
+            return OverflowBox(
+              maxWidth: double.infinity,
+              alignment: Alignment.center,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  inputService.getDisplayText(),
+                  style: TextStyle(
+                    color: centerHexTextColor,
+                    fontSize: geometry.hexWidth * 0.33,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.start,
+                  maxLines: 1,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

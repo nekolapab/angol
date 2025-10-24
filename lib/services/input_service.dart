@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'dart:developer' as developer;
 
 class InputService extends ChangeNotifier {
   static final InputService _instance = InputService._();
@@ -63,6 +64,7 @@ class InputService extends ChangeNotifier {
 
   void clearText() {
     _inputText = '';
+    developer.log('InputService: _inputText cleared. New value: "$_inputText"');
     notifyListeners();
   }
 }
