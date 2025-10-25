@@ -22,7 +22,7 @@ class CenterAngolWidget extends StatelessWidget {
       left: MediaQuery.of(context).size.width / 2 - geometry.hexWidth / 2,
       top: MediaQuery.of(context).size.height / 2 - geometry.hexHeight / 2,
       child: HexagonWidget(
-        label: inputService.isLetterMode ? ' ' : '.',
+        label: inputService.isLetterMode ? ' .' : '. ',
         backgroundColor: centerHexBackgroundColor,
         textColor: centerHexTextColor,
         size: geometry.hexWidth,
@@ -34,7 +34,15 @@ class CenterAngolWidget extends StatelessWidget {
             inputService.addCharacter('.');
           }
         },
-        onLongPress: () => inputService.toggleMode(),
+        onLongPress: () {
+          final wasLetterMode = inputService.isLetterMode;
+          inputService.toggleMode();
+          if (wasLetterMode) {
+            inputService.addCharacter('.');
+          } else {
+            inputService.addCharacter(' ');
+          }
+        },
         onVerticalDragUpdate: (details) {
           if (details.delta.dy < -5) inputService.setCapitalize();
         },
