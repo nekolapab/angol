@@ -84,7 +84,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
               child: Transform.rotate(
                 angle: -widget.rotationAngle,
                 child: Transform.translate(
-                  offset: Offset(0, 0), // Remove vertical offset
+                  offset: const Offset(0, 0), // Remove vertical offset
                   child: Center(
                     child: widget.child ??
                         (widget.secondaryLabel != null
