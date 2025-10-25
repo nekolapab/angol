@@ -44,7 +44,7 @@ class CenterAngolWidget extends StatelessWidget {
               maxWidth: double.infinity,
               alignment: Alignment.center,
               child: Align(
-                alignment: Alignment.centerRight,
+                alignment: Alignment.centerLeft,
                 child: Text(
                   inputService.getDisplayText(),
                   style: TextStyle(
