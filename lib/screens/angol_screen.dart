@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/hexagon_models.dart';
 import '../utils/hex_geometry.dart';
 import '../services/input_service.dart';
+import '../state/angol_state.dart';
 import '../widgets/center_angol_widget.dart';
 import '../widgets/keypad_ring_widget.dart';
 import '../widgets/module_ring_widget.dart';
@@ -19,20 +20,7 @@ class _AngolScreenState extends State<AngolScreen> {
   late InputService inputService;
 
 
-  List<ModuleData> modules = [
-    const ModuleData(
-        id: 'dayl', name: 'dayl', color: Color(0xFFFF0000), position: 0),
-    const ModuleData(
-        id: 'keypad', name: 'kepad', color: Color(0xFFFFFF00), position: 1),
-    const ModuleData(
-        id: 'module3', name: '', color: Color(0xFF00FF00), position: 2),
-    const ModuleData(
-        id: 'module4', name: '', color: Color(0xFF00FFFF), position: 3),
-    const ModuleData(
-        id: 'module5', name: '', color: Color(0xFF0000FF), position: 4),
-    const ModuleData(
-        id: 'module6', name: '', color: Color(0xFFFF00FF), position: 5),
-  ];
+
 
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
@@ -64,7 +52,6 @@ class _AngolScreenState extends State<AngolScreen> {
   void _onHexTap(String char) {
     HapticFeedback.lightImpact();
     inputService.addCharacter(char);
-    _syncTextController();
   }
 
   void _onHexLongPress(String char) {
@@ -74,28 +61,9 @@ class _AngolScreenState extends State<AngolScreen> {
     } else {
       inputService.addCharacter(char);
     }
-    _syncTextController();
   }
 
-  void _toggleModule(int index) {
-    setState(() {
-      final tappedModule = modules.firstWhere((m) => m.position == index);
-      final bool wasActive = tappedModule.isActive;
 
-      modules = modules.map((m) {
-        if (m.position == index) {
-          return m.copyWith(isActive: !wasActive);
-        } else {
-          return m.copyWith(isActive: false);
-        }
-      }).toList();
-    });
-  }
-
-  bool get _isKeypadVisible {
-    final keypadModule = modules.firstWhere((m) => m.id == 'keypad');
-    return keypadModule.isActive;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,14 +79,14 @@ class _AngolScreenState extends State<AngolScreen> {
                 stops: [0.0, 0.5, 1.0],
               ),
             ),
-            child: Consumer<InputService>(
-              builder: (context, inputService, _) {
+            child: Consumer2<InputService, AngolState>(
+              builder: (context, inputService, angolState, _) {
                 return Stack(
                   children: [
                     Center(
                       child: Stack(
                         children: [
-                          if (_isKeypadVisible)
+                          if (angolState.isKeypadVisible)
                             KeypadRingWidget(
                               geometry: geometry,
                               onHexTap: _onHexTap,
@@ -127,8 +95,8 @@ class _AngolScreenState extends State<AngolScreen> {
                           else
                             ModuleRingWidget(
                               geometry: geometry,
-                              modules: modules,
-                              onToggleModule: _toggleModule,
+                              modules: angolState.modules,
+                              onToggleModule: angolState.toggleModule,
                             ),
                           CenterAngolWidget(
                             geometry: geometry,

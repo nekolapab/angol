@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'screens/angol_screen.dart';
 import 'services/input_service.dart';
+import 'state/angol_state.dart';
 import 'firebase_options.dart';
 import 'dart:developer';
 
@@ -14,12 +15,14 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => InputService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => InputService()),
+        ChangeNotifierProvider(create: (context) => AngolState()),
+      ],
       child: const AngolApp(),
     ),
-  );
-}
+  );}
 
 class AngolApp extends StatelessWidget {
   const AngolApp({super.key});
