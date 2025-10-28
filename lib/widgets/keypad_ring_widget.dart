@@ -32,6 +32,14 @@ class KeypadRingWidget extends StatelessWidget {
           }).toList()
         : KeypadConfig.innerLongPressNumber;
 
+    final longPressLabel = inputService.isLetterMode
+        ? KeypadConfig.innerLetterMode.map((label) {
+            // In letter mode, only backspace has a long press action (delete word)
+            // The character passed is still '⌫' but the handler in angol_screen knows it's a long press.
+            return label == '⌫' ? '⌫' : '';
+          }).toList()
+        : KeypadConfig.innerLongPressNumber;
+
     final innerRingWidgets = innerCoords.asMap().entries.map((entry) {
       final index = entry.key;
       final coord = entry.value;
@@ -40,6 +48,15 @@ class KeypadRingWidget extends StatelessWidget {
       final position = geometry.axialToPixel(coord.q, coord.r);
 
       final hexColor = KeypadConfig.innerRingColors[index % 6];
+
+      String? currentSecondaryLabel;
+
+      if (tapLabel == '⌫') {
+        currentSecondaryLabel = null; // Hide secondary backspace in all modes
+      } else {
+        currentSecondaryLabel =
+            longPressLabel.isNotEmpty ? longPressLabel : null;
+      }
 
       return Positioned(
         left: MediaQuery.of(context).size.width / 2 +
@@ -50,6 +67,7 @@ class KeypadRingWidget extends StatelessWidget {
             geometry.hexHeight / 2,
         child: HexagonWidget(
           label: tapLabel,
+          secondaryLabel: currentSecondaryLabel,
           backgroundColor: hexColor,
           textColor: KeypadConfig.getComplementaryColor(hexColor),
           size: geometry.hexWidth,
