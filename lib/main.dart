@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:provider/provider.dart';
 import 'screens/angol_screen.dart';
 import 'services/input_service.dart';
 import 'state/angol_state.dart';
 import 'firebase_options.dart';
-import 'dart:developer';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +20,8 @@ void main() async {
       ],
       child: const AngolApp(),
     ),
-  );}
+  );
+}
 
 class AngolApp extends StatelessWidget {
   const AngolApp({super.key});
@@ -37,36 +36,7 @@ class AngolApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF111111),
         useMaterial3: true,
       ),
-      home: const AuthWrapper(),
+      home: const AngolScreen(),
     );
-  }
-}
-
-class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  State<AuthWrapper> createState() => _AuthWrapperState();
-}
-
-class _AuthWrapperState extends State<AuthWrapper> {
-  @override
-  void initState() {
-    super.initState();
-    if (kIsWeb) {
-      // Handle the redirect result to complete the sign-in process
-      FirebaseAuth.instance.getRedirectResult().then((result) {
-        log('getRedirectResult success: ${result.user}');
-      }).catchError((error) {
-        log('getRedirectResult error: $error');
-      });
-    }
-  }
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    return const AngolScreen();
   }
 }

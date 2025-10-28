@@ -25,7 +25,11 @@ class KeypadRingWidget extends StatelessWidget {
         ? KeypadConfig.innerLetterMode
         : KeypadConfig.innerNumberMode;
     final innerLongPress = inputService.isLetterMode
-        ? List.filled(6, '')
+        ? KeypadConfig.innerLetterMode.map((label) {
+            // In letter mode, only backspace has a long press action (delete word)
+            // The character passed is still '⌫' but the handler in angol_screen knows it's a long press.
+            return label == '⌫' ? '⌫' : '';
+          }).toList()
         : KeypadConfig.innerLongPressNumber;
 
     final innerRingWidgets = innerCoords.asMap().entries.map((entry) {
@@ -46,16 +50,16 @@ class KeypadRingWidget extends StatelessWidget {
             geometry.hexHeight / 2,
         child: HexagonWidget(
           label: tapLabel,
-          secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
           backgroundColor: hexColor,
           textColor: KeypadConfig.getComplementaryColor(hexColor),
           size: geometry.hexWidth,
-          rotationAngle: geometry.rotationAngle,
-          onTap: () => onHexKeyPress(tapLabel, isLongPress: false),
+          onTapDown: (_) => onHexKeyPress(tapLabel, isLongPress: false),
           onLongPress: longPressLabel.isNotEmpty
               ? () => onHexKeyPress(longPressLabel, isLongPress: true)
               : null,
-          fontSize: inputService.isLetterMode ? geometry.hexWidth * 0.5 : geometry.hexWidth * 0.67,
+          fontSize: inputService.isLetterMode
+              ? geometry.hexWidth * 0.5
+              : geometry.hexWidth * 0.67,
         ),
       );
     }).toList();
@@ -91,11 +95,13 @@ class KeypadRingWidget extends StatelessWidget {
           textColor: KeypadConfig.getComplementaryColor(hexColor),
           size: geometry.hexWidth,
           rotationAngle: geometry.rotationAngle,
-          onTap: () => onHexKeyPress(tapLabel, isLongPress: false),
+          onTapDown: (_) => onHexKeyPress(tapLabel, isLongPress: false),
           onLongPress: inputService.isLetterMode
               ? () => onHexKeyPress(longPressLabel, isLongPress: true)
               : null,
-          fontSize: inputService.isLetterMode ? geometry.hexWidth * 0.5 : geometry.hexWidth * 0.67,
+          fontSize: inputService.isLetterMode
+              ? geometry.hexWidth * 0.5
+              : geometry.hexWidth * 0.67,
         ),
       );
     }).toList();

@@ -61,7 +61,7 @@ class KeypadConfig {
     '(',
     ')',
     '_',
-    '+',
+    '|',
     '~'
   ];
 
@@ -71,7 +71,7 @@ class KeypadConfig {
     ':',
     ')',
     '}',
-    ''
+    '⌫'
   ];
 
   // 12 rainbow colors for outer ring

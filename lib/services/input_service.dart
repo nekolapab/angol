@@ -52,8 +52,6 @@ class InputService extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
   void toggleMode() {
     _isLetterMode = !_isLetterMode;
     notifyListeners();

@@ -9,10 +9,11 @@ class HexagonWidget extends StatefulWidget {
   final Color textColor;
   final double size;
   final bool isPressed;
-  final VoidCallback? onTap;
+  final GestureTapDownCallback? onTapDown;
   final VoidCallback? onLongPress;
   final Function(DragUpdateDetails)? onVerticalDragUpdate;
   final Function(bool)? onHover;
+  final Function(bool isPressed)? onPressedStateChanged; // New callback
   final Widget? child;
   final double rotationAngle;
 
@@ -26,10 +27,11 @@ class HexagonWidget extends StatefulWidget {
     required this.textColor,
     required this.size,
     this.isPressed = false,
-    this.onTap,
+    this.onTapDown,
     this.onLongPress,
     this.onVerticalDragUpdate,
     this.onHover,
+    this.onPressedStateChanged, // New parameter
     this.child,
     this.rotationAngle = 0.0,
     this.fontSize,
@@ -48,7 +50,9 @@ class _HexagonWidgetState extends State<HexagonWidget> {
         ? KeypadConfig.getComplementaryColor(widget.backgroundColor)
         : widget.backgroundColor;
 
-    final finalTextColor = KeypadConfig.getComplementaryColor(displayBgColor);
+    final finalTextColor = _isPressed
+        ? KeypadConfig.getComplementaryColor(widget.textColor)
+        : widget.textColor;
 
     return MouseRegion(
       onEnter: (_) {
@@ -58,16 +62,19 @@ class _HexagonWidgetState extends State<HexagonWidget> {
         widget.onHover?.call(false);
       },
       child: GestureDetector(
-        onTapDown: (_) {
+        onTapDown: (details) {
           setState(() => _isPressed = true);
+          widget.onPressedStateChanged?.call(true);
+          widget.onTapDown?.call(details);
         },
         onTapUp: (_) {
           setState(() => _isPressed = false);
+          widget.onPressedStateChanged?.call(false);
         },
         onTapCancel: () {
           setState(() => _isPressed = false);
+          widget.onPressedStateChanged?.call(false);
         },
-        onTap: widget.onTap,
         onLongPress: widget.onLongPress,
         onVerticalDragUpdate: widget.onVerticalDragUpdate,
         child: Transform.rotate(
@@ -95,30 +102,35 @@ class _HexagonWidgetState extends State<HexagonWidget> {
                                     widget.label,
                                     style: TextStyle(
                                       color: finalTextColor,
-                                      fontSize: widget.fontSize ?? widget.size * 0.35,
+                                      fontSize:
+                                          widget.fontSize ?? widget.size * 0.35,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(width: 12), // Add space between labels
+                                  const SizedBox(
+                                      width: 12), // Add space between labels
                                   Text(
                                     widget.secondaryLabel!,
                                     style: TextStyle(
                                       color: finalTextColor,
-                                      fontSize: widget.fontSize ?? widget.size * 0.35,
+                                      fontSize:
+                                          widget.fontSize ?? widget.size * 0.35,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
                               )
-                                                                                    : Text(
-                                                                                        widget.label,
-                                                                                        style: TextStyle(
-                                                                                          color: finalTextColor,
-                                                                                          fontSize: widget.fontSize ?? widget.size * 0.35,
-                                                                                          fontWeight: FontWeight.bold,
-                                                                                        ),
-                                                                                        textAlign: TextAlign.center,
-                                                                                      )),                  ),
+                            : Text(
+                                widget.label,
+                                style: TextStyle(
+                                  color: finalTextColor,
+                                  fontSize:
+                                      widget.fontSize ?? widget.size * 0.35,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              )),
+                  ),
                 ),
               ),
             ),
@@ -128,6 +140,7 @@ class _HexagonWidgetState extends State<HexagonWidget> {
     );
   }
 }
+
 class HexagonPainter extends CustomPainter {
   final Color color;
   final double glowIntensity;

@@ -39,7 +39,7 @@ class ModuleRingWidget extends StatelessWidget {
             size: geometry.hexWidth,
             isPressed: module.isActive,
             rotationAngle: geometry.rotationAngle,
-            onTap: () => onToggleModule(index),
+            onTapDown: (_) => onToggleModule(index),
           ),
         );
       }).toList(),

@@ -33,7 +33,7 @@ class AngolState extends ChangeNotifier {
         return m.copyWith(isActive: false);
       }
     }).toList();
-    
+
     notifyListeners();
   }
 }

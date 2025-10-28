@@ -19,9 +19,6 @@ class AngolScreen extends StatefulWidget {
 class _AngolScreenState extends State<AngolScreen> {
   late InputService inputService;
 
-
-
-
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
 
@@ -63,8 +60,6 @@ class _AngolScreenState extends State<AngolScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +98,6 @@ class _AngolScreenState extends State<AngolScreen> {
                         ],
                       ),
                     ),
-
                   ],
                 );
               },

@@ -3,8 +3,9 @@ import 'package:provider/provider.dart';
 import '../services/input_service.dart';
 import '../utils/hex_geometry.dart';
 import 'hexagon_widget.dart';
+import '../models/keypad_config.dart'; // Import KeypadConfig
 
-class CenterAngolWidget extends StatelessWidget {
+class CenterAngolWidget extends StatefulWidget {
   final HexGeometry geometry;
 
   const CenterAngolWidget({
@@ -13,21 +14,37 @@ class CenterAngolWidget extends StatelessWidget {
   });
 
   @override
+  State<CenterAngolWidget> createState() => _CenterAngolWidgetState();
+}
+
+class _CenterAngolWidgetState extends State<CenterAngolWidget> {
+  bool _isCenterHexPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final inputService = Provider.of<InputService>(context);
-    final centerHexBackgroundColor = inputService.isLetterMode ? Colors.black : Colors.white;
-    final centerHexTextColor = inputService.isLetterMode ? Colors.white : Colors.black;
+    final centerHexBackgroundColor =
+        inputService.isLetterMode ? Colors.black : Colors.white;
+    Color centerHexTextColor =
+        inputService.isLetterMode ? Colors.white : Colors.black;
+
+    if (_isCenterHexPressed) {
+      centerHexTextColor =
+          KeypadConfig.getComplementaryColor(centerHexTextColor);
+    }
 
     return Positioned(
-      left: MediaQuery.of(context).size.width / 2 - geometry.hexWidth / 2,
-      top: MediaQuery.of(context).size.height / 2 - geometry.hexHeight / 2,
+      left:
+          MediaQuery.of(context).size.width / 2 - widget.geometry.hexWidth / 2,
+      top: MediaQuery.of(context).size.height / 2 -
+          widget.geometry.hexHeight / 2,
       child: HexagonWidget(
         label: inputService.isLetterMode ? ' .' : '. ',
         backgroundColor: centerHexBackgroundColor,
         textColor: centerHexTextColor,
-        size: geometry.hexWidth,
-        rotationAngle: geometry.rotationAngle,
-        onTap: () {
+        size: widget.geometry.hexWidth,
+        rotationAngle: widget.geometry.rotationAngle,
+        onTapDown: (_) {
           if (inputService.isLetterMode) {
             inputService.addCharacter(' ');
           } else {
@@ -46,6 +63,11 @@ class CenterAngolWidget extends StatelessWidget {
         onVerticalDragUpdate: (details) {
           if (details.delta.dy < -5) inputService.setCapitalize();
         },
+        onPressedStateChanged: (isPressed) {
+          setState(() {
+            _isCenterHexPressed = isPressed;
+          });
+        },
         child: Consumer<InputService>(
           builder: (context, inputService, child) {
             return OverflowBox(
@@ -57,7 +79,7 @@ class CenterAngolWidget extends StatelessWidget {
                   inputService.getDisplayText(),
                   style: TextStyle(
                     color: centerHexTextColor,
-                    fontSize: geometry.hexWidth * 0.33,
+                    fontSize: widget.geometry.hexWidth * 0.33,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.start,
