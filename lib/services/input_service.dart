@@ -38,9 +38,21 @@ class InputService extends ChangeNotifier {
     }
   }
 
-  void deleteRight() {
-    deleteLeft();
+  void deleteWord() {
+    if (_inputText.isEmpty) return;
+
+    String trimmedText = _inputText.trimRight();
+    int lastSpaceIndex = trimmedText.lastIndexOf(' ');
+
+    if (lastSpaceIndex != -1) {
+      _inputText = trimmedText.substring(0, lastSpaceIndex);
+    } else {
+      _inputText = '';
+    }
+    notifyListeners();
   }
+
+
 
   void toggleMode() {
     _isLetterMode = !_isLetterMode;

@@ -7,14 +7,12 @@ import 'hexagon_widget.dart';
 
 class KeypadRingWidget extends StatelessWidget {
   final HexGeometry geometry;
-  final Function(String) onHexTap;
-  final Function(String) onHexLongPress;
+  final void Function(String, {bool isLongPress}) onHexKeyPress;
 
   const KeypadRingWidget({
     super.key,
     required this.geometry,
-    required this.onHexTap,
-    required this.onHexLongPress,
+    required this.onHexKeyPress,
   });
 
   @override
@@ -53,9 +51,9 @@ class KeypadRingWidget extends StatelessWidget {
           textColor: KeypadConfig.getComplementaryColor(hexColor),
           size: geometry.hexWidth,
           rotationAngle: geometry.rotationAngle,
-          onTap: () => onHexTap(tapLabel),
+          onTap: () => onHexKeyPress(tapLabel, isLongPress: false),
           onLongPress: longPressLabel.isNotEmpty
-              ? () => onHexLongPress(longPressLabel)
+              ? () => onHexKeyPress(longPressLabel, isLongPress: true)
               : null,
           fontSize: inputService.isLetterMode ? geometry.hexWidth * 0.5 : geometry.hexWidth * 0.67,
         ),
@@ -93,9 +91,9 @@ class KeypadRingWidget extends StatelessWidget {
           textColor: KeypadConfig.getComplementaryColor(hexColor),
           size: geometry.hexWidth,
           rotationAngle: geometry.rotationAngle,
-          onTap: () => onHexTap(tapLabel),
+          onTap: () => onHexKeyPress(tapLabel, isLongPress: false),
           onLongPress: inputService.isLetterMode
-              ? () => onHexLongPress(longPressLabel)
+              ? () => onHexKeyPress(longPressLabel, isLongPress: true)
               : null,
           fontSize: inputService.isLetterMode ? geometry.hexWidth * 0.5 : geometry.hexWidth * 0.67,
         ),

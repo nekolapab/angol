@@ -49,15 +49,15 @@ class _AngolScreenState extends State<AngolScreen> {
         isLetterMode: inputService.isLetterMode,
       );
 
-  void _onHexTap(String char) {
-    HapticFeedback.lightImpact();
-    inputService.addCharacter(char);
-  }
+  void _onHexKeyPress(String char, {bool isLongPress = false}) {
+    if (isLongPress) {
+      HapticFeedback.mediumImpact();
+    } else {
+      HapticFeedback.lightImpact();
+    }
 
-  void _onHexLongPress(String char) {
-    HapticFeedback.mediumImpact();
-    if (char == '⌫') {
-      inputService.deleteRight();
+    if (isLongPress && char == '⌫') {
+      inputService.deleteWord();
     } else {
       inputService.addCharacter(char);
     }
@@ -89,8 +89,7 @@ class _AngolScreenState extends State<AngolScreen> {
                           if (angolState.isKeypadVisible)
                             KeypadRingWidget(
                               geometry: geometry,
-                              onHexTap: _onHexTap,
-                              onHexLongPress: _onHexLongPress,
+                              onHexKeyPress: _onHexKeyPress,
                             )
                           else
                             ModuleRingWidget(
