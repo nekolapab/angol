@@ -7,10 +7,12 @@ import '../models/keypad_config.dart'; // Import KeypadConfig
 
 class CenterAngolWidget extends StatefulWidget {
   final HexGeometry geometry;
+  final bool isKeypadVisible;
 
   const CenterAngolWidget({
     super.key,
     required this.geometry,
+    required this.isKeypadVisible,
   });
 
   @override
@@ -39,7 +41,9 @@ class _CenterAngolWidgetState extends State<CenterAngolWidget> {
       top: MediaQuery.of(context).size.height / 2 -
           widget.geometry.hexHeight / 2,
       child: HexagonWidget(
-        label: inputService.isLetterMode ? ' .' : '. ',
+        label: widget.isKeypadVisible
+            ? (inputService.isLetterMode ? ' .' : '. ')
+            : '', // Conditionally hide label
         backgroundColor: centerHexBackgroundColor,
         textColor: centerHexTextColor,
         size: widget.geometry.hexWidth,
@@ -54,6 +58,8 @@ class _CenterAngolWidgetState extends State<CenterAngolWidget> {
         onLongPress: () {
           final wasLetterMode = inputService.isLetterMode;
           inputService.toggleMode();
+          // Remove the character added by the preceding onTapDown
+          inputService.deleteLeft();
           if (wasLetterMode) {
             inputService.addCharacter('.');
           } else {

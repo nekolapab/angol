@@ -49,13 +49,11 @@ class _AngolScreenState extends State<AngolScreen> {
   void _onHexKeyPress(String char, {bool isLongPress = false}) {
     if (isLongPress) {
       HapticFeedback.mediumImpact();
+      // On long press, first remove the character added by the initial onTapDown
+      inputService.deleteLeft();
+      inputService.addCharacter(char);
     } else {
       HapticFeedback.lightImpact();
-    }
-
-    if (isLongPress && char == '⌫') {
-      inputService.deleteWord();
-    } else {
       inputService.addCharacter(char);
     }
   }
@@ -94,6 +92,7 @@ class _AngolScreenState extends State<AngolScreen> {
                             ),
                           CenterAngolWidget(
                             geometry: geometry,
+                            isKeypadVisible: angolState.isKeypadVisible,
                           ),
                         ],
                       ),
