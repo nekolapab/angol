@@ -46,11 +46,17 @@ class _AngolScreenState extends State<AngolScreen> {
         isLetterMode: inputService.isLetterMode,
       );
 
-  void _onHexKeyPress(String char, {bool isLongPress = false}) {
+  void _onHexKeyPress(String char,
+      {bool isLongPress = false, String? primaryChar}) {
     if (isLongPress) {
       HapticFeedback.mediumImpact();
       // On long press, first remove the character added by the initial onTapDown
-      inputService.deleteLeft();
+      if (primaryChar != null) {
+        inputService.deleteCharacters(primaryChar.length);
+      } else {
+        inputService
+            .deleteLeft(); // Fallback for single character primary glyphs
+      }
       inputService.addCharacter(char);
     } else {
       HapticFeedback.lightImpact();

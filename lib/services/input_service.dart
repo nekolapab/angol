@@ -52,6 +52,16 @@ class InputService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void deleteCharacters(int count) {
+    if (_inputText.isNotEmpty && _inputText.length >= count) {
+      _inputText = _inputText.substring(0, _inputText.length - count);
+      notifyListeners();
+    } else if (_inputText.isNotEmpty && _inputText.length < count) {
+      _inputText = '';
+      notifyListeners();
+    }
+  }
+
   void toggleMode() {
     _isLetterMode = !_isLetterMode;
     notifyListeners();

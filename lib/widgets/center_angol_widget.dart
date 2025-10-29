@@ -25,10 +25,16 @@ class _CenterAngolWidgetState extends State<CenterAngolWidget> {
   @override
   Widget build(BuildContext context) {
     final inputService = Provider.of<InputService>(context);
-    final centerHexBackgroundColor =
+
+    Color baseBackgroundColor =
         inputService.isLetterMode ? Colors.black : Colors.white;
-    Color centerHexTextColor =
+
+    Color baseTextColor =
         inputService.isLetterMode ? Colors.white : Colors.black;
+
+    Color centerHexBackgroundColor = baseTextColor;
+
+    Color centerHexTextColor = baseBackgroundColor;
 
     if (_isCenterHexPressed) {
       centerHexTextColor =

@@ -7,7 +7,8 @@ import 'hexagon_widget.dart';
 
 class KeypadRingWidget extends StatelessWidget {
   final HexGeometry geometry;
-  final void Function(String, {bool isLongPress}) onHexKeyPress;
+  final void Function(String, {bool isLongPress, String? primaryChar})
+      onHexKeyPress;
 
   const KeypadRingWidget({
     super.key,
@@ -67,7 +68,8 @@ class KeypadRingWidget extends StatelessWidget {
           size: geometry.hexWidth,
           onTapDown: (_) => onHexKeyPress(tapLabel, isLongPress: false),
           onLongPress: innerLongPress[index].isNotEmpty
-              ? () => onHexKeyPress(innerLongPress[index], isLongPress: true)
+              ? () => onHexKeyPress(innerLongPress[index],
+                  isLongPress: true, primaryChar: tapLabel)
               : null,
           fontSize: inputService.isLetterMode
               ? geometry.hexWidth * 0.5
@@ -110,8 +112,8 @@ class KeypadRingWidget extends StatelessWidget {
           rotationAngle: geometry.rotationAngle,
           onTapDown: (_) => onHexKeyPress(tapLabel, isLongPress: false),
           onLongPress: inputService.isLetterMode
-              ? () =>
-                  onHexKeyPress(outerLongPressLabels[index], isLongPress: true)
+              ? () => onHexKeyPress(outerLongPressLabels[index],
+                  isLongPress: true, primaryChar: tapLabel)
               : null,
           fontSize: inputService.isLetterMode
               ? geometry.hexWidth * 0.5
