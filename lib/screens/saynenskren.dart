@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer' as developer;
 
-class SignInScreen extends StatelessWidget {
-  const SignInScreen({super.key});
+class Saynenskren extends StatelessWidget {
+  const Saynenskren({super.key});
 
   @override
   Widget build(BuildContext context) {

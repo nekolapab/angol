@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '../models/hexagon_models.dart';
-import '../models/keypad_config.dart';
-import '../utils/hex_geometry.dart';
-import 'hexagon_widget.dart';
+import '../models/angolmodalz.dart';
+import '../models/kepadkonfeg.dart';
+import '../utils/heksagondjeyometre.dart';
+import 'heksagonwedjet.dart';
 
-class ModuleRingWidget extends StatelessWidget {
-  final HexGeometry geometry;
+class Daylwedjet extends StatelessWidget {
+  final Heksagondjeyometre geometry;
   final List<ModuleData> modules;
   final Function(int) onToggleModule;
 
-  const ModuleRingWidget({
+  const Daylwedjet({
     super.key,
     required this.geometry,
     required this.modules,
@@ -32,10 +32,10 @@ class ModuleRingWidget extends StatelessWidget {
           top: MediaQuery.of(context).size.height / 2 +
               position.y -
               geometry.hexHeight / 2,
-          child: HexagonWidget(
+          child: Heksagonwedjet(
             label: module.name,
             backgroundColor: module.color,
-            textColor: KeypadConfig.getComplementaryColor(module.color),
+            textColor: Kepadkonfeg.getComplementaryColor(module.color),
             size: geometry.hexWidth,
             isPressed: module.isActive,
             rotationAngle: geometry.rotationAngle,

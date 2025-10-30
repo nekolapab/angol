@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:provider/provider.dart';
-import 'screens/angol_screen.dart';
-import 'services/input_service.dart';
-import 'state/angol_state.dart';
+import 'screens/daylmodal.dart';
+import 'services/enpitsirves.dart';
+import 'state/angolsteyt.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -15,8 +15,8 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => InputService()),
-        ChangeNotifierProvider(create: (context) => AngolState()),
+        ChangeNotifierProvider(create: (context) => Enpitsirves()),
+        ChangeNotifierProvider(create: (context) => Angolsteyt()),
       ],
       child: const AngolApp(),
     ),
@@ -36,7 +36,7 @@ class AngolApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF111111),
         useMaterial3: true,
       ),
-      home: const AngolScreen(),
+      home: const Daylmodal(),
     );
   }
 }

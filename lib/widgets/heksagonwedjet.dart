@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import '../models/keypad_config.dart';
+import '../models/kepadkonfeg.dart';
 
-class HexagonWidget extends StatefulWidget {
+class Heksagonwedjet extends StatefulWidget {
   final String label;
   final String? secondaryLabel;
+  final String? tertiaryLabel;
+  final String? quaternaryLabel;
   final Color backgroundColor;
   final Color textColor;
   final double size;
@@ -19,10 +21,12 @@ class HexagonWidget extends StatefulWidget {
 
   final double? fontSize;
 
-  const HexagonWidget({
+  const Heksagonwedjet({
     super.key,
     required this.label,
     this.secondaryLabel,
+    this.tertiaryLabel,
+    this.quaternaryLabel,
     required this.backgroundColor,
     required this.textColor,
     required this.size,
@@ -38,20 +42,20 @@ class HexagonWidget extends StatefulWidget {
   });
 
   @override
-  State<HexagonWidget> createState() => _HexagonWidgetState();
+  State<Heksagonwedjet> createState() => _HeksagonwedjetState();
 }
 
-class _HexagonWidgetState extends State<HexagonWidget> {
+class _HeksagonwedjetState extends State<Heksagonwedjet> {
   bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     final displayBgColor = _isPressed
-        ? KeypadConfig.getComplementaryColor(widget.backgroundColor)
+        ? Kepadkonfeg.getComplementaryColor(widget.backgroundColor)
         : widget.backgroundColor;
 
     final finalTextColor = _isPressed
-        ? KeypadConfig.getComplementaryColor(widget.textColor)
+        ? Kepadkonfeg.getComplementaryColor(widget.textColor)
         : widget.textColor;
 
     return MouseRegion(
@@ -90,47 +94,75 @@ class _HexagonWidgetState extends State<HexagonWidget> {
               ),
               child: Transform.rotate(
                 angle: -widget.rotationAngle,
-                child: Transform.translate(
-                  offset: const Offset(0, 0), // Remove vertical offset
-                  child: Center(
-                    child: widget.child ??
-                        (widget.secondaryLabel != null
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    widget.label,
-                                    style: TextStyle(
-                                      color: finalTextColor,
-                                      fontSize:
-                                          widget.fontSize ?? widget.size * 0.35,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                      width: 12), // Add space between labels
-                                  Text(
-                                    widget.secondaryLabel!,
-                                    style: TextStyle(
-                                      color: finalTextColor,
-                                      fontSize:
-                                          widget.fontSize ?? widget.size * 0.35,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                widget.label,
-                                style: TextStyle(
-                                  color: finalTextColor,
-                                  fontSize:
-                                      widget.fontSize ?? widget.size * 0.35,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              )),
-                  ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Main label (horizontal)
+                    if (widget.child != null) widget.child! else
+                    if (widget.secondaryLabel != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            widget.label,
+                            style: TextStyle(
+                              color: finalTextColor,
+                              fontSize: widget.fontSize ?? widget.size * 0.35,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8), // Add space between labels
+                          Text(
+                            widget.secondaryLabel!,
+                            style: TextStyle(
+                              color: finalTextColor,
+                              fontSize: widget.fontSize ?? widget.size * 0.35,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        widget.label,
+                        style: TextStyle(
+                          color: finalTextColor,
+                          fontSize: widget.fontSize ?? widget.size * 0.35,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                    // Tertiary label (rotated 60 degrees)
+                    if (widget.tertiaryLabel != null)
+                      Transform.rotate(
+                        angle: 60 * math.pi / 180, // 60 degrees
+                        child: Text(
+                          widget.tertiaryLabel!,
+                          style: TextStyle(
+                            color: finalTextColor,
+                            fontSize: widget.fontSize ?? widget.size * 0.35,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+
+                    // Quaternary label (rotated -60 degrees)
+                    if (widget.quaternaryLabel != null)
+                      Transform.rotate(
+                        angle: -60 * math.pi / 180, // -60 degrees
+                        child: Text(
+                          widget.quaternaryLabel!,
+                          style: TextStyle(
+                            color: finalTextColor,
+                            fontSize: widget.fontSize ?? widget.size * 0.35,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -177,7 +209,7 @@ class HexagonPainter extends CustomPainter {
 
     if (glowIntensity > 0) {
       final complementaryPaint = Paint()
-        ..color = KeypadConfig.getComplementaryColor(color)
+        ..color = Kepadkonfeg.getComplementaryColor(color)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
       canvas.drawPath(path, complementaryPaint);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/hexagon_models.dart';
+import '../models/angolmodalz.dart';
 
-class AngolState extends ChangeNotifier {
+class Angolsteyt extends ChangeNotifier {
   List<ModuleData> modules = [
     const ModuleData(
         id: 'dayl', name: 'dayl', color: Color(0xFFFF0000), position: 0),

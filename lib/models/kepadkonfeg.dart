@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class KeypadConfig {
+class Kepadkonfeg {
   static const List<String> innerLetterMode = ['a', 'e', 'i', 'u', 'o', '⌫'];
   static const List<String> innerNumberMode = ['+', '*', '=', '(', '{', '⌫'];
 

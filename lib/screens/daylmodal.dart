@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../models/hexagon_models.dart';
-import '../utils/hex_geometry.dart';
-import '../services/input_service.dart';
-import '../state/angol_state.dart';
-import '../widgets/center_angol_widget.dart';
-import '../widgets/keypad_ring_widget.dart';
-import '../widgets/module_ring_widget.dart';
+import '../models/angolmodalz.dart';
+import '../utils/heksagondjeyometre.dart';
+import '../services/enpitsirves.dart';
+import '../state/angolsteyt.dart';
+import '../widgets/angolsentirwedjet.dart';
+import '../widgets/daylkepadmodyil.dart';
+import '../widgets/daylwedjet.dart';
 
-class AngolScreen extends StatefulWidget {
-  const AngolScreen({super.key});
+class Daylmodal extends StatefulWidget {
+  const Daylmodal({super.key});
 
   @override
-  State<AngolScreen> createState() => _AngolScreenState();
+  State<Daylmodal> createState() => _DaylmodalState();
 }
 
-class _AngolScreenState extends State<AngolScreen> {
-  late InputService inputService;
+class _DaylmodalState extends State<Daylmodal> {
+  late Enpitsirves inputService;
 
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
@@ -25,7 +25,7 @@ class _AngolScreenState extends State<AngolScreen> {
   @override
   void initState() {
     super.initState();
-    inputService = Provider.of<InputService>(context, listen: false);
+    inputService = Provider.of<Enpitsirves>(context, listen: false);
     _textFieldFocus.addListener(() {
       inputService.setTextFieldFocus(_textFieldFocus.hasFocus);
     });
@@ -41,7 +41,7 @@ class _AngolScreenState extends State<AngolScreen> {
     }
   }
 
-  HexGeometry get geometry => HexGeometry(
+  Heksagondjeyometre get geometry => Heksagondjeyometre(
         center: const HexagonPosition(x: 0, y: 0),
         isLetterMode: inputService.isLetterMode,
       );
@@ -50,14 +50,18 @@ class _AngolScreenState extends State<AngolScreen> {
       {bool isLongPress = false, String? primaryChar}) {
     if (isLongPress) {
       HapticFeedback.mediumImpact();
-      // On long press, first remove the character added by the initial onTapDown
-      if (primaryChar != null) {
-        inputService.deleteCharacters(primaryChar.length);
+      if (char == '⌫') {
+        inputService.deleteWord();
       } else {
-        inputService
-            .deleteLeft(); // Fallback for single character primary glyphs
+        // On long press, first remove the character added by the initial onTapDown
+        if (primaryChar != null) {
+          inputService.deleteCharacters(primaryChar.length);
+        } else {
+          inputService
+              .deleteLeft(); // Fallback for single character primary glyphs
+        }
+        inputService.addCharacter(char);
       }
-      inputService.addCharacter(char);
     } else {
       HapticFeedback.lightImpact();
       inputService.addCharacter(char);
@@ -78,7 +82,7 @@ class _AngolScreenState extends State<AngolScreen> {
                 stops: [0.0, 0.5, 1.0],
               ),
             ),
-            child: Consumer2<InputService, AngolState>(
+            child: Consumer2<Enpitsirves, Angolsteyt>(
               builder: (context, inputService, angolState, _) {
                 return Stack(
                   children: [
@@ -86,17 +90,18 @@ class _AngolScreenState extends State<AngolScreen> {
                       child: Stack(
                         children: [
                           if (angolState.isKeypadVisible)
-                            KeypadRingWidget(
+                            DaylKepadModyil(
                               geometry: geometry,
                               onHexKeyPress: _onHexKeyPress,
+                              isKeypadVisible: angolState.isKeypadVisible,
                             )
                           else
-                            ModuleRingWidget(
+                            Daylwedjet(
                               geometry: geometry,
                               modules: angolState.modules,
                               onToggleModule: angolState.toggleModule,
                             ),
-                          CenterAngolWidget(
+                          Angolsentirwedjet(
                             geometry: geometry,
                             isKeypadVisible: angolState.isKeypadVisible,
                           ),
