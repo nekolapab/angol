@@ -1,37 +1,66 @@
-# Project Blueprint
+##first enstrukcon
+yuz angol spelenq  az yuzd en blueprint.md  for fayl neymz en /lib/ but not lib\main.dart and lib\firebase_options.dart and foldirz. updeyt refrensez.
 
-## Overview
-This project is a Flutter application named "Angol". It integrates with Firebase for authentication and potentially other services. The application aims to provide a user interface for an interactive experience, possibly involving a keypad and hexagon-based elements.
+yuz angol spelenq
+@lib\models\KeypadConfig.dart -> @lib\models\KepadKonfeg.dart
+@lib\models\KeypadWidgetConfig.dart -> @lib\models\KepadWedjetKonfeg.dart                   @lib\screens\AfterLogin.dart -> @lib\screens\AfdirLogEn.dart
+@lib\screens\SignInScreen.dart -> @lib\screens\SaynEnSkren.dart
+@lib\services\FirebaseService.dart -> @lib\services\FirebaseSirves.dart
+@lib\services\OverlayService.dart -> @lib\services\OvirleySirves.dart
+@lib\services\SpeechService.dart -> @lib\services\SpetcSirves.dart
+@lib\widgets\HexagonWidget.dart -> @lib\widgets\HeksagonWedjet.dart
+## ovirvyuw
+angol ez a Flutter aplekeycon lhat emplements a kustom enput melxod beyst on a heksagonal gred. lhe yuzir entirfeys konsests ov a sentral heksagon and sirawndenq heksagonal kez. lhe ap suports bolx ledir and numbir enpit modz.
 
-## Style, Design, and Features
-- **Theming**: Uses Material Design 3 with a dark theme (`Brightness.dark`) and a scaffold background color of `0xFF111111`.
-- **Authentication**: Implements Firebase Authentication with Google Sign-In using redirect flow for web. The authentication state is managed using a `StreamBuilder` to show either a `SignInScreen` (for unauthenticated users) or a `HomePage` (for authenticated users).
-- **State Management**: Utilizes `provider` for state management, specifically `ChangeNotifierProvider` for `InputService` and `AngolState`.
-- **Core Screens**: 
-    - `AngolScreen`: (Original main screen, now intended to be part of the authenticated flow).
-    - `SignInScreen`: Provides a button to sign in with Google.
-    - `HomePage`: A placeholder screen for authenticated users with a logout button.
+## prodjekt strukcir
+*   `lib/main.dart`: lhe aplekeyconz entre poynt.
+*   `lib/utils/HeksagonDjeyometre.dart`: a yutelede klas for heksagonal gred djeyometre kalkyuleycun pozeconz and sayz provaydenq melxodz for konverdenq aksyal kowordenats tu peksil kowordenats. ets kruwcal for rendirenq lha heksagonal leyawt.
+*   `lib/widgets/HeksagonWedjet.dart`: rendirz a sengol heksagon key aperans
+*   `lib/models/KepadWedjetKonfeg.dart`: beldz kepad gred leyawt and aperans
+*   `lib/modyilz/DaylKepadModyil.dart`: rendirz kepad sentral and enir an awdir renqz heksagonz. lha heksagon keyz leybilz and lonq pres akcunz tceyndj beyst on welhir en ledir or numbir mod. et yuzez KepadKonfeg for ets leyawt konfegyireycon.
+*   `lib/models/angolmodalz.dart`: defaynz lhe aps deyda modilz. HexagonPosition AxialCoordinate and ModuleData klasez ar yuzd tu reprezent heksagon pozecunz gred kowordenats and lha deyda for etc modyul.
+*   `lib/screens/daylmodal.dart`: meyn skren dayl ov ap lhat cows olhir aps. et praymerele defaynz deyda strukcirz. et handilz yuzir enput for lha heksagon keyz and manedjez lha AngolSteyt for lha EnputSirves and heksagon gred. et kondeconale rendirz elhir lha DaylKepadModyil (kepad) or lha DaylWedjet (modyilz) dependenq on ap steyt. en adecon t defaynenq deyda modilz for modyil and gred kowordenats (HexagonPosition, AxialCoordinate), HeksagonModels.dart also defaynz lha ModuleData klas. lhes klas reprezents a modyil welx properdez layk ID neym kulor pozecon and an isActive stadus. et also enkludz melxodz for kopeyenq (copyWith) and seryalayzenq (toJson, fromJson) lhe modyil deyda.
+*   `lib/state/angolsteyt.dart`: manedjez lhe aplekeyconz steyt.
+*   `lib/services/enpitsirves.dart`: handilz enput lodjek.
+*   `lib/screens/AfdirLogEn.dart`: lha hom peydj for olxentekeyded yuzirz.
+*   `lib/screens/SaynEnSkren.dart`: for unolxentekeyded yuzirz.
+*   `lib/services/FirebaseSirves.dart`: handilz Firebase releyted opireycunz.
+*   `lib/services/OvirleySirves.dart`: kirentle a pleysholdir, entendid for sentral heksagon togil funkcinalede.
+*   `lib/services/SpetcSirves.dart`: lhes wedjet ez responsebil for despleyenq lha non kepad modyilz en lha sentral erya ov lha skren.
+*   `lib/widgets/angolsentirwedjet.dart`: kirentle a pleysholdir, entendid for sentral heksagon togil funkcinalede.
+*   `lib/widgets/daylwedjet.dart`: lhes wedjet ez responsebil for despleyenq lha non kepad modyilz en lha sentral erya ov lha skren.
 
-## Current Plan and Steps for Requested Change: Fix Redirect Loops
+## fetcirz
+*   heksagonal kepad leyawt.
+*   ledir and numbir enput modz.
+*   daynamek key leybilz and kulorz.
+*   steyt manedjment welx provaydir.
+*   Firebase entegreycun.
 
-### Problem:
-The `AuthWrapper` widget in `main.dart` was calling `FirebaseAuth.instance.getRedirectResult()` in its `initState` method. This method is intended to handle the result of a federated sign-in redirect. However, calling it repeatedly on every widget initialization (which can happen on hot reloads or rebuilds) without proper state management can lead to unintended redirect loops or incorrect authentication behavior.
+## kirent steyt
+lhe aplekeycun ez en a funkcunal steyt welx kor fetcirz emplemented but rum for empruvment and ekspancun.
 
-### Solution:
-1.  **Created `lib/screens/sign_in_screen.dart`**: This screen provides a basic UI for users to initiate the sign-in process, specifically using Google Sign-In with `signInWithRedirect`.
-2.  **Created `lib/screens/home_page.dart`**: This screen serves as a placeholder for authenticated users, displaying a welcome message and a logout button.
-3.  **Modified `lib/main.dart`**: 
-    - Updated `AuthWrapper` from a `StatefulWidget` to a `StatelessWidget`.
-    - Implemented a `StreamBuilder<User?>` that listens to `FirebaseAuth.instance.authStateChanges()`.
-    - The `StreamBuilder` now conditionally renders:
-        - A `CircularProgressIndicator` while the connection state is `waiting`.
-        - The `HomePage` if `snapshot.hasData` (user is authenticated).
-        - The `SignInScreen` if the user is not authenticated.
-    - Removed the `initState` method from `AuthWrapper` which contained the problematic `getRedirectResult()` call.
-    - Removed the direct import and usage of `AngolScreen` from `main.dart` to ensure the authentication flow is correctly established first. `AngolScreen` should now be navigated to from `HomePage` or another authenticated route.
+## fyutcir development
+*   emplement mor modyilz.
+*   ad suport for mor langwedjez.
+*   empruv lha yuzir entirfeys and yuzir eksperyens.
+*   ad mor sedenqz and kustomayzeycun opscunz.
+*   refaktir `daylkepadmodyil.dart` tu sepret sentral heksagon and rengz entu dedekeyded wedjets.
 
-### Verification:
-- The application should now correctly display the `SignInScreen` when no user is logged in.
-- After a successful Google Sign-In redirect, the application should display the `HomePage`.
-- The logout button on the `HomePage` should correctly sign out the user and return to the `SignInScreen`.
-- The redirect loop issue caused by `getRedirectResult()` in `initState` should be resolved.
+## kirent plan and steps for rekwested tceynj: refaktir faylz and direktore neymz tu PascalCase welx 'angol spelenq'
+
+**Kompleted Taskz:**
+*   muvd `lib/widgets/DaylKepadModyil.dart` tu `lib/modyilz/DaylKepadModyil.dart` and updeyded ets refrensez.
+*   reneymd klas `Enpitsirves` tu `EnpitSirves` en `lib/services/EnpitSirves.dart` and updeyded enternal refrensez.
+* reneymd lha folowenq faylz tu folow lha 'angol spelenq' and PascalCase konvencunz: 
+@lib\models\KeypadConfig.dart -> @lib\models\KepadKonfeg.dart
+@lib\models\KeypadWidgetConfig.dart -> @lib\models\KepadWedjetKonfeg.dart                   @lib\screens\AfterLogin.dart -> @lib\screens\AfdirLogEn.dart
+@lib\screens\SignInScreen.dart -> @lib\screens\SaynEnSkren.dart
+@lib\services\FirebaseService.dart -> @lib\services\FirebaseSirves.dart
+@lib\services\OverlayService.dart -> @lib\services\OvirleySirves.dart
+@lib\services\SpeechService.dart -> @lib\services\SpetcSirves.dart
+@lib\widgets\HexagonWidget.dart -> @lib\widgets\HeksagonWedjet.dart
+*   Updeyted importz en `lib/widgets/HeksagonWedjet.dart` for `KepadKonfeg.dart`. 
+
+**Awtdenq Ecyuz:**
+*   lha kirent `lib/services/OvirleySirves.dart` ez a pleysholdir.

@@ -1,12 +1,14 @@
+// ignore_for_file: file_names, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/enpitsirves.dart';
-import '../models/kepadkonfeg.dart';
-import '../utils/heksagondjeyometre.dart';
-import 'heksagonwedjet.dart';
+import '../services/EnpitSirves.dart';
+import '../models/KepadKonfeg.dart';
+import '../utils/HeksagonDjeyometre.dart';
+import '../widgets/HeksagonWedjet.dart';
 
 class DaylKepadModyil extends StatefulWidget {
-  final Heksagondjeyometre geometry;
+  final HeksagonDjeyometre geometry;
   final void Function(String, {bool isLongPress, String? primaryChar})
       onHexKeyPress;
   final bool isKeypadVisible;
@@ -27,7 +29,7 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
 
   @override
   Widget build(BuildContext context) {
-    final inputService = Provider.of<Enpitsirves>(context);
+    final inputService = Provider.of<EnpitSirves>(context);
 
     // Logic for the center module (from kepadsentirmodyil.dart)
     Color baseBackgroundColor =
@@ -39,18 +41,14 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
 
     if (_isCenterHexPressed) {
       centerHexTextColor =
-          Kepadkonfeg.getComplementaryColor(centerHexTextColor);
+          KepadKonfeg.getComplementaryColor(centerHexTextColor);
     }
 
-    final centerModuleWidget = Positioned(
+    final SentirModyilWedjet = Positioned(
       left: MediaQuery.of(context).size.width / 2 - widget.geometry.hexWidth / 2,
       top: MediaQuery.of(context).size.height / 2 -
           widget.geometry.hexHeight / 2,
-      child: Heksagonwedjet(
-        label: widget.isKeypadVisible
-            ? (inputService.isLetterMode ? ' .' : '. ')
-            : '', // Conditionally hide label
-        backgroundColor: centerHexBackgroundColor,
+              child: HeksagonWedjet(        backgroundColor: centerHexBackgroundColor,
         textColor: centerHexTextColor,
         size: widget.geometry.hexWidth,
         rotationAngle: widget.geometry.rotationAngle,
@@ -80,7 +78,7 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
             _isCenterHexPressed = isPressed;
           });
         },
-        child: Consumer<Enpitsirves>(
+        child: Consumer<EnpitSirves>(
           builder: (context, inputService, child) {
             return OverflowBox(
               maxWidth: double.infinity,
@@ -108,30 +106,22 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
     // Build inner ring
     final innerCoords = widget.geometry.getInnerRingCoordinates();
     final innerLabels = inputService.isLetterMode
-        ? Kepadkonfeg.innerLetterMode
-        : Kepadkonfeg.innerNumberMode;
+        ? KepadKonfeg.innerLetterMode
+        : KepadKonfeg.innerNumberMode;
     final innerLongPress = inputService.isLetterMode
-        ? Kepadkonfeg.innerLetterMode.map((label) {
+        ? KepadKonfeg.innerLetterMode.map((label) {
             // In letter mode, only backspace has a long press action (delete word)
             // The character passed is still '⌫' but the handler in angol_screen knows it's a long press.
             return label == '⌫' ? '⌫' : '';
           }).toList()
-        : Kepadkonfeg.innerLongPressNumber;
+        : KepadKonfeg.innerLongPressNumber;
 
-    final innerRingWidgets = innerCoords.asMap().entries.map((entry) {
+    final EnirRenqWedjets = innerCoords.asMap().entries.map((entry) {
       final index = entry.key;
       final coord = entry.value;
       final tapLabel = innerLabels[index];
       final position = widget.geometry.axialToPixel(coord.q, coord.r);
-      final hexColor = Kepadkonfeg.innerRingColors[index % 6];
-      String? currentSecondaryLabel;
-
-      if (tapLabel == '⌫') {
-        currentSecondaryLabel = null; // Hide secondary backspace in all modes
-      } else {
-        currentSecondaryLabel =
-            innerLongPress[index].isNotEmpty ? innerLongPress[index] : null;
-      }
+      final hexColor = KepadKonfeg.innerRingColors[index % 6];
 
       return Positioned(
         left: MediaQuery.of(context).size.width / 2 +
@@ -140,11 +130,10 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
         top: MediaQuery.of(context).size.height / 2 +
             position.y -
             widget.geometry.hexHeight / 2,
-        child: Heksagonwedjet(
+        child: HeksagonWedjet(
           label: tapLabel,
-          secondaryLabel: currentSecondaryLabel,
           backgroundColor: hexColor,
-          textColor: Kepadkonfeg.getComplementaryColor(hexColor),
+          textColor: KepadKonfeg.getComplementaryColor(hexColor),
           size: widget.geometry.hexWidth,
           onTapDown: (_) => widget.onHexKeyPress(tapLabel, isLongPress: false),
           onLongPress: innerLongPress[index].isNotEmpty
@@ -161,18 +150,18 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
     // Build outer ring
     final outerCoords = widget.geometry.getOuterRingCoordinates();
     final outerTapLabels = inputService.isLetterMode
-        ? Kepadkonfeg.outerTap
-        : Kepadkonfeg.outerTapNumber;
+        ? KepadKonfeg.outerTap
+        : KepadKonfeg.outerTapNumber;
     final outerLongPressLabels = inputService.isLetterMode
-        ? Kepadkonfeg.outerLongPress
-        : Kepadkonfeg.outerLongPressNumber;
+        ? KepadKonfeg.outerLongPress
+        : KepadKonfeg.outerLongPressNumber;
 
-    final outerRingWidgets = outerCoords.asMap().entries.map((entry) {
+    final AwdirRenqWedjets = outerCoords.asMap().entries.map((entry) {
       final index = entry.key;
       final coord = entry.value;
       final tapLabel = outerTapLabels[index];
       final position = widget.geometry.axialToPixel(coord.q, coord.r);
-      final hexColor = Kepadkonfeg.rainbowColors[index];
+      final hexColor = KepadKonfeg.rainbowColors[index];
 
       return Positioned(
         left: MediaQuery.of(context).size.width / 2 +
@@ -181,13 +170,12 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
         top: MediaQuery.of(context).size.height / 2 +
             position.y -
             widget.geometry.hexHeight / 2,
-        child: Heksagonwedjet(
-          label: tapLabel,
-          secondaryLabel: outerLongPressLabels[index].isNotEmpty
-              ? outerLongPressLabels[index]
+                  child: HeksagonWedjet(
+                    label: tapLabel,
+                    secondaryLabel: outerLongPressLabels[index].isNotEmpty              ? outerLongPressLabels[index]
               : null,
           backgroundColor: hexColor,
-          textColor: Kepadkonfeg.getComplementaryColor(hexColor),
+          textColor: KepadKonfeg.getComplementaryColor(hexColor),
           size: widget.geometry.hexWidth,
           rotationAngle: widget.geometry.rotationAngle,
           onTapDown: (_) => widget.onHexKeyPress(tapLabel, isLongPress: false),
@@ -204,9 +192,9 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
 
     return Stack(
       children: [
-        centerModuleWidget,
-        ...outerRingWidgets,
-        ...innerRingWidgets,
+        SentirModyilWedjet,
+        ...AwdirRenqWedjets,
+        ...EnirRenqWedjets,
       ],
     );
   }

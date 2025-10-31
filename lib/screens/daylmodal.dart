@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../models/angolmodalz.dart';
-import '../utils/heksagondjeyometre.dart';
-import '../services/enpitsirves.dart';
-import '../state/angolsteyt.dart';
-import '../widgets/angolsentirwedjet.dart';
-import '../widgets/daylkepadmodyil.dart';
-import '../widgets/daylwedjet.dart';
+import '../models/AngolModalz.dart';
+import '../utils/HeksagonDjeyometre.dart';
+import '../services/EnpitSirves.dart';
+import '../state/AngolSteyt.dart';
+import '../widgets/AngolSentirWedjet.dart';
+import '../modyilz/DaylKepadModyil.dart';
+import '../widgets/DaylWedjet.dart';
 
-class Daylmodal extends StatefulWidget {
-  const Daylmodal({super.key});
+class DaylModal extends StatefulWidget {
+  const DaylModal({super.key});
 
   @override
-  State<Daylmodal> createState() => _DaylmodalState();
+  State<DaylModal> createState() => _DaylModalState();
 }
 
-class _DaylmodalState extends State<Daylmodal> {
-  late Enpitsirves inputService;
+class _DaylModalState extends State<DaylModal> {
+  late EnpitSirves inputService;
 
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
@@ -25,7 +25,7 @@ class _DaylmodalState extends State<Daylmodal> {
   @override
   void initState() {
     super.initState();
-    inputService = Provider.of<Enpitsirves>(context, listen: false);
+    inputService = Provider.of<EnpitSirves>(context, listen: false);
     _textFieldFocus.addListener(() {
       inputService.setTextFieldFocus(_textFieldFocus.hasFocus);
     });
@@ -41,7 +41,7 @@ class _DaylmodalState extends State<Daylmodal> {
     }
   }
 
-  Heksagondjeyometre get geometry => Heksagondjeyometre(
+  HeksagonDjeyometre get geometry => HeksagonDjeyometre(
         center: const HexagonPosition(x: 0, y: 0),
         isLetterMode: inputService.isLetterMode,
       );
@@ -82,7 +82,7 @@ class _DaylmodalState extends State<Daylmodal> {
                 stops: [0.0, 0.5, 1.0],
               ),
             ),
-            child: Consumer2<Enpitsirves, Angolsteyt>(
+            child: Consumer2<EnpitSirves, AngolSteyt>(
               builder: (context, inputService, angolState, _) {
                 return Stack(
                   children: [
@@ -96,12 +96,12 @@ class _DaylmodalState extends State<Daylmodal> {
                               isKeypadVisible: angolState.isKeypadVisible,
                             )
                           else
-                            Daylwedjet(
+                            DaylWedjet(
                               geometry: geometry,
                               modules: angolState.modules,
                               onToggleModule: angolState.toggleModule,
                             ),
-                          Angolsentirwedjet(
+                          AngolSentirWedjet(
                             geometry: geometry,
                             isKeypadVisible: angolState.isKeypadVisible,
                           ),

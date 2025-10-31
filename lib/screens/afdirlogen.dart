@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class Afdirlogen extends StatelessWidget {
-  const Afdirlogen({super.key});
+class AfdirLogEn extends StatelessWidget {
+  const AfdirLogEn({super.key});
 
   @override
   Widget build(BuildContext context) {

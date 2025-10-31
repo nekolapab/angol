@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '../models/angolmodalz.dart';
-import '../models/kepadkonfeg.dart';
-import '../utils/heksagondjeyometre.dart';
-import 'heksagonwedjet.dart';
+import '../models/AngolModalz.dart';
+import '../models/KepadKonfeg.dart';
+import '../utils/HeksagonDjeyometre.dart';
+import 'HeksagonWedjet.dart';
 
-class Daylwedjet extends StatelessWidget {
-  final Heksagondjeyometre geometry;
+class DaylWedjet extends StatelessWidget {
+  final HeksagonDjeyometre geometry;
   final List<ModuleData> modules;
   final Function(int) onToggleModule;
 
-  const Daylwedjet({
+  const DaylWedjet({
     super.key,
     required this.geometry,
     required this.modules,
@@ -32,10 +32,10 @@ class Daylwedjet extends StatelessWidget {
           top: MediaQuery.of(context).size.height / 2 +
               position.y -
               geometry.hexHeight / 2,
-          child: Heksagonwedjet(
+          child: HeksagonWedjet(
             label: module.name,
             backgroundColor: module.color,
-            textColor: Kepadkonfeg.getComplementaryColor(module.color),
+            textColor: KepadKonfeg.getComplementaryColor(module.color),
             size: geometry.hexWidth,
             isPressed: module.isActive,
             rotationAngle: geometry.rotationAngle,

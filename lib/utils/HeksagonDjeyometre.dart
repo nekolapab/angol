@@ -1,12 +1,12 @@
 import 'dart:math';
-import '../models/angolmodalz.dart';
+import '../models/AngolModalz.dart';
 
-class Heksagondjeyometre {
+class HeksagonDjeyometre {
   final double hexSize;
   final HexagonPosition center;
   final bool isLetterMode;
 
-  const Heksagondjeyometre({
+  const HeksagonDjeyometre({
     this.hexSize = 72,
     required this.center,
     this.isLetterMode = true,

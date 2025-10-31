@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
-import '../models/angolmodalz.dart';
+// ignore_for_file: file_names
 
-class Angolsteyt extends ChangeNotifier {
+import 'package:flutter/material.dart';
+import '../models/AngolModalz.dart';
+
+class AngolSteyt extends ChangeNotifier {
   List<ModuleData> modules = [
     const ModuleData(
         id: 'dayl', name: 'dayl', color: Color(0xFFFF0000), position: 0),

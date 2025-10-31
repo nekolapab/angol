@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import '../models/kepadkonfeg.dart';
+import '../models/KepadKonfeg.dart';
 
-class Heksagonwedjet extends StatefulWidget {
-  final String label;
+class HeksagonWedjet extends StatefulWidget {
+  final String? label;
   final String? secondaryLabel;
   final String? tertiaryLabel;
   final String? quaternaryLabel;
@@ -21,9 +21,9 @@ class Heksagonwedjet extends StatefulWidget {
 
   final double? fontSize;
 
-  const Heksagonwedjet({
+  const HeksagonWedjet({
     super.key,
-    required this.label,
+    this.label,
     this.secondaryLabel,
     this.tertiaryLabel,
     this.quaternaryLabel,
@@ -39,23 +39,23 @@ class Heksagonwedjet extends StatefulWidget {
     this.child,
     this.rotationAngle = 0.0,
     this.fontSize,
-  });
+  }) : assert(label != null || child != null, 'Either label or child must be provided');
 
   @override
-  State<Heksagonwedjet> createState() => _HeksagonwedjetState();
+  State<HeksagonWedjet> createState() => _HeksagonWedjetState();
 }
 
-class _HeksagonwedjetState extends State<Heksagonwedjet> {
+class _HeksagonWedjetState extends State<HeksagonWedjet> {
   bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     final displayBgColor = _isPressed
-        ? Kepadkonfeg.getComplementaryColor(widget.backgroundColor)
+        ? KepadKonfeg.getComplementaryColor(widget.backgroundColor)
         : widget.backgroundColor;
 
     final finalTextColor = _isPressed
-        ? Kepadkonfeg.getComplementaryColor(widget.textColor)
+        ? KepadKonfeg.getComplementaryColor(widget.textColor)
         : widget.textColor;
 
     return MouseRegion(
@@ -104,7 +104,7 @@ class _HeksagonwedjetState extends State<Heksagonwedjet> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            widget.label,
+                            widget.label ?? '',
                             style: TextStyle(
                               color: finalTextColor,
                               fontSize: widget.fontSize ?? widget.size * 0.35,
@@ -124,7 +124,7 @@ class _HeksagonwedjetState extends State<Heksagonwedjet> {
                       )
                     else
                       Text(
-                        widget.label,
+                        widget.label ?? '',
                         style: TextStyle(
                           color: finalTextColor,
                           fontSize: widget.fontSize ?? widget.size * 0.35,
@@ -209,7 +209,7 @@ class HexagonPainter extends CustomPainter {
 
     if (glowIntensity > 0) {
       final complementaryPaint = Paint()
-        ..color = Kepadkonfeg.getComplementaryColor(color)
+        ..color = KepadKonfeg.getComplementaryColor(color)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
       canvas.drawPath(path, complementaryPaint);

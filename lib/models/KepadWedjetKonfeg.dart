@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-class KepadKonfeg {
+class Kepadkonfeg {
   static const List<String> innerLetterMode = ['a', 'e', 'i', 'u', 'o', '⌫'];
   static const List<String> innerNumberMode = ['+', '*', '=', '(', '{', '⌫'];
 

@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'dart:developer' as developer;
 
-class Enpitsirves extends ChangeNotifier {
-  static final Enpitsirves _instance = Enpitsirves._();
+class EnpitSirves extends ChangeNotifier {
+  static final EnpitSirves _instance = EnpitSirves._();
 
-  factory Enpitsirves() {
+  factory EnpitSirves() {
     return _instance;
   }
 
-  Enpitsirves._();
+  EnpitSirves._();
 
   String _inputText = '';
   bool _isLetterMode = true;
