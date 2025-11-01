@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/AngolModalz.dart';
-import '../models/KepadKonfeg.dart';
-import '../utils/HeksagonDjeyometre.dart';
-import 'HeksagonWedjet.dart';
+import '../models/angol_modalz.dart';
+import '../models/kepad_konfeg.dart';
+import '../utils/heksagon_djeyometre.dart';
+import 'heksagon_wedjet.dart';
 
 class DaylWedjet extends StatelessWidget {
   final HeksagonDjeyometre geometry;
@@ -46,3 +46,4 @@ class DaylWedjet extends StatelessWidget {
     );
   }
 }
+

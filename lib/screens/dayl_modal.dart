@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../models/AngolModalz.dart';
-import '../utils/HeksagonDjeyometre.dart';
-import '../services/EnpitSirves.dart';
-import '../state/AngolSteyt.dart';
-import '../widgets/AngolSentirWedjet.dart';
-import '../modyilz/DaylKepadModyil.dart';
-import '../widgets/DaylWedjet.dart';
+import '../models/angol_modalz.dart';
+import '../utils/heksagon_djeyometre.dart';
+import '../services/enpit_sirves.dart';
+import '../state/angol_steyt.dart';
+import '../widgets/angol_sentir_wedjet.dart';
+import '../modyilz/dayl_kepad_modyil.dart';
+import '../widgets/dayl_wedjet.dart';
 
 class DaylModal extends StatefulWidget {
   const DaylModal({super.key});
@@ -53,12 +53,10 @@ class _DaylModalState extends State<DaylModal> {
       if (char == '⌫') {
         inputService.deleteWord();
       } else {
-        // On long press, first remove the character added by the initial onTapDown
         if (primaryChar != null) {
           inputService.deleteCharacters(primaryChar.length);
         } else {
-          inputService
-              .deleteLeft(); // Fallback for single character primary glyphs
+          inputService.deleteLeft();
         }
         inputService.addCharacter(char);
       }
@@ -126,3 +124,4 @@ class _DaylModalState extends State<DaylModal> {
     super.dispose();
   }
 }
+

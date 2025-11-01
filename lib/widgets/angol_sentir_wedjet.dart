@@ -1,7 +1,5 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
-import '../utils/HeksagonDjeyometre.dart';
+import '../utils/heksagon_djeyometre.dart';
 
 class AngolSentirWedjet extends StatefulWidget {
   final HeksagonDjeyometre geometry;
@@ -20,6 +18,7 @@ class AngolSentirWedjet extends StatefulWidget {
 class _AngolSentirWedjetState extends State<AngolSentirWedjet> {
   @override
   Widget build(BuildContext context) {
-    return Container(); // Placeholder for the remaining central hexagon toggle functionality
+    return Container();
   }
 }
+

@@ -1,7 +1,5 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
-import '../models/AngolModalz.dart';
+import '../models/angol_modalz.dart';
 
 class AngolSteyt extends ChangeNotifier {
   List<ModuleData> modules = [
@@ -39,3 +37,4 @@ class AngolSteyt extends ChangeNotifier {
     notifyListeners();
   }
 }
+

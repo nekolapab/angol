@@ -1,11 +1,9 @@
-// ignore_for_file: file_names, non_constant_identifier_names
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/EnpitSirves.dart';
-import '../models/KepadKonfeg.dart';
-import '../utils/HeksagonDjeyometre.dart';
-import '../widgets/HeksagonWedjet.dart';
+import '../services/enpit_sirves.dart';
+import '../models/kepad_konfeg.dart';
+import '../utils/heksagon_djeyometre.dart';
+import '../widgets/heksagon_wedjet.dart';
 
 class DaylKepadModyil extends StatefulWidget {
   final HeksagonDjeyometre geometry;
@@ -31,7 +29,6 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
   Widget build(BuildContext context) {
     final inputService = Provider.of<EnpitSirves>(context);
 
-    // Logic for the center module (from kepadsentirmodyil.dart)
     Color baseBackgroundColor =
         inputService.isLetterMode ? Colors.black : Colors.white;
     Color baseTextColor =
@@ -48,7 +45,8 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
       left: MediaQuery.of(context).size.width / 2 - widget.geometry.hexWidth / 2,
       top: MediaQuery.of(context).size.height / 2 -
           widget.geometry.hexHeight / 2,
-              child: HeksagonWedjet(        backgroundColor: centerHexBackgroundColor,
+      child: HeksagonWedjet(
+        backgroundColor: centerHexBackgroundColor,
         textColor: centerHexTextColor,
         size: widget.geometry.hexWidth,
         rotationAngle: widget.geometry.rotationAngle,
@@ -62,7 +60,6 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
         onLongPress: () {
           final wasLetterMode = inputService.isLetterMode;
           inputService.toggleMode();
-          // Remove the character added by the preceding onTapDown
           inputService.deleteLeft();
           if (wasLetterMode) {
             inputService.addCharacter('.');
@@ -102,16 +99,12 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
       ),
     );
 
-    // Logic for the keypad rings (from daylkepadwedjet.dart)
-    // Build inner ring
     final innerCoords = widget.geometry.getInnerRingCoordinates();
     final innerLabels = inputService.isLetterMode
         ? KepadKonfeg.innerLetterMode
         : KepadKonfeg.innerNumberMode;
     final innerLongPress = inputService.isLetterMode
         ? KepadKonfeg.innerLetterMode.map((label) {
-            // In letter mode, only backspace has a long press action (delete word)
-            // The character passed is still '⌫' but the handler in angol_screen knows it's a long press.
             return label == '⌫' ? '⌫' : '';
           }).toList()
         : KepadKonfeg.innerLongPressNumber;
@@ -147,7 +140,6 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
       );
     }).toList();
 
-    // Build outer ring
     final outerCoords = widget.geometry.getOuterRingCoordinates();
     final outerTapLabels = inputService.isLetterMode
         ? KepadKonfeg.outerTap
@@ -170,9 +162,10 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
         top: MediaQuery.of(context).size.height / 2 +
             position.y -
             widget.geometry.hexHeight / 2,
-                  child: HeksagonWedjet(
-                    label: tapLabel,
-                    secondaryLabel: outerLongPressLabels[index].isNotEmpty              ? outerLongPressLabels[index]
+        child: HeksagonWedjet(
+          label: tapLabel,
+          secondaryLabel: outerLongPressLabels[index].isNotEmpty
+              ? outerLongPressLabels[index]
               : null,
           backgroundColor: hexColor,
           textColor: KepadKonfeg.getComplementaryColor(hexColor),
@@ -199,3 +192,4 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
     );
   }
 }
+

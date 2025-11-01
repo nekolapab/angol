@@ -1,9 +1,7 @@
-// ignore_for_file: file_names
-
 import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/AngolModalz.dart';
+import '../models/angol_modalz.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -68,3 +66,4 @@ class FirebaseService {
     });
   }
 }
+

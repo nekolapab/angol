@@ -15,7 +15,6 @@ class SaynEnSkren extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () async {
             try {
-              // Using Google as an example
               GoogleAuthProvider googleProvider = GoogleAuthProvider();
               await FirebaseAuth.instance.signInWithRedirect(googleProvider);
             } catch (e) {
@@ -28,3 +27,4 @@ class SaynEnSkren extends StatelessWidget {
     );
   }
 }
+

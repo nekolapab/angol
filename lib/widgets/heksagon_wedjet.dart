@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import '../models/KepadKonfeg.dart';
+import '../models/kepad_konfeg.dart';
 
 class HeksagonWedjet extends StatefulWidget {
   final String? label;
@@ -15,7 +15,7 @@ class HeksagonWedjet extends StatefulWidget {
   final VoidCallback? onLongPress;
   final Function(DragUpdateDetails)? onVerticalDragUpdate;
   final Function(bool)? onHover;
-  final Function(bool isPressed)? onPressedStateChanged; // New callback
+  final Function(bool isPressed)? onPressedStateChanged;
   final Widget? child;
   final double rotationAngle;
 
@@ -35,7 +35,7 @@ class HeksagonWedjet extends StatefulWidget {
     this.onLongPress,
     this.onVerticalDragUpdate,
     this.onHover,
-    this.onPressedStateChanged, // New parameter
+    this.onPressedStateChanged,
     this.child,
     this.rotationAngle = 0.0,
     this.fontSize,
@@ -97,7 +97,6 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Main label (horizontal)
                     if (widget.child != null) widget.child! else
                     if (widget.secondaryLabel != null)
                       Row(
@@ -111,7 +110,7 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 8), // Add space between labels
+                          const SizedBox(width: 8),
                           Text(
                             widget.secondaryLabel!,
                             style: TextStyle(
@@ -133,10 +132,9 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
                         textAlign: TextAlign.center,
                       ),
 
-                    // Tertiary label (rotated 60 degrees)
                     if (widget.tertiaryLabel != null)
                       Transform.rotate(
-                        angle: 60 * math.pi / 180, // 60 degrees
+                        angle: 60 * math.pi / 180,
                         child: Text(
                           widget.tertiaryLabel!,
                           style: TextStyle(
@@ -148,10 +146,9 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
                         ),
                       ),
 
-                    // Quaternary label (rotated -60 degrees)
                     if (widget.quaternaryLabel != null)
                       Transform.rotate(
-                        angle: -60 * math.pi / 180, // -60 degrees
+                        angle: -60 * math.pi / 180,
                         child: Text(
                           widget.quaternaryLabel!,
                           style: TextStyle(
@@ -231,3 +228,4 @@ class HexagonPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
+

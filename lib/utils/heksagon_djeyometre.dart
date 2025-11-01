@@ -1,5 +1,5 @@
 import 'dart:math';
-import '../models/AngolModalz.dart';
+import '../models/angol_modalz.dart';
 
 class HeksagonDjeyometre {
   final double hexSize;
@@ -18,7 +18,6 @@ class HeksagonDjeyometre {
 
   HexagonPosition axialToPixel(int q, int r) {
     double x, y;
-    // Pointed-top
     x = hexSize * (sqrt(3) * q + sqrt(3) / 2 * r);
     y = hexSize * (3 / 2) * r;
     return HexagonPosition(
@@ -55,3 +54,4 @@ class HeksagonDjeyometre {
     ];
   }
 }
+
