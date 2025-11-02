@@ -102,14 +102,10 @@ class KepadKonfeg {
   // Complementary colors
   static Color getComplementaryColor(Color color) {
     return Color.fromARGB(
-      // ignore: deprecated_member_use
-      color.alpha, // Reverted change, analyzer is wrong
-      // ignore: deprecated_member_use
-      255 - color.red,
-      // ignore: deprecated_member_use
-      255 - color.green,
-      // ignore: deprecated_member_use
-      255 - color.blue,
+      (color.a * 255).round(),
+      (255 - (color.r * 255)).round(),
+      (255 - (color.g * 255)).round(),
+      (255 - (color.b * 255)).round(),
     );
   }
 }

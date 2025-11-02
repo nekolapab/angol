@@ -10,12 +10,12 @@ class EnpitSirves extends ChangeNotifier {
 
   EnpitSirves._();
 
-  String _inputText = '';
+  final StringBuffer _inputText = StringBuffer();
   bool _isLetterMode = true;
   bool _shouldCapitalize = false;
   bool _isTextFieldFocused = false;
 
-  String get inputText => _inputText;
+  String get inputText => _inputText.toString();
   bool get isLetterMode => _isLetterMode;
   bool get isTextFieldFocused => _isTextFieldFocused;
 
@@ -26,14 +26,16 @@ class EnpitSirves extends ChangeNotifier {
     }
 
     String finalChar = _shouldCapitalize ? char.toUpperCase() : char;
-    _inputText += finalChar;
+    _inputText.write(finalChar);
     _shouldCapitalize = false;
     notifyListeners();
   }
 
   void deleteLeft() {
     if (_inputText.isNotEmpty) {
-      _inputText = _inputText.substring(0, _inputText.length - 1);
+      String currentText = _inputText.toString();
+    _inputText.clear();
+    _inputText.write(currentText.substring(0, currentText.length - 1));
       notifyListeners();
     }
   }
@@ -41,23 +43,27 @@ class EnpitSirves extends ChangeNotifier {
   void deleteWord() {
     if (_inputText.isEmpty) return;
 
-    String trimmedText = _inputText.trimRight();
+    String currentText = _inputText.toString();
+    String trimmedText = currentText.trimRight();
     int lastSpaceIndex = trimmedText.lastIndexOf(' ');
 
+    _inputText.clear();
     if (lastSpaceIndex != -1) {
-      _inputText = trimmedText.substring(0, lastSpaceIndex);
+      _inputText.write(trimmedText.substring(0, lastSpaceIndex));
     } else {
-      _inputText = '';
+      _inputText.write('');
     }
     notifyListeners();
   }
 
   void deleteCharacters(int count) {
-    if (_inputText.isNotEmpty && _inputText.length >= count) {
-      _inputText = _inputText.substring(0, _inputText.length - count);
+    String currentText = _inputText.toString();
+    if (currentText.isNotEmpty && currentText.length >= count) {
+      _inputText.clear();
+      _inputText.write(currentText.substring(0, currentText.length - count));
       notifyListeners();
-    } else if (_inputText.isNotEmpty && _inputText.length < count) {
-      _inputText = '';
+    } else if (currentText.isNotEmpty && currentText.length < count) {
+      _inputText.clear();
       notifyListeners();
     }
   }
@@ -78,13 +84,14 @@ class EnpitSirves extends ChangeNotifier {
 
   String getDisplayText() {
     if (_inputText.isEmpty) return '';
-    if (_inputText.length <= 7) return _inputText;
-    return _inputText.substring(_inputText.length - 7);
+    String currentText = _inputText.toString();
+    if (currentText.length <= 7) return currentText;
+    return currentText.substring(currentText.length - 7);
   }
 
   void clearText() {
-    _inputText = '';
-    developer.log('InputService: _inputText cleared. New value: "$_inputText"');
+    _inputText.clear();
+    developer.log('InputService: _inputText cleared. New value: "${_inputText.toString()}"');
     notifyListeners();
   }
 }

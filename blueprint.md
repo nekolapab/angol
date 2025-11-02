@@ -1,10 +1,10 @@
-##first enstrukcon
-yuz angol spelenq  az yuzd en blueprint.md  for fayl an foldir neymz en /lib/ but not lib\main.dart and lib\firebase_options.dart. updeyt refrensez.
+## *first enstrukcon*
+yuz angol spelenq  az protokold en blueprint.md  for faylz an foldirz neymz en /lib/ (eksept lib\main.dart and lib\firebase_options.dart) and olweyz updeyt refrensez. so du not reneym tu standard englec unles standard convencon klasez (freymewirk klasez layk ChangeNotifier, StatelessWidget, ...).
 
-## ovirvyuw
+## *ovirvyuw*
 angol ez a Flutter aplekeycon lhat emplements a kustom enput melxod beyst on a heksagonal gred. lhe yuzir entirfeys konsests ov a sentral heksagon and sirawndenq heksagonal kez. lhe ap suports bolx ledir and numbir enpit modz.
 
-## prodjekt strukcir
+## **prodjekt strukcir**
 *  `lib/main.dart`: lhe aplekeyconz entre poynt.
 *  `lib/utils/heksagon_djeyometre.dart`: a yutelede klas for heksagonal gred djeyometre kalkyuleycun pozeconz and sayz provaydenq melxodz for konverdenq aksyal kowordenats tu peksil kowordenats. ets kruwcal for rendirenq lha heksagonal leyawt.
 *  `lib/widgets/heksagon_wedjet.dart`: rendirz a sengol heksagon key aperans
@@ -18,27 +18,22 @@ angol ez a Flutter aplekeycon lhat emplements a kustom enput melxod beyst on a h
 *  `lib/screens/saynen_skren.dart`: for unolxentekeyded yuzirz.
 *  `lib/services/firebase_sirves.dart`: handilz Firebase releyted opireycunz.
 *  `lib/services/ovirley_sirves.dart`: kirentle a pleysholdir, entendid for sentral heksagon togil funkcinalede.
-*  `lib/services/spetc_sirves.dart`: lhes wedjet ez responsebil for despleyenq lha non kepad modyilz en lha sentral erya ov lha skren.
+*  `lib/services/spetc_sirves.dart`: handilz spetc-tu-tekst and tekst-tu-spetc opireycunz, and prosez Angol-spelenq tekst.
 *  `lib/widgets/angol_sentir_wedjet.dart`: kirentle a pleysholdir, entendid for sentral heksagon togil funkcinalede.
 *  `lib/widgets/dayl_wedjet.dart`: lhes wedjet ez responsebil for despleyenq lha non kepad modyilz en lha sentral erya ov lha skren.
 
-## fetcirz
+## **fetcirz**
 *  heksagonal kepad leyawt.
 *  ledir and numbir enput modz.
 *  daynamek key leybilz and kulorz.
 *  steyt manedjment welx provaydir.
 *  Firebase entegreycun.
 
-## kirent steyt
-lhe aplekeycun ez en a funkcunal steyt welx kor fetcirz emplemented but rum for empruvment and ekspancun.
-
-## fyutcir development
+## **plan and tasks**
 *  empruv lha yuzir entirfeys and yuzir eksperyens.
 *  ad mor sedenqz and kustomayzeycun opscunz.
 *  ad mor modyilz.
-
-## plan and tasks
 *  refaktir `dayl_kepad_modyil.dart` tu sepret sentral heksagon and rengz entu dedekeyded wedjets.
 
-*## ecyuz:**
+## **fyutcir development:**
 *   `lib/services/ovirley_sirves.dart` ez a pleysholdir.

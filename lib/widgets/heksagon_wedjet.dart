@@ -97,66 +97,64 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    if (widget.child != null) widget.child! else
-                    if (widget.secondaryLabel != null)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            widget.label ?? '',
-                            style: TextStyle(
-                              color: finalTextColor,
-                              fontSize: widget.fontSize ?? widget.size * 0.35,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            widget.secondaryLabel!,
-                            style: TextStyle(
-                              color: finalTextColor,
-                              fontSize: widget.fontSize ?? widget.size * 0.35,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      )
+                    if (widget.child != null)
+                      widget.child!
                     else
-                      Text(
-                        widget.label ?? '',
-                        style: TextStyle(
-                          color: finalTextColor,
-                          fontSize: widget.fontSize ?? widget.size * 0.35,
-                          fontWeight: FontWeight.bold,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (widget.label != null)
+                              Text(
+                                widget.label!,
+                                style: TextStyle(
+                                  color: finalTextColor,
+                                  fontSize: widget.fontSize ?? widget.size * 0.35,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            if (widget.secondaryLabel != null)
+                              const SizedBox(width: 8),
+                            if (widget.secondaryLabel != null)
+                              Text(
+                                widget.secondaryLabel!,
+                                style: TextStyle(
+                                  color: finalTextColor,
+                                  fontSize: widget.fontSize ?? widget.size * 0.25,
+                                ),
+                              ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
                       ),
-
                     if (widget.tertiaryLabel != null)
-                      Transform.rotate(
-                        angle: 60 * math.pi / 180,
-                        child: Text(
-                          widget.tertiaryLabel!,
-                          style: TextStyle(
-                            color: finalTextColor,
-                            fontSize: widget.fontSize ?? widget.size * 0.35,
-                            fontWeight: FontWeight.bold,
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: Transform.rotate(
+                          angle: 45 * math.pi / 180,
+                          child: Text(
+                            widget.tertiaryLabel!,
+                            style: TextStyle(
+                              color: finalTextColor,
+                              fontSize: widget.fontSize ?? widget.size * 0.2,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
-
                     if (widget.quaternaryLabel != null)
-                      Transform.rotate(
-                        angle: -60 * math.pi / 180,
-                        child: Text(
-                          widget.quaternaryLabel!,
-                          style: TextStyle(
-                            color: finalTextColor,
-                            fontSize: widget.fontSize ?? widget.size * 0.35,
-                            fontWeight: FontWeight.bold,
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        child: Transform.rotate(
+                          angle: -45 * math.pi / 180,
+                          child: Text(
+                            widget.quaternaryLabel!,
+                            style: TextStyle(
+                              color: finalTextColor,
+                              fontSize: widget.fontSize ?? widget.size * 0.2,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
                   ],
@@ -175,7 +173,7 @@ class HexagonPainter extends CustomPainter {
   final double glowIntensity;
   final Size size;
 
-  HexagonPainter({
+  const HexagonPainter({
     required this.color,
     this.glowIntensity = 0.0,
     required this.size,
@@ -191,7 +189,7 @@ class HexagonPainter extends CustomPainter {
 
     if (glowIntensity > 0) {
       final glowPaint = Paint()
-        ..color = color.withAlpha((255 * glowIntensity * 0.6).round())
+        ..color = KepadKonfeg.getComplementaryColor(color).withAlpha((255 * glowIntensity * 0.6).round())
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
       canvas.drawPath(path, glowPaint);
     }
