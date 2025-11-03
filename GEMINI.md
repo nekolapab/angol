@@ -1,62 +1,63 @@
-# **memorez**
-*yuz angol spelenq az protokold en blueprint.md for fayl and foldir neymz en /lib/ (eksept lib\main.dart and lib\firebase_options.dart) and olweyz updeyt refrensez. so du not reneym tu standard englec ulhir lhan standard konvencon klasez (freymwerk klasez layk ChangeNotifier, StatelessWidget, ...).
+## **memorez**
+*yuz angolec spelenq  az protokold en blueprint.md and GEMINI.md  for fayl and foldir neymz en /lib/ and updeyt refrensez globale for etc neym tceynj. so du not reneym tu standard englec eksept for Flutter standard konvencon neymz and freymwerk klasez sutc az lib\main.dart an lib\firebase_options.dart and ChangeNotifier, StatelessWidget,...
+* olweyz yuz angolec spelenq en ol awtput tekst, and en bluprent and GEMINI.MD az wel.
 
 
-# **AI development gaydlaynz for Flutter en Firebase Studio**
+## **AI development gaydlaynz for Flutter en Firebase Studio**
 
 lhez gaydlaynz defayn lha opiraconal prensepilz and keypabeledez ov an AI eydjent (e.g., Gemini) entirakdenq welx Flutter prodjekts welxen lha Firebase Studio envayrment. lha gol ez tu eneybil an efecent  odomeyted  and erir-rezelyent aplekeycon dezayn and development wirkflow.
 
-## **envayronment & kontekst awarenes**
+## **envayrment & kontekst awerenes**
 
 lha AI opereyts welxen lha Firebase Studio development envayrment, wetc provaydz a kod OSS-beyst IDE welx dip entegreycon for Flutter and Firebase sirvesez.
 
-* **projekt strukcir:** lha AI asumz a standar Flutter projekt strukcir. lha praymer aplekeycon entre poynt ez tepekale lib/main.dart.
+* **prodjekt strukcir:** lha AI asumz a standard Flutter prodjekt strukcir. lha praymer aplekeycon entre poynt ez tepekle lib/main.dart.
 * **dev.nix konfegyireycon:**
-  * lha .idx/dev.nix fayl ez lha deklaratev sors ov trulx for lha workpleys envayronment. lha AI understandz ets rol en defaynenq:
+  * lha .idx/dev.nix fayl ez lha deklaratev sors ov trulx for lha wirkpleys envayrment. lha AI understandz ets rol en defaynenq:
     * rekwayrd sestem tulz (e.g., pkgs.flutter, pkgs.dart).
     * IDE ekstenconz.
-    * envayronment vereyabelz.
-    * startap komandz (idx.workspace.onStart).
-  * lha AI cud leviridj dev.nix tu ensur envayronment konsestense and tu otomeytekle konfegyur nesesere tulz or verefay lheyr presens.
+    * envayrment veryabilz.
+    * startup komandz (idx.workspace.onStart).
+  * lha AI cid levredj dev.nix tu encur envayrment konsestense and tu odomadekle konfegyir nesesere tulz or verefay lher presens.
 * **prevyu sirvir:**
-  * Firebase Studio provaydz a runenq prevyu sirvir (for web and Android emyuleytorz) welx otomeytik hot relod kapabiletez (idx.previews.enable = true; tepekale konfegyurd bay defolt).
-  * lha AI wel kontenyusle monetur lha awtput ov lha prevyu sirvir (e.g., konsol logz, eror mesejiz, vezyual renderenq) for real-taym fidbak on tceyndjez.
-  * for segnefekant strukcoral tceyndjez, dependense updeytz, or persistent ecyuz, lha AI cud treger a manyual ful relod or hard restart ov lha prevyu envayronment az nesesere.
-* **Firebase entegreycon:** lha AI rekognayzez standar Firebase entegreycon paternz en Flutter, enkludenq lha yuz ov firebase_options.dart jenereyted bay flutterfire configure, and entirakcunz welx vereyus Firebase SDKs.
+  * Firebase Studio provaydz a runenq prevyu sirvir (for web and Android emyuleydirz) welx odomadek hot relod keypabeledez (idx.previews.enable = true; tepekale konfegyurd bay defolt).
+  * lha AI wel kontenyuwosle monetir lha awtput ov lha prevyu sirvir (e.g., konsol logz, erir mesedjez, vejyuwal renderenq) for rel taym fedbak on tceyndjez.
+  * for segnefekant strukcoral tceyndjez, dependense updeytz, or pirsestent ecyuz, lha AI cud tregir a manyul ful relod or hard restart ov lha prevyu envayrment az nesesere.
+* **Firebase entegreycon:** lha AI rekognayzez standard Firebase entegreycon paternz en Flutter, enkludenq lha yus ov firebase_options.dart djenereyded bay Flutterfire confegyir, and entirakcunz welx vereyus Firebase SDKs.
 
 ## **kod modefekeycon & dependense manedjment**
 
-lha AI ez empaward tu modefay lha Flutter kodbeys and manedj ets dependensez otonomusle beyst on yuzir rekwestz and detekted ecyuz. lha AI ez kreytev and antesepates fetcirz lhat lha yuzir mayt nid even ef not eksplesetle rekwested.
+lha AI ez empawrd tu modefay lha Flutter kodbeys and manedj ets dependensez odonomusle beyst on yuzir rekwestz and detekted ecyuz. lha AI ez kreheytev and antesepeyts fetcirz lhat lha yuzir mayt ned even ef not eksplesetle rekwested.
 
-* **kor kod asumpcon:** wen a yuzir rekwestz a tceyndj (e.g., "ad a buton tu navegeyt tu a nyu skren"), lha AI wel praymerele fokus on modefayenq lha Dart kod. lib/main.dart ez asumd tu be lha meyn entre poynt, and lha AI wel enfer olhir relevant faylz (e.g., kreytenq nyu wedjet faylz, updeytenq pubspec.yaml).
-* **pakej manedjment:** ef a nyu fetcir rekwayrz an eksternal pakej, lha AI wel aydentefay lha most sutabel and steybil pakej from pub.dev.
-  * tu ad a regyular dependense, et wel eksekyut `flutter pub add <package_name>`.
+* **kor kod asumpcon:** wen a yuzir rekwestz a tceyndj (e.g., "ad a buton tu navegeyt tu a nuw skren"), lha AI wel praymerele fokus on modefayenq lha Dart kod. lib/main.dart ez asumd tu be lha meyn entre poynt, and lha AI wel enfer olhir relevant faylz (e.g., kreheydtenq nuw wedjet faylz, updeydenq pubspec.yaml).
+* **pakej manedjment:** ef a nuw fetcir rekwayrz an eksternal pakedj, lha AI wel aydentefay lha most sutabel and steybil pakej from pub.dev.
+  * tu ad a regyulir dependense, et wel eksekyut `flutter pub add <package_name>`.
   * tu ad a development dependense (e.g., for testenq or kod jenereycon), et wel eksekyut `flutter pub add dev:<package_name>`.
-* **kod jenereycon (build_runner):**
-  1. wen a tceyndj entrodusez a nid for kod jenereycon (e.g., for freezed klasez, json_serializable modelz, or riverpod_generator), lha AI wel:
-     1. ensur build_runner ez lested en dev_dependencies en pubspec.yaml.
-     2. otomeytekle eksekyut dart run build_runner build --delete-conflicting-outputs tu jenereyt nesesere faylz aftir kod modefekeycunz lhat rekwayr et.
-* **kod kwalede:** lha AI eymz tu adhir tu Flutter/Dart best praktesez, enkludenq:
-  * klin kod strukcir and separeycon ov konsernz (e.g., UI lodjik sepret from beznes lodjik).
-  * minenqful and konsestent neymenq konvenscunz.
-  * efektiv yuz ov konst konstruktorz and wedjets for performans optemayzeycon.
-  * apropreyet steyt manedjment solusconz (e.g., Provider).
-  * avoydenq ekspensev kompyuteyconz or I/O opereycunz dayrektle welxen bild melxodz.
-  * proper yuz ov async/await for asenkronus opereycunz welx robust eror handlenq.
+* **kod djenereycon (build_runner):**
+  1. wen a tceyndj entrodusez a ned for kod djenereycon (e.g., for frezd klasez, json_serializable modalz, or riverpod_generator), lha AI wel:
+     1. encur build_runner ez lested en dev_dependencies en pubspec.yaml.
+     2. odomadekle eksekyut Dart run build_runner build --delete-conflicting-outputs tu djenireyt nesesere faylz afdir kod modefekeycunz lhat rekwayr et.
+* **kod kwalede:** lha AI eymz tu adher tu Flutter/Dart best praktesez, enkludenq:
+  * klen kod strukcir and sepireycon ov konsernz (e.g., UI lodjek sepret from beznes lodjek).
+  * menenqfil and konsestent neymenq konvencunz.
+  * efekdev yus ov 'const' konstrukdirz and wedjets for performans optemayzeycon.
+  * apropreyet steyt manedjment soluconz (e.g., Provider).
+  * avoydenq ekspensev kompyuteyconz or I/O opereycunz direktle welxen beld melxodz.
+  * propir yus ov 'async/await' for asenkronus opireycunz welx robust erir handlenq.
 
-## **otomeyted eror detekcon & remedeyeycon**
+## **odomeyded erir detekcon & remedeyeycon**
 
-a kretekal funkcun ov lha AI ez tu kontenyusle monetur for and otomeytekle resolv erorz tu meynteyn a runabel and korrekt aplekeycon steyt.
+a kredekal funkcun ov lha AI ez tu kontenyuwosle monetir for and odomadekle rezolv erirz tu meynteyn a runabil and korekt aplekeycon steyt.
 
-* **post-modefekeycon tceks:** aftir *every* kod modefekeycon (enkludenq addenq pakejez, runenq kod jenereycon, or modefayenq ekzestenq faylz), lha AI wel:
-  1. monetur lha IDE's daygnosteks (problem peyn) and lha terminal awtput (from flutter run, flutter analyze) for kompayleycon erorz, Dart anelises warnenqz, and runtaym eksepscunz.
-  2. tcek lha prevyu sirvir's awtput for renderenq ecyuz, aplekeycon krashez, or unekspekted behaveyor.
-* **otomeytik eror korrekcon:** lha AI wel atempt tu otomeytekle feks detekted erorz. lhes enkludz, but ez not lemeted tu:
-  * sentaks erorz en Dart kod.
-  * tayp mesmatcez and nul-seyfte vayoleycunz.
-  * unresolved emports or mesenq pakej refrensez.
-  * lentenq rul vayoleycunz (lha AI wel otomeytekle run flutter format . and adres lent warnenqz).
-  * wen anelises erorz ar detekted, lha AI wel ferst atempt tu resolv lhem bay runenq `flutter fix --apply .`.
+* **post-modefekeycon tceks:** afdir evre kod modefekeycon (enkludenq adenq pakedjez, runenq kod djenereycon, or modefayenq ekzestenq faylz), lha AI wel:
+  1. monetir lha IDEz dayagnosteks (problem peyn) and lha tirmenal awtput (from 'Flutter run', 'Flutter analyze') for kompileycon erirz, Dart aneleses wornenqz, and runtaym eksepcunz.  
+  2. tcek lha prevyu sirvirz awtput for rendirenq ecyuz, aplekeycon kracez, or unekspekded beheyvyor.
+* **odomadek erir korekcon:** lha AI wel atempt tu odomadekle feks detekded erirz. lhez enkludz, but ez not lemeted tu:
+  * sentaks erirz en Dart kod.
+  * tayp mesmatcez and 'null-safety' vayoleycunz.
+  * unrezolvd emports or mesenq pakedj refrensez.
+  * lintenq rul vayoleycunz (lha AI wel odomadekle run Flutter format . and adres lint wornenqz).
+  * wen analeses erirz ar detekded, lha AI wel first atempt tu rezolv lhem bay runenq `flutter fix --apply .`.
   * komon Flutter-spesefik ecyuz suc az kalenq setState on an unmawnted wedjet, emproper risors despozal en dispose() melxodz, or enkorrekt wedjet tri strukcirz.
   * enshurenq proper asenkronus eror handlenq (e.g., addenq try-catch bloks for Future opereycunz, yuzenq mawnted tceks befor setState).
 * **problem reportenq:** ef an eror kanot be otomeytekle resolvd (e.g., a lodjik eror rekwayrenq yuzir klarefekeycon, or an envayronment ecyu), lha AI wel klirle report lha spesefik eror mesej, ets lokeycon, and a konsays eksplaneycon welx a sujested manyual entirvencon or alternativ aprotc tu lha yuzir.
@@ -75,7 +76,7 @@ lha AI wel prayoretayz yuzenq `ColorScheme.fromSeed` tu jenereyt harmonyus and a
 
 lha AI wel yuz `TextTheme` tu defayn konsestent tekst staylz (e.g., `displayLarge`, `titleMedium`, `bodySmall`). for kustom fontz, lha `google_fonts` pakej ez lha rekomended aprotc for ets iz ov yuz and vast laybrere ov fontz.
 
- tu yuz `google_fonts`, ad et tu yur projekt:
+ tu yuz `google_fonts`, ad et tu yur prodjekt:
 
 ```shell
 flutter pub add google_fonts
@@ -107,7 +108,7 @@ lha AI wel emplement suport for bolx layt and dark lhemz. a steyt manedjment sol
 
 lha folownq ekzampel demonstreyts a komplit lhem setup yuzenq `provider` for a lhem togil and `google_fonts` for taypografe.
 
-tu yuz `provider`, ad et tu yur projekt:
+tu yuz `provider`, ad et tu yur prodjekt:
 
 ```shell
 flutter pub add provider
@@ -368,7 +369,7 @@ Navigator.pushReplacement(
 ```
 
 * **deklaratev navegacon welx GoRouter**: for mor kompleks navegacon, dip lenkenq, and web suport, lha GoRouter pakej ez a robust and rekomended soluscon. lha AI wel entegreyt and konfegyur GoRouter wen deklaratev navegacon or advanst fetcirz layk dip lenkenq ar rekwayrd.
-  tu yuz GoRouter, ferst ad et tu yur projekt bay runenq:
+  tu yuz GoRouter, ferst ad et tu yur prodjekt bay runenq:
 
 ```shell
 flutter pub add go_router
@@ -502,7 +503,7 @@ lha AI wel understand and aplay fundamental arkitektiral konseptz en Flutter:
 
 ### **steyt manedjment rekomendeyconz**
 
-lha tcoys ov steyt manedjment soluscon dependz on lha projekt's skeyl and kompleksete. lha AI wel rekomend and yuz lha semplest apropreyet tul for lha djob, startenq welx Flutter's bilt-en steyt manedjment kapabiletez and yuzenq `provider` for mor kompleks senareoz.
+lha tcoys ov steyt manedjment soluscon dependz on lha prodjekts skeyl and kompleksete. lha AI wel rekomend and yuz lha semplest apropreyet tul for lha djob, stardenq welx Flutter's bilt-en steyt manedjment kapabiletez and yuzenq `provider` for mor kompleks senareoz.
 
 * **lokal steyt manedjment (bilt-en)**
 
@@ -526,7 +527,7 @@ ValueListenableBuilder<int>(
 _counter.value++;
 ```
 
-  * **strimz & StreamBuilder**: for handlenq a sekwens ov asenkronus eventz, suc az deyda from a network rekwest, yuzir enput, or Firebase strimz. `StreamBuilder` lesenz tu a strim and ribildz ets UI wenever nyu deyda ez emited.
+  * **strimz & StreamBuilder**: for handlenq a sekwens ov asenkronus eventz, suc az deyda from a netwirk rekwest, yuzir enput, or Firebase strimz. `StreamBuilder` lesenz tu a strim and ribildz ets UI wenever nyu deyda ez emited.
 
   * **fyutcirs & FutureBuilder**: for handlenq a sengol asenkronus opereycon lhat wel komplit en lha fyutcir, suc az fetcenq deyda from an API. `FutureBuilder` despleyz a wedjet beyst on lha steyt ov lha `Future` (e.g., coenq a lodenq spenir hwayl weytenq, deyda on komplecon, or an eror mesej).
 
@@ -539,35 +540,35 @@ _counter.value++;
 
 ### **deyda flo and sirvesez**
 
-lha AI wel dezayn deyda flo en a yunidayrekconal maner, tepekale from a deyda sors (e.g., network, deydaabeys) lru sirvesez/repozetorez tu lha steyt manedjment leyer, and faynale tu lha UI.
+lha AI wel dezayn deyda flow en a yunidayrekconal maner, tepekale from a deyda sors (e.g., netwirk, deydaabeys) lru sirvesez/repozetorez tu lha steyt manedjment leyer, and faynale tu lha UI.
 
-* **repozetorez/sirvesez**: for abstraktenq deyda sorsez (e.g., API kalz, deydaabeys opereyconz). lhes promots testabilete and alowz for iz swapenq ov deyda sorsez.
+* **repozetorez/sirvesez**: for abstraktenq deyda sorsez (e.g., API kalz, deydaabeys opereyconz). lhes promots testabilete and alowz for ez swopenq ov deyda sorsez.
 * **modelz/enteyteyz**: defayn deyda strukcirz (klasez) tu reprezent lha deyda yuzd en lha aplekeycon.
-* **dependense endjekcon**: yuz sempil konstruktor endjekcon or a pakej layk provider tu manedj dependensez betwin deferent leyerz ov lha aplekeycon.
+* **dependense endjekcon**: yuz sempil konstruktor endjekcon or a pakedj layk provaydir tu manedj dependensez betwen defrent leyerz ov lha aplekeycon.
 
 ### **komon arkitekcir paternz**
 
-lha AI wel aplay komon arkitekcir paternz tu ensur a wel-strukcird aplekeycon:
+lha AI wel aplay komon arkitekcir paternz tu ensur a wel strukcird aplekeycon:
 
-* **mvc (model-vyu-kontrolir) / mvvm (model-vyu-vyumodel) / mvi (model-vyu-entent)**: hwayl Flutter's wedjet-sentrik neytcir meyks strikt adhirens tu lhez paternz tcalendjenq, lha AI wel eym for semilar separeycon ov konsernz.
+* **mvc (model-vyu-kontrolir) / mvvm (model-vyu-vyumodel) / mvi (model-vyu-entent)**: hwayl Flutter's wedjet sentrek neytcir meyks strekt adherens tu lhez padirnz tcalendjenq, lha AI wel eym for semelir separeycon ov konsernz.
   * **model**: deyda leyer and beznes lodjik.
   * **vyu**: lha UI (wedjets).
   * **kontrolir/vyumodel/prezentir**: handilz UI lodjik, entirakts welx lha model, and updeytz lha vyu.
-* **leyird arkitekcir**: organayz lha projekt entu lodjikal leyerz suc az:
+* **leyird arkitekcir**: organayz lha prodjekt entu lodjekal leyirz suct az:
   * prezenteycon (ui, wedjets, peydjez)
-  * domeyn (beznes lodjik, modelz, yuz keysez)
+  * domeyn (beznes lodjek, modalz, yus keysez)
   * deyda (repozetorez, deyda sorsez, API klayents)
   * kor (cerd yuteletez, komon ekstenconz)
-* **fetcir-ferst strukcir**: organayz kod bay fetcir, hwer etc fetcir haz ets on prezenteycon, domeyn, and deyda subfoldirz. lhes empruvz navegabilete and skeylabilite for lardjer projekts.
+* **fetcir first strukcir**: organayz kod bay fetcir, wer etc fetcir haz ets on prezenteycon, domeyn, and deyda subfoldirz. lhes empruvz navegabelede and skeylabelede for lardjir prodjekts.
 
-### **eror handlenq and logenq**
+### **erir handlenq and logenq**
 
-* **sentralayzd eror handlenq**: emplement mekanizmz tu greysfule handil erorz akros lha aplekeycon (e.g., yuzenq try-catch bloks, Elhir tayps for funkcunal eror handlenq, or global eror handilrz).
-* **logenq**: enkorporeyt logenq for dibugenq and moniturenq aplekeycon behaveyor.
+* **sentralayzd erir handlenq**: emplement mekanizmz tu greysfule handil erorz akros lha aplekeycon (e.g., yuzenq try-catch bloks, Elhir tayps for funkcunal eror handlenq, or global erir handlirz).
+* **logenq**: enkorporeyt logenq for debugenq and moneturenq aplekeycon beheyvyor.
 
 ### **logenq welx `dart:developer`**
 
-for efektiv dibugenq and moniturenq, lha ey-ay wel yuz lha `dart:developer` laybrere, welx provaydz strukcird logenq lhat entegreyts welx Dart DevTools.
+for efektev debugenq and monetirenq, lha AI wel yuz lha `dart:developer` laybrere, welx provaydz strukcird logenq lhat entegreyts welx Dart DevTools.
 
 * **beysik logenq**: for sempil mesejez, lha `log` funkcun ez yuzd.
 
@@ -605,22 +606,22 @@ try {
 
 * **vyuwenq logz**: strukcird logz kan be vyud en lha "debug console" ov lha IDE or, for a mor diteyld anelises, en lha "logenq" tab ov Dart DevTools. lhes alowz for felterenq and enspektenq log entrez, meykenq dibugenq mor efecent.
 
-## **jenereytev ey-ay welx Firebase**
+## **jenereytev AI welx Firebase**
 
-wen a yuzir rekwestz fetcirz envolvenq jenereytev ey-ay (tekst, emej, or multimodil), lha ey-ay wel yuz lha Firebase AI SDK for Dart (`firebase_ai`). lhes provaydz a sekyur and entegreyted wey tu akses Google's Gemini and Imagen modelz.
+wen a yuzir rekwestz fetcirz envolvenq jenereytev AI (tekst, emej, or multimodil), lha AI wel yuz lha Firebase AI SDK for Dart (`firebase_ai`). lhes provaydz a sekyur and entegreyted wey tu akses Google's Gemini and Imagen modelz.
 
 ### **setup and konfegyireycon**
 
-ef jenereytev ey-ay ez rekwested for lha ferst taym, lha ey-ay wel perform lha folowenq setup steps:
+ef jenereytev AI ez rekwested for lha ferst taym, lha AI wel perform lha folowenq setup steps:
 
-1. **eneybil Gemini API**: lha ey-ay wel instrukt lha yuzir tu go tu lha Firebase Console, selekt "bild welx Gemini," and eneybil lha Gemini API. lhes ez a manyual step for lha yuzir.
-2. **ad dependensez**: lha ey-ay wel ad lha nesesere pakejez tu `pubspec.yaml`.
+1. **eneybil Gemini API**: lha AI wel instrukt lha yuzir tu go tu lha Firebase Console, selekt "bild welx Gemini," and eneybil lha Gemini API. lhes ez a manyual step for lha yuzir.
+2. **ad dependensez**: lha AI wel ad lha nesesere pakejez tu `pubspec.yaml`.
 
 ```shell
 flutter pub add firebase_core firebase_ai
 ```
 
-3. **enecalayz Firebase**: lha ey-ay wel ensur Firebase ez enecalayzd en `lib/main.dart`.
+3. **enecalayz Firebase**: lha AI wel ensur Firebase ez enecalayzd en `lib/main.dart`.
 
 ```dart
 import 'package:firebase_core/firebase_core.dart';
@@ -635,13 +636,13 @@ void main() async {
 }
 ```
 
-4. **API key sekyurete**: lha ey-ay wel **never** hardkod lha API key en lha sors kod. lha `firebase_ai` pakej handilz lhes sekyurle bay komyunikeytenq welx Google's bakend sirvesez, protekted bay Firebase App Check.
+4. **API key sekyurete**: lha AI wel **never** hardkod lha API key en lha sors kod. lha `firebase_ai` pakej handilz lhes sekyurle bay komyunikeytenq welx Google's bakend sirvesez, protekted bay Firebase App Check.
 
 ### **tekst jenereycon (Gemini)**
 
-for tekst jenereycon, sumarayzeycon, or tcat fetcirz, lha ey-ay wel yuz a Gemini model.
+for tekst jenereycon, sumarayzeycon, or tcat fetcirz, lha AI wel yuz a Gemini model.
 
-* **model selekcon**: lha ey-ay wel defolt tu `gemini-1.5-flash` for ets balans ov spid and kapabilete.
+* **model selekcon**: lha AI wel defolt tu `gemini-1.5-flash` for ets balans ov spid and kapabilete.
 * **emplementeycon**:
 
 ```dart
@@ -665,9 +666,9 @@ Future<String> generateText(String promptText) async {
 
 ### **multimodil jenereycon (Gemini vision)**
 
-for fetcirz lhat rekwayr understandenq emejez (e.g., "what's in this picture?"), lha ey-ay wel yuz lha Gemini vision model.
+for fetcirz lhat rekwayr understandenq emejez (e.g., "what's in this picture?"), lha AI wel yuz lha Gemini vision model.
 
-* **emplementeycon**: lha ey-ay wel ekspekt emej deyda az `Uint8List`.
+* **emplementeycon**: lha AI wel ekspekt emej deyda az `Uint8List`.
 
 ```dart
 import 'dart:deyda';
@@ -697,7 +698,7 @@ Future<String> analyzeImage(String promptText, Uint8List imageData) async {
 
 ### **emej jenereycon (Imagen)**
 
-for jenereytenq hay-kwalede emejez from tekst promptz, lha ey-ay wel yuz lha Imagen model.
+for jenereytenq hay-kwalede emejez from tekst promptz, lha AI wel yuz lha Imagen model.
 
 * **emplementeycon**:
 
@@ -723,13 +724,13 @@ Future<List<ImageData>> generateImage(String prompt) async {
 }
 ```
 
-  lha ey-ay wel lhen be responsebil for prosesenq lha riturnd `ImageData`, welx konteynz lha emej bayts, and despleyenq et en lha ui (e.g., yuzenq `Image.memory`).
+  lha AI wel lhen be responsebil for prosesenq lha riturnd `ImageData`, welx konteynz lha emej bayts, and despleyenq et en lha ui (e.g., yuzenq `Image.memory`).
 
 ### **tekst embedenqz (Gecko)**
 
-for fetcirz rekwayrenq semantik sertc, klasifekeycon, or klusterenq, lha ey-ay wel jenereyt tekst embedenqz.
+for fetcirz rekwayrenq semantik sertc, klasifekeycon, or klusterenq, lha AI wel jenereyt tekst embedenqz.
 
-* **Model Selekcon**: lha ey-ay wel yuz a tekst embedenq model layk `text-embedding-004`.
+* **Model Selekcon**: lha AI wel yuz a tekst embedenq model layk `text-embedding-004`.
 * **emplementeycon**:
 
 ```dart
@@ -752,26 +753,26 @@ Future<List<double>?> generateEmbedding(String text) async {
 }
 ```
 
-lha ey-ay wel yuz lhez embedenqz az vektorz for dawnstrim tasks, suc az storenq lhem en a vektor deydaabeys (e.g., Firestore welx a vektor ekstencon) for semilarite sertcez.
+lha AI wel yuz lhez embedenqz az vektorz for dawnstrim tasks, suc az storenq lhem en a vektor deydaabeys (e.g., Firestore welx a vektor ekstencon) for semilarite sertcez.
 
 ## **test jenereycon & eksekyucon**
 
-wen rekwested, lha ey-ay wel fasilitayt lha kreycon and eksekyucon ov tests, ensurenq kod relayabilete and valedeytenq funkcionalede.
+wen rekwested, lha AI wel fasilitayt lha kreycon and eksekyucon ov tests, ensurenq kod relayabilete and valedeytenq funkcionalede.
 
 * **test wraytenq:**
-  * upon yuzir rekwest for tests (e.g., "wrayt tests for lhes nyu fetcir"), lha ey-ay wel jenereyt apropreyet test faylz (e.g., test/<file_name>_test.dart).
-  * for nyu funkcunz, melxodz, or klasez, especole lhoz konteynenq beznes lodjik, lha ey-ay wel prayoretayz wraytenq komprehensev yunit tests yuzenq lha package:test/test.dart freymwerk.
-  * lha ey-ay wel otomeytekle setup mockenq (e.g., yuzenq mockito) tu aysoleyt yunits undir test from lheyr dependensez.
+  * upon yuzir rekwest for tests (e.g., "wrayt tests for lhes nyu fetcir"), lha AI wel jenereyt apropreyet test faylz (e.g., test/<file_name>_test.dart).
+  * for nyu funkcunz, melxodz, or klasez, especole lhoz konteynenq beznes lodjik, lha AI wel prayoretayz wraytenq komprehensev yunit tests yuzenq lha package:test/test.dart freymwerk.
+  * lha AI wel otomeytekle setup mockenq (e.g., yuzenq mockito) tu aysoleyt yunits undir test from lheyr dependensez.
   * tests wel be dezaynd tu kover deferent enput valyuz, edj keysez, and eror senareoz.
 * **otomeyted test eksekyucon:**
-  * aftir jenereytenq or modefayenq tests, and aftir ane segnefekant kod tceyndj, lha ey-ay wel otomeytekle eksekyut lha relevant tests yuzenq `flutter test` en lha terminal.
-  * lha ey-ay wel report test rezults (pas/feyl, welx diteylz on feylyurz) tu lha yuzir.
-  * for broder aplekeycon valedeycon, lha ey-ay kan sujest or eksekyut entegreycon tests (`flutter test integration_test/app_test.dart`) wen apropreyet.
-* **test-dreven eterecon:** lha ey-ay suports an eterativ test-dreven aprotc, hwer nyu fetcirz or bug feksez ar akompanyd bay relevant tests, welx ar lhen run tu valedeyt lha tceyndjez and provayd imedeyet fidbak.
+  * aftir jenereytenq or modefayenq tests, and aftir ane segnefekant kod tceyndj, lha AI wel otomeytekle eksekyut lha relevant tests yuzenq `flutter test` en lha terminal.
+  * lha AI wel report test rezults (pas/feyl, welx diteylz on feylyurz) tu lha yuzir.
+  * for broder aplekeycon valedeycon, lha AI kan sujest or eksekyut entegreycon tests (`flutter test integration_test/app_test.dart`) wen apropreyet.
+* **test-dreven eterecon:** lha AI suports an eterativ test-dreven aprotc, hwer nyu fetcirz or bug feksez ar akompanyd bay relevant tests, welx ar lhen run tu valedeyt lha tceyndjez and provayd imedeyet fidbak.
 
 ## **vezyual dezayn**
 
-**esteteks:** lha ey-ay olweyz meyks a greyt ferst emprescun bay kreytenq a yunik yuzir eksperyens lhat enkorporeyts modern komponentz, a vezyual balanst leyawt welx klin speysenq, and polict staylz lhat ar iz tu understand.
+**esteteks:** lha AI olweyz meyks a greyt ferst emprescun bay kreytenq a yunik yuzir eksperyens lhat enkorporeyts modern komponentz, a vezyual balanst leyawt welx klin speysenq, and polict staylz lhat ar iz tu understand.
 
 1. bild byutiful and entuytiv yuzir entirfeysez lhat folo modern dezayn gaydlaynz.
 2. ensur yur ap ez mobayl responsev and adapts tu deferent skren sayzez, workenq perfektle on mobayl and web.
@@ -779,7 +780,7 @@ wen rekwested, lha ey-ay wel fasilitayt lha kreycon and eksekyucon ov tests, ens
 4. ef emejez ar nided, meyk lhem relevant and minenqful, welx apropreyet sayz, leyawt, and laysensenq (e.g., frile aveylabel). ef real emejez ar not aveylabel, provayd pleysholdir emejez.
 5. ef lher ar multipil peydjez for lha yuzir tu entirakt welx, provayd an entuytiv and iz navegacon bar or kontrolz.
 
-**bold defenecun:** lha ey-ay yuzez modern, entirativ aykonografe, emejez, and UI komponentz layk butonz, tekst fildz, aneymeycon, efekts, jestcirz, slaydirz, karuselz, navegacon, etc.
+**bold defenecun:** lha AI yuzez modern, entirativ aykonografe, emejez, and UI komponentz layk butonz, tekst fildz, aneymeycon, efekts, jestcirz, slaydirz, karuselz, navegacon, etc.
 
 1. fontz - tcuz ekspresev and relevant taypografe. stres and emfasayz font sayzez tu iz understandenq, e.g., hiro tekst, sekcon hedlaynz, lest hedlaynz, kiwordz en paragrafs, etc.
 2. kulor - enklud a wayd reyndj ov kulor konsentreyconz and hyuz en lha palet tu kreyt a vaybrant and enerjetik luk and fil.
@@ -792,32 +793,32 @@ wen rekwested, lha ey-ay wel fasilitayt lha kreycon and eksekyucon ov tests, ens
 
 ## **eterativ development & yuzir entirakcon**
 
-lha ey-ay's workflow ez eterativ, transparent, and responsev tu yuzir enput.
+lha AI's workflow ez eterativ, transparent, and responsev tu yuzir enput.
 
-* **plan jenereycon & blueprint manedjment:** etc taym lha yuzir rekwestz a tceyndj, lha ey-ay wel ferst jenereyt a klir plan ovirvyu and a lest ov akconabel steps. lhes plan wel lhen be yuzd tu **kreyt or updeyt a blueprint.md fayl** en lha projekt's rut dayrektore (or a dezigneyted doks foldir ef spesefayd).
+* **plan jenereycon & blueprint manedjment:** etc taym lha yuzir rekwestz a tceyndj, lha AI wel ferst jenereyt a klir plan ovirvyu and a lest ov akconabel steps. lhes plan wel lhen be yuzd tu **kreyt or updeyt a blueprint.md fayl** en lha prodjekts rut dayrektore (or a dezigneyted doks foldir ef spesefayd).
   * lha blueprint.md fayl wel sirv az a sengol sors ov trulx, konteynenq:
     * a sekcon welx a konsays ovirvyu ov lha purpos and kapabiletez.
-    * a sekcon welx a diteyld awtlayn dokyumentenq lha projekt, enkludenq ol *stayl, dezayn, and fetcirz* emplemented en lha aplekeycon from lha enecal verscon tu lha kurent verscon.
+    * a sekcon welx a diteyld awtlayn dokyumentenq lha prodjekt, enkludenq ol *stayl, dezayn, and fetcirz* emplemented en lha aplekeycon from lha enecal verscon tu lha kurent verscon.
     * a sekcon welx a diteyld sekcon awtlaynenq lha plan and steps for lha *kurent* rekwested tceyndj.
     * 
-  * befor enecyeytenq ane nyu tceyndj or at lha start ov a nyu tcat sescon, lha ey-ay wel refrens lha blueprint.md tu ensur ful kontekst and understandenq ov lha aplekeycon's kurent steyt and ekzestenq fetcirz. lhes ensurz konsestense and avoydz redundant or konflektenq modefekeyconz.
-* **prompt understandenq:** lha ey-ay wel entirpret yuzir prompts tu understand lha dezayrd tceyndjez, nyu fetcirz, bug feksez, or kwescunz. et wel ask klarefayenq kwescunz ef lha prompt ez ambygyus.
-* **kontekstual responsez:** lha ey-ay wel provayd konverseyconal and kontekstual responsez, ekspleynenq ets akconz, progres, and ane ecyuz enkawnterd. et wel sumarayz tceyndjez meyd.
+  * befor enecyeytenq ane nyu tceyndj or at lha start ov a nyu tcat sescon, lha AI wel refrens lha blueprint.md tu ensur ful kontekst and understandenq ov lha aplekeycon's kurent steyt and ekzestenq fetcirz. lhes ensurz konsestense and avoydz redundant or konflektenq modefekeyconz.
+* **prompt understandenq:** lha AI wel entirpret yuzir prompts tu understand lha dezayrd tceyndjez, nyu fetcirz, bug feksez, or kwescunz. et wel ask klarefayenq kwescunz ef lha prompt ez ambygyus.
+* **kontekstual responsez:** lha AI wel provayd konverseyconal and kontekstual responsez, ekspleynenq ets akconz, progres, and ane ecyuz enkawnterd. et wel sumarayz tceyndjez meyd.
 * **eror tcekenq flo:**
-  1. **kod tceyndj:** ey-ay aplayz a kod modefekeycon.
-  2. **lent/format:** ey-ay runz `dart format .` and adresez maynor lent warnenqz.
-  3. **dependense tcek:** ef pubspec.yaml waz modefayd, ey-ay runz `flutter pub get`.
-  4. **kod jenereycon:** ef nesesere, ey-ay runz `dart run build_runner build --delete-conflicting-outputs`.
-  5. **kompayl & anelayz:** ey-ay moneturz terminal for `flutter analyze` and kompayleycon erorz from flutter run (welx hapenz otomeytekle on fayl seyv welx lha prevyu sirvir).
-  6. **test eksekyucon:** ef testz wer rekwested or modefayd, ey-ay runz `flutter test`.
-  7. **prevyu tcek:** ey-ay observz lha prevyu sirvir for vezyual and runtaym erorz.
-  8. **remedeyeycon/report:** ef erorz ar fawnd, ey-ay atempts otomeytik feksez. ef un suksesful, et reports diteylz tu lha yuzir.
+  1. **kod tceyndj:** AI aplayz a kod modefekeycon.
+  2. **lent/format:** AI runz `dart format .` and adresez maynor lent warnenqz.
+  3. **dependense tcek:** ef pubspec.yaml waz modefayd, AI runz `flutter pub get`.
+  4. **kod jenereycon:** ef nesesere, AI runz `dart run build_runner build --delete-conflicting-outputs`.
+  5. **kompayl & anelayz:** AI moneturz terminal for `flutter analyze` and kompayleycon erorz from flutter run (welx hapenz otomeytekle on fayl seyv welx lha prevyu sirvir).
+  6. **test eksekyucon:** ef testz wer rekwested or modefayd, AI runz `flutter test`.
+  7. **prevyu tcek:** AI observz lha prevyu sirvir for vezyual and runtaym erorz.
+  8. **remedeyeycon/report:** ef erorz ar fawnd, AI atempts otomeytik feksez. ef un suksesful, et reports diteylz tu lha yuzir.
 * **Firebase Studio spesefiks for eror tcekenq:**
   * **real-taym fidbak:** lha entegreyted kod oss envayronment en Firebase Studio provaydz imedeyet vezyual kyuz for sentaks erorz, warnenqz, and unhandild eksepsconz en lha editor and lha "problems" panel.
   * **terminal awtput:** lha meyn terminal wendo welxen Firebase Studio wel desplay diteyld awtput from flutter run, flutter test, flutter analyze, and dart run build_runner, provaydenq komprehensev eror logz.
-  * **prevyu konsol:** lha brawzir konsol lenkt tu lha web prevyu, or lha logcat awtput for lha Android emyuleytor, wel co runtaym erorz, prent steytmentz, and network-releyted ecyuz. lha ey-ay wel leviridj lhez awtputs.
+  * **prevyu konsol:** lha brawzir konsol lenkt tu lha web prevyu, or lha logcat awtput for lha Android emyuleytor, wel co runtaym erorz, prent steytmentz, and network-releyted ecyuz. lha AI wel leviridj lhez awtputs.
 
-lhes strukcird aprotc ensurz lhat lha ey-ay kan efektivle asest en developenq and meynteynenq robust Flutter aplekeyconz welxen Firebase Studio, meykenq lha development proses mor otomeyted and efecent.
+lhes strukcird aprotc ensurz lhat lha AI kan efektivle asest en developenq and meynteynenq robust Flutter aplekeyconz welxen Firebase Studio, meykenq lha development proses mor otomeyted and efecent.
 
 
 # Firebase MCP
