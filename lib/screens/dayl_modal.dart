@@ -5,7 +5,7 @@ import '../models/angol_modalz.dart';
 import '../utils/heksagon_djeyometre.dart';
 import '../services/enpit_sirves.dart';
 import '../state/angol_steyt.dart';
-import '../modyilz/dayl_kepad_modyil.dart';
+import '../modyilz/kepad_modyil.dart';
 import '../widgets/dayl_wedjet.dart';
 
 class DaylModal extends StatefulWidget {
@@ -87,7 +87,7 @@ class _DaylModalState extends State<DaylModal> {
                       child: Stack(
                         children: [
                           if (angolState.isKeypadVisible)
-                            DaylKepadModyil(
+                            KepadModyil(
                               geometry: geometry,
                               onHexKeyPress: _onHexKeyPress,
                               isKeypadVisible: angolState.isKeypadVisible,

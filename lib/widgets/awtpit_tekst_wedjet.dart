@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class AwtpitHeksagonWedjet extends StatelessWidget {
+class AwtpitTekstWedjet extends StatelessWidget {
   final String text;
   final TextStyle style;
 
-  const AwtpitHeksagonWedjet({
+  const AwtpitTekstWedjet({
     super.key,
     required this.text,
     required this.style,

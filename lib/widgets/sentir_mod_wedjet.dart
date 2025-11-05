@@ -5,21 +5,21 @@ import '../models/kepad_konfeg.dart';
 import '../utils/heksagon_djeyometre.dart';
 import 'heksagon_wedjet.dart';
 
-class SentirHeksagonWedjet extends StatefulWidget {
+class SentirModWedjet extends StatefulWidget {
   final HeksagonDjeyometre geometry;
   final GestureTapDownCallback? onTapDown;
 
-  const SentirHeksagonWedjet({
+  const SentirModWedjet({
     super.key,
     required this.geometry,
     this.onTapDown,
   });
 
   @override
-  State<SentirHeksagonWedjet> createState() => _SentirHeksagonWedjetState();
+  State<SentirModWedjet> createState() => _SentirModWedjetState();
 }
 
-class _SentirHeksagonWedjetState extends State<SentirHeksagonWedjet> {
+class _SentirModWedjetState extends State<SentirModWedjet> {
   bool _isCenterHexPressed = false;
 
   @override

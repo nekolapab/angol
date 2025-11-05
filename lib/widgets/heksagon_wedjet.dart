@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../models/kepad_konfeg.dart';
-import './awtpit_heksagon_wedjet.dart';
+import './awtpit_tekst_wedjet.dart';
 
 class HeksagonWedjet extends StatefulWidget {
   final String? label;
@@ -62,7 +62,7 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Center(
-        child: AwtpitHeksagonWedjet(
+        child: AwtpitTekstWedjet(
           text: widget.label ?? '',
           style: TextStyle(
             color: widget.textColor,
