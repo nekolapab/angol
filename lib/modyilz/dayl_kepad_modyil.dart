@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/enpit_sirves.dart';
 import '../utils/heksagon_djeyometre.dart';
 import '../widgets/sentir_heksagon_wedjet.dart';
 import '../widgets/enir_renq_wedjet.dart';
 import '../widgets/awdir_renq_wedjet.dart';
+import '../widgets/awtpit_heksagon_wedjet.dart';
 
 class DaylKepadModyil extends StatefulWidget {
   final HeksagonDjeyometre geometry;
@@ -26,18 +29,43 @@ class _DaylKepadModyilState extends State<DaylKepadModyil> {
   @override
   Widget build(BuildContext context) {
 
-    return Stack(
-      children: [
-        SentirHeksagonWedjet(geometry: widget.geometry),
-        EnirRenqWedjet(
-          geometry: widget.geometry,
-          onHexKeyPress: widget.onHexKeyPress,
-        ),
-        AwdirRenqWedjet(
-          geometry: widget.geometry,
-          onHexKeyPress: widget.onHexKeyPress,
-        ),
-      ],
+    return Consumer<EnpitSirves>(
+      builder: (context, inputService, child) {
+        return Stack(
+          children: [
+            SentirHeksagonWedjet(
+              geometry: widget.geometry,
+              onTapDown: (_) {
+                if (inputService.isLetterMode) {
+                  inputService.addCharacter(' ');
+                } else {
+                  inputService.addCharacter('.');
+                }
+              },
+            ),
+            EnirRenqWedjet(
+              geometry: widget.geometry,
+              onHexKeyPress: widget.onHexKeyPress,
+            ),
+            AwdirRenqWedjet(
+              geometry: widget.geometry,
+              onHexKeyPress: widget.onHexKeyPress,
+            ),
+            IgnorePointer(
+              child: Center(
+                child: AwtpitHeksagonWedjet(
+                  text: inputService.getDisplayText(),
+                  style: TextStyle(
+                    color: inputService.isLetterMode ? Colors.black : Colors.white,
+                    fontSize: widget.geometry.hexWidth * 0.33,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

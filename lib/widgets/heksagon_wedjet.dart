@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../models/kepad_konfeg.dart';
+import './awtpit_heksagon_wedjet.dart';
 
 class HeksagonWedjet extends StatefulWidget {
   final String? label;
@@ -47,6 +48,69 @@ class HeksagonWedjet extends StatefulWidget {
 
 class _HeksagonWedjetState extends State<HeksagonWedjet> {
   bool _isPressed = false;
+  Path? _path;
+  OverlayEntry? _overlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    _path = _createHexagonPath(Size(widget.size, widget.size * 2 / math.sqrt(3)));
+  }
+
+  void _showOverlay(BuildContext context) {
+    final overlay = Overlay.of(context, rootOverlay: true);
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Center(
+        child: AwtpitHeksagonWedjet(
+          text: widget.label ?? '',
+          style: TextStyle(
+            color: widget.textColor,
+            fontSize: widget.fontSize ?? widget.size * 0.35,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(_overlayEntry!); 
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  Path _createHexagonPath(Size size) {
+    final path = Path()
+      ..moveTo(size.width * 0.5, 0)
+      ..lineTo(size.width, size.height * 0.25)
+      ..lineTo(size.width, size.height * 0.75)
+      ..lineTo(size.width * 0.5, size.height)
+      ..lineTo(0, size.height * 0.75)
+      ..lineTo(0, size.height * 0.25)
+      ..close();
+    return path;
+  }
+
+  bool _hitTestHexagon(Offset position) {
+    if (_path == null) return false;
+
+    final Matrix4 transform = Matrix4.identity()
+      ..translate(widget.size / 2, (widget.size * 2 / math.sqrt(3)) / 2)
+      ..rotateZ(widget.rotationAngle)
+      ..translate(-widget.size / 2, -(widget.size * 2 / math.sqrt(3)) / 2);
+
+    final Offset transformedPosition = MatrixUtils.transformPoint(transform, position);
+
+    return _path!.contains(transformedPosition);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,20 +130,30 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
         widget.onHover?.call(false);
       },
       child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTapDown: (details) {
-          setState(() => _isPressed = true);
-          widget.onPressedStateChanged?.call(true);
-          widget.onTapDown?.call(details);
+          if (_hitTestHexagon(details.localPosition)) {
+            setState(() => _isPressed = true);
+            widget.onPressedStateChanged?.call(true);
+            widget.onTapDown?.call(details);
+            _showOverlay(context);
+          }
         },
         onTapUp: (_) {
           setState(() => _isPressed = false);
           widget.onPressedStateChanged?.call(false);
+          _removeOverlay();
         },
         onTapCancel: () {
           setState(() => _isPressed = false);
           widget.onPressedStateChanged?.call(false);
+          _removeOverlay();
         },
-        onLongPress: widget.onLongPress,
+        onLongPressStart: (details) {
+          if (_hitTestHexagon(details.localPosition)) {
+            widget.onLongPress?.call();
+          }
+        },
         onVerticalDragUpdate: widget.onVerticalDragUpdate,
         child: Transform.rotate(
           angle: widget.rotationAngle,
@@ -90,7 +164,6 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
               painter: HexagonPainter(
                 color: displayBgColor,
                 glowIntensity: _isPressed ? 0.8 : 0.0,
-                size: Size(widget.size, widget.size * 2 / math.sqrt(3)),
               ),
               child: Transform.rotate(
                 angle: -widget.rotationAngle,
@@ -171,12 +244,10 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
 class HexagonPainter extends CustomPainter {
   final Color color;
   final double glowIntensity;
-  final Size size;
 
   const HexagonPainter({
     required this.color,
     this.glowIntensity = 0.0,
-    required this.size,
   });
 
   @override
@@ -189,7 +260,7 @@ class HexagonPainter extends CustomPainter {
 
     if (glowIntensity > 0) {
       final glowPaint = Paint()
-        ..color = KepadKonfeg.getComplementaryColor(color).withAlpha((255 * glowIntensity * 0.6).round())
+        ..color = KepadKonfeg.getComplementaryColor(color).withValues(alpha: glowIntensity * 0.6)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
       canvas.drawPath(path, glowPaint);
     }
@@ -197,7 +268,7 @@ class HexagonPainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     final borderPaint = Paint()
-      ..color = Colors.white.withAlpha(51)
+      ..color = Colors.white.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
     canvas.drawPath(path, borderPaint);
@@ -224,6 +295,8 @@ class HexagonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant HexagonPainter oldDelegate) {
+    return color != oldDelegate.color || glowIntensity != oldDelegate.glowIntensity;
+  }
 }
 
