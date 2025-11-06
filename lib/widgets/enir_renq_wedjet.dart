@@ -54,7 +54,7 @@ class EnirRenqWedjet extends StatelessWidget {
                 textColor: KepadKonfeg.getComplementaryColor(hexColor),
                 size: geometry.hexWidth,
                 rotationAngle: geometry.rotationAngle,
-                onTapDown: (_) => onHexKeyPress(tapLabel, isLongPress: false),
+                onTap: () => onHexKeyPress(tapLabel, isLongPress: false),
                 onLongPress: innerLongPress[index].isNotEmpty
                     ? () => onHexKeyPress(innerLongPress[index],
                         isLongPress: true, primaryChar: tapLabel)

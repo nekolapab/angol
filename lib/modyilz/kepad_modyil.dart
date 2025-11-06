@@ -35,13 +35,6 @@ class _KepadModyilState extends State<KepadModyil> {
           children: [
             SentirModWedjet(
               geometry: widget.geometry,
-              onTapDown: (_) {
-                if (inputService.isLetterMode) {
-                  inputService.addCharacter(' ');
-                } else {
-                  inputService.addCharacter('.');
-                }
-              },
             ),
             EnirRenqWedjet(
               geometry: widget.geometry,

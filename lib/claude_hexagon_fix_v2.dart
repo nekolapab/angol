@@ -19,7 +19,6 @@ class HeksagonWedjet extends StatefulWidget {
   final Function(bool)? onHover;
   final Widget? child;
   final double rotationAngle;
-  final double? fontSize;
 
   const HeksagonWedjet({
     super.key,
@@ -35,7 +34,6 @@ class HeksagonWedjet extends StatefulWidget {
     this.onHover,
     this.child,
     this.rotationAngle = 0.0,
-    this.fontSize,
   });
 
   @override
@@ -60,16 +58,27 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
     final path = Path();
     final centerX = size.width / 2;
     final centerY = size.height / 2;
+    
+    // CRITICAL FIX: Use full radius minus only border width (0.75px)
+    // This makes hit area match visual hexagon exactly
+    final radius = math.min(centerX, centerY) - 0.75;
 
-    final side = size.height / 2; // Assuming pointy-top hexagon, height is 2 * side
+    for (int i = 0; i < 6; i++) {
+      // Hexagon vertices at 60° intervals
+      double angle = (i * 60 - 30) * (math.pi / 180);
+      
+      // Apply rotation to match visual hexagon
+      angle += widget.rotationAngle;
+      
+      double x = centerX + radius * math.cos(angle);
+      double y = centerY + radius * math.sin(angle);
 
-    // Vertices for a pointy-top hexagon
-    path.moveTo(centerX, centerY - side);
-    path.lineTo(centerX + side * math.sqrt(3) / 2, centerY - side / 2);
-    path.lineTo(centerX + side * math.sqrt(3) / 2, centerY + side / 2);
-    path.lineTo(centerX, centerY + side);
-    path.lineTo(centerX - side * math.sqrt(3) / 2, centerY + side / 2);
-    path.lineTo(centerX - side * math.sqrt(3) / 2, centerY - side / 2);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
     path.close();
 
     // Cache for performance
@@ -85,7 +94,12 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
     final hexPath = _createHexagonPath(size);
     final isInside = hexPath.contains(localPosition);
     
-
+    // Debug logging (remove in production)
+    if (widget.label.isNotEmpty) {
+      print('TAP: pos=$localPosition, size=$size, label=${widget.label}');
+      print('  -> ${isInside ? "INSIDE" : "OUTSIDE"} hexagon');
+    }
+    
     return isInside;
   }
 
@@ -132,7 +146,7 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
         },
         child: SizedBox(
           width: widget.size,
-          height: widget.size * (2 / math.sqrt(3)),
+          height: widget.size,
           child: CustomPaint(
             painter: HexagonPainter(
               color: widget.backgroundColor,
@@ -161,7 +175,7 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
       widget.label,
       style: TextStyle(
         color: widget.textColor,
-        fontSize: widget.fontSize ?? widget.size * 0.25,
+        fontSize: widget.size * 0.25,
         fontWeight: FontWeight.bold,
       ),
       textAlign: TextAlign.center,
@@ -176,22 +190,22 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
           widget.label,
           style: TextStyle(
             color: widget.textColor,
-            fontSize: widget.fontSize ?? widget.size * 0.2,
+            fontSize: widget.size * 0.2,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           '-',
           style: TextStyle(
-            color: widget.textColor,
-            fontSize: widget.fontSize ?? widget.size * 0.15,
+            color: widget.textColor.withOpacity(0.5),
+            fontSize: widget.size * 0.15,
           ),
         ),
         Text(
           widget.secondaryLabel!,
           style: TextStyle(
-            color: widget.textColor,
-            fontSize: widget.fontSize ?? widget.size * 0.2,
+            color: widget.textColor.withOpacity(0.7),
+            fontSize: widget.size * 0.18,
             fontWeight: FontWeight.normal,
           ),
         ),
@@ -228,7 +242,7 @@ class HexagonPainter extends CustomPainter {
     // Glow effect
     if (isHovering) {
       final glowPaint = Paint()
-        ..color = displayColor.withValues(alpha: (0.6 * 255))
+        ..color = displayColor.withOpacity(0.6)
         ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 12);
       canvas.drawPath(path, glowPaint);
     }
@@ -238,7 +252,7 @@ class HexagonPainter extends CustomPainter {
 
     // Border - thin so hexagons touch edge-to-edge
     final borderPaint = Paint()
-      ..color = Colors.white.withValues(alpha: (0.2 * 255))
+      ..color = Colors.white.withOpacity(0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
     canvas.drawPath(path, borderPaint);
@@ -248,26 +262,33 @@ class HexagonPainter extends CustomPainter {
     final path = Path();
     final centerX = size.width / 2;
     final centerY = size.height / 2;
+    
+    // CRITICAL: Match hit testing - only subtract border width
+    final radius = math.min(centerX, centerY) - 0.75;
 
-    final side = size.height / 2; // Assuming pointy-top hexagon, height is 2 * side
+    for (int i = 0; i < 6; i++) {
+      double angle = (i * 60 - 30) * (math.pi / 180);
+      angle += rotationAngle;
+      
+      double x = centerX + radius * math.cos(angle);
+      double y = centerY + radius * math.sin(angle);
 
-    // Vertices for a pointy-top hexagon
-    path.moveTo(centerX, centerY - side);
-    path.lineTo(centerX + side * math.sqrt(3) / 2, centerY - side / 2);
-    path.lineTo(centerX + side * math.sqrt(3) / 2, centerY + side / 2);
-    path.lineTo(centerX, centerY + side);
-    path.lineTo(centerX - side * math.sqrt(3) / 2, centerY + side / 2);
-    path.lineTo(centerX - side * math.sqrt(3) / 2, centerY - side / 2);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
     path.close();
     return path;
   }
 
   Color _getComplementaryColor(Color color) {
     return Color.fromARGB(
-      color.a.toInt(),
-      (255 - color.r).toInt(),
-      (255 - color.g).toInt(),
-      (255 - color.b).toInt(),
+      color.alpha,
+      255 - color.red,
+      255 - color.green,
+      255 - color.blue,
     );
   }
 

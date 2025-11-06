@@ -39,7 +39,7 @@ class DaylWedjet extends StatelessWidget {
             size: geometry.hexWidth,
             isPressed: module.isActive,
             rotationAngle: geometry.rotationAngle,
-            onTapDown: (_) => onToggleModule(index),
+            onTap: () => onToggleModule(index),
           ),
         );
       }).toList(),
