@@ -60,4 +60,3 @@ class ModuleData {
         isActive: json['isActive'] ?? false,
       );
 }
-

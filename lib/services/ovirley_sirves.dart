@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class OvirleySirves extends ChangeNotifier {
-  void showOverlay() {
-  }
+  void showOverlay() {}
 
-  void hideOverlay() {
-  }
+  void hideOverlay() {}
 }
-

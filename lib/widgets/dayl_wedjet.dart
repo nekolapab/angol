@@ -46,4 +46,3 @@ class DaylWedjet extends StatelessWidget {
     );
   }
 }
-

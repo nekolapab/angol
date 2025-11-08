@@ -34,8 +34,8 @@ class EnpitSirves extends ChangeNotifier {
   void deleteLeft() {
     if (_inputText.isNotEmpty) {
       String currentText = _inputText.toString();
-    _inputText.clear();
-    _inputText.write(currentText.substring(0, currentText.length - 1));
+      _inputText.clear();
+      _inputText.write(currentText.substring(0, currentText.length - 1));
       notifyListeners();
     }
   }
@@ -91,8 +91,8 @@ class EnpitSirves extends ChangeNotifier {
 
   void clearText() {
     _inputText.clear();
-    developer.log('InputService: _inputText cleared. New value: "${_inputText.toString()}"');
+    developer.log(
+        'InputService: _inputText cleared. New value: "${_inputText.toString()}"');
     notifyListeners();
   }
 }
-

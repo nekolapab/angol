@@ -119,4 +119,3 @@ class _DaylModalState extends State<DaylModal> {
     super.dispose();
   }
 }
-

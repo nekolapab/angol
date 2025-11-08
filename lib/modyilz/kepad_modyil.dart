@@ -25,10 +25,8 @@ class KepadModyil extends StatefulWidget {
 }
 
 class _KepadModyilState extends State<KepadModyil> {
-
   @override
   Widget build(BuildContext context) {
-
     return Consumer<EnpitSirves>(
       builder: (context, inputService, child) {
         return Stack(
@@ -49,7 +47,8 @@ class _KepadModyilState extends State<KepadModyil> {
                 child: AwtpitTekstWedjet(
                   text: inputService.getDisplayText(),
                   style: TextStyle(
-                    color: inputService.isLetterMode ? Colors.black : Colors.white,
+                    color:
+                        inputService.isLetterMode ? Colors.black : Colors.white,
                     fontSize: widget.geometry.hexWidth * 0.33,
                     fontWeight: FontWeight.bold,
                   ),
@@ -62,4 +61,3 @@ class _KepadModyilState extends State<KepadModyil> {
     );
   }
 }
-

@@ -18,7 +18,6 @@ class SentirModWedjet extends StatefulWidget {
 }
 
 class _SentirModWedjetState extends State<SentirModWedjet> {
-
   @override
   Widget build(BuildContext context) {
     final inputService = Provider.of<EnpitSirves>(context);
@@ -31,7 +30,8 @@ class _SentirModWedjetState extends State<SentirModWedjet> {
     Color centerHexTextColor = baseBackgroundColor;
 
     return Positioned(
-      left: MediaQuery.of(context).size.width / 2 - widget.geometry.hexWidth / 2,
+      left:
+          MediaQuery.of(context).size.width / 2 - widget.geometry.hexWidth / 2,
       top: MediaQuery.of(context).size.height / 2 -
           widget.geometry.hexHeight / 2,
       child: HeksagonWedjet(
