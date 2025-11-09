@@ -12,12 +12,14 @@ class KepadModyil extends StatefulWidget {
   final void Function(String, {bool isLongPress, String? primaryChar})
       onHexKeyPress;
   final bool isKeypadVisible;
+  final int displayLength;
 
   const KepadModyil({
     super.key,
     required this.geometry,
     required this.onHexKeyPress,
     required this.isKeypadVisible,
+    required this.displayLength,
   });
 
   @override
@@ -45,7 +47,7 @@ class _KepadModyilState extends State<KepadModyil> {
             IgnorePointer(
               child: Center(
                 child: AwtpitTekstWedjet(
-                  text: inputService.getDisplayText(),
+                  text: inputService.getDisplayText(widget.displayLength),
                   style: TextStyle(
                     color:
                         inputService.isLetterMode ? Colors.black : Colors.white,

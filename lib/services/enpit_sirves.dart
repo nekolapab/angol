@@ -2,13 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'dart:developer' as developer;
 
 class EnpitSirves extends ChangeNotifier {
-  static final EnpitSirves _instance = EnpitSirves._();
-
-  factory EnpitSirves() {
-    return _instance;
-  }
-
-  EnpitSirves._();
 
   final StringBuffer _inputText = StringBuffer();
   bool _isLetterMode = true;
@@ -82,11 +75,14 @@ class EnpitSirves extends ChangeNotifier {
     notifyListeners();
   }
 
-  String getDisplayText() {
-    if (_inputText.isEmpty) return '';
+  String getDisplayText(int displayLength) {
+    if (_inputText.isEmpty) return ' ' * displayLength;
     String currentText = _inputText.toString();
-    if (currentText.length <= 7) return currentText;
-    return currentText.substring(currentText.length - 7);
+    if (currentText.length >= displayLength) {
+      return currentText.substring(currentText.length - displayLength);
+    } else {
+      return currentText.padLeft(displayLength, ' ');
+    }
   }
 
   void clearText() {

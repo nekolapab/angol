@@ -1,4 +1,7 @@
 {
   "IDX.agenticWorkspace": true,
-  "dart.devToolsBrowser": "default"
+  "dart.devToolsBrowser": "default",
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "flutter.hotReloadOnSave": "all"
 }

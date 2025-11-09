@@ -6,18 +6,15 @@ import 'services/enpit_sirves.dart';
 import 'state/angol_steyt.dart';
 import 'firebase_options.dart';
 
-late final EnpitSirves inputService;
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  inputService = EnpitSirves();
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<EnpitSirves>(create: (_) => inputService),
+        ChangeNotifierProvider(create: (_) => EnpitSirves()),
         ChangeNotifierProvider(create: (context) => AngolSteyt()),
       ],
       child: const AngolApp(),
@@ -38,7 +35,8 @@ class AngolApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF111111),
         useMaterial3: true,
       ),
-      home: const DaylModal(),
-    );
+      home: DaylModal(),
+    ); 
   }
 }
+

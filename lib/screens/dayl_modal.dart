@@ -24,11 +24,18 @@ class _DaylModalState extends State<DaylModal> {
   @override
   void initState() {
     super.initState();
+    Provider.of<AngolSteyt>(context, listen: false).reset();
     inputService = Provider.of<EnpitSirves>(context, listen: false);
     _textFieldFocus.addListener(() {
       inputService.setTextFieldFocus(_textFieldFocus.hasFocus);
     });
     inputService.addListener(_syncTextController);
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    Provider.of<AngolSteyt>(context, listen: false).reset();
   }
 
   void _syncTextController() {
@@ -88,6 +95,7 @@ class _DaylModalState extends State<DaylModal> {
                         children: [
                           if (angolState.isKeypadVisible)
                             KepadModyil(
+                              displayLength: angolState.modules.length,
                               geometry: geometry,
                               onHexKeyPress: _onHexKeyPress,
                               isKeypadVisible: angolState.isKeypadVisible,

@@ -35,7 +35,7 @@ class _SentirModWedjetState extends State<SentirModWedjet> {
       top: MediaQuery.of(context).size.height / 2 -
           widget.geometry.hexHeight / 2,
       child: HeksagonWedjet(
-        label: inputService.isLetterMode ? 'ABC' : '123',
+        label: '', // Label is empty as requested
         backgroundColor: centerHexBackgroundColor,
         textColor: centerHexTextColor,
         size: widget.geometry.hexWidth,
@@ -57,7 +57,6 @@ class _SentirModWedjetState extends State<SentirModWedjet> {
             inputService.addCharacter(' ');
           }
         },
-        child: Container(),
       ),
     );
   }

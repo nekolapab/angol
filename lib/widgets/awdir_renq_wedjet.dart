@@ -45,7 +45,8 @@ class AwdirRenqWedjet extends StatelessWidget {
                   geometry.hexHeight / 2,
               child: HeksagonWedjet(
                 label: tapLabel,
-                secondaryLabel: outerLongPressLabels[index].isNotEmpty
+                secondaryLabel: inputService.isLetterMode &&
+                        outerLongPressLabels[index].isNotEmpty
                     ? outerLongPressLabels[index]
                     : null,
                 backgroundColor: hexColor,

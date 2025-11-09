@@ -4,17 +4,19 @@ import '../models/angol_modalz.dart';
 class AngolSteyt extends ChangeNotifier {
   List<ModuleData> modules = [
     const ModuleData(
-        id: 'dayl', name: 'dayl', color: Color(0xFFFF0000), position: 0),
+        id: 'dayl', name: 'dayl', color: Color(0xFF000000), position: 0, isActive: true),
     const ModuleData(
-        id: 'keypad', name: 'kepad', color: Color(0xFFFFFF00), position: 1),
+        id: 'keypad', name: 'kepad', color: Color(0xFFFF0000), position: 1, isActive: false),
     const ModuleData(
-        id: 'module3', name: '', color: Color(0xFF00FF00), position: 2),
+        id: 'module3', name: '', color: Color(0xFFFFFF00), position: 2, isActive: false),
     const ModuleData(
-        id: 'module4', name: '', color: Color(0xFF00FFFF), position: 3),
+        id: 'module4', name: '', color: Color(0xFF00FF00), position: 3, isActive: false),
     const ModuleData(
-        id: 'module5', name: '', color: Color(0xFF0000FF), position: 4),
+        id: 'module5', name: '', color: Color(0xFF00FFFF), position: 4, isActive: false),
     const ModuleData(
-        id: 'module6', name: '', color: Color(0xFFFF00FF), position: 5),
+        id: 'module6', name: '', color: Color(0xFF0000FF), position: 5, isActive: false),
+    const ModuleData(
+        id: 'module7', name: '', color: Color(0xFFFF00FF), position: 6, isActive: false),
   ];
 
   bool get isKeypadVisible {
@@ -34,6 +36,26 @@ class AngolSteyt extends ChangeNotifier {
       }
     }).toList();
 
+    notifyListeners();
+  }
+
+  void reset() {
+    modules = [
+      const ModuleData(
+          id: 'dayl', name: 'dayl', color: Color(0xFF000000), position: 0, isActive: true),
+      const ModuleData(
+          id: 'keypad', name: 'kepad', color: Color(0xFFFF0000), position: 1, isActive: false),
+      const ModuleData(
+          id: 'module3', name: '', color: Color(0xFFFFFF00), position: 2, isActive: false),
+      const ModuleData(
+          id: 'module4', name: '', color: Color(0xFF00FF00), position: 3, isActive: false),
+      const ModuleData(
+          id: 'module5', name: '', color: Color(0xFF00FFFF), position: 4, isActive: false),
+      const ModuleData(
+          id: 'module6', name: '', color: Color(0xFF0000FF), position: 5, isActive: false),
+      const ModuleData(
+          id: 'module7', name: '', color: Color(0xFFFF00FF), position: 6, isActive: false),
+    ];
     notifyListeners();
   }
 }
