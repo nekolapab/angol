@@ -17,6 +17,7 @@ class DaylModal extends StatefulWidget {
 
 class _DaylModalState extends State<DaylModal> {
   late EnpitSirves inputService;
+  final int _defaultDisplayLength = 7; // Default number of glyphs to display
 
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
@@ -95,7 +96,7 @@ class _DaylModalState extends State<DaylModal> {
                         children: [
                           if (angolState.isKeypadVisible)
                             KepadModyil(
-                              displayLength: angolState.modules.length,
+                              displayLength: _defaultDisplayLength,
                               geometry: geometry,
                               onHexKeyPress: _onHexKeyPress,
                               isKeypadVisible: angolState.isKeypadVisible,

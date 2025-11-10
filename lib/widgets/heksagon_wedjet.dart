@@ -99,7 +99,7 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
   }
 
   Color _getDisplayTextContrastColor() {
-    if (_isPressed || (widget.isPressed ?? false)) {
+    if (_isPressed) {
       return widget.backgroundColor;
     }
     return widget.textColor;
@@ -152,7 +152,8 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
             painter: HexagonPainter(
               color: widget.backgroundColor,
               textColor: widget.textColor,
-              isPressed: _isPressed || (widget.isPressed ?? false),
+              isPressed: widget.isPressed, // Now represents isActive
+              isMomentarilyPressed: _isPressed, // Controls momentary contrast
               isHovering: _isHovering || widget.isHovering,
               rotationAngle: widget.rotationAngle,
             ),
@@ -215,7 +216,8 @@ class _HeksagonWedjetState extends State<HeksagonWedjet> {
 class HexagonPainter extends CustomPainter {
   final Color color;
   final Color textColor;
-  final bool? isPressed;
+  final bool? isPressed; // This now represents isActive
+  final bool isMomentarilyPressed; // New parameter for momentary press
   final bool isHovering;
   final double rotationAngle;
 
@@ -223,13 +225,14 @@ class HexagonPainter extends CustomPainter {
     required this.color,
     required this.textColor,
     this.isPressed = false,
+    this.isMomentarilyPressed = false, // Initialize new parameter
     this.isHovering = false,
     this.rotationAngle = 0.0,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final displayColor = (isPressed ?? false) ? _getComplementaryColor(color) : color;
+    final displayColor = isMomentarilyPressed ? _getComplementaryColor(color) : color;
 
     final paint = Paint()
       ..color = displayColor
@@ -271,10 +274,10 @@ class HexagonPainter extends CustomPainter {
 
   Color _getComplementaryColor(Color color) {
     return Color.fromARGB(
-      color.alpha,
-      255 - color.red,
-      255 - color.green,
-      255 - color.blue,
+      (color.a * 255.0).round() & 0xff,
+      255 - ((color.r * 255.0).round() & 0xff),
+      255 - ((color.g * 255.0).round() & 0xff),
+      255 - ((color.b * 255.0).round() & 0xff),
     );
   }
 
@@ -282,6 +285,7 @@ class HexagonPainter extends CustomPainter {
   bool shouldRepaint(covariant HexagonPainter oldDelegate) {
     return oldDelegate.color != color ||
         oldDelegate.isPressed != isPressed ||
+        oldDelegate.isMomentarilyPressed != isMomentarilyPressed ||
         oldDelegate.isHovering != isHovering ||
         oldDelegate.rotationAngle != rotationAngle;
   }

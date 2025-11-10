@@ -9,11 +9,15 @@ class AwdirRenqWedjet extends StatelessWidget {
   final HeksagonDjeyometre geometry;
   final void Function(String, {bool isLongPress, String? primaryChar})
       onHexKeyPress;
+  final List<String> tapLabels;
+  final List<String> longPressLabels;
 
   const AwdirRenqWedjet({
     super.key,
     required this.geometry,
     required this.onHexKeyPress,
+    required this.tapLabels,
+    required this.longPressLabels,
   });
 
   @override
@@ -21,18 +25,13 @@ class AwdirRenqWedjet extends StatelessWidget {
     return Consumer<EnpitSirves>(
       builder: (context, inputService, child) {
         final outerCoords = geometry.getOuterRingCoordinates();
-        final outerTapLabels = inputService.isLetterMode
-            ? KepadKonfeg.outerTap
-            : KepadKonfeg.outerTapNumber;
-        final outerLongPressLabels = inputService.isLetterMode
-            ? KepadKonfeg.outerLongPress
-            : KepadKonfeg.outerLongPressNumber;
 
         return Stack(
           children: outerCoords.asMap().entries.map((entry) {
             final index = entry.key;
             final coord = entry.value;
-            final tapLabel = outerTapLabels[index];
+            final tapLabel = tapLabels[index];
+            final longPressLabel = longPressLabels[index];
             final position = geometry.axialToPixel(coord.q, coord.r);
             final hexColor = KepadKonfeg.rainbowColors[index];
 
@@ -45,17 +44,16 @@ class AwdirRenqWedjet extends StatelessWidget {
                   geometry.hexHeight / 2,
               child: HeksagonWedjet(
                 label: tapLabel,
-                secondaryLabel: inputService.isLetterMode &&
-                        outerLongPressLabels[index].isNotEmpty
-                    ? outerLongPressLabels[index]
+                secondaryLabel: inputService.isLetterMode && longPressLabel.isNotEmpty
+                    ? longPressLabel
                     : null,
                 backgroundColor: hexColor,
                 textColor: KepadKonfeg.getComplementaryColor(hexColor),
                 size: geometry.hexWidth,
                 rotationAngle: geometry.rotationAngle,
                 onTap: () => onHexKeyPress(tapLabel, isLongPress: false),
-                onLongPress: inputService.isLetterMode
-                    ? () => onHexKeyPress(outerLongPressLabels[index],
+                onLongPress: inputService.isLetterMode && longPressLabel.isNotEmpty
+                    ? () => onHexKeyPress(longPressLabel,
                         isLongPress: true, primaryChar: tapLabel)
                     : null,
                 fontSize: inputService.isLetterMode

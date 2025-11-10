@@ -6,6 +6,7 @@ import '../widgets/sentir_mod_wedjet.dart';
 import '../widgets/enir_renq_wedjet.dart';
 import '../widgets/awdir_renq_wedjet.dart';
 import '../widgets/awtpit_tekst_wedjet.dart';
+import '../models/kepad_konfeg.dart';
 
 class KepadModyil extends StatefulWidget {
   final HeksagonDjeyometre geometry;
@@ -31,6 +32,23 @@ class _KepadModyilState extends State<KepadModyil> {
   Widget build(BuildContext context) {
     return Consumer<EnpitSirves>(
       builder: (context, inputService, child) {
+        // Get the correct labels from KepadKonfeg based on the mode
+        final innerTapLabels = inputService.isLetterMode
+            ? KepadKonfeg.innerLetterMode
+            : KepadKonfeg.innerNumberMode;
+        final innerLongPressLabels = inputService.isLetterMode
+            ? KepadKonfeg.innerLetterMode.map((label) {
+                return label == '⌫' ? '⌫' : '';
+              }).toList()
+            : KepadKonfeg.innerLongPressNumber;
+
+        final outerTapLabels = inputService.isLetterMode
+            ? KepadKonfeg.outerTap
+            : KepadKonfeg.outerTapNumber;
+        final outerLongPressLabels = inputService.isLetterMode
+            ? KepadKonfeg.outerLongPress
+            : KepadKonfeg.outerLongPressNumber;
+
         return Stack(
           children: [
             SentirModWedjet(
@@ -39,10 +57,14 @@ class _KepadModyilState extends State<KepadModyil> {
             EnirRenqWedjet(
               geometry: widget.geometry,
               onHexKeyPress: widget.onHexKeyPress,
+              tapLabels: innerTapLabels,
+              longPressLabels: innerLongPressLabels,
             ),
             AwdirRenqWedjet(
               geometry: widget.geometry,
               onHexKeyPress: widget.onHexKeyPress,
+              tapLabels: outerTapLabels,
+              longPressLabels: outerLongPressLabels,
             ),
             IgnorePointer(
               child: Center(
