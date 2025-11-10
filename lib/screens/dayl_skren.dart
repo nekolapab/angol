@@ -6,16 +6,16 @@ import '../utils/heksagon_djeyometre.dart';
 import '../services/enpit_sirves.dart';
 import '../state/angol_steyt.dart';
 import '../modyilz/kepad_modyil.dart';
-import '../widgets/dayl_wedjet.dart';
+import '../modyilz/dayl_modyil.dart';
 
-class DaylModal extends StatefulWidget {
-  const DaylModal({super.key});
+class DaylSkren extends StatefulWidget {
+  const DaylSkren({super.key});
 
   @override
-  State<DaylModal> createState() => _DaylModalState();
+  State<DaylSkren> createState() => _DaylSkrenSteyt();
 }
 
-class _DaylModalState extends State<DaylModal> {
+class _DaylSkrenSteyt extends State<DaylSkren> {
   late EnpitSirves inputService;
   final int _defaultDisplayLength = 7; // Default number of glyphs to display
 
@@ -102,7 +102,7 @@ class _DaylModalState extends State<DaylModal> {
                               isKeypadVisible: angolState.isKeypadVisible,
                             )
                           else
-                            DaylWedjet(
+                            DaylModyil(
                               geometry: geometry,
                               modules: angolState.modules,
                               onToggleModule: angolState.toggleModule,

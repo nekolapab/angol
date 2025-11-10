@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../models/angol_modalz.dart';
 import '../models/kepad_konfeg.dart';
 import '../utils/heksagon_djeyometre.dart';
-import 'heksagon_wedjet.dart';
+import '../widgets/heksagon_wedjet.dart';
 
-class DaylWedjet extends StatelessWidget {
+class DaylModyil extends StatelessWidget {
   final HeksagonDjeyometre geometry;
   final List<ModuleData> modules;
   final Function(int) onToggleModule;
 
-  const DaylWedjet({
+  const DaylModyil({
     super.key,
     required this.geometry,
     required this.modules,

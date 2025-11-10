@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'screens/dayl_modal.dart';
+import 'screens/dayl_skren.dart';
 import 'services/enpit_sirves.dart';
 import 'state/angol_steyt.dart';
 import 'firebase_options.dart';
@@ -35,7 +35,7 @@ class AngolApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF111111),
         useMaterial3: true,
       ),
-      home: DaylModal(),
+      home: DaylSkren(),
     ); 
   }
 }

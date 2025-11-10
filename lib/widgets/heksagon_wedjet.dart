@@ -39,10 +39,10 @@ class HeksagonWedjet extends StatefulWidget {
   });
 
   @override
-  State<HeksagonWedjet> createState() => _HeksagonWedjetState();
+  State<HeksagonWedjet> createState() => _HeksagonWedjetSteyt();
 }
 
-class _HeksagonWedjetState extends State<HeksagonWedjet> {
+class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
   bool _isPressed = false;
   bool _isHovering = false;
   Path? _cachedHitPath;
