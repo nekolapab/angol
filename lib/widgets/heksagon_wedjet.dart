@@ -62,35 +62,32 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
     }
 
     final path = Path();
-
     final centerX = size.width / 2;
-
     final centerY = size.height / 2;
 
     // CRITICAL: Hit area is LARGER than visual hexagon
+    // This makes it extend into the gaps between hexagons
+    // So corners and edges that LOOK clickable ARE clickable
+    final hitRadius =
+        math.min(centerX, centerY) + 1.0; // +1.0 extends into gaps
 
-    final side = size.height / 2 + 1.0; // +1.0 extends into gaps
+    for (int i = 0; i < 6; i++) {
+      double angle = (i * 60 - 30) * (math.pi / 180);
+      angle += widget.rotationAngle;
 
-    // Vertices for a pointy-top hexagon
+      double x = centerX + hitRadius * math.cos(angle);
+      double y = centerY + hitRadius * math.sin(angle);
 
-    path.moveTo(centerX, centerY - side);
-
-    path.lineTo(centerX + side * math.sqrt(3) / 2, centerY - side / 2);
-
-    path.lineTo(centerX + side * math.sqrt(3) / 2, centerY + side / 2);
-
-    path.lineTo(centerX, centerY + side);
-
-    path.lineTo(centerX - side * math.sqrt(3) / 2, centerY + side / 2);
-
-    path.lineTo(centerX - side * math.sqrt(3) / 2, centerY - side / 2);
-
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
     path.close();
 
     _cachedHitPath = path;
-
     _cachedSize = size;
-
     _cachedRotation = widget.rotationAngle;
 
     return path;
