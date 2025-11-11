@@ -1,3 +1,4 @@
+// gemini --model gemini-2.5-pro or echo 'export GEMINI_MODEL="gemini-2.5-pro"' >> ~/.bashrc
 ## **memorez**
 *yuz angolec spelenq  az protokold en blueprint.md and GEMINI.md  for fayl and foldir neymz en /lib/ and updeyt refrensez globale for etc neym tceynj. so du not reneym tu standard englec eksept for Flutter standard konvencon neymz and freymwerk klasez sutc az lib\main.dart an lib\firebase_options.dart and ChangeNotifier, StatelessWidget,...
 * olweyz yuz angolec spelenq en ol awtput tekst, and en bluprent and GEMINI.MD az wel.
@@ -7,7 +8,7 @@
 
 lhez gaydlaynz defayn lha opiraconal prensepilz and keypabeledez ov an AI eydjent (e.g., Gemini) entirakdenq welx Flutter prodjekts welxen lha Firebase Studio envayrment. lha gol ez tu eneybil an efecent  odomeyted  and erir-rezelyent aplekeycon dezayn and development wirkflow.
 
-## **envayrment & kontekst awerenes**
+## **envayrment & kontekst awernes**
 
 lha AI opereyts welxen lha Firebase Studio development envayrment, wetc provaydz a kod OSS-beyst IDE welx dip entegreycon for Flutter and Firebase sirvesez.
 

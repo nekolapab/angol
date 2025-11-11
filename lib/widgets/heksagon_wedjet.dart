@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
+import '../models/kepad_konfeg.dart';
 
 class HeksagonWedjet extends StatefulWidget {
   final String label;
@@ -100,23 +101,14 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
     return hitPath.contains(localPosition);
   }
 
-  Color _getComplementaryColor(Color color) {
-    return Color.fromARGB(
-      (color.a * 255.0).round() & 0xff,
-      255 - ((color.r * 255.0).round() & 0xff),
-      255 - ((color.g * 255.0).round() & 0xff),
-      255 - ((color.b * 255.0).round() & 0xff),
-    );
-  }
-
   Color _getDisplayTextContrastColor() {
-    Color effectiveBackgroundColor = widget.backgroundColor;
     if (_isPressed) {
-      effectiveBackgroundColor = _getComplementaryColor(widget.backgroundColor);
+      // Background is inverted, so text should be the original background color.
+      return widget.backgroundColor;
+    } else {
+      // Background is normal, so text should be the complementary color.
+      return KepadKonfeg.getComplementaryColor(widget.backgroundColor);
     }
-
-    // Use a luminance-based approach to pick black or white for contrast
-    return effectiveBackgroundColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
   }
 
   @override
@@ -175,7 +167,6 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
               isMomentarilyPressed: _isPressed, // Controls momentary contrast
               isHovering: _isHovering || widget.isHovering,
               rotationAngle: widget.rotationAngle,
-              getComplementaryColor: _getComplementaryColor, // Pass the function
             ),
             child: Transform.rotate(
               angle: -widget.rotationAngle,
@@ -197,7 +188,7 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
       widget.label,
       style: TextStyle(
         color: _getDisplayTextContrastColor(),
-        fontSize: widget.fontSize ?? widget.size * 1/4,
+        fontSize: widget.fontSize ?? widget.size * 1 / 4,
         fontWeight: FontWeight.bold,
       ),
       textAlign: TextAlign.center,
@@ -248,12 +239,12 @@ class HexagonPainter extends CustomPainter {
     this.isMomentarilyPressed = false, // Initialize new parameter
     this.isHovering = false,
     this.rotationAngle = 0.0,
-    required this.getComplementaryColor, // Pass the function
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final displayColor = isMomentarilyPressed ? getComplementaryColor(color) : color;
+    final displayColor =
+        isMomentarilyPressed ? KepadKonfeg.getComplementaryColor(color) : color;
 
     final paint = Paint()
       ..color = displayColor
@@ -292,8 +283,6 @@ class HexagonPainter extends CustomPainter {
     path.close();
     return path;
   }
-
-
 
   @override
   bool shouldRepaint(covariant HexagonPainter oldDelegate) {

@@ -7,6 +7,7 @@ import '../widgets/enir_renq_wedjet.dart';
 import '../widgets/awdir_renq_wedjet.dart';
 import '../widgets/awtpit_tekst_wedjet.dart';
 import '../models/kepad_konfeg.dart';
+import '../widgets/heksagon_wedjet.dart';
 
 class KepadModyil extends StatefulWidget {
   final HeksagonDjeyometre geometry;
@@ -57,17 +58,73 @@ class _KepadModyilState extends State<KepadModyil> {
             ? KepadKonfeg.outerLongPress
             : KepadKonfeg.outerLongPressNumber;
 
+        // Logic for the center hex (moved from SentirModWedjet)
+        final Color baseBackgroundColor =
+            inputService.isLetterMode ? Colors.black : Colors.white;
+        final Color baseTextColor =
+            inputService.isLetterMode ? Colors.white : Colors.black;
+        final Color centerHexBackgroundColor = baseTextColor;
+        final Color centerHexTextColor = baseBackgroundColor;
+
+        void centerOnTap() {
+          if (inputService.isLetterMode) {
+            inputService.addCharacter(' ');
+          } else {
+            inputService.addCharacter('.');
+          }
+        }
+
+        void centerOnLongPress() {
+          final wasLetterMode = inputService.isLetterMode;
+          inputService.toggleMode();
+          inputService.deleteLeft();
+          if (wasLetterMode) {
+            inputService.addCharacter('.');
+          } else {
+            inputService.addCharacter(' ');
+          }
+        }
+
+        // Build the inner ring widgets manually now
+        final innerCoords = widget.geometry.getInnerRingCoordinates();
+        final List<Widget> innerRingWidgets =
+            innerCoords.asMap().entries.map((entry) {
+          final index = entry.key;
+          final tapLabel = innerTapLabels[index];
+          final longPressLabel = innerLongPressLabels[index];
+          final hexColor = KepadKonfeg.innerRingColors[index % 6];
+
+          return HeksagonWedjet(
+            label: tapLabel,
+            secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
+            backgroundColor: hexColor,
+            textColor: KepadKonfeg.getComplementaryColor(hexColor),
+            size: widget.geometry.hexWidth,
+            rotationAngle: widget.geometry.rotationAngle,
+            onTap: () => widget.onHexKeyPress(tapLabel, isLongPress: false),
+            onLongPress: longPressLabel.isNotEmpty
+                ? () => widget.onHexKeyPress(longPressLabel,
+                    isLongPress: true, primaryChar: tapLabel)
+                : null,
+            fontSize: inputService.isLetterMode
+                ? widget.geometry.hexWidth * 0.5
+                : widget.geometry.hexWidth * 0.67,
+          );
+        }).toList();
+
         return Stack(
           children: [
             SentirModWedjet(
               geometry: widget.geometry,
-              onPressedChanged: _onCenterHexPressedChanged, // Pass the callback
+              onPressedChanged: _onCenterHexPressedChanged,
+              backgroundColor: centerHexBackgroundColor,
+              textColor: centerHexTextColor,
+              onTap: centerOnTap,
+              onLongPress: centerOnLongPress,
             ),
             EnirRenqWedjet(
               geometry: widget.geometry,
-              onHexKeyPress: widget.onHexKeyPress,
-              tapLabels: innerTapLabels,
-              longPressLabels: innerLongPressLabels,
+              children: innerRingWidgets,
             ),
             AwdirRenqWedjet(
               geometry: widget.geometry,
@@ -81,8 +138,12 @@ class _KepadModyilState extends State<KepadModyil> {
                   text: inputService.getDisplayText(widget.displayLength),
                   style: TextStyle(
                     color: _isCenterHexPressed
-                        ? (inputService.isLetterMode ? Colors.white : Colors.black) // Invert color when pressed
-                        : (inputService.isLetterMode ? Colors.black : Colors.white),
+                        ? (inputService.isLetterMode
+                            ? Colors.white
+                            : Colors.black) // Invert color when pressed
+                        : (inputService.isLetterMode
+                            ? Colors.black
+                            : Colors.white),
                     fontSize: widget.geometry.hexWidth * 0.33,
                     fontWeight: FontWeight.bold,
                   ),
