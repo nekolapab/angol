@@ -7,10 +7,12 @@ import 'heksagon_wedjet.dart';
 
 class SentirModWedjet extends StatefulWidget {
   final HeksagonDjeyometre geometry;
+  final ValueChanged<bool>? onPressedChanged; // New callback
 
   const SentirModWedjet({
     super.key,
     required this.geometry,
+    this.onPressedChanged, // Add to constructor
   });
 
   @override
@@ -57,6 +59,7 @@ class _SentirModWedjetState extends State<SentirModWedjet> {
             inputService.addCharacter(' ');
           }
         },
+        onPressedChanged: widget.onPressedChanged, // Pass the callback
       ),
     );
   }

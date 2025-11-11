@@ -20,6 +20,7 @@ class HeksagonWedjet extends StatefulWidget {
   final Widget? child;
   final double rotationAngle;
   final double? fontSize;
+  final ValueChanged<bool>? onPressedChanged; // New callback
 
   const HeksagonWedjet({
     super.key,
@@ -36,6 +37,7 @@ class HeksagonWedjet extends StatefulWidget {
     this.child,
     this.rotationAngle = 0.0,
     this.fontSize,
+    this.onPressedChanged, // Add to constructor
   });
 
   @override
@@ -98,11 +100,23 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
     return hitPath.contains(localPosition);
   }
 
+  Color _getComplementaryColor(Color color) {
+    return Color.fromARGB(
+      (color.a * 255.0).round() & 0xff,
+      255 - ((color.r * 255.0).round() & 0xff),
+      255 - ((color.g * 255.0).round() & 0xff),
+      255 - ((color.b * 255.0).round() & 0xff),
+    );
+  }
+
   Color _getDisplayTextContrastColor() {
+    Color effectiveBackgroundColor = widget.backgroundColor;
     if (_isPressed) {
-      return widget.backgroundColor;
+      effectiveBackgroundColor = _getComplementaryColor(widget.backgroundColor);
     }
-    return widget.textColor;
+
+    // Use a luminance-based approach to pick black or white for contrast
+    return effectiveBackgroundColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
   }
 
   @override
@@ -125,13 +139,16 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
             return;
           }
           setState(() => _isPressed = true);
+          widget.onPressedChanged?.call(true); // Call new callback
           widget.onTap?.call();
         },
         onTapUp: (_) {
           setState(() => _isPressed = false);
+          widget.onPressedChanged?.call(false); // Call new callback
         },
         onTapCancel: () {
           setState(() => _isPressed = false);
+          widget.onPressedChanged?.call(false); // Call new callback
         },
         onLongPressStart: (details) {
           final RenderBox? box = context.findRenderObject() as RenderBox?;
@@ -140,10 +157,12 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
             return;
           }
           setState(() => _isPressed = true);
+          widget.onPressedChanged?.call(true); // Call new callback
           widget.onLongPress?.call();
         },
         onLongPressEnd: (_) {
           setState(() => _isPressed = false);
+          widget.onPressedChanged?.call(false); // Call new callback
         },
         child: SizedBox(
           width: widget.size,
@@ -156,6 +175,7 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
               isMomentarilyPressed: _isPressed, // Controls momentary contrast
               isHovering: _isHovering || widget.isHovering,
               rotationAngle: widget.rotationAngle,
+              getComplementaryColor: _getComplementaryColor, // Pass the function
             ),
             child: Transform.rotate(
               angle: -widget.rotationAngle,
@@ -228,11 +248,12 @@ class HexagonPainter extends CustomPainter {
     this.isMomentarilyPressed = false, // Initialize new parameter
     this.isHovering = false,
     this.rotationAngle = 0.0,
+    required this.getComplementaryColor, // Pass the function
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final displayColor = isMomentarilyPressed ? _getComplementaryColor(color) : color;
+    final displayColor = isMomentarilyPressed ? getComplementaryColor(color) : color;
 
     final paint = Paint()
       ..color = displayColor
@@ -272,14 +293,7 @@ class HexagonPainter extends CustomPainter {
     return path;
   }
 
-  Color _getComplementaryColor(Color color) {
-    return Color.fromARGB(
-      (color.a * 255.0).round() & 0xff,
-      255 - ((color.r * 255.0).round() & 0xff),
-      255 - ((color.g * 255.0).round() & 0xff),
-      255 - ((color.b * 255.0).round() & 0xff),
-    );
-  }
+
 
   @override
   bool shouldRepaint(covariant HexagonPainter oldDelegate) {

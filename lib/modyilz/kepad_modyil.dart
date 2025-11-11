@@ -28,6 +28,14 @@ class KepadModyil extends StatefulWidget {
 }
 
 class _KepadModyilState extends State<KepadModyil> {
+  bool _isCenterHexPressed = false; // New state variable
+
+  void _onCenterHexPressedChanged(bool isPressed) {
+    setState(() {
+      _isCenterHexPressed = isPressed;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<EnpitSirves>(
@@ -53,6 +61,7 @@ class _KepadModyilState extends State<KepadModyil> {
           children: [
             SentirModWedjet(
               geometry: widget.geometry,
+              onPressedChanged: _onCenterHexPressedChanged, // Pass the callback
             ),
             EnirRenqWedjet(
               geometry: widget.geometry,
@@ -71,8 +80,9 @@ class _KepadModyilState extends State<KepadModyil> {
                 child: AwtpitTekstWedjet(
                   text: inputService.getDisplayText(widget.displayLength),
                   style: TextStyle(
-                    color:
-                        inputService.isLetterMode ? Colors.black : Colors.white,
+                    color: _isCenterHexPressed
+                        ? (inputService.isLetterMode ? Colors.white : Colors.black) // Invert color when pressed
+                        : (inputService.isLetterMode ? Colors.black : Colors.white),
                     fontSize: widget.geometry.hexWidth * 0.33,
                     fontWeight: FontWeight.bold,
                   ),
