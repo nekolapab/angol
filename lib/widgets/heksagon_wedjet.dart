@@ -80,25 +80,32 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
           onTapDown: (_) {
             setState(() => _isPressed = true);
             widget.onPressedChanged?.call(true);
+            widget.onTap?.call(); // Fire action immediately on press down
           },
           onTapUp: (_) {
-            setState(() => _isPressed = false);
-            widget.onPressedChanged?.call(false);
-            widget.onTap?.call(); // Fire the tap event on release
+            // Delay the visual "un-press" to ensure it's visible on quick taps.
+            Future.delayed(const Duration(milliseconds: 1000 ~/ 12), () {
+              if (mounted) {
+                setState(() => _isPressed = false);
+                widget.onPressedChanged?.call(false);
+              }
+            });
           },
           onTapCancel: () {
+            // If cancelled, revert immediately.
             setState(() => _isPressed = false);
             widget.onPressedChanged?.call(false);
           },
+          onLongPress: widget.onLongPress,
           onLongPressStart: (_) {
             setState(() => _isPressed = true);
             widget.onPressedChanged?.call(true);
           },
           onLongPressEnd: (_) {
+            // On long press end, revert immediately.
             setState(() => _isPressed = false);
             widget.onPressedChanged?.call(false);
           },
-          onLongPress: widget.onLongPress,
           child: SizedBox(
             width: widget.size,
             height: widget.size * (2 / math.sqrt(3)),

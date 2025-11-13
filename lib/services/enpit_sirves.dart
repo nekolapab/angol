@@ -13,15 +13,19 @@ class EnpitSirves extends ChangeNotifier {
   bool get isTextFieldFocused => _isTextFieldFocused;
 
   void addCharacter(String char) {
+    developer.log('EnpitSirves: addCharacter called with: $char');
     if (char == '⌫') {
       deleteLeft();
+      developer.log('EnpitSirves: Deleting left via addCharacter.');
       return;
     }
 
     String finalChar = _shouldCapitalize ? char.toUpperCase() : char;
     _inputText.write(finalChar);
     _shouldCapitalize = false;
+    developer.log('EnpitSirves: _inputText updated to: "${_inputText.toString()}"');
     notifyListeners();
+    developer.log('EnpitSirves: notifyListeners called.');
   }
 
   void deleteLeft() {

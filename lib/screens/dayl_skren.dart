@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'dart:developer' as developer; // Add this import
 import '../models/angol_modalz.dart';
 import '../utils/heksagon_djeyometre.dart';
 import '../services/enpit_sirves.dart';
@@ -40,11 +41,15 @@ class _DaylSkrenSteyt extends State<DaylSkren> {
   }
 
   void _syncTextController() {
+    developer.log('DaylSkren: _syncTextController called. Current inputService.inputText: "${inputService.inputText}"');
     if (_textController.text != inputService.inputText) {
       _textController.text = inputService.inputText;
       _textController.selection = TextSelection.fromPosition(
         TextPosition(offset: _textController.text.length),
       );
+      developer.log('DaylSkren: _textController updated to: "${_textController.text}"');
+    } else {
+      developer.log('DaylSkren: _textController already matches inputService.inputText.');
     }
   }
 
@@ -55,21 +60,27 @@ class _DaylSkrenSteyt extends State<DaylSkren> {
 
   void _onHexKeyPress(String char,
       {bool isLongPress = false, String? primaryChar}) {
+    developer.log('DaylSkren: _onHexKeyPress called for char: $char, isLongPress: $isLongPress');
     if (isLongPress) {
       HapticFeedback.mediumImpact();
       if (char == '⌫') {
         inputService.deleteWord();
+        developer.log('DaylSkren: Deleting word.');
       } else {
         if (primaryChar != null) {
           inputService.deleteCharacters(primaryChar.length);
+          developer.log('DaylSkren: Deleting ${primaryChar.length} characters.');
         } else {
           inputService.deleteLeft();
+          developer.log('DaylSkren: Deleting left.');
         }
         inputService.addCharacter(char);
+        developer.log('DaylSkren: Adding character (long press): $char');
       }
     } else {
       HapticFeedback.lightImpact();
       inputService.addCharacter(char);
+      developer.log('DaylSkren: Adding character (short press): $char');
     }
   }
 
