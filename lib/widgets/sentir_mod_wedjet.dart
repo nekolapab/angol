@@ -10,6 +10,7 @@ class SentirModWedjet extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final String label;
+  final Function(bool)? onHover; // Add this line
 
   const SentirModWedjet({
     super.key,
@@ -20,15 +21,14 @@ class SentirModWedjet extends StatelessWidget {
     required this.backgroundColor,
     required this.textColor,
     this.label = '',
+    this.onHover, // Add this line
   });
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left:
-          MediaQuery.of(context).size.width / 2 - geometry.hexWidth / 2,
-      top: MediaQuery.of(context).size.height / 2 -
-          geometry.hexHeight / 2,
+      left: MediaQuery.of(context).size.width / 2 - geometry.hexWidth / 2,
+      top: MediaQuery.of(context).size.height / 2 - geometry.hexHeight / 2,
       child: HeksagonWedjet(
         label: label,
         backgroundColor: backgroundColor,
@@ -38,6 +38,7 @@ class SentirModWedjet extends StatelessWidget {
         onTap: onTap,
         onLongPress: onLongPress,
         onPressedChanged: onPressedChanged,
+        onHover: onHover, // Pass the onHover callback
       ),
     );
   }

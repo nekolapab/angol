@@ -1,11 +1,8 @@
-// lib/widgets/heksagon_wedjet.dart
-// CORRECT FIX: Separate visual size from hit testing area
-// Visual hexagons keep gaps, but hit areas cover the gaps!
-
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import '../models/kepad_konfeg.dart';
+import 'heksagon_hitbox.dart'; // Import the new hitbox
 
 class HeksagonWedjet extends StatefulWidget {
   final String label;
@@ -21,7 +18,7 @@ class HeksagonWedjet extends StatefulWidget {
   final Widget? child;
   final double rotationAngle;
   final double? fontSize;
-  final ValueChanged<bool>? onPressedChanged; // New callback
+  final ValueChanged<bool>? onPressedChanged;
 
   const HeksagonWedjet({
     super.key,
@@ -38,7 +35,7 @@ class HeksagonWedjet extends StatefulWidget {
     this.child,
     this.rotationAngle = 0.0,
     this.fontSize,
-    this.onPressedChanged, // Add to constructor
+    this.onPressedChanged,
   });
 
   @override
@@ -48,54 +45,14 @@ class HeksagonWedjet extends StatefulWidget {
 class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
   bool _isPressed = false;
   bool _isHovering = false;
-  Path? _cachedHitPath;
-  Size? _cachedSize;
-  double? _cachedRotation;
 
-  // Create EXPANDED hit testing path - extends into gaps between hexagons
-
-  Path _createHitTestPath(Size size) {
-    if (_cachedHitPath != null &&
-        _cachedSize == size &&
-        _cachedRotation == widget.rotationAngle) {
-      return _cachedHitPath!;
+  void _handleHover(bool isHovering) {
+    if (isHovering != _isHovering) {
+      setState(() {
+        _isHovering = isHovering;
+      });
+      widget.onHover?.call(isHovering);
     }
-
-    final path = Path();
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-
-    // CRITICAL: Hit area is LARGER than visual hexagon
-    // This makes it extend into the gaps between hexagons
-    // So corners and edges that LOOK clickable ARE clickable
-    final hitRadius =
-        math.min(centerX, centerY) + 1.0; // +1.0 extends into gaps
-
-    for (int i = 0; i < 6; i++) {
-      double angle = (i * 60 - 30) * (math.pi / 180);
-      angle += widget.rotationAngle;
-
-      double x = centerX + hitRadius * math.cos(angle);
-      double y = centerY + hitRadius * math.sin(angle);
-
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-
-    _cachedHitPath = path;
-    _cachedSize = size;
-    _cachedRotation = widget.rotationAngle;
-
-    return path;
-  }
-
-  bool _hitTestHexagon(Offset localPosition, Size size) {
-    final hitPath = _createHitTestPath(size);
-    return hitPath.contains(localPosition);
   }
 
   Color _getDisplayTextContrastColor() {
@@ -110,68 +67,58 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() => _isHovering = true);
-        widget.onHover?.call(true);
-      },
-      onExit: (_) {
-        setState(() => _isHovering = false);
-        widget.onHover?.call(false);
-      },
-      child: GestureDetector(
-        behavior: HitTestBehavior.deferToChild,
-        onTapDown: (details) {
-          final RenderBox? box = context.findRenderObject() as RenderBox?;
-          if (box == null) return;
-          if (!_hitTestHexagon(details.localPosition, box.size)) {
-            return;
-          }
-          setState(() => _isPressed = true);
-          widget.onPressedChanged?.call(true); // Call new callback
-          widget.onTap?.call();
-        },
-        onTapUp: (_) {
-          setState(() => _isPressed = false);
-          widget.onPressedChanged?.call(false); // Call new callback
-        },
-        onTapCancel: () {
-          setState(() => _isPressed = false);
-          widget.onPressedChanged?.call(false); // Call new callback
-        },
-        onLongPressStart: (details) {
-          final RenderBox? box = context.findRenderObject() as RenderBox?;
-          if (box == null) return;
-          if (!_hitTestHexagon(details.localPosition, box.size)) {
-            return;
-          }
-          setState(() => _isPressed = true);
-          widget.onPressedChanged?.call(true); // Call new callback
-          widget.onLongPress?.call();
-        },
-        onLongPressEnd: (_) {
-          setState(() => _isPressed = false);
-          widget.onPressedChanged?.call(false); // Call new callback
-        },
-        child: SizedBox(
-          width: widget.size,
-          height: widget.size * (2 / math.sqrt(3)),
-          child: CustomPaint(
-            painter: HexagonPainter(
-              color: widget.backgroundColor,
-              textColor: widget.textColor,
-              isPressed: widget.isPressed, // Now represents isActive
-              isMomentarilyPressed: _isPressed, // Controls momentary contrast
-              isHovering: _isHovering || widget.isHovering,
-              rotationAngle: widget.rotationAngle,
-            ),
-            child: Transform.rotate(
-              angle: -widget.rotationAngle,
-              child: Center(
-                child: widget.child ??
-                    (widget.secondaryLabel != null
-                        ? _buildDualLabel()
-                        : _buildSingleLabel()),
+    // The HeksagonHitbox provides the accurate hit-testing shape.
+    // The MouseRegion and GestureDetector handle the user interaction.
+    return HeksagonHitbox(
+      rotationAngle: widget.rotationAngle,
+      child: MouseRegion(
+        onEnter: (_) => _handleHover(true),
+        onExit: (_) => _handleHover(false),
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTapDown: (_) {
+            setState(() => _isPressed = true);
+            widget.onPressedChanged?.call(true);
+          },
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            widget.onPressedChanged?.call(false);
+            widget.onTap?.call(); // Fire the tap event on release
+          },
+          onTapCancel: () {
+            setState(() => _isPressed = false);
+            widget.onPressedChanged?.call(false);
+          },
+          onLongPressStart: (_) {
+            setState(() => _isPressed = true);
+            widget.onPressedChanged?.call(true);
+          },
+          onLongPressEnd: (_) {
+            setState(() => _isPressed = false);
+            widget.onPressedChanged?.call(false);
+          },
+          onLongPress: widget.onLongPress,
+          child: SizedBox(
+            width: widget.size,
+            height: widget.size * (2 / math.sqrt(3)),
+            child: CustomPaint(
+              painter: HexagonPainter(
+                color: widget.backgroundColor,
+                textColor: widget.textColor,
+                isPressed: widget.isPressed,
+                isMomentarilyPressed: _isPressed,
+                isHovering: _isHovering || widget.isHovering,
+                rotationAngle: widget.rotationAngle,
+              ),
+              child: Transform.rotate(
+                angle: -widget.rotationAngle,
+                child: Center(
+                  child: widget.child ??
+                      (widget.secondaryLabel != null
+                          ? _buildDualLabel()
+                          : _buildSingleLabel()),
+                ),
               ),
             ),
           ),
@@ -290,37 +237,3 @@ class HexagonPainter extends CustomPainter {
         oldDelegate.rotationAngle != rotationAngle;
   }
 }
-
-/*
-THE CORRECT SOLUTION:
-
-Two separate hexagon sizes:
-
-1. VISUAL HEXAGON (what you see):
-   radius = min(centerX, centerY) - 2.0
-   → Keeps gaps between hexagons
-   → Hexagons DON'T overlap
-   → Original appearance preserved
-
-2. HIT TEST AREA (what responds to taps):
-   hitRadius = min(centerX, centerY) + 1.0
-   → EXTENDS into the gaps
-   → Covers corners and edges fully
-   → Makes "dead zones" clickable
-
-RESULT:
-✅ Visual hexagons stay same size (no shrinking/growing)
-✅ Gaps between hexagons remain (clean appearance)
-✅ Hit areas extend into gaps (all corners work)
-✅ All 76 areas now responsive (28 + 48)
-
-The hit area is INVISIBLE but LARGER than the visual hexagon!
-
-Visual:     [  HEXAGON  ]
-Hit area:  [    HEXAGON    ]  ← extends beyond visual
-              ↑          ↑
-         Covers gaps on all sides
-
-This is how professional UI works - hit areas are often 
-larger than visual elements for better usability!
-*/

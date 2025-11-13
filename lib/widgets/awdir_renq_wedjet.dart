@@ -11,6 +11,7 @@ class AwdirRenqWedjet extends StatelessWidget {
       onHexKeyPress;
   final List<String> tapLabels;
   final List<String> longPressLabels;
+  final Function(bool)? onHover; // Add this line
 
   const AwdirRenqWedjet({
     super.key,
@@ -18,6 +19,7 @@ class AwdirRenqWedjet extends StatelessWidget {
     required this.onHexKeyPress,
     required this.tapLabels,
     required this.longPressLabels,
+    this.onHover, // Add this line
   });
 
   @override
@@ -44,18 +46,21 @@ class AwdirRenqWedjet extends StatelessWidget {
                   geometry.hexHeight / 2,
               child: HeksagonWedjet(
                 label: tapLabel,
-                secondaryLabel: inputService.isLetterMode && longPressLabel.isNotEmpty
-                    ? longPressLabel
-                    : null,
+                secondaryLabel:
+                    inputService.isLetterMode && longPressLabel.isNotEmpty
+                        ? longPressLabel
+                        : null,
                 backgroundColor: hexColor,
                 textColor: KepadKonfeg.getComplementaryColor(hexColor),
                 size: geometry.hexWidth,
                 rotationAngle: geometry.rotationAngle,
                 onTap: () => onHexKeyPress(tapLabel, isLongPress: false),
-                onLongPress: inputService.isLetterMode && longPressLabel.isNotEmpty
-                    ? () => onHexKeyPress(longPressLabel,
-                        isLongPress: true, primaryChar: tapLabel)
-                    : null,
+                onLongPress:
+                    inputService.isLetterMode && longPressLabel.isNotEmpty
+                        ? () => onHexKeyPress(longPressLabel,
+                            isLongPress: true, primaryChar: tapLabel)
+                        : null,
+                onHover: onHover, // Pass the onHover callback
                 fontSize: inputService.isLetterMode
                     ? geometry.hexWidth * 0.5
                     : geometry.hexWidth * 0.67,

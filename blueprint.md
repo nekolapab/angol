@@ -1,7 +1,9 @@
 ## *first enstrukcon*
-* yuz angold spelenq for awtpit tekst  az en bluprent.md  GEMINI.md  and faylz an foldirz neymz and refrensez globale for etc neym tceynj. 
-* but du not reneym Flutter standard konvencon freymwirk klasez and faylz (sutc az lib\main.dart  lib\firebase_options.dart  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, etc.).
-* ef a part ov lha neym ez angold  lhen lhe entayr neym (egzampil 'Dayl'|'DaylSkren') shid be az wel.
+* yuz angold spelenq  az en bluprent.md an GEMINI.md  for faylz an foldirz neymz  kod nots ensayd faylz  and updeyt refrensez globale for etc neym tceynj.
+* eksept du not reneym wat kozez problemz ov Flutter standard konvencon freymwirk klasez and faylz (sutc az lib\main.dart  lib\firebase_options.dart  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
+
+## *sekond enstrukcon*
+* yuz angold spelenq az yusir for tcat tekst!
 
 ## *ovirvyuw*
 angol ez a Flutter aplekeycon lhat emplements a kustom enput melxod beyst on a heksagonal gred. lhe yuzir entirfeys konsests ov a sentir heksagon and sirawndenq heksagonal keyz. lha kepad modyil togilz bolx ledir and numbir enpit modz.
