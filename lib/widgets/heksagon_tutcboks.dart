@@ -2,10 +2,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
 
-class HeksagonHitbox extends SingleChildRenderObjectWidget {
+class HeksagonTutcboks extends SingleChildRenderObjectWidget {
   final double rotationAngle;
 
-  const HeksagonHitbox({
+  const HeksagonTutcboks({
     super.key,
     this.rotationAngle = 0.0,
     required super.child,
@@ -13,20 +13,20 @@ class HeksagonHitbox extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderHeksagonHitbox(rotationAngle: rotationAngle);
+    return RenderHeksagonTutcboks(rotationAngle: rotationAngle);
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderHeksagonHitbox renderObject) {
+      BuildContext context, RenderHeksagonTutcboks renderObject) {
     renderObject.rotationAngle = rotationAngle;
   }
 }
 
-class RenderHeksagonHitbox extends RenderProxyBox {
+class RenderHeksagonTutcboks extends RenderProxyBox {
   double rotationAngle;
 
-  RenderHeksagonHitbox({
+  RenderHeksagonTutcboks({
     this.rotationAngle = 0.0,
   });
 

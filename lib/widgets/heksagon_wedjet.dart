@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform, kIsWeb; // Import for platform check
 import '../models/kepad_konfeg.dart';
-import 'heksagon_hitbox.dart'; // Import the new hitbox
+import 'heksagon_tutcboks.dart'; // Import the new touchbox
 
 class HeksagonWedjet extends StatefulWidget {
   final String label;
@@ -69,68 +70,80 @@ class _HeksagonWedjetSteyt extends State<HeksagonWedjet> {
   Widget build(BuildContext context) {
     // The HeksagonHitbox provides the accurate hit-testing shape.
     // The MouseRegion and GestureDetector handle the user interaction.
-    return HeksagonHitbox(
-      rotationAngle: widget.rotationAngle,
-      child: MouseRegion(
-        onEnter: (_) => _handleHover(true),
-        onExit: (_) => _handleHover(false),
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTapDown: (_) {
-            setState(() => _isPressed = true);
-            widget.onPressedChanged?.call(true);
-            widget.onTap?.call(); // Fire action immediately on press down
-          },
-          onTapUp: (_) {
-            // Delay the visual "un-press" to ensure it's visible on quick taps.
-            Future.delayed(const Duration(milliseconds: 1000 ~/ 12), () {
-              if (mounted) {
-                setState(() => _isPressed = false);
-                widget.onPressedChanged?.call(false);
-              }
-            });
-          },
-          onTapCancel: () {
-            // If cancelled, revert immediately.
+
+    Widget gestureDetectorChild = GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTapDown: (_) {
+        setState(() => _isPressed = true);
+        widget.onPressedChanged?.call(true);
+        widget.onTap?.call(); // Fire action immediately on press down
+      },
+      onTapUp: (_) {
+        // Delay the visual "un-press" to ensure it's visible on quick taps.
+        Future.delayed(const Duration(milliseconds: 1000 ~/ 12), () {
+          if (mounted) {
             setState(() => _isPressed = false);
             widget.onPressedChanged?.call(false);
-          },
-          onLongPress: widget.onLongPress,
-          onLongPressStart: (_) {
-            setState(() => _isPressed = true);
-            widget.onPressedChanged?.call(true);
-          },
-          onLongPressEnd: (_) {
-            // On long press end, revert immediately.
-            setState(() => _isPressed = false);
-            widget.onPressedChanged?.call(false);
-          },
-          child: SizedBox(
-            width: widget.size,
-            height: widget.size * (2 / math.sqrt(3)),
-            child: CustomPaint(
-              painter: HexagonPainter(
-                color: widget.backgroundColor,
-                textColor: widget.textColor,
-                isPressed: widget.isPressed,
-                isMomentarilyPressed: _isPressed,
-                isHovering: _isHovering || widget.isHovering,
-                rotationAngle: widget.rotationAngle,
-              ),
-              child: Transform.rotate(
-                angle: -widget.rotationAngle,
-                child: Center(
-                  child: widget.child ??
-                      (widget.secondaryLabel != null
-                          ? _buildDualLabel()
-                          : _buildSingleLabel()),
-                ),
-              ),
+          }
+        });
+      },
+      onTapCancel: () {
+        // If cancelled, revert immediately.
+        setState(() => _isPressed = false);
+        widget.onPressedChanged?.call(false);
+      },
+      onLongPress: widget.onLongPress,
+      onLongPressStart: (_) {
+        setState(() => _isPressed = true);
+        widget.onPressedChanged?.call(true);
+      },
+      onLongPressEnd: (_) {
+        // On long press end, revert immediately.
+        setState(() => _isPressed = false);
+        widget.onPressedChanged?.call(false);
+      },
+      child: SizedBox(
+        width: widget.size,
+        height: widget.size * (2 / math.sqrt(3)),
+        child: CustomPaint(
+          painter: HexagonPainter(
+            color: widget.backgroundColor,
+            textColor: widget.textColor,
+            isPressed: widget.isPressed,
+            isMomentarilyPressed: _isPressed,
+            isHovering: _isHovering || widget.isHovering,
+            rotationAngle: widget.rotationAngle,
+          ),
+          child: Transform.rotate(
+            angle: -widget.rotationAngle,
+            child: Center(
+              child: widget.child ??
+                  (widget.secondaryLabel != null
+                      ? _buildDualLabel()
+                      : _buildSingleLabel()),
             ),
           ),
         ),
       ),
+    );
+
+    // Conditionally wrap with MouseRegion for non-mobile platforms
+    if (defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.fuchsia ||
+        kIsWeb) {
+      gestureDetectorChild = MouseRegion(
+        onEnter: (_) => _handleHover(true),
+        onExit: (_) => _handleHover(false),
+        cursor: SystemMouseCursors.click,
+        child: gestureDetectorChild,
+      );
+    }
+
+    return HeksagonTutcboks(
+      rotationAngle: widget.rotationAngle,
+      child: gestureDetectorChild,
     );
   }
 
