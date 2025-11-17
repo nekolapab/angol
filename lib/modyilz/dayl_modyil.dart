@@ -23,11 +23,41 @@ class DaylModyil extends StatelessWidget {
     final daylModule =
         modules.firstWhere((m) => m.id == 'dayl', orElse: () => modules.first);
 
-    // Filter out the 'dayl' module for the inner ring
-    final innerRingModules = modules.where((m) => m.id != 'dayl').toList();
 
-    // Build the inner ring widgets
-    final List<Widget> innerRingWidgets = innerRingModules.map((module) {
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stackWidth = constraints.maxWidth;
+        final stackHeight = constraints.maxHeight;
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Center hexagon
+            SentirModWedjet(
+              label: daylModule.name,
+              geometry: geometry,
+              backgroundColor: daylModule.color,
+              textColor: KepadKonfeg.getComplementaryColor(daylModule.color),
+              onTap: () => onToggleModule(daylModule.position),
+            ),
+            // Inner ring layout
+            EnirRenqWedjet(
+              geometry: geometry,
+              stackWidth: stackWidth,
+              stackHeight: stackHeight,
+              children: _innerRingWidgets,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  List<Widget> get innerRingWidgets => _innerRingWidgets;
+
+  List<Widget> get _innerRingWidgets {
+    final innerRingModules = modules.where((m) => m.id != 'dayl').toList();
+    return innerRingModules.map((module) {
       return HeksagonWedjet(
         label: module.name,
         backgroundColor: module.color,
@@ -38,23 +68,5 @@ class DaylModyil extends StatelessWidget {
         onTap: () => onToggleModule(module.position),
       );
     }).toList();
-
-    return Stack(
-      children: [
-        // Center hexagon
-        SentirModWedjet(
-          label: daylModule.name,
-          geometry: geometry,
-          backgroundColor: daylModule.color,
-          textColor: KepadKonfeg.getComplementaryColor(daylModule.color),
-          onTap: () => onToggleModule(daylModule.position),
-        ),
-        // Inner ring layout
-        EnirRenqWedjet(
-          geometry: geometry,
-          children: innerRingWidgets,
-        ),
-      ],
-    );
   }
 }

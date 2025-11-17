@@ -12,7 +12,9 @@ class AwdirRenqWedjet extends StatelessWidget {
   final List<String> tapLabels;
   final List<String> longPressLabels;
   final List<GlobalKey>? keys;
-  final Function(bool)? onHover; 
+  final Function(bool)? onHover;
+  final double stackWidth;
+  final double stackHeight;
 
   const AwdirRenqWedjet({
     super.key,
@@ -22,6 +24,8 @@ class AwdirRenqWedjet extends StatelessWidget {
     required this.longPressLabels,
     this.keys,
     this.onHover,
+    required this.stackWidth,
+    required this.stackHeight,
   });
 
   @override
@@ -40,10 +44,10 @@ class AwdirRenqWedjet extends StatelessWidget {
             final hexColor = KepadKonfeg.rainbowColors[index];
 
             return Positioned(
-              left: MediaQuery.of(context).size.width / 2 +
+              left: stackWidth / 2 +
                   position.x -
                   geometry.hexWidth / 2,
-              top: MediaQuery.of(context).size.height / 2 +
+              top: stackHeight / 2 +
                   position.y -
                   geometry.hexHeight / 2,
               child: HeksagonWedjet(

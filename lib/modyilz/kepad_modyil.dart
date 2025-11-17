@@ -193,46 +193,59 @@ class _KepadModyilState extends State<KepadModyil> {
               _hoveredHexIndex = null;
             });
           },
-          child: Stack(
-            children: [
-              SentirModWedjet(
-                geometry: widget.geometry,
-                onPressedChanged: _onCenterHexPressedChanged,
-                backgroundColor: centerHexBackgroundColor,
-                textColor: centerHexTextColor,
-                onTap: centerOnTap,
-                onLongPress: centerOnLongPress,
-              ),
-              EnirRenqWedjet(
-                geometry: widget.geometry,
-                children: innerRingWidgets,
-              ),
-              AwdirRenqWedjet(
-                geometry: widget.geometry,
-                onHexKeyPress: widget.onHexKeyPress,
-                tapLabels: outerTapLabels,
-                longPressLabels: outerLongPressLabels,
-                keys: _outerHexKeys,
-              ),
-              IgnorePointer(
-                child: Center(
-                  child: AwtpitTekstWedjet(
-                    text: inputService.getDisplayText(widget.displayLength),
-                    style: TextStyle(
-                      color: _isCenterHexPressed
-                          ? (inputService.isLetterMode
-                              ? Colors.white
-                              : Colors.black) // Invert color when pressed
-                          : (inputService.isLetterMode
-                              ? Colors.black
-                              : Colors.white),
-                      fontSize: widget.geometry.hexWidth * 0.33,
-                      fontWeight: FontWeight.bold,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final stackWidth = constraints.maxWidth;
+              final stackHeight = constraints.maxHeight;
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  SentirModWedjet(
+                    geometry: widget.geometry,
+                    onPressedChanged: _onCenterHexPressedChanged,
+                    backgroundColor: centerHexBackgroundColor,
+                    textColor: centerHexTextColor,
+                    onTap: centerOnTap,
+                    onLongPress: centerOnLongPress,
+                  ),
+                  EnirRenqWedjet(
+                    geometry: widget.geometry,
+                    stackWidth: stackWidth,
+                    stackHeight: stackHeight,
+                    children: innerRingWidgets,
+                  ),
+                  AwdirRenqWedjet(
+                    geometry: widget.geometry,
+                    onHexKeyPress: widget.onHexKeyPress,
+                    tapLabels: outerTapLabels,
+                    longPressLabels: outerLongPressLabels,
+                    keys: _outerHexKeys,
+                    stackWidth: stackWidth,
+                    stackHeight: stackHeight,
+                  ),
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Center(
+                        child: AwtpitTekstWedjet(
+                          text: inputService.getDisplayText(widget.displayLength),
+                          style: TextStyle(
+                            color: _isCenterHexPressed
+                                ? (inputService.isLetterMode
+                                    ? Colors.white
+                                    : Colors.black) // Invert color when pressed
+                                : (inputService.isLetterMode
+                                    ? Colors.black
+                                    : Colors.white),
+                            fontSize: widget.geometry.hexWidth * 0.33,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
         );
       },

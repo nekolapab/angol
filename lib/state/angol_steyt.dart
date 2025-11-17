@@ -39,7 +39,7 @@ class AngolSteyt extends ChangeNotifier {
     notifyListeners();
   }
 
-  void reset() {
+  void reset({bool notify = true}) {
     modules = [
       const ModuleData(
           id: 'dayl', name: 'dayl', color: Color(0xFF000000), position: 0, isActive: true),
@@ -56,7 +56,9 @@ class AngolSteyt extends ChangeNotifier {
       const ModuleData(
           id: 'module7', name: '', color: Color(0xFFFF00FF), position: 6, isActive: false),
     ];
-    notifyListeners();
+    if (notify) {
+      notifyListeners();
+    }
   }
 }
 

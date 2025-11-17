@@ -5,13 +5,17 @@ import '../utils/heksagon_djeyometre.dart';
 class EnirRenqWedjet extends StatelessWidget {
   final HeksagonDjeyometre geometry;
   final List<Widget> children;
-  final Function(bool)? onHover; // Add this line
+  final Function(bool)? onHover;
+  final double stackWidth;
+  final double stackHeight;
 
   const EnirRenqWedjet({
     super.key,
     required this.geometry,
     required this.children,
-    this.onHover, // Add this line
+    this.onHover,
+    required this.stackWidth,
+    required this.stackHeight,
   });
 
   @override
@@ -52,10 +56,10 @@ class EnirRenqWedjet extends StatelessWidget {
         }
 
         return Positioned(
-          left: MediaQuery.of(context).size.width / 2 +
+          left: stackWidth / 2 +
               position.x -
               geometry.hexWidth / 2,
-          top: MediaQuery.of(context).size.height / 2 +
+          top: stackHeight / 2 +
               position.y -
               geometry.hexHeight / 2,
           child: positionedChild,

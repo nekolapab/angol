@@ -6,8 +6,8 @@ class HeksagonDjeyometre {
   final HexagonPosition center;
   final bool isLetterMode;
 
-  const HeksagonDjeyometre({
-    this.hexSize = 72,
+  HeksagonDjeyometre({
+    required this.hexSize,
     required this.center,
     this.isLetterMode = true,
   });
