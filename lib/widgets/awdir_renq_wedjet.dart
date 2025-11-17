@@ -11,7 +11,8 @@ class AwdirRenqWedjet extends StatelessWidget {
       onHexKeyPress;
   final List<String> tapLabels;
   final List<String> longPressLabels;
-  final Function(bool)? onHover; // Add this line
+  final List<GlobalKey>? keys;
+  final Function(bool)? onHover; 
 
   const AwdirRenqWedjet({
     super.key,
@@ -19,7 +20,8 @@ class AwdirRenqWedjet extends StatelessWidget {
     required this.onHexKeyPress,
     required this.tapLabels,
     required this.longPressLabels,
-    this.onHover, // Add this line
+    this.keys,
+    this.onHover,
   });
 
   @override
@@ -45,6 +47,7 @@ class AwdirRenqWedjet extends StatelessWidget {
                   position.y -
                   geometry.hexHeight / 2,
               child: HeksagonWedjet(
+                key: (keys != null && keys!.length > index) ? keys![index] : null,
                 label: tapLabel,
                 secondaryLabel:
                     inputService.isLetterMode && longPressLabel.isNotEmpty

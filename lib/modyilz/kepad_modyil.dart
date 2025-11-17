@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:provider/provider.dart';
 import '../services/enpit_sirves.dart';
 import '../utils/heksagon_djeyometre.dart';
@@ -29,12 +30,36 @@ class KepadModyil extends StatefulWidget {
 }
 
 class _KepadModyilState extends State<KepadModyil> {
-  bool _isCenterHexPressed = false; // New state variable
+  bool _isCenterHexPressed = false;
+  int? _hoveredHexIndex;
+
+  final List<GlobalKey> _innerHexKeys = List.generate(6, (_) => GlobalKey());
+  final List<GlobalKey> _outerHexKeys = List.generate(12, (_) => GlobalKey());
 
   void _onCenterHexPressedChanged(bool isPressed) {
     setState(() {
       _isCenterHexPressed = isPressed;
     });
+  }
+
+  Path _createHexagonPath(Size size) {
+    final path = Path();
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+    final radius = (size.height / 2) - 2.0;
+
+    for (int i = 0; i < 6; i++) {
+      double angle = (i * 60 - 30) * (math.pi / 180);
+      double x = centerX + radius * math.cos(angle);
+      double y = centerY + radius * math.sin(angle);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
+    return path;
   }
 
   @override
@@ -95,6 +120,7 @@ class _KepadModyilState extends State<KepadModyil> {
           final hexColor = KepadKonfeg.innerRingColors[index % 6];
 
           return HeksagonWedjet(
+            key: _innerHexKeys[index],
             label: tapLabel,
             secondaryLabel: longPressLabel.isNotEmpty ? longPressLabel : null,
             backgroundColor: hexColor,
@@ -112,47 +138,121 @@ class _KepadModyilState extends State<KepadModyil> {
           );
         }).toList();
 
-        return Stack(
-          children: [
-            SentirModWedjet(
-              geometry: widget.geometry,
-              onPressedChanged: _onCenterHexPressedChanged,
-              backgroundColor: centerHexBackgroundColor,
-              textColor: centerHexTextColor,
-              onTap: centerOnTap,
-              onLongPress: centerOnLongPress,
-            ),
-            EnirRenqWedjet(
-              geometry: widget.geometry,
-              children: innerRingWidgets,
-            ),
-            AwdirRenqWedjet(
-              geometry: widget.geometry,
-              onHexKeyPress: widget.onHexKeyPress,
-              tapLabels: outerTapLabels,
-              longPressLabels: outerLongPressLabels,
-            ),
-            IgnorePointer(
-              child: Center(
-                child: AwtpitTekstWedjet(
-                  text: inputService.getDisplayText(widget.displayLength),
-                  style: TextStyle(
-                    color: _isCenterHexPressed
-                        ? (inputService.isLetterMode
-                            ? Colors.white
-                            : Colors.black) // Invert color when pressed
-                        : (inputService.isLetterMode
-                            ? Colors.black
-                            : Colors.white),
-                    fontSize: widget.geometry.hexWidth * 0.33,
-                    fontWeight: FontWeight.bold,
+        return GestureDetector(
+          onPanStart: (details) {
+            final inputService =
+                Provider.of<EnpitSirves>(context, listen: false);
+            final innerTapLabels = inputService.isLetterMode
+                ? KepadKonfeg.innerLetterMode
+                : KepadKonfeg.innerNumberMode;
+            final outerTapLabels = inputService.isLetterMode
+                ? KepadKonfeg.outerTap
+                : KepadKonfeg.outerTapNumber;
+            final allLabels = [...innerTapLabels, ...outerTapLabels];
+
+            final index = _getHexIndexFromPosition(details.globalPosition);
+
+            if (index != null) {
+              final label = allLabels[index];
+              if (label.isNotEmpty) {
+                inputService.addCharacter(label);
+                setState(() {
+                  _hoveredHexIndex = index;
+                });
+              }
+            }
+          },
+          onPanUpdate: (details) {
+            final inputService =
+                Provider.of<EnpitSirves>(context, listen: false);
+            final innerTapLabels = inputService.isLetterMode
+                ? KepadKonfeg.innerLetterMode
+                : KepadKonfeg.innerNumberMode;
+            final outerTapLabels = inputService.isLetterMode
+                ? KepadKonfeg.outerTap
+                : KepadKonfeg.outerTapNumber;
+            final allLabels = [...innerTapLabels, ...outerTapLabels];
+
+            final index = _getHexIndexFromPosition(details.globalPosition);
+
+            if (_hoveredHexIndex != index) {
+              inputService.deleteLeft();
+              if (index != null) {
+                final label = allLabels[index];
+                if (label.isNotEmpty) {
+                  inputService.addCharacter(label);
+                }
+              }
+              setState(() {
+                _hoveredHexIndex = index;
+              });
+            }
+          },
+          onPanEnd: (details) {
+            setState(() {
+              _hoveredHexIndex = null;
+            });
+          },
+          child: Stack(
+            children: [
+              SentirModWedjet(
+                geometry: widget.geometry,
+                onPressedChanged: _onCenterHexPressedChanged,
+                backgroundColor: centerHexBackgroundColor,
+                textColor: centerHexTextColor,
+                onTap: centerOnTap,
+                onLongPress: centerOnLongPress,
+              ),
+              EnirRenqWedjet(
+                geometry: widget.geometry,
+                children: innerRingWidgets,
+              ),
+              AwdirRenqWedjet(
+                geometry: widget.geometry,
+                onHexKeyPress: widget.onHexKeyPress,
+                tapLabels: outerTapLabels,
+                longPressLabels: outerLongPressLabels,
+                keys: _outerHexKeys,
+              ),
+              IgnorePointer(
+                child: Center(
+                  child: AwtpitTekstWedjet(
+                    text: inputService.getDisplayText(widget.displayLength),
+                    style: TextStyle(
+                      color: _isCenterHexPressed
+                          ? (inputService.isLetterMode
+                              ? Colors.white
+                              : Colors.black) // Invert color when pressed
+                          : (inputService.isLetterMode
+                              ? Colors.black
+                              : Colors.white),
+                      fontSize: widget.geometry.hexWidth * 0.33,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
+  }
+
+  int? _getHexIndexFromPosition(Offset globalPosition) {
+    final allKeys = [..._innerHexKeys, ..._outerHexKeys];
+    for (int i = 0; i < allKeys.length; i++) {
+      final key = allKeys[i];
+      final RenderBox? renderBox =
+          key.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        final localPosition = renderBox.globalToLocal(globalPosition);
+        final path = _createHexagonPath(renderBox.size);
+        if (path.contains(localPosition)) {
+          return i;
+        }
+      }
+    }
+    return null;
   }
 }
