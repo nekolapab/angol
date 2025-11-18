@@ -83,16 +83,5 @@ class RenderHeksagonTutcboks extends RenderProxyBox {
     return super.hitTest(result, position: position);
   }
 
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    super.paint(context, offset);
 
-    // For debugging: draw the hit-test path
-    final Path debugPath = _createHexagonPath(size);
-    final Paint debugPaint = Paint()
-      ..color = Colors.red.withAlpha((255 * 0.5).round())
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-    context.canvas.drawPath(debugPath.shift(offset), debugPaint);
-  }
 }

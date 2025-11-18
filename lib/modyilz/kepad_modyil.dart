@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
+import 'package:flutter/rendering.dart'; // Added for RenderHeksagonTutcboks and BoxHitTestResult
 import 'package:provider/provider.dart';
 import '../services/enpit_sirves.dart';
 import '../utils/heksagon_djeyometre.dart';
@@ -9,6 +9,7 @@ import '../widgets/awdir_renq_wedjet.dart';
 import '../widgets/awtpit_tekst_wedjet.dart';
 import '../models/kepad_konfeg.dart';
 import '../widgets/heksagon_wedjet.dart';
+import '../widgets/heksagon_tutcboks.dart'; // Added for HeksagonTutcboks
 
 class KepadModyil extends StatefulWidget {
   final HeksagonDjeyometre geometry;
@@ -29,12 +30,46 @@ class KepadModyil extends StatefulWidget {
   State<KepadModyil> createState() => _KepadModyilState();
 }
 
+class _HexRenderData {
+  final GlobalKey key;
+  final RenderBox renderBox;
+
+  _HexRenderData(this.key, this.renderBox);
+}
+
 class _KepadModyilState extends State<KepadModyil> {
   bool _isCenterHexPressed = false;
   int? _hoveredHexIndex;
 
   final List<GlobalKey> _innerHexKeys = List.generate(6, (_) => GlobalKey());
   final List<GlobalKey> _outerHexKeys = List.generate(12, (_) => GlobalKey());
+  final List<_HexRenderData> _cachedHexRenderData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _cacheHexRenderData());
+  }
+
+  @override
+  void didUpdateWidget(covariant KepadModyil oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.geometry != widget.geometry) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _cacheHexRenderData());
+    }
+  }
+
+  void _cacheHexRenderData() {
+    _cachedHexRenderData.clear();
+    final allKeys = [..._innerHexKeys, ..._outerHexKeys];
+    for (final key in allKeys) {
+      final RenderBox? renderBox =
+          key.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        _cachedHexRenderData.add(_HexRenderData(key, renderBox));
+      }
+    }
+  }
 
   void _onCenterHexPressedChanged(bool isPressed) {
     setState(() {
@@ -42,25 +77,7 @@ class _KepadModyilState extends State<KepadModyil> {
     });
   }
 
-  Path _createHexagonPath(Size size) {
-    final path = Path();
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-    final radius = (size.height / 2) - 2.0;
 
-    for (int i = 0; i < 6; i++) {
-      double angle = (i * 60 - 30) * (math.pi / 180);
-      double x = centerX + radius * math.cos(angle);
-      double y = centerY + radius * math.sin(angle);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-    return path;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -253,15 +270,12 @@ class _KepadModyilState extends State<KepadModyil> {
   }
 
   int? _getHexIndexFromPosition(Offset globalPosition) {
-    final allKeys = [..._innerHexKeys, ..._outerHexKeys];
-    for (int i = 0; i < allKeys.length; i++) {
-      final key = allKeys[i];
-      final RenderBox? renderBox =
-          key.currentContext?.findRenderObject() as RenderBox?;
-      if (renderBox != null) {
-        final localPosition = renderBox.globalToLocal(globalPosition);
-        final path = _createHexagonPath(renderBox.size);
-        if (path.contains(localPosition)) {
+    for (int i = 0; i < _cachedHexRenderData.length; i++) {
+      final hexData = _cachedHexRenderData[i];
+      final RenderObject? renderObject = hexData.key.currentContext?.findRenderObject();
+      if (renderObject is RenderHeksagonTutcboks) {
+        final BoxHitTestResult result = BoxHitTestResult();
+        if (renderObject.hitTest(result, position: globalPosition)) {
           return i;
         }
       }
