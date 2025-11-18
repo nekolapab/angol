@@ -8,9 +8,13 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // Firebase already initialized, ignore
+  }
   runApp(
     MultiProvider(
       providers: [
@@ -35,7 +39,7 @@ class AngolApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF111111),
         useMaterial3: true,
       ),
-      home: DaylSkren(),
+      home: const DaylSkren(),
     ); 
   }
 }
