@@ -5,10 +5,6 @@
         android:label="angol"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <provider
-            android:name="io.flutter.plugins.firebase.core.FlutterFirebaseInitProvider"
-            android:authorities="${applicationId}.flutterfirebaseinitprovider"
-            tools:node="remove" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
