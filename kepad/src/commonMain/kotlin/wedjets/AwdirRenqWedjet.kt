@@ -1,0 +1,89 @@
+package wedjets
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import modalz.KepadKonfeg
+import sirvesez.EnpitSirves
+import yuteledez.HeksagonDjeyometre
+import kotlin.math.roundToInt
+
+/**
+ * A layout composable that generates and arranges hexagon widgets in an outer ring.
+ *
+ * This composable creates its own children (`HeksagonWedjet`) based on the provided
+ * labels and arranges them in a circle using a custom `Layout`. It observes state
+ * from `EnpitSirves` to adjust its appearance.
+ *
+ * @param onHexKeyPress Callback for when a hexagon key is pressed.
+ *                      Params: (label: String, isLongPress: Boolean, primaryChar: String?)
+ */
+@Composable
+fun AwdirRenqWedjet(
+    modifier: Modifier = Modifier,
+    geometry: HeksagonDjeyometre,
+    onHexKeyPress: (String, Boolean, String?) -> Unit,
+    tapLabels: List<String>,
+    longPressLabels: List<String>,
+    enpitSirves: EnpitSirves,
+    onHover: ((Boolean) -> Unit)? = null,
+    stackWidth: Dp,
+    stackHeight: Dp
+) {
+    val isLetterMode by enpitSirves.isLetterMode.collectAsState()
+    val outerCoords = remember(geometry) { geometry.getOuterRingCoordinates() }
+    val density = LocalDensity.current
+
+    Layout(
+        modifier = modifier,
+        content = {
+            // Generate the HexagonWedjet children dynamically
+            outerCoords.forEachIndexed { index, _ ->
+                if (index < tapLabels.size && index < longPressLabels.size) {
+                    val tapLabel = tapLabels[index]
+                    val longPressLabel = longPressLabels[index]
+                    val hexColor = KepadKonfeg.rainbowColors[index]
+
+                    HeksagonWedjet(
+                        label = tapLabel,
+                        secondaryLabel = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
+                        backgroundColor = hexColor,
+                        textColor = KepadKonfeg.getComplementaryColor(hexColor),
+                        size = with(density) { geometry.hexWidth.toDp() },
+                        rotationAngle = geometry.rotationAngle.toFloat(),
+                        onTap = { onHexKeyPress(tapLabel, false, null) },
+                        onLongPress = if (isLetterMode && longPressLabel.isNotEmpty()) {
+                            { onHexKeyPress(longPressLabel, true, tapLabel) }
+                        } else null,
+                        onHover = onHover,
+                        fontSize = (geometry.hexWidth * if (isLetterMode) 0.5 else 0.67).toFloat()
+                    )
+                }
+            }
+        }
+    ) { measurables, constraints ->
+        val stackWidthPx = stackWidth.toPx()
+        val stackHeightPx = stackHeight.toPx()
+
+        val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+
+        layout(stackWidthPx.roundToInt(), stackHeightPx.roundToInt()) {
+            placeables.forEachIndexed { index, placeable ->
+                if (index < outerCoords.size) {
+                    val coord = outerCoords[index]
+                    val position = geometry.axialToPixel(coord.q, coord.r)
+
+                    val x = stackWidthPx / 2 + position.x - (placeable.width / 2)
+                    val y = stackHeightPx / 2 + position.y - (placeable.height / 2)
+
+                    placeable.placeRelative(x.roundToInt(), y.roundToInt())
+                }
+            }
+        }
+    }
+}

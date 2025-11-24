@@ -47,7 +47,8 @@ class EnpitSirves extends ChangeNotifier {
     _inputText.clear();
     if (lastSpaceIndex != -1) {
       _inputText.write(trimmedText.substring(0, lastSpaceIndex));
-    } else {
+    }
+    else {
       _inputText.write('');
     }
     notifyListeners();

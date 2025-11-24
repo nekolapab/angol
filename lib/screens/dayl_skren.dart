@@ -1,4 +1,5 @@
- import 'package:flutter/material.dart';
+import 'package:angol/services/platform_sirves.dart';
+import 'package:flutter/material.dart';
  import 'package:flutter/services.dart';
  import 'package:provider/provider.dart';
  import 'dart:developer' as developer;
@@ -135,6 +136,16 @@
                      );
                    },
                  );
+               },
+             ),
+           ),
+           Positioned(
+             top: 40,
+             right: 20,
+             child: IconButton(
+               icon: const Icon(Icons.settings, color: Colors.white),
+               onPressed: () {
+                 PlatformSirves.openImeSettings();
                },
              ),
            ),
