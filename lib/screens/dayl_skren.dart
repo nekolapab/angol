@@ -104,7 +104,7 @@
                    return const SizedBox.shrink(); // Or a loading indicator
                  }
 
-                 final hexSize = math.min(screenWidth, screenHeight) / 9; // Adjust the divisor for best fit
+                 final hexSize = math.min(screenWidth, screenHeight) / 8.5; // Adjust the divisor for best fit
                  developer.log('DaylSkren: Calculated hexSize: $hexSize');
 
                  return Consumer2<EnpitSirves, AngolSteyt>(
