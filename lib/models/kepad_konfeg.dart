@@ -102,10 +102,10 @@ class KepadKonfeg {
   // Complementary colors
   static Color getComplementaryColor(Color color) {
     return Color.fromARGB(
-      (color.a * 255).round(),
-      (255 - (color.r * 255)).round(),
-      (255 - (color.g * 255)).round(),
-      (255 - (color.b * 255)).round(),
+      color.alpha,
+      255 - color.red,
+      255 - color.green,
+      255 - color.blue,
     );
   }
 }

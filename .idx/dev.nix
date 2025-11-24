@@ -7,7 +7,9 @@
   # Use https://search.nixos.org/packages to find packages
   packages = [
     pkgs.flutter
-    pkgs.jdk11
+    pkgs.jdk
+    pkgs.android-studio
+    pkgs.google-chrome
   ];
   
   # Sets environment variables in the workspace
