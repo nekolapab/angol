@@ -1,7 +1,8 @@
 {
   "IDX.agenticWorkspace": true,
   "dart.devToolsBrowser": "default",
-  "files.autoSave": "afterDelay",
+  "files.autoSave": "onFocusChange",
   "files.autoSaveDelay": 1000,
-  "flutter.hotReloadOnSave": "all"
+  "flutter.hotReloadOnSave": "all",
+  "cursor.composer.textSizeScale": 1.15,
 }

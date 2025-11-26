@@ -1,6 +1,8 @@
 package com.example.angol.ime.compose
 
 import androidx.compose.ui.geometry.Offset
+import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 data class AxialCoordinate(val q: Int, val r: Int)
@@ -19,6 +21,34 @@ class HexagonGeometry(
             x = (center.x + x).toFloat(),
             y = (center.y + y).toFloat()
         )
+    }
+
+    fun pixelToAxial(offset: Offset): AxialCoordinate {
+        val x = (offset.x - center.x) / hexSize
+        val y = (offset.y - center.y) / hexSize
+
+        val q = (sqrt(3.0) / 3.0 * x - 1.0 / 3.0 * y)
+        val r = (2.0 / 3.0 * y)
+
+        return axialRound(q, r)
+    }
+
+    private fun axialRound(q: Double, r: Double): AxialCoordinate {
+        var rq = q.roundToInt()
+        var rr = r.roundToInt()
+        var rs = (-q - r).roundToInt()
+
+        val qDiff = abs(rq - q)
+        val rDiff = abs(rr - r)
+        val sDiff = abs(rs - (-q - r))
+
+        if (qDiff > rDiff && qDiff > sDiff) {
+            rq = -rr - rs
+        } else if (rDiff > sDiff) {
+            rr = -rq - rs
+        }
+        
+        return AxialCoordinate(rq, rr)
     }
 
     fun getInnerRingCoordinates(): List<AxialCoordinate> {
