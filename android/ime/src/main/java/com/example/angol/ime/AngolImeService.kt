@@ -1,5 +1,7 @@
 package com.example.angol.ime
 
+import android.content.Intent
+import android.provider.Settings
 import android.inputmethodservice.InputMethodService
 import android.view.View
 import androidx.compose.ui.platform.ComposeView
@@ -15,7 +17,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.LifecycleOwner
 import com.example.angol.ime.compose.Keypad
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.dart.DartExecutor
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.view.FlutterMain
 
+<<<<<<< HEAD
 class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
@@ -33,6 +40,40 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         super.onCreate()
         savedStateRegistryController.performRestore(null)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+=======
+class AngolImeService : InputMethodService() {
+    private lateinit var channel: MethodChannel
+    private lateinit var flutterEngine: FlutterEngine
+
+    override fun onCreate() {
+        super.onCreate()
+        // Initialize FlutterEngine
+        flutterEngine = FlutterEngine(this)
+        flutterEngine.dartExecutor.executeDartEntrypoint(
+            DartExecutor.DartEntrypoint(
+                FlutterMain.findAppBundlePath(),
+                "main" // This is the entrypoint in your Flutter app
+            )
+        )
+
+        // Setup MethodChannel
+        channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.angol/ime")
+        channel.setMethodCallHandler { call, result ->
+            if (call.method == "openImeSettings") {
+                val intent = Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                result.success(null)
+            } else {
+                result.notImplemented()
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        flutterEngine.destroy()
+        super.onDestroy()
+>>>>>>> e2b2f4873d1e9f147e4a24bfc002ac0e52bf1a3d
     }
 
     override fun onCreateInputView(): View {

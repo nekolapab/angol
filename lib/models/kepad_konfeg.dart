@@ -101,10 +101,10 @@ class KepadKonfeg {
 
   // Complementary colors
   static Color getComplementaryColor(Color color) {
-    final int alpha = (color.value >> 24) & 0xFF;
-    final int red = (color.value >> 16) & 0xFF;
-    final int green = (color.value >> 8) & 0xFF;
-    final int blue = color.value & 0xFF;
+    final int alpha = (color.a * 255.0).round().clamp(0, 255);
+    final int red = (color.r * 255.0).round().clamp(0, 255);
+    final int green = (color.g * 255.0).round().clamp(0, 255);
+    final int blue = (color.b * 255.0).round().clamp(0, 255);
 
     return Color.fromARGB(
       alpha,
