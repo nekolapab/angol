@@ -24,7 +24,7 @@ fun SentirModWedjet(
     child: @Composable (() -> Unit)? = null
 ) {
     val density = LocalDensity.current
-    val sizeInDp = with(density) { geometry.hexWidth.toDp() }
+    val sizeInDp = with(density) { geometry.hexWidth.toFloat().toDp() }
 
     HeksagonWedjet(
         label = label,

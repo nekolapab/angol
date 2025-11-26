@@ -45,4 +45,12 @@ angol ez a Flutter aplekeycon lhat emplements a kustom enput melxod beyst on a h
 *  ad mor modyilz.
 
 ## **fyutcir development:**
-*   `lib/services/ovirley_sirves.dart` ez a pleysholdir.
+* `lib/services/ovirley_sirves.dart` ez a pleysholdir.
+* afdir the keyboard extension on Android wirks  implement a "fast number" feature for lha kepad modyil en ComposeKotlin where pressing a vowel on the inner ring displays numbers on the outer ring. Swiping to a number selects it, otherwise the vowel is typed. refactor the fast number gesture detection in `KepadModyil` feature. The plan is to introduce a top-level `GestureDetector` and move the long press logic, starting with adding `_longPressStartOffset` to `_KepadModyilState`.
+    Simplify the gesture detection: Consider having separate GestureDetectors or a more explicit state machine for gesture recognition.
+    Focus on the UI update: Ensure that when `enterFastNumberMode` is called, the `KepadModyil` rebuilds correctly and the `AwdirRenqWedjet` receives the updated labels. Use more logging to confirm this.
+
+Lessons learned from previous attempts:
+- Combining tap and drag/long-press gestures on the same GestureDetector for the same element leads to gesture conflicts and unreliable behavior.
+- Assuming that `onPanEnd` or `onLongPressEnd` will always fire after a `onPanStart` or `onLongPressStart` respectively is unreliable, especially if the gesture is very short or cancelled. This can lead to corrupted state if `exitFastNumberMode` is not called.
+- Implementing complex gesture recognition logic directly within the `build` method of a StatefulWidget if it involves iterating through many GlobalKeys and performing hit-testing on every frame can lead to performance issues.

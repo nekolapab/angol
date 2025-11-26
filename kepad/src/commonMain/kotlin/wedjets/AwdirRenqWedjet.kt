@@ -54,7 +54,7 @@ fun AwdirRenqWedjet(
                         secondaryLabel = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
                         backgroundColor = hexColor,
                         textColor = KepadKonfeg.getComplementaryColor(hexColor),
-                        size = with(density) { geometry.hexWidth.toDp() },
+                        size = with(density) { geometry.hexWidth.toFloat().toDp() },
                         rotationAngle = geometry.rotationAngle.toFloat(),
                         onTap = { onHexKeyPress(tapLabel, false, null) },
                         onLongPress = if (isLetterMode && longPressLabel.isNotEmpty()) {

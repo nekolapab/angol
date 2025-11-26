@@ -1,8 +1,17 @@
-gemini --model gemini-2.5-flash
- or echo 'export GEMINI_MODEL="gemini-2.5-pro"' >> ~/.bashrc
-## **memorez**
+gemini --model gemini-3-flash or echo 'export GEMINI_MODEL="gemini-3-pro"' >> ~/.bashrc
+## *first enstrukcon*
+**memrez**
 *yuz angolec spelenq  az protokold en blueprint.md and GEMINI.md  for fayl and foldir neymz en /lib/ and updeyt refrensez globale for etc neym tceynj. so du not reneym tu standard englec eksept for Flutter standard konvencon neymz and freymwerk klasez sutc az lib\main.dart an lib\firebase_options.dart and ChangeNotifier, StatelessWidget,...
 * olweyz yuz angolec spelenq en ol awtput tekst, and en bluprent and GEMINI.MD az wel.
+
+
+## *best enstrukcon*
+**plan**:
+- The user has a WearOS emulator running in Android Studio and wants me to install the IME APK to it after a successful build. The user is concerned about crashes and wants to ensure progress is saved.
+-Create 'ime' module for Android keyboard with basic structure (InputMethodService, AndroidManifest, layout). Implemented a platform channel to open IME settings from a new button in the Flutter UI.
+1. Test the 'Open IME Settings' button. 
+2. Replace the temporary TextView in the IME with the actual KepadModyil, likely by creating a custom InputView. 
+3. Handle input from KepadModyil and send it to the target application.
 
 
 ## **AI development gaydlaynz for Flutter en Firebase Studio**

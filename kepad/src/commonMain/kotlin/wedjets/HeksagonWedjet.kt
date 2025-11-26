@@ -23,10 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.asComposePaint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -58,7 +55,7 @@ fun HeksagonWedjet(
 ) {
     val scope = rememberCoroutineScope()
     var isMomentarilyPressed by remember { mutableStateOf(false) }
-    var isPointerOver by remember { mutableStateOf(false) }
+    // var isPointerOver by remember { mutableStateOf(false) } // Hover logic removed for KMP compatibility
 
     val hexHeight = size * (2f / sqrt(3f))
     val density = LocalDensity.current
@@ -76,14 +73,6 @@ fun HeksagonWedjet(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .onPointerEvent(PointerEventType.Enter) {
-                    isPointerOver = true
-                    onHover?.invoke(true)
-                }
-                .onPointerEvent(PointerEventType.Exit) {
-                    isPointerOver = false
-                    onHover?.invoke(false)
-                }
                 .pointerInput(onTap, onLongPress) {
                     detectTapGestures(
                         onPress = {
@@ -115,14 +104,12 @@ fun HeksagonWedjet(
 
                     val hexagonPath = createVisualPath(canvasSize)
 
-                    // Glow effect
+                    // Glow effect REMOVED for KMP compatibility (depended on Android-specific BlurMaskFilter)
+                    /*
                     if (isPointerOver || isHovering) {
-                        val glowPaint = Paint().asFrameworkPaint().apply {
-                            this.color = displayColor.toArgb()
-                            maskFilter = android.graphics.BlurMaskFilter(24f, android.graphics.BlurMaskFilter.Blur.NORMAL)
-                        }
-                        canvas.drawPath(hexagonPath, glowPaint.asComposePaint())
+                         // ...
                     }
+                    */
 
                     // Fill
                     val fillPaint = Paint().apply {

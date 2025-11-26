@@ -24,6 +24,9 @@ plugins {
     id("com.google.gms.google-services") version("4.4.2") apply false
     // END: FlutterFire Configuration
     id("org.jetbrains.kotlin.android") version "1.9.23" apply false
+    id("org.jetbrains.kotlin.multiplatform") version "1.9.23" apply false
+    id("org.jetbrains.compose") version "1.6.2" apply false
 }
 
-include(":app", ":ime")
+include(":app", ":ime", ":kepad")
+project(":kepad").projectDir = file("../kepad")

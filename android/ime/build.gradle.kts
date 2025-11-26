@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library")
+    id("com.android.application")
     id("kotlin-android")
 }
 
@@ -8,7 +8,11 @@ android {
     compileSdk = 34
 
     defaultConfig {
+        applicationId = "com.example.angol.ime"
         minSdk = 25
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -37,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":kepad"))
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.12.0")
