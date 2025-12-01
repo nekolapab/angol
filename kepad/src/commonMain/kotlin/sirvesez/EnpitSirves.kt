@@ -77,13 +77,18 @@ class EnpitSirves {
         _isTextFieldFocused.value = focused
     }
 
-    fun getDisplayText(displayLength: Int): String {
-        val currentText = _inputText.value
+    fun getDisplayText(text: String, displayLength: Int): String {
+        val currentText = text
         return when {
             currentText.isEmpty() -> " ".repeat(displayLength)
             currentText.length >= displayLength -> currentText.takeLast(displayLength)
             else -> currentText.padStart(displayLength, ' ')
         }
+    }
+
+    // Overload for backward compatibility if needed, but better to force usage of the state value
+    fun getDisplayText(displayLength: Int): String {
+        return getDisplayText(_inputText.value, displayLength)
     }
 
     fun clearText() {

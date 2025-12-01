@@ -8,9 +8,18 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="kepad">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".AngolImeService"
-            android:label="Angol IME"
+            android:label="kepad"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true">
             <intent-filter>

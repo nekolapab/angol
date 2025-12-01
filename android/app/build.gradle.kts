@@ -52,7 +52,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":ime"))
     // Import the Compose BOM
     implementation(platform("androidx.compose:compose-bom:2024.05.00")) // Use latest stable BOM
     implementation("androidx.compose.ui:ui")

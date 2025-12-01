@@ -45,7 +45,7 @@ fun KepadModyil(
         }
 
         val hitboxes = remember { mutableStateListOf<HexHitbox>() }
-        var hoveredHexIndex by remember { mutableStateOf<Int?>(null) }
+        // hoveredHexIndex removed
 
         val modifierWithPan = Modifier.fillMaxSize().pointerInput(Unit) {
             // Simplified pan gesture handling. A full implementation would be more complex.
@@ -68,7 +68,11 @@ fun KepadModyil(
                     textColor = centerBgColor,
                     size = geometry.hexWidth.dp,
                     rotationAngle = geometry.rotationAngle.toFloat(),
-                    onTap = { enpitSirves.addCharacter(if (isLetterMode) " " else ".") },
+                    onTap = {
+                        val char = if (isLetterMode) " " else "."
+                        enpitSirves.addCharacter(char)
+                        onHexKeyPress(char, false, null)
+                    },
                     onLongPress = { enpitSirves.toggleMode() },
                     onPressedChanged = { isCenterHexPressed = it }
                 )
@@ -136,7 +140,7 @@ fun KepadModyil(
 
         // Display Text on top
         AwtpitTekstWedjet(
-            text = enpitSirves.getDisplayText(displayLength),
+            text = enpitSirves.getDisplayText(inputText, displayLength),
             style = TextStyle(
                 color = if (isCenterHexPressed) (if (isLetterMode) Color.White else Color.Black) else (if (isLetterMode) Color.Black else Color.White),
                 fontSize = (geometry.hexWidth * 0.33).sp,

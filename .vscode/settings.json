@@ -5,4 +5,6 @@
   "files.autoSaveDelay": 1000,
   "flutter.hotReloadOnSave": "all",
   "cursor.composer.textSizeScale": 1.15,
+  "gradle.view.enabled": true,
+  "gradle.tasks": ["ime:installDebug"]
 }
