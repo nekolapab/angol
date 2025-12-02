@@ -139,9 +139,8 @@ import 'package:flutter/material.dart';
                },
              ),
            ),
-           Positioned(
-             top: 40,
-             right: 20,
+           Align(
+             alignment: Alignment.center,
              child: IconButton(
                icon: const Icon(Icons.settings, color: Colors.white),
                onPressed: () {

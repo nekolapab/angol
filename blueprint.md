@@ -54,3 +54,29 @@ Lessons learned from previous attempts:
 - Combining tap and drag/long-press gestures on the same GestureDetector for the same element leads to gesture conflicts and unreliable behavior.
 - Assuming that `onPanEnd` or `onLongPressEnd` will always fire after a `onPanStart` or `onLongPressStart` respectively is unreliable, especially if the gesture is very short or cancelled. This can lead to corrupted state if `exitFastNumberMode` is not called.
 - Implementing complex gesture recognition logic directly within the `build` method of a StatefulWidget if it involves iterating through many GlobalKeys and performing hit-testing on every frame can lead to performance issues.
+
+## **Status Report (Dec 1, 2025) - FINAL**
+### WearOS Emulator Setup & IME Testing
+
+*   **Goal**: Test `kepad` IME on WearOS Emulator using `ime` module (Compose/Kotlin).
+*   **Current State**:
+    *   **Connection**: Valid. `adb forward` works.
+    *   **IME Service**: Installed, Enabled, Selected.
+    *   **App Visibility**: `kepad` app appears in Drawer (LAUNCHER intent added).
+    *   **Keyboard Visibility**: Keyboard **APPEARS** when clicking text field (Fixed `ViewTreeLifecycleOwner` crash by setting owners on Window Decor View).
+    *   **Visual State**: **BROKEN**. The hexagons are "messy" and disordered. Likely a coordinate/scaling math issue in `KepadModyil.kt`.
+
+*   **Attempted Fixes**:
+    *   Fixed `ViewTreeLifecycleOwner` crash by attaching owners to `window.decorView` in `AngolImeService.onCreate`.
+    *   Attempted to fix "messy layout" by converting `maxWidth` (Dp) to Pixels for Geometry calculations in `KepadModyil.kt`. Result: **No visual improvement observed yet**.
+
+*   **Dead Ends (Do Not Repeat)**:
+    *   **Galaxy Wearable App**: Fails on emulator. Use "Wear OS by Google".
+    *   **Messages / Account Sync**: Fails on emulator ("Update in progress" hang). Use custom `ime` app to test.
+    *   **System Search**: Missing in Wear OS 6 UI. Use custom `ime` app.
+
+*   **Next Steps**:
+    *   Debug the Visual Layout in `KepadModyil.kt`.
+    *   Check if `HeksagonDjeyometre` math (Pointy vs Flat) matches the Drawing logic.
+    *   Verify `Layout` composable placement logic (center offsets).
+    *   Consider simplifying the layout to a single Red Square to verify coordinate system first.

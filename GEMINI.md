@@ -1,5 +1,7 @@
 gemini --model gemini-3-flash or echo 'export GEMINI_MODEL="gemini-3-pro"' >> ~/.bashrc
 ## *first enstrukcon*
+**kurent gol**: Test lha `kepad` IME on WearOS emyuledir yuzenq lha kustom `ime` ap.
+
 **memrez**
 *yuz angolec spelenq  az protokold en blueprint.md and GEMINI.md  for fayl and foldir neymz en /lib/ and updeyt refrensez globale for etc neym tceynj. so du not reneym tu standard englec eksept for Flutter standard konvencon neymz and freymwerk klasez sutc az lib\main.dart an lib\firebase_options.dart and ChangeNotifier, StatelessWidget,...
 * olweyz yuz angolec spelenq en ol awtput tekst, and en bluprent and GEMINI.MD az wel.
@@ -7,11 +9,22 @@ gemini --model gemini-3-flash or echo 'export GEMINI_MODEL="gemini-3-pro"' >> ~/
 
 ## *best enstrukcon*
 **plan**:
-- The user has a WearOS emulator running in Android Studio and wants me to install the IME APK to it after a successful build. The user is concerned about crashes and wants to ensure progress is saved.
--Create 'ime' module for Android keyboard with basic structure (InputMethodService, AndroidManifest, layout). Implemented a platform channel to open IME settings from a new button in the Flutter UI.
-1. Test the 'Open IME Settings' button. 
-2. Replace the temporary TextView in the IME with the actual KepadModyil, likely by creating a custom InputView. 
-3. Handle input from KepadModyil and send it to the target application.
+- Debug Visual Layout ov `kepad` IME.
+- The hexagons ar disordered. Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
+- Consider rendirenq a sempil test ceyp tu verefay kowordenats.
+
+
+lha kepad ez a ComposeKotlin enpit melxod belt az a keybord ekstencon enstold tu lha WearOS emyuledir tu repleys Gboard. 
+but:
+1. Messages ap sez 'Instal or update Google Messages on your phone'
+2. WearOS ap on lha Samsung Android sez 'Emulator > Trying to connect...'
+3. and adenq a Google akawnt on WearOS emyuledir sez 'To add a Google Account to your watch, copy it from your phone.'
+  so tu open Messages or ad a Google akawnt  must lhe WearOS ap konekt? ez lhes a perenq ecuw? ay hav developir opconz tirnd on bolx WearOS 6 emyuleydir and Samsung Android 12 plugd en.
+
+  and ez lha plan tu debug lha "Trying to connect..." ecuw?: 
+   1. Verify ADB connectivity for both devices: Confirm that both your Android phone and the WearOS emulator are recognized by ADB.
+   2. Set up ADB forwarding for WearOS: This is often required to bridge the communication between the phone's WearOS companion app and the emulator.
+   3. Check WearOS companion app settings: Look for options within the WearOS app on your Samsung phone that might help connect to an emulator.
 
 
 ## **AI development gaydlaynz for Flutter en Firebase Studio**
