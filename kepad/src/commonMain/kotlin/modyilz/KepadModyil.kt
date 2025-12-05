@@ -5,14 +5,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
 import modalz.HexagonPosition
 import modalz.KepadKonfeg
 import sirvesez.EnpitSirves
@@ -37,19 +39,26 @@ fun KepadModyil(
     var isCenterHexPressed by remember { mutableStateOf(false) }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        val geometry = remember(maxWidth, maxHeight) {
+        val density = LocalDensity.current
+        
+        // Calculate constraints in Pixels for Geometry
+        val maxWidthPx = with(density) { maxWidth.toPx() }
+        val maxHeightPx = with(density) { maxHeight.toPx() }
+
+        val geometry = remember(maxWidthPx, maxHeightPx) {
             HeksagonDjeyometre(
-                hexSize = minOf(maxWidth.value, maxHeight.value) / 8.0,
+                hexSize = minOf(maxWidthPx, maxHeightPx) / 8.0,
                 center = HexagonPosition(0.0, 0.0)
             )
         }
 
+        // Convert geometry size (Pixels) back to Dp for Widgets
+        val hexWidthDp = with(density) { geometry.hexWidth.toFloat().toDp() }
+
         val hitboxes = remember { mutableStateListOf<HexHitbox>() }
-        // hoveredHexIndex removed
 
         val modifierWithPan = Modifier.fillMaxSize().pointerInput(Unit) {
-            // Simplified pan gesture handling. A full implementation would be more complex.
-            // This demonstrates the concept of hit-testing against cached paths.
+            // Simplified pan gesture handling.
         }
 
         Layout(
@@ -66,7 +75,7 @@ fun KepadModyil(
                     label = if (isLetterMode) " " else ".",
                     backgroundColor = if (isLetterMode) Color.White else Color.Black,
                     textColor = centerBgColor,
-                    size = geometry.hexWidth.dp,
+                    size = hexWidthDp,
                     rotationAngle = geometry.rotationAngle.toFloat(),
                     onTap = {
                         val char = if (isLetterMode) " " else "."
@@ -83,7 +92,7 @@ fun KepadModyil(
                         label = label,
                         backgroundColor = KepadKonfeg.innerRingColors[index],
                         textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]),
-                        size = geometry.hexWidth.dp,
+                        size = hexWidthDp,
                         onTap = { onHexKeyPress(label, false, null) }
                     )
                 }
@@ -95,7 +104,7 @@ fun KepadModyil(
                         secondaryLabel = if (isLetterMode) outerLongPressLabels[index] else null,
                         backgroundColor = KepadKonfeg.rainbowColors[index],
                         textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.rainbowColors[index]),
-                        size = geometry.hexWidth.dp,
+                        size = hexWidthDp,
                         onTap = { onHexKeyPress(label, false, null) },
                         onLongPress = { onHexKeyPress(outerLongPressLabels[index], true, label) }
                     )
@@ -113,14 +122,13 @@ fun KepadModyil(
                     (stackHeight - centerHex.height) / 2
                 )
 
-                val innerCoords = geometry.getInnerRingCoordinates()
-                val outerCoords = geometry.getOuterRingCoordinates()
-
                 // Place Inner Ring
                 for (i in 0 until innerCoords.size) {
                     val placeable = measurables[i + 1].measure(constraints)
                     val coord = innerCoords[i]
                     val pos = geometry.axialToPixel(coord.q, coord.r)
+                    
+                    // geometry.axialToPixel now returns Pixels, which matches Layout coordinates
                     val x = stackWidth / 2 + pos.x - (placeable.width / 2)
                     val y = stackHeight / 2 + pos.y - (placeable.height / 2)
                     placeable.placeRelative(x.roundToInt(), y.roundToInt())
@@ -131,6 +139,7 @@ fun KepadModyil(
                     val placeable = measurables[i + 1 + innerCoords.size].measure(constraints)
                     val coord = outerCoords[i]
                     val pos = geometry.axialToPixel(coord.q, coord.r)
+                    
                     val x = stackWidth / 2 + pos.x - (placeable.width / 2)
                     val y = stackHeight / 2 + pos.y - (placeable.height / 2)
                     placeable.placeRelative(x.roundToInt(), y.roundToInt())
@@ -138,12 +147,35 @@ fun KepadModyil(
             }
         }
 
+        // --- Start of debugging Canvas ---
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerPxX = size.width / 2
+            val centerPxY = size.height / 2
+            // Draw center point for reference (Red)
+            drawCircle(Color.Red, radius = 5.dp.toPx(), center = Offset(centerPxX, centerPxY))
+            // Inner Ring Coordinates (Green)
+            innerCoords.forEach { coord ->
+                val pos = geometry.axialToPixel(coord.q, coord.r)
+                val pixelX = centerPxX + pos.x
+                val pixelY = centerPxY + pos.y
+                drawCircle(Color.Green, radius = 5.dp.toPx(), center = Offset(pixelX.toFloat(), pixelY.toFloat()))
+            }
+            // Outer Ring Coordinates (Blue)
+            outerCoords.forEach { coord ->
+                val pos = geometry.axialToPixel(coord.q, coord.r)
+                val pixelX = centerPxX + pos.x
+                val pixelY = centerPxY + pos.y
+                drawCircle(Color.Blue, radius = 5.dp.toPx(), center = Offset(pixelX.toFloat(), pixelY.toFloat()))
+            }
+        }
+        // --- End of debugging Canvas ---
+
         // Display Text on top
         AwtpitTekstWedjet(
             text = enpitSirves.getDisplayText(inputText, displayLength),
             style = TextStyle(
                 color = if (isCenterHexPressed) (if (isLetterMode) Color.White else Color.Black) else (if (isLetterMode) Color.Black else Color.White),
-                fontSize = (geometry.hexWidth * 0.33).sp,
+                fontSize = with(density) { (geometry.hexWidth * 0.33).toFloat().toSp() }, // Convert pixels to Sp
                 fontWeight = FontWeight.Bold
             )
         )

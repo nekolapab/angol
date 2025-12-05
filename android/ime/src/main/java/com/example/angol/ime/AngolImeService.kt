@@ -33,17 +33,28 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         super.onCreate()
         savedStateRegistryController.performRestore(null)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        
+        // Attempt to attach owners to the window's decor view
+        try {
+            window.window?.decorView?.let {
+                it.setViewTreeLifecycleOwner(this)
+                it.setViewTreeViewModelStoreOwner(this)
+                it.setViewTreeSavedStateRegistryOwner(this)
+            }
+        } catch (e: Exception) {
+            // Window might not be ready or accessible, ignore
+        }
     }
 
     override fun onCreateInputView(): View {
-        val view = ComposeView(this)
+        val composeView = ComposeView(this)
         
-        // Set the owners for the ComposeView to work within a Service
-        view.setViewTreeLifecycleOwner(this)
-        view.setViewTreeViewModelStoreOwner(this)
-        view.setViewTreeSavedStateRegistryOwner(this)
+        // Set owners directly on the ComposeView
+        composeView.setViewTreeLifecycleOwner(this)
+        composeView.setViewTreeViewModelStoreOwner(this)
+        composeView.setViewTreeSavedStateRegistryOwner(this)
 
-        view.setContent {
+        composeView.setContent {
             KepadModyil(
                 isKeypadVisible = true,
                 displayLength = 7,
@@ -67,8 +78,6 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                 ic.deleteSurroundingText(primaryChar.length, 0)
                                 ic.commitText(char, 1)
                             } else {
-                                // Special case: replace last char (e.g. long press on a key that has no secondary but user wants alt behavior?)
-                                // Or just consistency with Flutter logic
                                 ic.deleteSurroundingText(1, 0)
                                 ic.commitText(char, 1)
                             }
@@ -84,7 +93,19 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 }
             )
         }
-        return view
+        return composeView
+    }
+
+    override fun onWindowShown() {
+        super.onWindowShown()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    }
+
+    override fun onWindowHidden() {
+        super.onWindowHidden()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
     }
 
     override fun onDestroy() {
