@@ -40,17 +40,31 @@ fun KepadModyil(
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         val density = LocalDensity.current
-        
-        // Calculate constraints in Pixels for Geometry
-        val maxWidthPx = with(density) { maxWidth.toPx() }
-        val maxHeightPx = with(density) { maxHeight.toPx() }
+        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+        val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
+        val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
-        val geometry = remember(maxWidthPx, maxHeightPx) {
+        // Calculate constraints in Pixels for Geometry, safely handling Infinity
+        val maxWidthPx = if (maxWidth == androidx.compose.ui.unit.Dp.Infinity) screenWidthPx else with(density) { maxWidth.toPx() }
+        val maxHeightPx = if (maxHeight == androidx.compose.ui.unit.Dp.Infinity) screenHeightPx else with(density) { maxHeight.toPx() }
+
+        // Clamp to screen size to prevent "12x too big" issues if constraints are wild
+        val effectiveWidth = minOf(maxWidthPx, screenWidthPx)
+        val effectiveHeight = minOf(maxHeightPx, screenHeightPx)
+
+        SideEffect {
+            println("DEBUG_KEPAD: constraints=($maxWidth, $maxHeight), screen=($screenWidthPx, $screenHeightPx), effective=($effectiveWidth, $effectiveHeight), density=${density.density}")
+        }
+
+        val geometry = remember(effectiveWidth, effectiveHeight) {
             HeksagonDjeyometre(
-                hexSize = minOf(maxWidthPx, maxHeightPx) / 8.0,
+                hexSize = minOf(effectiveWidth, effectiveHeight) / 9.0,
                 center = HexagonPosition(0.0, 0.0)
             )
         }
+
+        val innerCoords = remember(geometry) { geometry.getInnerRingCoordinates() }
+        val outerCoords = remember(geometry) { geometry.getOuterRingCoordinates() }
 
         // Convert geometry size (Pixels) back to Dp for Widgets
         val hexWidthDp = with(density) { geometry.hexWidth.toFloat().toDp() }

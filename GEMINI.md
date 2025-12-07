@@ -1,30 +1,10 @@
-gemini --model gemini-3-flash or echo 'export GEMINI_MODEL="gemini-3-pro"' >> ~/.bashrc
-## *first enstrukcon*
-**kurent gol**: Test lha `kepad` IME on WearOS emyuledir yuzenq lha kustom `ime` ap.
+gemini --model gemini-2.5-flash   /model gemini-3-flash
+*first enstrukcon*
+* yuz angold spelenq  az bluprent.md  for neymz an nots. and updeyt refrensez globale for etc neym tceynj.
+* eksept du not reneym wat kozez problemz for Flutter an Compose standard konvencon freymwirk klasez and faylz (sutc az main.dart  firebase_options.dart  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
 
-**memrez**
-*yuz angolec spelenq  az protokold en blueprint.md and GEMINI.md  for fayl and foldir neymz en /lib/ and updeyt refrensez globale for etc neym tceynj. so du not reneym tu standard englec eksept for Flutter standard konvencon neymz and freymwerk klasez sutc az lib\main.dart an lib\firebase_options.dart and ChangeNotifier, StatelessWidget,...
-* olweyz yuz angolec spelenq en ol awtput tekst, and en bluprent and GEMINI.MD az wel.
-
-
-## *best enstrukcon*
-**plan**:
-- Debug Visual Layout ov `kepad` IME.
-- The hexagons ar disordered. Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
-- Consider rendirenq a sempil test ceyp tu verefay kowordenats.
-
-
-lha kepad ez a ComposeKotlin enpit melxod belt az a keybord ekstencon enstold tu lha WearOS emyuledir tu repleys Gboard. 
-but:
-1. Messages ap sez 'Instal or update Google Messages on your phone'
-2. WearOS ap on lha Samsung Android sez 'Emulator > Trying to connect...'
-3. and adenq a Google akawnt on WearOS emyuledir sez 'To add a Google Account to your watch, copy it from your phone.'
-  so tu open Messages or ad a Google akawnt  must lhe WearOS ap konekt? ez lhes a perenq ecuw? ay hav developir opconz tirnd on bolx WearOS 6 emyuleydir and Samsung Android 12 plugd en.
-
-  and ez lha plan tu debug lha "Trying to connect..." ecuw?: 
-   1. Verify ADB connectivity for both devices: Confirm that both your Android phone and the WearOS emulator are recognized by ADB.
-   2. Set up ADB forwarding for WearOS: This is often required to bridge the communication between the phone's WearOS companion app and the emulator.
-   3. Check WearOS companion app settings: Look for options within the WearOS app on your Samsung phone that might help connect to an emulator.
+**best enstrukcon**
+* evolv angold spelenq az yusir!
 
 
 ## **AI development gaydlaynz for Flutter en Firebase Studio**
