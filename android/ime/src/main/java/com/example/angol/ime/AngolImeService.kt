@@ -1,7 +1,9 @@
 package com.example.angol.ime
 
 import android.inputmethodservice.InputMethodService
+import android.util.Log
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -15,6 +17,8 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import modyilz.KepadModyil
+
+private const val TAG = "AngolImeService"
 
 class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
 
@@ -31,6 +35,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(TAG, "onCreate: IME Service created")
         savedStateRegistryController.performRestore(null)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         
@@ -42,11 +47,12 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 it.setViewTreeSavedStateRegistryOwner(this)
             }
         } catch (e: Exception) {
-            // Window might not be ready or accessible, ignore
+            Log.e(TAG, "onCreate: Failed to attach lifecycle/viewmodel/savedstate owners to window decor view: ${e.message}")
         }
     }
 
     override fun onCreateInputView(): View {
+        Log.d(TAG, "onCreateInputView: Creating input view")
         val composeView = ComposeView(this)
         
         // Set owners directly on the ComposeView
@@ -56,7 +62,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
         composeView.setContent {
             KepadModyil(
-                isKeypadVisible = true,
+                isKeypadVisible = true, // IME service controls visibility, so always true when shown
                 displayLength = 7,
                 onHexKeyPress = { char, isLongPress, primaryChar ->
                     val ic = currentInputConnection ?: return@KepadModyil
@@ -96,20 +102,36 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         return composeView
     }
 
+    override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
+        super.onStartInput(attribute, restarting)
+        Log.d(TAG, "onStartInput: Input started, restarting: $restarting, editorType: ${attribute?.imeOptions}")
+        // Here you might decide to show your UI if it's not already visible
+        // currentInputConnection?.let { it.reportFullscreenMode(false) } // Example: not in fullscreen
+    }
+
+    override fun onFinishInput() {
+        super.onFinishInput()
+        Log.d(TAG, "onFinishInput: Input finished")
+        // Hide your UI if it's visible
+    }
+
     override fun onWindowShown() {
         super.onWindowShown()
+        Log.d(TAG, "onWindowShown: IME window shown")
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 
     override fun onWindowHidden() {
         super.onWindowHidden()
+        Log.d(TAG, "onWindowHidden: IME window hidden")
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d(TAG, "onDestroy: IME Service destroyed")
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         viewModelStore.clear()
     }

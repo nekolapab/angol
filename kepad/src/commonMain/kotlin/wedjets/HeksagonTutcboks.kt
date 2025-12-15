@@ -38,8 +38,7 @@ class HexagonShape(private val rotationAngle: Float) : Shape {
 
         // The original RenderObject subtracted a small fixed value to create a "safe zone".
         // We'll use a small percentage of the height for better scaling.
-        val safeZone = size.height * 0.02f
-        val radius = (size.height / 2f) - safeZone
+        val radius = (size.height / 2f)
 
         for (i in 0..5) {
             // Angle for pointy-top hexagons (-30 degrees offset), converted to radians.

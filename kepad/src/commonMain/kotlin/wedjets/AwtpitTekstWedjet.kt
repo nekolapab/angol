@@ -3,6 +3,7 @@ package wedjets
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 
 /**
@@ -21,6 +22,7 @@ fun AwtpitTekstWedjet(
     Text(
         text = text,
         style = style,
-        modifier = modifier
+        modifier = modifier,
+        color = style.color // Explicitly set color to ensure it's applied
     )
 }

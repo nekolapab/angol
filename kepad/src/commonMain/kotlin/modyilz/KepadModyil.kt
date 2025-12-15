@@ -1,7 +1,9 @@
 package modyilz
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,9 +13,11 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.ui.geometry.Offset
 import modalz.HexagonPosition
 import modalz.KepadKonfeg
@@ -40,29 +44,28 @@ fun KepadModyil(
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         val density = LocalDensity.current
-        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-        val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
-        val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
-
-        // Calculate constraints in Pixels for Geometry, safely handling Infinity
-        val maxWidthPx = if (maxWidth == androidx.compose.ui.unit.Dp.Infinity) screenWidthPx else with(density) { maxWidth.toPx() }
-        val maxHeightPx = if (maxHeight == androidx.compose.ui.unit.Dp.Infinity) screenHeightPx else with(density) { maxHeight.toPx() }
-
-        // Clamp to screen size to prevent "12x too big" issues if constraints are wild
-        val effectiveWidth = minOf(maxWidthPx, screenWidthPx)
-        val effectiveHeight = minOf(maxHeightPx, screenHeightPx)
-
-        SideEffect {
-            println("DEBUG_KEPAD: constraints=($maxWidth, $maxHeight), screen=($screenWidthPx, $screenHeightPx), effective=($effectiveWidth, $effectiveHeight), density=${density.density}")
+        
+        // Calculate constraints in Pixels for Geometry
+        val maxWidthPx = with(density) { maxWidth.toPx() }
+        val maxHeightPx = with(density) { maxHeight.toPx() }
+        
+        // For WearOS (smaller screens), use a larger divisor to make hexagons smaller
+        // Typical WearOS screens are ~390x390, so we need smaller hexagons
+        val minDimension = minOf(maxWidthPx, maxHeightPx)
+        val divisor = if (minDimension < 500) {
+            12.0 // Smaller screens (WearOS) - larger divisor = smaller hexagons
+        } else {
+            8.5 // Larger screens (Android phones/tablets)
         }
 
-        val geometry = remember(effectiveWidth, effectiveHeight) {
+        val geometry = remember(maxWidthPx, maxHeightPx) {
             HeksagonDjeyometre(
-                hexSize = minOf(effectiveWidth, effectiveHeight) / 9.0,
+                hexSize = minDimension / divisor,
                 center = HexagonPosition(0.0, 0.0)
             )
         }
 
+        // Get coordinate lists from geometry
         val innerCoords = remember(geometry) { geometry.getInnerRingCoordinates() }
         val outerCoords = remember(geometry) { geometry.getOuterRingCoordinates() }
 
@@ -129,8 +132,18 @@ fun KepadModyil(
             val stackHeight = constraints.maxHeight
             hitboxes.clear()
 
+            // Convert hexWidthDp to pixels for constraints
+            val hexWidthPx = with(density) { hexWidthDp.toPx() }
+            val hexHeightPx = with(density) { geometry.hexHeight.toFloat().toDp().toPx() }
+            
+            // Create constraints that limit hexagon size
+            val hexConstraints = Constraints(
+                maxWidth = hexWidthPx.roundToInt(),
+                maxHeight = hexHeightPx.roundToInt()
+            )
+
             layout(stackWidth, stackHeight) {
-                val centerHex = measurables[0].measure(constraints)
+                val centerHex = measurables[0].measure(hexConstraints)
                 centerHex.placeRelative(
                     (stackWidth - centerHex.width) / 2,
                     (stackHeight - centerHex.height) / 2
@@ -138,24 +151,24 @@ fun KepadModyil(
 
                 // Place Inner Ring
                 for (i in 0 until innerCoords.size) {
-                    val placeable = measurables[i + 1].measure(constraints)
+                    val placeable = measurables[i + 1].measure(hexConstraints)
                     val coord = innerCoords[i]
                     val pos = geometry.axialToPixel(coord.q, coord.r)
                     
                     // geometry.axialToPixel now returns Pixels, which matches Layout coordinates
-                    val x = stackWidth / 2 + pos.x - (placeable.width / 2)
-                    val y = stackHeight / 2 + pos.y - (placeable.height / 2)
+                    val x = stackWidth / 2.0 + pos.x - (placeable.width / 2.0)
+                    val y = stackHeight / 2.0 + pos.y - (placeable.height / 2.0)
                     placeable.placeRelative(x.roundToInt(), y.roundToInt())
                 }
 
                 // Place Outer Ring
                 for (i in 0 until outerCoords.size) {
-                    val placeable = measurables[i + 1 + innerCoords.size].measure(constraints)
+                    val placeable = measurables[i + 1 + innerCoords.size].measure(hexConstraints)
                     val coord = outerCoords[i]
                     val pos = geometry.axialToPixel(coord.q, coord.r)
                     
-                    val x = stackWidth / 2 + pos.x - (placeable.width / 2)
-                    val y = stackHeight / 2 + pos.y - (placeable.height / 2)
+                    val x = stackWidth / 2.0 + pos.x - (placeable.width / 2.0)
+                    val y = stackHeight / 2.0 + pos.y - (placeable.height / 2.0)
                     placeable.placeRelative(x.roundToInt(), y.roundToInt())
                 }
             }
@@ -183,15 +196,31 @@ fun KepadModyil(
             }
         }
         // --- End of debugging Canvas ---
+        
+        // Debug text showing geometry sizes - always white and selectable
+        Box(modifier = Modifier.align(Alignment.TopStart).padding(8.dp)) {
+            SelectionContainer {
+                androidx.compose.foundation.text.BasicText(
+                    text = "W:${maxWidthPx.toInt()} H:${maxHeightPx.toInt()} hexSize:${geometry.hexSize.toInt()} hexWidth:${geometry.hexWidth.toInt()} divisor:$divisor",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                )
+            }
+        }
 
-        // Display Text on top
-        AwtpitTekstWedjet(
-            text = enpitSirves.getDisplayText(inputText, displayLength),
-            style = TextStyle(
-                color = if (isCenterHexPressed) (if (isLetterMode) Color.White else Color.Black) else (if (isLetterMode) Color.Black else Color.White),
-                fontSize = with(density) { (geometry.hexWidth * 0.33).toFloat().toSp() }, // Convert pixels to Sp
-                fontWeight = FontWeight.Bold
+        // Display Text on top - always white and selectable
+        SelectionContainer {
+            androidx.compose.foundation.text.BasicText(
+                text = enpitSirves.getDisplayText(inputText, displayLength),
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = with(density) { (geometry.hexWidth * 0.33).toFloat().toSp() }, // Convert pixels to Sp
+                    fontWeight = FontWeight.Bold
+                )
             )
-        )
+        }
     }
 }
