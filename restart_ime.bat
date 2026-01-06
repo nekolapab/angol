@@ -15,3 +15,16 @@ adb shell ime set com.example.angol.ime/.AngolImeService
 
 echo Done! IME restarted.
 
+
+
+
+
+
+
+
+
+
+
+
+
+

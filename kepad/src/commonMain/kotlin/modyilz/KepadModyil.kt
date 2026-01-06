@@ -1,7 +1,7 @@
 package modyilz
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
@@ -35,7 +35,7 @@ fun KepadModyil(
     isKeypadVisible: Boolean,
     displayLength: Int
 ) {
-    if (!isKeypadVisible) return
+
 
     val enpitSirves = remember { EnpitSirves() }
     val isLetterMode by enpitSirves.isLetterMode.collectAsState()
@@ -53,7 +53,7 @@ fun KepadModyil(
         // Typical WearOS screens are ~390x390, so we need smaller hexagons
         val minDimension = minOf(maxWidthPx, maxHeightPx)
         val divisor = if (minDimension < 500) {
-            12.0 // Smaller screens (WearOS) - larger divisor = smaller hexagons
+            10.0 // Smaller screens (WearOS) - adjusted for ~20% larger hexagons
         } else {
             8.5 // Larger screens (Android phones/tablets)
         }
@@ -110,7 +110,10 @@ fun KepadModyil(
                         backgroundColor = KepadKonfeg.innerRingColors[index],
                         textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]),
                         size = hexWidthDp,
-                        onTap = { onHexKeyPress(label, false, null) }
+                        onTap = {
+                            enpitSirves.addCharacter(label)
+                            onHexKeyPress(label, false, null)
+                        }
                     )
                 }
 
@@ -122,8 +125,14 @@ fun KepadModyil(
                         backgroundColor = KepadKonfeg.rainbowColors[index],
                         textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.rainbowColors[index]),
                         size = hexWidthDp,
-                        onTap = { onHexKeyPress(label, false, null) },
-                        onLongPress = { onHexKeyPress(outerLongPressLabels[index], true, label) }
+                        onTap = {
+                            enpitSirves.addCharacter(label)
+                            onHexKeyPress(label, false, null)
+                        },
+                        onLongPress = {
+                            enpitSirves.addCharacter(outerLongPressLabels[index])
+                            onHexKeyPress(outerLongPressLabels[index], true, label)
+                        }
                     )
                 }
             }

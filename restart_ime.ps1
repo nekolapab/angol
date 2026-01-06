@@ -14,3 +14,16 @@ adb shell ime set com.example.angol.ime/.AngolImeService
 
 Write-Host "Done! IME restarted." -ForegroundColor Green
 
+
+
+
+
+
+
+
+
+
+
+
+
+
