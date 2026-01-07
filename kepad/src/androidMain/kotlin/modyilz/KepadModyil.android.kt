@@ -150,18 +150,6 @@ actual fun KepadModyil(
             onPressedChanged = { pressed -> isCenterHexPressed = pressed }
         )
 
-        // Debug text overlay (top-left)
-        Box(modifier = Modifier.align(Alignment.TopStart).padding(8.dp)) {
-            SelectionContainer {
-                BasicText(
-                    text = "v2 UPDATED | W:${maxWidthPx.toInt()} H:${maxHeightPx.toInt()} hexSize:${geometry.hexSize.toInt()}",
-                    style = TextStyle(
-                        color = Color.Green,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
-        }
+
     }
 }
