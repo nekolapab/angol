@@ -60,9 +60,9 @@ actual fun KepadModyil(
         // Typical screens: smaller divisor = larger hexagons
         val minDimension = minOf(maxWidthPx, maxHeightPx)
         val divisor = if (minDimension < 500) {
-            10.0 // Smaller screens - larger hexagons
+            10.0 // Smaller screens (WearOS) - restore to previous perfect size
         } else {
-            8.5 // Larger screens
+            8.0 // Larger screens (Phone)
         }
 
         val hexSize = minDimension / divisor

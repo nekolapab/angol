@@ -40,8 +40,15 @@ fun EnirRenqWedjet(
         val stackWidthPx = stackWidth.toPx()
         val stackHeightPx = stackHeight.toPx()
 
-        // Measure each child composable passed in the content lambda.
-        val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+        val hexWidthPx = geometry.hexWidth.toFloat()
+        val hexHeightPx = geometry.hexHeight.toFloat()
+
+        // Measure each child composable with fixed constraints based on hexagon geometry.
+        val childConstraints = androidx.compose.ui.unit.Constraints.fixed(
+            hexWidthPx.roundToInt(),
+            hexHeightPx.roundToInt()
+        )
+        val placeables = measurables.map { it.measure(childConstraints) }
 
         // Define the size of the layout.
         layout(stackWidthPx.roundToInt(), stackHeightPx.roundToInt()) {

@@ -49,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":ime"))
     // Compose (explicit versions to avoid BOM issues)
     implementation("androidx.compose.ui:ui:1.6.7")
     implementation("androidx.compose.ui:ui-graphics:1.6.7")

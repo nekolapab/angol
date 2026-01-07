@@ -70,7 +70,15 @@ fun AwdirRenqWedjet(
         val stackWidthPx = stackWidth.toPx()
         val stackHeightPx = stackHeight.toPx()
 
-        val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+        val hexWidthPx = geometry.hexWidth.toFloat()
+        val hexHeightPx = geometry.hexHeight.toFloat()
+
+        // Measure each child with fixed constraints based on hexagon geometry.
+        val childConstraints = androidx.compose.ui.unit.Constraints.fixed(
+            hexWidthPx.roundToInt(),
+            hexHeightPx.roundToInt()
+        )
+        val placeables = measurables.map { it.measure(childConstraints) }
 
         layout(stackWidthPx.roundToInt(), stackHeightPx.roundToInt()) {
             placeables.forEachIndexed { index, placeable ->

@@ -6,21 +6,22 @@
 
 
 
+## **fixez (Jan 2026)**
+* **IME Module Conversion**: Converted `android/ime` from a standalone Android application (`com.android.application`) to an Android library (`com.android.library`).
+    * Removed `applicationId` and product flavors from `android/ime/build.gradle.kts`.
+    * Added `implementation(project(":ime"))` to `android/app/build.gradle.kts`.
+    * Moved `AngolImeService` declaration from `android/ime/src/main/AndroidManifest.xml` to `android/app/src/main/AndroidManifest.xml`.
+    * Integrated WearOS-specific manifest features (`standalone` meta-data and `hardware.type.watch` feature) into the main app's manifest.
+    * Removed redundant launcher icons by removing the `LAUNCHER` intent filter from `ComposeMainActivity`.
+    * Cleaned up `android/ime` by removing unnecessary `MainActivity` and platform-specific source directories.
+* **Hexagon Layout (Next Step)**: Now that the module structure is unified, focusing on fixing the "disordered" hexagon layout in `EnirRenqWedjet.kt` and `AwdirRenqWedjet.kt`.
+
 ## **plan**
 * lha kepad ez a KotlinCompose enpit melxod belt az a keybord ekstencon enstold tu lha WearOS emyuledir tu repleys Gboard. 
-* Debug Visual Layout ov `kepad` IME on WearOS emyuledir yuzenq lha kustom `ime` ap.
+* The `ime` module is now a library integrated into the main Flutter app.
+* Debug Visual Layout ov `kepad` IME on WearOS emyuledir yuzenq lha main `angol` ap.
 * The hexagons ar disordered. Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
 * Consider rendirenq a sempil test ceyp tu verefay kowordenats.
-
-## **fixez (Dec 2025)**
-* **Missing Coordinate Definitions in KepadModyil.kt**: Fixed missing `innerCoords` and `outerCoords` definitions. These were being used in the Layout composable but were never defined. Added `remember` blocks to get coordinates from `geometry.getInnerRingCoordinates()` and `geometry.getOuterRingCoordinates()`.
-* **HexSize Calculation**: Updated hexSize calculation from `/8.0` to `/8.5` to match the Flutter version for consistent sizing.
-* **Hexagon Sizing Issue**: Fixed hexagons filling the whole screen by constraining measurements. Each hexagon was being measured with full-screen constraints, causing them to expand. Now using `Constraints` with `maxWidth` and `maxHeight` set to the actual hexagon size (`hexWidthPx` and `hexHeightPx`) when measuring placeables in the Layout composable.
-* **WearOS Screen Size Adjustment**: Adjusted hexSize calculation to use adaptive divisor based on screen size. For screens smaller than 500px (typical WearOS ~390x390), uses divisor of 12.0 instead of 8.5 to make hexagons smaller and prevent crowding on small circular watch screens.
-* **Text Color**: Changed output text color from dynamic (black/white based on mode) to always white for better visibility.
-* **Text Selection**: Made output text selectable using `SelectionContainer` so users can copy the sizing data and other output text.
-* **Gradle Version**: Currently on Gradle 8.12 with Android Gradle Plugin 8.6.0. The deprecation warning about Gradle 9.0 is informational - Gradle 9.0 is still in beta. No immediate upgrade needed.
-* **Note**: The Kotlin Compose version (`kepad` module) ez now properly structured tu wirk az a neydevle keybord ekstencon enpit melxod on WearOS, unlike lha Flutter virjon wetc duz not wirk az a neydevle IME. The IME can also work on regular AndroidOS devices - just change minSdk if needed (currently set to 25 for WearOS).
 
 ## **tasks (for User)**
 **CRITICAL: You must fix your Android Studio Logcat issue or find a way to reliably get logs from the emulator for "AngolImeService".**
