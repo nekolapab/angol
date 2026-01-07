@@ -49,14 +49,16 @@ android {
 }
 
 dependencies {
-    // Import the Compose BOM
-    implementation(platform("androidx.compose:compose-bom:2024.05.00")) // Use latest stable BOM
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.material3:material3") // Or androidx.compose.material:material if Material2 is preferred
+    // Compose (explicit versions to avoid BOM issues)
+    implementation("androidx.compose.ui:ui:1.6.7")
+    implementation("androidx.compose.ui:ui-graphics:1.6.7")
+    implementation("androidx.compose.foundation:foundation:1.6.7")
+    implementation("androidx.compose.material:material:1.6.7")
     implementation("androidx.activity:activity-compose:1.9.0")
+
+    // Additional dependencies for proper Compose support
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
 }
 
 flutter {

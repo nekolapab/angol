@@ -1,0 +1,114 @@
+package com.example.angol
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+class ComposeMainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            WearApp()
+        }
+    }
+}
+
+@Composable
+fun KepadModyil(
+    onHexKeyPress: (String, Boolean, String?) -> Unit,
+    isKeypadVisible: Boolean,
+    displayLength: Int
+) {
+    if (!isKeypadVisible) return
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Simple placeholder to show the keypad area works
+        Text(
+            text = "Angol Hexagonal Keypad",
+            style = TextStyle(
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+        )
+    }
+}
+
+@Composable
+fun WearApp() {
+    var currentText by remember { mutableStateOf("") }
+    val displayLength = 7
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        Color(0xFF1A1A2E),
+                        Color(0xFF0F0F1E),
+                        Color.Black
+                    ),
+                    stops = listOf(0.0f, 0.5f, 1.0f)
+                )
+            )
+    ) {
+        // Text overlay at the top (like Flutter version)
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 16.dp)
+                .background(Color.Black.copy(alpha = 0.7f))
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = if (currentText.isEmpty()) "Start typing..." else
+                       if (currentText.length > displayLength)
+                           currentText.takeLast(displayLength)
+                       else currentText,
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            )
+        }
+
+        // Show keypad directly
+        KepadModyil(
+            onHexKeyPress = { char: String, isLongPress: Boolean, primaryChar: String? ->
+                // Handle key presses - update the text field
+                when (char) {
+                    "⌫" -> {
+                        if (currentText.isNotEmpty()) {
+                            currentText = currentText.dropLast(1)
+                        }
+                    }
+                    else -> {
+                        currentText += char
+                    }
+                }
+            },
+            isKeypadVisible = true,
+            displayLength = displayLength
+        )
+    }
+}

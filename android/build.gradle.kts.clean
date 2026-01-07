@@ -22,6 +22,15 @@ subprojects {
 }
 
 subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileSdk = 36
+                ndkVersion = "26.1.10909125"
+            }
+        }
+    }
+
     if (project.name != "app") {
         project.evaluationDependsOn(":app")
     }

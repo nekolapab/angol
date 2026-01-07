@@ -1,4 +1,4 @@
-# Build and restart IME script for Cursor
+# Build and restart IME script
 Write-Host "Building IME..." -ForegroundColor Cyan
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $scriptPath
@@ -31,6 +31,7 @@ Write-Host "Enabling IME..." -ForegroundColor Yellow
 adb shell ime enable com.example.angol.ime/.AngolImeService
 adb shell ime set com.example.angol.ime/.AngolImeService
 
-Write-Host "`nDone! IME rebuilt and restarted." -ForegroundColor Green
-Write-Host "The text should now be white and selectable." -ForegroundColor Green
+Write-Host "Launching IME Settings/Test App..." -ForegroundColor Yellow
+adb shell am start -n com.example.angol.ime/.MainActivity
 
+Write-Host "`nDone! IME rebuilt and restarted." -ForegroundColor Green

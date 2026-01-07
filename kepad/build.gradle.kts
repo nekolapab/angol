@@ -1,6 +1,6 @@
 plugins {
+    alias(libs.plugins.kotlinMultiplatform)
     id("com.android.library")
-    id("org.jetbrains.kotlin.multiplatform")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
 }
@@ -13,18 +13,24 @@ kotlin {
             }
         }
     }
-
+    
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material)
-                implementation(compose.ui)
-                implementation(compose.components.resources)
-            }
+        commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
         }
-        val androidMain by getting
+
+        iosX64Main.dependencies {}
+        iosArm64Main.dependencies {}
+        iosSimulatorArm64Main.dependencies {}
     }
 }
 
