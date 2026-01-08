@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
@@ -51,6 +52,7 @@ fun HeksagonWedjet(
     onPressedChanged: ((Boolean) -> Unit)? = null,
     rotationAngle: Float = 0f,
     fontSize: Float? = null,
+    verticalOffset: Dp = 0.dp,
     child: @Composable (() -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
@@ -63,8 +65,12 @@ fun HeksagonWedjet(
     val contrastColor = if (isMomentarilyPressed) {
         backgroundColor // If pressed, background is inverted, so text is original bg color
     } else {
-        KepadKonfeg.getComplementaryColor(backgroundColor)
+        textColor // Use the provided text color
     }
+    
+    // Dynamic font scaling removed to keep sizes uniform. Px->Sp conversion fixed clipping.
+    val baseFontSize = fontSize ?: (size.value / 4f)
+    val scaledFontSize = baseFontSize
 
     HeksagonTutcboks(
         rotationAngle = rotationAngle,
@@ -78,6 +84,7 @@ fun HeksagonWedjet(
                         onPress = {
                             isMomentarilyPressed = true
                             onPressedChanged?.invoke(true)
+                            onTap?.invoke() // Fire action immediately on press down
                             try {
                                 awaitRelease()
                             } finally {
@@ -86,7 +93,7 @@ fun HeksagonWedjet(
                                 onPressedChanged?.invoke(false)
                             }
                         },
-                        onTap = { onTap?.invoke() },
+                        onTap = { /* Action handled in onPress */ },
                         onLongPress = { onLongPress?.invoke() }
                     )
                 },
@@ -97,7 +104,7 @@ fun HeksagonWedjet(
                 val canvasSize = this.size
                 drawIntoCanvas { canvas ->
                     val displayColor = if (isMomentarilyPressed) {
-                        KepadKonfeg.getComplementaryColor(backgroundColor)
+                        textColor // If pressed, swap background to text color
                     } else {
                         backgroundColor
                     }
@@ -122,7 +129,9 @@ fun HeksagonWedjet(
 
             // Label(s) or custom child
             Box(
-                modifier = Modifier.rotate(-rotationAngle * (180f / Math.PI.toFloat())),
+                modifier = Modifier
+                    .rotate(-rotationAngle * (180f / Math.PI.toFloat()))
+                    .offset(y = verticalOffset),
                 contentAlignment = Alignment.Center
             ) {
                 if (child != null) {
@@ -132,24 +141,27 @@ fun HeksagonWedjet(
                         Text(
                             text = label,
                             color = contrastColor,
-                            fontSize = (fontSize ?: 12f).sp,
-                            fontWeight = FontWeight.Bold
+                            fontSize = with(density) { scaledFontSize.toSp() },
+                            fontWeight = FontWeight.Bold,
+                            softWrap = false
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = secondaryLabel,
                             color = contrastColor,
-                            fontSize = (fontSize ?: 12f).sp,
-                            fontWeight = FontWeight.Bold
+                            fontSize = with(density) { scaledFontSize.toSp() },
+                            fontWeight = FontWeight.Bold,
+                            softWrap = false
                         )
                     }
                 } else {
                     Text(
                         text = label,
                         color = contrastColor,
-                        fontSize = with(density) { (fontSize ?: (size.toPx() / 4f)).sp },
+                        fontSize = with(density) { scaledFontSize.toSp() },
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        softWrap = false
                     )
                 }
             }

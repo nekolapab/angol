@@ -76,7 +76,8 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                 val diff = before.length - trimmed.length
                                 val lastSpace = trimmed.lastIndexOf(' ')
                                 val toDelete = if (lastSpace != -1) trimmed.length - 1 - lastSpace else trimmed.length
-                                ic.deleteSurroundingText(toDelete + diff, 0)
+                                // Delete only the word characters (toDelete), preserving trailing spaces (diff)
+                                ic.deleteSurroundingText(toDelete, 0)
                             }
                         } else {
                             if (primaryChar != null) {

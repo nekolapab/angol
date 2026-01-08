@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import modalz.KepadKonfeg
 import sirvesez.EnpitSirves
 import yuteledez.HeksagonDjeyometre
@@ -48,20 +49,30 @@ fun AwdirRenqWedjet(
                     val tapLabel = tapLabels[index]
                     val longPressLabel = longPressLabels[index]
                     val hexColor = KepadKonfeg.rainbowColors[index]
+                    
+                    // Override text color for Top (11) and Bottom (5) to swap their colors
+                    val textColor = when (index) {
+                        5 -> KepadKonfeg.rainbowColors[11] // Bottom (Turquoise bg) -> Maroon text
+                        11 -> KepadKonfeg.rainbowColors[5] // Top (Maroon bg) -> Turquoise text
+                        else -> KepadKonfeg.getComplementaryColor(hexColor)
+                    }
+
+                    val hexSizeDp = with(density) { geometry.hexWidth.toFloat().toDp() }
 
                     HeksagonWedjet(
                         label = tapLabel,
                         secondaryLabel = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
                         backgroundColor = hexColor,
-                        textColor = KepadKonfeg.getComplementaryColor(hexColor),
-                        size = with(density) { geometry.hexWidth.toFloat().toDp() },
+                        textColor = textColor,
+                        size = hexSizeDp,
+                        fontSize = (geometry.hexWidth * if (isLetterMode) 0.6 else 0.8).toFloat(),
+                        verticalOffset = 0.dp, // Reset to centered
                         rotationAngle = geometry.rotationAngle.toFloat(),
                         onTap = { onHexKeyPress(tapLabel, false, null) },
                         onLongPress = if (isLetterMode && longPressLabel.isNotEmpty()) {
                             { onHexKeyPress(longPressLabel, true, tapLabel) }
                         } else null,
-                        onHover = onHover,
-                        fontSize = (geometry.hexWidth * if (isLetterMode) 0.5 else 0.67).toFloat()
+                        onHover = onHover
                     )
                 }
             }

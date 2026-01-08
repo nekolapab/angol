@@ -95,16 +95,37 @@ actual fun KepadModyil(
             stackHeight = maxHeight
         ) {
             val innerLabels = if (isLetterMode) KepadKonfeg.innerLetterMode else KepadKonfeg.innerNumberMode
+            val innerLongPressLabels = if (isLetterMode) {
+                KepadKonfeg.innerLetterMode.map { if (it == "⌫") "⌫" else "" }
+            } else {
+                KepadKonfeg.innerLongPressNumber
+            }
+
             innerLabels.forEachIndexed { index, label ->
+                val longPressLabel = innerLongPressLabels[index]
                 HeksagonWedjet(
                     label = label,
                     backgroundColor = KepadKonfeg.innerRingColors[index],
                     textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]),
                     size = hexWidthDp,
+                    fontSize = (geometry.hexWidth * if (isLetterMode) 0.6 else 0.8).toFloat(), // Increased size
+                    verticalOffset = 0.dp, // Reset to centered
                     onTap = {
                         enpitSirves.addCharacter(label)
                         onHexKeyPress(label, false, null)
-                    }
+                    },
+                    onLongPress = if (longPressLabel.isNotEmpty()) {
+                        {
+                            // If backspace, isLongPress=true triggers word delete.
+                            // If other char, usually we type the long press label.
+                            if (label == "⌫") {
+                                onHexKeyPress(label, true, null)
+                            } else {
+                                enpitSirves.addCharacter(longPressLabel)
+                                onHexKeyPress(longPressLabel, false, null)
+                            }
+                        }
+                    } else null
                 )
             }
         }
@@ -121,31 +142,38 @@ actual fun KepadModyil(
         )
 
         // Center Hexagon (Toggle Mode / Space)
-        val centerLabel = if (isLetterMode) "123" else "ABC"
-        val centerSecondaryLabel = if (isLetterMode) "Space" else "Space"
-        val centerHexColor = if (isCenterHexPressed) Color.DarkGray else Color.Gray
+        val centerLabel = if (isLetterMode) " " else "."
+        // Set secondary label to null in Number Mode to center the dot
+        val centerSecondaryLabel = if (isLetterMode) "." else null
+        
+        // Colors reversed to match Flutter (Letter: White, Number: Black)
+        val centerHexColor = if (isLetterMode) Color.White else Color.Black
+        val centerTextColor = if (isLetterMode) Color.Black else Color.White
 
         HeksagonWedjet(
             label = centerLabel,
             secondaryLabel = centerSecondaryLabel,
             backgroundColor = centerHexColor,
-            textColor = Color.White,
+            textColor = centerTextColor,
             size = hexWidthDp,
+            fontSize = (geometry.hexWidth * if (isLetterMode) 0.6 else 0.8).toFloat(),
             onTap = {
-                if (isLetterMode) {
-                    enpitSirves.toggleMode()
-                } else {
-                    enpitSirves.addCharacter(" ")
-                    onHexKeyPress(" ", false, null)
-                }
+                val charToType = if (isLetterMode) " " else "."
+                enpitSirves.addCharacter(charToType)
+                onHexKeyPress(charToType, false, null)
             },
             onLongPress = {
-                if (isLetterMode) {
-                    enpitSirves.addCharacter(" ")
-                    onHexKeyPress(" ", false, null)
-                } else {
-                    enpitSirves.toggleMode()
-                }
+                val wasLetterMode = isLetterMode
+                enpitSirves.toggleMode()
+                
+                // Logic: Delete the char typed by onTap (' ' or '.'), then type the other one
+                val charToType = if (wasLetterMode) "." else " "
+                val charToDelete = if (wasLetterMode) " " else "."
+                
+                enpitSirves.deleteLeft() // Update internal state
+                enpitSirves.addCharacter(charToType)
+                
+                onHexKeyPress(charToType, true, charToDelete)
             },
             onPressedChanged = { pressed -> isCenterHexPressed = pressed }
         )
