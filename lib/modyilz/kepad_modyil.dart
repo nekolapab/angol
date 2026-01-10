@@ -144,6 +144,7 @@ class _KepadModyilState extends State<KepadModyil> {
             textColor: KepadKonfeg.getComplementaryColor(hexColor),
             size: widget.geometry.hexWidth,
             rotationAngle: widget.geometry.rotationAngle,
+            isPressed: _hoveredHexIndex == index,
             onTap: () => widget.onHexKeyPress(tapLabel, isLongPress: false),
             onLongPress: longPressLabel.isNotEmpty
                 ? () => widget.onHexKeyPress(longPressLabel,
@@ -193,7 +194,9 @@ class _KepadModyilState extends State<KepadModyil> {
             final index = _getHexIndexFromPosition(details.globalPosition);
 
             if (_hoveredHexIndex != index) {
-              inputService.deleteLeft();
+              if (_hoveredHexIndex != null) {
+                inputService.deleteLeft();
+              }
               if (index != null) {
                 final label = allLabels[index];
                 if (label.isNotEmpty) {
@@ -239,6 +242,10 @@ class _KepadModyilState extends State<KepadModyil> {
                     keys: _outerHexKeys,
                     stackWidth: stackWidth,
                     stackHeight: stackHeight,
+                    pressedIndex:
+                        (_hoveredHexIndex != null && _hoveredHexIndex! >= 6)
+                            ? _hoveredHexIndex! - 6
+                            : null,
                   ),
                   Positioned.fill(
                     child: IgnorePointer(
@@ -272,11 +279,20 @@ class _KepadModyilState extends State<KepadModyil> {
   int? _getHexIndexFromPosition(Offset globalPosition) {
     for (int i = 0; i < _cachedHexRenderData.length; i++) {
       final hexData = _cachedHexRenderData[i];
-      final RenderObject? renderObject = hexData.key.currentContext?.findRenderObject();
-      if (renderObject is RenderHeksagonTutcboks) {
-        final BoxHitTestResult result = BoxHitTestResult();
-        if (renderObject.hitTest(result, position: globalPosition)) {
-          return i;
+      final RenderBox? renderBox =
+          hexData.key.currentContext?.findRenderObject() as RenderBox?;
+
+      if (renderBox != null && renderBox.attached) {
+        try {
+          final Offset localPosition = renderBox.globalToLocal(globalPosition);
+          if (renderBox is RenderHeksagonTutcboks) {
+            final BoxHitTestResult result = BoxHitTestResult();
+            if (renderBox.hitTest(result, position: localPosition)) {
+              return i;
+            }
+          }
+        } catch (e) {
+          // Ignore transform errors
         }
       }
     }

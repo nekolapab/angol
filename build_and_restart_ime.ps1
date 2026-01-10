@@ -1,37 +1,37 @@
-# Build and restart IME script
-Write-Host "Building IME..." -ForegroundColor Cyan
-$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $scriptPath
-Set-Location android
-.\gradlew.bat :ime:assembleDebug
+# Helper script to build, install, and restart the Angol IME on a connected device.
+# Usage: .\build_and_restart_ime.ps1 [device_id]
+
+param (
+    [string]$deviceId = ""
+)
+
+$adbPackage = "com.example.myapp"
+$imeService = "com.example.myapp/com.example.angol.ime.AngolImeService"
+
+Write-Host ">>> Building and Installing Angol IME (Debug Mode)..." -ForegroundColor Cyan
+
+$flutterArgs = @("install")
+if ($deviceId) {
+    $flutterArgs += "-d"
+    $flutterArgs += $deviceId
+}
+
+# Run Flutter Install (builds debug APK and installs it)
+& flutter @flutterArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Build failed!" -ForegroundColor Red
+    Write-Host "!!! Build/Install Failed. Exiting." -ForegroundColor Red
     exit 1
 }
 
-Write-Host "`nStopping IME service..." -ForegroundColor Yellow
-adb shell ime disable com.example.angol.ime/.AngolImeService 2>$null
-Start-Sleep -Milliseconds 500
-
-Write-Host "Uninstalling old IME..." -ForegroundColor Yellow
-adb uninstall com.example.angol.ime 2>$null
-Start-Sleep -Milliseconds 500
-
-Write-Host "Installing new IME..." -ForegroundColor Yellow
-Set-Location $scriptPath
-adb install -r android\ime\build\outputs\apk\debug\ime-debug.apk
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Install failed!" -ForegroundColor Red
-    exit 1
+Write-Host ">>> Enabling IME via ADB..." -ForegroundColor Cyan
+if ($deviceId) {
+    adb -s $deviceId shell ime enable $imeService
+    adb -s $deviceId shell ime set $imeService
+} else {
+    adb shell ime enable $imeService
+    adb shell ime set $imeService
 }
 
-Write-Host "Enabling IME..." -ForegroundColor Yellow
-adb shell ime enable com.example.angol.ime/.AngolImeService
-adb shell ime set com.example.angol.ime/.AngolImeService
-
-Write-Host "Launching IME Settings/Test App..." -ForegroundColor Yellow
-adb shell am start -n com.example.angol.ime/.MainActivity
-
-Write-Host "`nDone! IME rebuilt and restarted." -ForegroundColor Green
+Write-Host ">>> Done! IME should be updated and active." -ForegroundColor Green
+Write-Host ">>> Note: If 'ime set' fails (security exception), you must select the keyboard manually on the device." -ForegroundColor Yellow

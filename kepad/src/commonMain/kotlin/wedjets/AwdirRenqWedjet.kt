@@ -34,7 +34,9 @@ fun AwdirRenqWedjet(
     enpitSirves: EnpitSirves,
     onHover: ((Boolean) -> Unit)? = null,
     stackWidth: Dp,
-    stackHeight: Dp
+    stackHeight: Dp,
+    pressedIndex: Int? = null,
+    handleGestures: Boolean = true
 ) {
     val isLetterMode by enpitSirves.isLetterMode.collectAsState()
     val outerCoords = remember(geometry) { geometry.getOuterRingCoordinates() }
@@ -68,8 +70,9 @@ fun AwdirRenqWedjet(
                         fontSize = (geometry.hexWidth * if (isLetterMode) 0.6 else 0.8).toFloat(),
                         verticalOffset = 0.dp, // Reset to centered
                         rotationAngle = geometry.rotationAngle.toFloat(),
-                        onTap = { onHexKeyPress(tapLabel, false, null) },
-                        onLongPress = if (isLetterMode && longPressLabel.isNotEmpty()) {
+                        isPressed = pressedIndex == index,
+                        onTap = if (handleGestures) { { onHexKeyPress(tapLabel, false, null) } } else null,
+                        onLongPress = if (handleGestures && isLetterMode && longPressLabel.isNotEmpty()) {
                             { onHexKeyPress(longPressLabel, true, tapLabel) }
                         } else null,
                         onHover = onHover

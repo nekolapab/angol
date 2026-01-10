@@ -4,20 +4,39 @@
 
 **sekond enstrukcon**
 
+## **Dev Prodokol (Compose IME)**
 
+### **Fast Reyenstol (Compose Native)**
+When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinstall the APK. Flutter Hot Reload does **not** apply.
 
-## **fixez (Jan 2026)**
-* **IME Module Conversion**: Converted `android/ime` from a standalone Android application (`com.android.application`) to an Android library (`com.android.library`).
-    * Removed `applicationId` and product flavors from `android/ime/build.gradle.kts`.
-    * Added `implementation(project(":ime"))` to `android/app/build.gradle.kts`.
-    * Moved `AngolImeService` declaration from `android/ime/src/main/AndroidManifest.xml` to `android/app/src/main/AndroidManifest.xml`.
-    * Integrated WearOS-specific manifest features (`standalone` meta-data and `hardware.type.watch` feature) into the main app's manifest.
-    * Removed redundant launcher icons by removing the `LAUNCHER` intent filter from `ComposeMainActivity`.
-    * Cleaned up `android/ime` by removing unnecessary `MainActivity` and platform-specific source directories.
-* **Hexagon Layout (Next Step)**: Now that the module structure is unified, focusing on fixing the "disordered" hexagon layout in `EnirRenqWedjet.kt` and `AwdirRenqWedjet.kt`.
+**Protocol:**
+1.  **Stop** the running app (Ctrl+C in terminal).
+2.  **Run** `flutter run -d <device_id>` (Debug Mode). 
+    *   *Do not* use `--release` unless testing performance; it is much slower to build.
+3.  **Default Keyboard Reset:**
+    *   **Reason:** Android security resets the default keyboard to the system one whenever an IME app is updated/reinstalled. This protects users from malicious keyboard updates.
+    *   **Automation:** You can try to automate re-enabling it via ADB *after* install:
+        ```powershell
+        adb shell ime enable com.example.myapp/com.example.angol.ime.AngolImeService
+        adb shell ime set com.example.myapp/com.example.angol.ime.AngolImeService
+        ```
+    *   *Note:* This requires the device to accept ADB secure settings changes (Developer Options).
+
+### **Fixes (Jan 9 2026)**
+*   **Swipe-to-Select Logic (Compose):**
+    *   Implemented "Accumulation Mode" (glyphs append on swipe, no delete).
+    *   Implemented "Strict Hexagon Hit Testing" with no gaps/dead zones, using exact boundary math (`size` radius).
+    *   Enabled "Long Press on Swipe": Swiping into a key and holding triggers the long-press secondary character.
+    *   Fixed "Outer Ring" visual/output issues by disabling child gesture handling (`handleGestures=false`) and letting the parent controller manage all hits.
+    *   Optimized Rendering: Used `drawWithCache` in `HeksagonWedjet` to reduce object allocation (GC pressure) during fast swipes.
+
+*   **Build/Install Fixes:**
+    *   Fixed `javac` "source 8 obsolete" warnings (ignored/suppressed).
+    *   Fixed Gradle deprecation warnings (`buildDir` -> `layout.buildDirectory`).
+    *   Fixed Kotlin/Native target warnings (`ignoreDisabledTargets`).
 
 ## **plan**
-* lha kepad ez a KotlinCompose enpit melxod belt az a keybord ekstencon enstold tu lha WearOS emyuledir tu repleys Gboard. 
+* lha kepad ez a Flutter aplekeycon lhat emplements a kustom enput melxod beyst on a heksagonal gred.
 * The `ime` module is now a library integrated into the main Flutter app.
 * Debug Visual Layout ov `kepad` IME on WearOS emyuledir yuzenq lha main `angol` ap.
 * The hexagons ar disordered. Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.

@@ -18,6 +18,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -62,7 +63,7 @@ fun HeksagonWedjet(
     val hexHeight = size * (2f / sqrt(3f))
     val density = LocalDensity.current
 
-    val contrastColor = if (isMomentarilyPressed) {
+    val contrastColor = if (isMomentarilyPressed || isPressed) {
         backgroundColor // If pressed, background is inverted, so text is original bg color
     } else {
         textColor // Use the provided text color
@@ -76,56 +77,56 @@ fun HeksagonWedjet(
         rotationAngle = rotationAngle,
         modifier = modifier.size(width = size, height = hexHeight)
     ) {
+        val inputModifier = if (onTap != null || onLongPress != null) {
+            Modifier.pointerInput(onTap, onLongPress) {
+                detectTapGestures(
+                    onPress = {
+                        isMomentarilyPressed = true
+                        onPressedChanged?.invoke(true)
+                        onTap?.invoke() // Fire action immediately on press down
+                        try {
+                            awaitRelease()
+                        } finally {
+                            // Coroutine ensures this runs even if gesture is cancelled.
+                            isMomentarilyPressed = false
+                            onPressedChanged?.invoke(false)
+                        }
+                    },
+                    onTap = { /* Action handled in onPress */ },
+                    onLongPress = { onLongPress?.invoke() }
+                )
+            }
+        } else {
+            Modifier
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(onTap, onLongPress) {
-                    detectTapGestures(
-                        onPress = {
-                            isMomentarilyPressed = true
-                            onPressedChanged?.invoke(true)
-                            onTap?.invoke() // Fire action immediately on press down
-                            try {
-                                awaitRelease()
-                            } finally {
-                                // Coroutine ensures this runs even if gesture is cancelled.
-                                isMomentarilyPressed = false
-                                onPressedChanged?.invoke(false)
-                            }
-                        },
-                        onTap = { /* Action handled in onPress */ },
-                        onLongPress = { onLongPress?.invoke() }
-                    )
-                },
+                .then(inputModifier),
             contentAlignment = Alignment.Center
         ) {
-            // Drawing Canvas
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val canvasSize = this.size
-                drawIntoCanvas { canvas ->
-                    val displayColor = if (isMomentarilyPressed) {
-                        textColor // If pressed, swap background to text color
-                    } else {
-                        backgroundColor
+            // Drawing Canvas with caching
+            Spacer(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawWithCache {
+                        val path = createVisualPath(this.size)
+                        onDrawBehind {
+                            val displayColor = if (isMomentarilyPressed || isPressed) {
+                                textColor
+                            } else {
+                                backgroundColor
+                            }
+                            
+                            val fillPaint = Paint().apply {
+                                color = displayColor
+                                style = PaintingStyle.Fill
+                            }
+                            drawContext.canvas.drawPath(path, fillPaint)
+                        }
                     }
-
-                    val hexagonPath = createVisualPath(canvasSize)
-
-                    // Glow effect REMOVED for KMP compatibility (depended on Android-specific BlurMaskFilter)
-                    /*
-                    if (isPointerOver || isHovering) {
-                         // ...
-                    }
-                    */
-
-                    // Fill
-                    val fillPaint = Paint().apply {
-                        color = displayColor
-                        style = PaintingStyle.Fill
-                    }
-                    canvas.drawPath(hexagonPath, fillPaint)
-                }
-            }
+            )
 
             // Label(s) or custom child
             Box(

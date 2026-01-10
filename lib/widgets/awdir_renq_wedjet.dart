@@ -15,6 +15,7 @@ class AwdirRenqWedjet extends StatelessWidget {
   final Function(bool)? onHover;
   final double stackWidth;
   final double stackHeight;
+  final int? pressedIndex;
 
   const AwdirRenqWedjet({
     super.key,
@@ -26,6 +27,7 @@ class AwdirRenqWedjet extends StatelessWidget {
     this.onHover,
     required this.stackWidth,
     required this.stackHeight,
+    this.pressedIndex,
   });
 
   @override
@@ -61,6 +63,7 @@ class AwdirRenqWedjet extends StatelessWidget {
                 textColor: KepadKonfeg.getComplementaryColor(hexColor),
                 size: geometry.hexWidth,
                 rotationAngle: geometry.rotationAngle,
+                isPressed: pressedIndex == index,
                 onTap: () => onHexKeyPress(tapLabel, isLongPress: false),
                 onLongPress:
                     inputService.isLetterMode && longPressLabel.isNotEmpty
