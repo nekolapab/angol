@@ -22,7 +22,9 @@ import androidx.compose.foundation.text.BasicText
 actual fun KepadModyil(
     onHexKeyPress: (String, Boolean, String?) -> Unit,
     isKeypadVisible: Boolean,
-    displayLength: Int
+    displayLength: Int,
+    isListening: Boolean,
+    onToggleVoice: () -> Unit
 ) {
     if (!isKeypadVisible) return
 

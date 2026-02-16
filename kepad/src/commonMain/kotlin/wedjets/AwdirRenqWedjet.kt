@@ -36,7 +36,8 @@ fun AwdirRenqWedjet(
     stackWidth: Dp,
     stackHeight: Dp,
     pressedIndex: Int? = null,
-    handleGestures: Boolean = true
+    handleGestures: Boolean = true,
+    isPopup: Boolean = false
 ) {
     val isLetterMode by enpitSirves.isLetterMode.collectAsState()
     val outerCoords = remember(geometry) { geometry.getOuterRingCoordinates() }
@@ -60,14 +61,15 @@ fun AwdirRenqWedjet(
                     }
 
                     val hexSizeDp = with(density) { geometry.hexWidth.toFloat().toDp() }
+                    val finalHexSize = if (isPopup) hexSizeDp * 1.25f else hexSizeDp
 
                     HeksagonWedjet(
                         label = tapLabel,
                         secondaryLabel = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
                         backgroundColor = hexColor,
                         textColor = textColor,
-                        size = hexSizeDp,
-                        fontSize = (geometry.hexWidth * if (isLetterMode) 0.6 else 0.8).toFloat(),
+                        size = finalHexSize,
+                        fontSize = (geometry.hexWidth * if (isLetterMode) 0.6 else 0.8).toFloat() * (if (isPopup) 1.25f else 1.0f),
                         verticalOffset = 0.dp, // Reset to centered
                         rotationAngle = geometry.rotationAngle.toFloat(),
                         isPressed = pressedIndex == index,
@@ -86,11 +88,14 @@ fun AwdirRenqWedjet(
 
         val hexWidthPx = geometry.hexWidth.toFloat()
         val hexHeightPx = geometry.hexHeight.toFloat()
+        
+        val finalWidthPx = if (isPopup) hexWidthPx * 1.25f else hexWidthPx
+        val finalHeightPx = if (isPopup) hexHeightPx * 1.25f else hexHeightPx
 
         // Measure each child with fixed constraints based on hexagon geometry.
         val childConstraints = androidx.compose.ui.unit.Constraints.fixed(
-            hexWidthPx.roundToInt(),
-            hexHeightPx.roundToInt()
+            finalWidthPx.roundToInt(),
+            finalHeightPx.roundToInt()
         )
         val placeables = measurables.map { it.measure(childConstraints) }
 

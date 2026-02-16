@@ -7,5 +7,7 @@ import androidx.compose.runtime.Composable
 expect fun KepadModyil(
     onHexKeyPress: (String, Boolean, String?) -> Unit,
     isKeypadVisible: Boolean,
-    displayLength: Int
+    displayLength: Int,
+    isListening: Boolean = false,
+    onToggleVoice: () -> Unit = {}
 )

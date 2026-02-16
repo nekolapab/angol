@@ -2,14 +2,13 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     id("com.android.library")
     id("org.jetbrains.compose")
-    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "21"
+                jvmTarget = "17"
             }
         }
     }
@@ -27,10 +26,6 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
         }
-
-        iosX64Main.dependencies {}
-        iosArm64Main.dependencies {}
-        iosSimulatorArm64Main.dependencies {}
     }
 }
 
@@ -41,7 +36,7 @@ android {
         minSdk = 25
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }

@@ -6,76 +6,49 @@
 
 ## **Dev Prodokol (Compose IME)**
 
+### **onle Compose!**
+* **onle lha Compose virjon ov kepad ez tu be yuzd!** do not yuz lha Flutter virjon for lha enpit melxod.
+* **REMOVED:** lha entirnal Flutter keypad overlay haz bin removed from `DaylSkren.dart`.
+* we ar naw yuzenq `ComposeMainActivity` tu test lha kepad dayrektle welxen lha Android part ov lha prodjekt.
+
 ### **Fast Reyenstol (Compose Native)**
 When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinstall the APK. Flutter Hot Reload does **not** apply.
 
 **Protocol:**
 1.  **Stop** the running app (Ctrl+C in terminal).
-2.  **Run** `flutter run -d <device_id>` (Debug Mode). 
-    *   *Do not* use `--release` unless testing performance; it is much slower to build.
-3.  **Default Keyboard Reset:**
-    *   **Reason:** Android security resets the default keyboard to the system one whenever an IME app is updated/reinstalled. This protects users from malicious keyboard updates.
-    *   **Automation:** You can try to automate re-enabling it via ADB *after* install:
+2.  **Run** `flutter build apk --debug --target-platform android-arm64 --android-skip-build-dependency-validation` (for physical device).
+3.  **Instol** `adb install -r build/app/outputs/flutter-apk/app-debug.apk`.
+4.  **Default Keyboard Reset:**
+    *   **Automation:**
         ```powershell
         adb shell ime enable com.example.myapp/com.example.angol.ime.AngolImeService
         adb shell ime set com.example.myapp/com.example.angol.ime.AngolImeService
         ```
-    *   *Note:* This requires the device to accept ADB secure settings changes (Developer Options).
 
-### **Fixes (Jan 9 2026)**
-*   **Swipe-to-Select Logic (Compose):**
-    *   Implemented "Accumulation Mode" (glyphs append on swipe, no delete).
-    *   Implemented "Strict Hexagon Hit Testing" with no gaps/dead zones, using exact boundary math (`size` radius).
-    *   Enabled "Long Press on Swipe": Swiping into a key and holding triggers the long-press secondary character.
-    *   Fixed "Outer Ring" visual/output issues by disabling child gesture handling (`handleGestures=false`) and letting the parent controller manage all hits.
-    *   Optimized Rendering: Used `drawWithCache` in `HeksagonWedjet` to reduce object allocation (GC pressure) during fast swipes.
-
-*   **Build/Install Fixes:**
-    *   Fixed `javac` "source 8 obsolete" warnings (ignored/suppressed).
-    *   Fixed Gradle deprecation warnings (`buildDir` -> `layout.buildDirectory`).
-    *   Fixed Kotlin/Native target warnings (`ignoreDisabledTargets`).
+### **Fixes (Feb 13 2026)**
+*   **Kotlin Downgrade:** fixed `speech_to_text` and Compose compiler conflicts by downgrading to Kotlin `1.9.23` and Compose `1.6.11`.
+*   **Removed speech_to_text:** Removed unused and incompatible `speech_to_text` dependency.
+*   **Target Platform:** Build now targets `android-arm64` for physical devices.
+*   **Heksagonal Gred:** lha heksagonz ar naw korrektle pozecond en lha Compose virjon.
+*   **Live Selekcon:** (wirkenq on et) swaypenq betwin keyz cid deled lha prevyus tcar and ad lha nuw on.
 
 ## **plan**
-* lha kepad ez a Flutter aplekeycon lhat emplements a kustom enput melxod beyst on a heksagonal gred.
+* lha kepad ez a Compose aplekeycon lhat emplements a kustom enput melxod beyst on a heksagonal gred.
 * The `ime` module is now a library integrated into the main Flutter app.
-* Debug Visual Layout ov `kepad` IME on WearOS emyuledir yuzenq lha main `angol` ap.
-* The hexagons ar disordered. Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
-* Consider rendirenq a sempil test ceyp tu verefay kowordenats.
-
-## **tasks (for User)**
-**CRITICAL: You must fix your Android Studio Logcat issue or find a way to reliably get logs from the emulator for "AngolImeService".**
-1.  **Re-Verify AVD Manager & Emulator Status:**
-    *   In Android Studio, open the AVD Manager.
-    *   Ensure your WearOS emulator's status is "Running" and there are no errors or warnings next to it.
-    *   Try "Cold Boot Now" from the emulator's dropdown menu in AVD Manager.
-2.  **Toggle ADB Integration (Android Studio):**
-    *   In Android Studio, go to `Tools` > `ADB Connection Assistant`.
-    *   Follow the steps there, ensuring ADB is correctly set up. You might need to disable and re-enable ADB integration.
-3.  **Check for Other ADB Instances:**
-    *   Close *all other IDEs* (VS Code, other Android Studio windows) that might be using ADB.
-    *   In your terminal, run `adb kill-server` and then `adb start-server` (as separate commands).
-4.  **Re-run the Flutter App from Android Studio:** After ensuring ADB is working and your emulator is running, try running your Flutter app *directly from Android Studio* again.
-5.  **Attempt to Trigger IME & Check Logcat:**
-    *   Tap on a text input field in your Flutter app.
-    *   Immediately check the **Logcat window** in Android Studio for any output with the tag "AngolImeService".
-    *   If you *still* cannot get Logcat working, then we are truly blocked until you can provide log output.
+* Debug Visual Layout ov `kepad` IME on WearOS emyuledir yuzenq `ComposeMainActivity`.
+* Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
 
 ## **stadus**
-1. Messages ap sez 'Instal or update Google Messages on your phone'
-2. WearOS ap on lha Samsung Android sez 'Emulator > Trying to connect...'
-3. and adenq a Google akawnt on WearOS emyuledir sez 'To add a Google Account to your watch, copy it from your phone.'
-  so tu open Messages or ad a Google akawnt  must lhe WearOS ap konekt? ez lhes a perenq ecuw? ay hav developir opconz tirnd on bolx WearOS 6 emyuleydir and Samsung Android 12 plugd en.
-### Flutter App (`com.example.myapp`)
-*   **Build/Install:** Successfully built and re-installed.
-*   **UI Layout (Gear Icon):** **FIXED.** The gear icon now only appears when `DaylModyil` is active and is positioned at `bottomCenter` to prevent overlap with the IME. This is verified by user.
-*   **Compilation:** Resolved `Undefined name 'angolStateFromProvider'` and related Flutter compilation errors.
-### Android IME (`com.example.angol.ime` - Kotlin Compose)
-*   **Build/Install:** Successfully built and re-installed.
-*   **Enabled/Default:** Confirmed to be enabled and set as the default input method via ADB.
-*   **Triggering:** **NOT TRIGGERING.** When tapping an input field in the Flutter app, the custom IME does *not* appear; the standard Google keyboard is still used.
-*   **Debugging Logs (On-Screen):** Not visible, as the IME itself is not triggering.
-*   **Debugging Logs (Logcat):** Logcat in Android Studio is *still not syncing* or displaying any output, making it impossible to see `AngolImeService` lifecycle logs. This is a critical blocker.
-*   **Hexagon Sizing (KepadModyil):** The fix to `hexWidthDp` (treating `geometry.hexWidth` directly as Dp) has been applied but *not yet verified*, as the IME is not triggering.
+* **Compose Keypad:** wirkenq and pozecond korrektle!
+* **IME Sirves:** enabled and set az defolt.
+* **Live Selekcon:** implemented and working! Sliding between keys deletes the previous char and types the new one (supports multi-char labels).
+* **Popup Numbirz:** implemented! Pressing or sliding onto a vowel shows numbers on the outer ring with a 1.25x scaling "popup" effect.
+* **Build:** suksesful build for x64 and arm64.
+
+## **tasks (for Gemini)**
+1.  **DONE - Emplement Live Selekcon:** updeyt `KepadModyil.android.kt` tu deled prevyus tcar wen swaypenq tu a nuw key.
+2.  **DONE - Popip Numbirz:** emplement popup numbirz en Compose wer presenq vowelz on lha enir renq despleyz numbirz on lha awdir renq.
+3.  **Refine Fast Number Gesture:** (Next step) consider a top-level `GestureDetector` to further unify the gesture handling if needed.
 
 ## **feylyirz tu not repet ded endz**:
     *   **Galaxy Wearable App**: Fails on emulator. Use "Wear OS by Google".

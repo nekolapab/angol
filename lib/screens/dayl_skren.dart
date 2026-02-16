@@ -1,6 +1,5 @@
 import 'package:angol/services/platform_sirves.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' as developer;
 import 'dart:math' as math;
@@ -8,7 +7,6 @@ import '../models/angol_modalz.dart';
 import '../utils/heksagon_djeyometre.dart';
 import '../services/enpit_sirves.dart';
 import '../state/angol_steyt.dart';
-import '../modyilz/kepad_modyil.dart';
 import '../modyilz/dayl_modyil.dart';
 
 
@@ -22,7 +20,6 @@ class DaylSkren extends StatefulWidget {
 
 class _DaylSkrenSteyt extends State<DaylSkren> {
   late EnpitSirves inputService;
-  final int _defaultDisplayLength = 7; // Default number of glyphs to display
 
   final FocusNode _textFieldFocus = FocusNode();
   final TextEditingController _textController = TextEditingController();
@@ -54,33 +51,6 @@ class _DaylSkrenSteyt extends State<DaylSkren> {
       developer.log('DaylSkren: _textController updated to: "${_textController.text}"');
     } else {
       developer.log('DaylSkren: _textController already matches inputService.inputText.');
-    }
-  }
-
-  void _onHexKeyPress(String char,
-      {bool isLongPress = false, String? primaryChar}) {
-    developer.log('DaylSkren: _onHexKeyPress called for char: $char, isLongPress: $isLongPress');
-    if (isLongPress) {
-      HapticFeedback.mediumImpact();
-      if (char == '⌫') {
-        inputService.deleteWord();
-        developer.log('DaylSkren: Deleting word.');
-      } else {
-        if (primaryChar != null) {
-          inputService.deleteCharacters(primaryChar.length);
-          developer.log('DaylSkren: Deleting ${primaryChar.length} characters.');
-        }
-        else {
-          inputService.deleteLeft();
-          developer.log('DaylSkren: Deleting left.');
-        }
-        inputService.addCharacter(char);
-        developer.log('DaylSkren: Adding character (long press): $char');
-      }
-    } else {
-      HapticFeedback.lightImpact();
-      inputService.addCharacter(char);
-      developer.log('DaylSkren: Adding character (short press): $char');
     }
   }
 
@@ -121,19 +91,30 @@ class _DaylSkrenSteyt extends State<DaylSkren> {
                     return Stack(
                       alignment: Alignment.center,
                       children: [
-                        if (angolStateFromProvider.isKeypadVisible)
-                          KepadModyil(
-                            displayLength: _defaultDisplayLength,
-                            geometry: geometry,
-                            onHexKeyPress: _onHexKeyPress,
-                            isKeypadVisible: angolStateFromProvider.isKeypadVisible,
-                          )
-                        else
-                          DaylModyil(
-                            geometry: geometry,
-                            modules: angolStateFromProvider.modules,
-                            onToggleModule: angolStateFromProvider.toggleModule,
+                        // Flutter version of KepadModyil removed - using Compose IME only
+                        DaylModyil(
+                          geometry: geometry,
+                          modules: angolStateFromProvider.modules,
+                          onToggleModule: angolStateFromProvider.toggleModule,
+                        ),
+                        // Added TextField to trigger the System IME (Compose version)
+                        Positioned(
+                          top: 60,
+                          left: 20,
+                          right: 20,
+                          child: TextField(
+                            focusNode: _textFieldFocus,
+                            controller: _textController,
+                            decoration: InputDecoration(
+                              hintText: 'tap her tu test Compose IME',
+                              hintStyle: const TextStyle(color: Colors.cyanAccent),
+                              filled: true,
+                              fillColor: Colors.black.withValues(alpha: 0.5),
+                              border: const OutlineInputBorder(),
+                            ),
+                            style: const TextStyle(color: Colors.white),
                           ),
+                        ),
                         // Settings button, only visible when DaylModyil is active
                         if (!angolStateFromProvider.isKeypadVisible)
                           Align(

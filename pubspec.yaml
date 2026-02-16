@@ -16,6 +16,8 @@ dependencies:
   flutter_tts: ^4.0.2
   # flutter_overlay_window: ^0.4.4
   provider: ^6.1.2
+  permission_handler: ^12.0.1
+  # speech_to_text: ^6.6.2
 
 dev_dependencies:
   flutter_test:
