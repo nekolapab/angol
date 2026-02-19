@@ -43,12 +43,23 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 * **IME Sirves:** enabled and set az defolt.
 * **Live Selekcon:** implemented and working! Sliding between keys deletes the previous char and types the new one (supports multi-char labels).
 * **Popup Numbirz:** implemented! Pressing or sliding onto a vowel shows numbers on the outer ring with a 1.25x scaling "popup" effect.
+* **Kapedolz (Capitalization):** Fixed! Now uses relative `initialY` for each key and 0.4f threshold.
+* **Sentir Hex (Enter & Toggle):** Fixed! Robust `\n` commit and faster 300ms "peek" mode toggle (returns to original mode before release).
+* **Backspace Repeat:** Fixed! Deletes exactly 12 characters per tick for strings without spaces, and caps word deletion at 12.
 * **Build:** suksesful build for x64 and arm64.
 
 ## **tasks (for Gemini)**
 1.  **DONE - Emplement Live Selekcon:** updeyt `KepadModyil.android.kt` tu deled prevyus tcar wen swaypenq tu a nuw key.
 2.  **DONE - Popip Numbirz:** emplement popup numbirz en Compose wer presenq vowelz on lha enir renq despleyz numbirz on lha awdir renq.
-3.  **Refine Fast Number Gesture:** (Next step) consider a top-level `GestureDetector` to further unify the gesture handling if needed.
+3.  **DONE - Kapedolz:** emplement "Swayp Up" for capitalization en `KepadModyil.android.kt` welx improved 0.4f threshold.
+4.  **DONE - Sentir Hex Enhancements:** emplement newline (Enter) and temporary mode toggle on 1s hold.
+5.  **DONE - Fix Capitalization, Enter, and Retoggle:** Improved gesture reliability and service-level compatibility.
+6.  **DONE - Refine Backspace and Toggle Peek:** exactly 12-char deletion and faster 300ms peek-back toggle.
+7.  **Refine Fast Number Gesture:** (Next step) consider a top-level `GestureDetector` to further unify the gesture handling if needed.
+
+## **Nots**
+* **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`, allowing us to respond to cursor jumps or selection changes.
+* **Custom Context Menu:** We can add "Angol" commands (like Translate) to the system's text selection menu (Cut/Copy/Paste toolbar) by registering a `PROCESS_TEXT` intent handler in the Android app.
 
 ## **feylyirz tu not repet ded endz**:
     *   **Galaxy Wearable App**: Fails on emulator. Use "Wear OS by Google".

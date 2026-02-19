@@ -8,11 +8,11 @@ object KepadKonfeg {
 
     // Clockwise from 1 o'clock
     val outerTap: List<String> = listOf(
-        "s", "l", "lx", "x", "d", "t", "c", "g", "k", "f", "b", "p"
+        "l", "lx", "x", "d", "t", "c", "g", "k", "f", "b", "p", "s"
     )
 
     val outerLongPress: List<String> = listOf(
-        "z", "lh", "h", "n", "y", "r", "j", "nq", "q", "v", "w", "m"
+        "lh", "h", "n", "y", "r", "j", "nq", "q", "v", "w", "m", "z"
     )
 
     val outerTapNumber: List<String> = listOf(

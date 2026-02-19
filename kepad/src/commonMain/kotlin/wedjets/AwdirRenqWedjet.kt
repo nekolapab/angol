@@ -3,6 +3,7 @@ package wedjets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
@@ -31,7 +32,8 @@ fun AwdirRenqWedjet(
     onHexKeyPress: (String, Boolean, String?) -> Unit,
     tapLabels: List<String>,
     longPressLabels: List<String>,
-    enpitSirves: EnpitSirves,
+    enpitSirves: EnpitSirves? = null,
+    initialLetterMode: Boolean = true,
     onHover: ((Boolean) -> Unit)? = null,
     stackWidth: Dp,
     stackHeight: Dp,
@@ -39,7 +41,7 @@ fun AwdirRenqWedjet(
     handleGestures: Boolean = true,
     isPopup: Boolean = false
 ) {
-    val isLetterMode by enpitSirves.isLetterMode.collectAsState()
+    val isLetterMode = if (enpitSirves != null) enpitSirves.isLetterMode.collectAsState().value else initialLetterMode
     val outerCoords = remember(geometry) { geometry.getOuterRingCoordinates() }
     val density = LocalDensity.current
 
@@ -48,9 +50,9 @@ fun AwdirRenqWedjet(
         content = {
             // Generate the HexagonWedjet children dynamically
             outerCoords.forEachIndexed { index, _ ->
-                if (index < tapLabels.size && index < longPressLabels.size) {
+                if (index < tapLabels.size) {
                     val tapLabel = tapLabels[index]
-                    val longPressLabel = longPressLabels[index]
+                    val longPressLabel = longPressLabels.getOrNull(index) ?: ""
                     val hexColor = KepadKonfeg.rainbowColors[index]
                     
                     // Override text color for Top (11) and Bottom (5) to swap their colors
@@ -61,15 +63,14 @@ fun AwdirRenqWedjet(
                     }
 
                     val hexSizeDp = with(density) { geometry.hexWidth.toFloat().toDp() }
-                    val finalHexSize = if (isPopup) hexSizeDp * 1.25f else hexSizeDp
 
                     HeksagonWedjet(
                         label = tapLabel,
                         secondaryLabel = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
                         backgroundColor = hexColor,
                         textColor = textColor,
-                        size = finalHexSize,
-                        fontSize = (geometry.hexWidth * if (isLetterMode) 0.6 else 0.8).toFloat() * (if (isPopup) 1.25f else 1.0f),
+                        size = hexSizeDp,
+                        fontSize = (geometry.hexWidth * if (isLetterMode) 0.6 else 0.8).toFloat(),
                         verticalOffset = 0.dp, // Reset to centered
                         rotationAngle = geometry.rotationAngle.toFloat(),
                         isPressed = pressedIndex == index,
@@ -88,14 +89,11 @@ fun AwdirRenqWedjet(
 
         val hexWidthPx = geometry.hexWidth.toFloat()
         val hexHeightPx = geometry.hexHeight.toFloat()
-        
-        val finalWidthPx = if (isPopup) hexWidthPx * 1.25f else hexWidthPx
-        val finalHeightPx = if (isPopup) hexHeightPx * 1.25f else hexHeightPx
 
         // Measure each child with fixed constraints based on hexagon geometry.
         val childConstraints = androidx.compose.ui.unit.Constraints.fixed(
-            finalWidthPx.roundToInt(),
-            finalHeightPx.roundToInt()
+            hexWidthPx.roundToInt(),
+            hexHeightPx.roundToInt()
         )
         val placeables = measurables.map { it.measure(childConstraints) }
 

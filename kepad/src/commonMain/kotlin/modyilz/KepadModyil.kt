@@ -9,5 +9,7 @@ expect fun KepadModyil(
     isKeypadVisible: Boolean,
     displayLength: Int,
     isListening: Boolean = false,
-    onToggleVoice: () -> Unit = {}
+    isLetterMode: Boolean = true,
+    onToggleVoice: () -> Unit = {},
+    onToggleMode: () -> Unit = {}
 )
