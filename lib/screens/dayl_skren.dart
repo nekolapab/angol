@@ -9,8 +9,6 @@ import '../services/enpit_sirves.dart';
 import '../state/angol_steyt.dart';
 import '../modyilz/dayl_modyil.dart';
 
-
-
 class DaylSkren extends StatefulWidget {
   const DaylSkren({super.key});
 
@@ -42,15 +40,18 @@ class _DaylSkrenSteyt extends State<DaylSkren> {
   }
 
   void _syncTextController() {
-    developer.log('DaylSkren: _syncTextController called. Current inputService.inputText: "${inputService.inputText}"');
+    developer.log(
+        'DaylSkren: _syncTextController called. Current inputService.inputText: "${inputService.inputText}"');
     if (_textController.text != inputService.inputText) {
       _textController.text = inputService.inputText;
       _textController.selection = TextSelection.fromPosition(
         TextPosition(offset: _textController.text.length),
       );
-      developer.log('DaylSkren: _textController updated to: "${_textController.text}"');
+      developer.log(
+          'DaylSkren: _textController updated to: "${_textController.text}"');
     } else {
-      developer.log('DaylSkren: _textController already matches inputService.inputText.');
+      developer.log(
+          'DaylSkren: _textController already matches inputService.inputText.');
     }
   }
 
@@ -72,16 +73,19 @@ class _DaylSkrenSteyt extends State<DaylSkren> {
               builder: (context, constraints) {
                 final screenWidth = constraints.maxWidth;
                 final screenHeight = constraints.maxHeight;
-                developer.log('DaylSkren: screenWidth: $screenWidth, screenHeight: $screenHeight');
+                developer.log(
+                    'DaylSkren: screenWidth: $screenWidth, screenHeight: $screenHeight');
                 if (screenWidth == 0 || screenHeight == 0) {
                   return const SizedBox.shrink(); // Or a loading indicator
                 }
 
-                final hexSize = math.min(screenWidth, screenHeight) / 8.0; // Adjust the divisor for best fit
+                final hexSize = math.min(screenWidth, screenHeight) /
+                    8.0; // Adjust the divisor for best fit
                 developer.log('DaylSkren: Calculated hexSize: $hexSize');
 
                 return Consumer2<EnpitSirves, AngolSteyt>(
-                  builder: (context, inputServiceFromProvider, angolStateFromProvider, _) {
+                  builder: (context, inputServiceFromProvider,
+                      angolStateFromProvider, _) {
                     final geometry = HeksagonDjeyometre(
                       hexSize: hexSize,
                       center: const HexagonPosition(x: 0, y: 0),
@@ -107,7 +111,8 @@ class _DaylSkrenSteyt extends State<DaylSkren> {
                             controller: _textController,
                             decoration: InputDecoration(
                               hintText: 'tap her tu test Compose IME',
-                              hintStyle: const TextStyle(color: Colors.cyanAccent),
+                              hintStyle:
+                                  const TextStyle(color: Colors.cyanAccent),
                               filled: true,
                               fillColor: Colors.black.withValues(alpha: 0.5),
                               border: const OutlineInputBorder(),
@@ -118,9 +123,11 @@ class _DaylSkrenSteyt extends State<DaylSkren> {
                         // Settings button, only visible when DaylModyil is active
                         if (!angolStateFromProvider.isKeypadVisible)
                           Align(
-                            alignment: Alignment.bottomCenter, // Moved to bottomCenter to avoid central overlap
+                            alignment: Alignment
+                                .bottomCenter, // Moved to bottomCenter to avoid central overlap
                             child: IconButton(
-                              icon: const Icon(Icons.settings, color: Colors.white),
+                              icon: const Icon(Icons.settings,
+                                  color: Colors.white),
                               onPressed: () {
                                 PlatformSirves.openImeSettings();
                               },

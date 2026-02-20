@@ -61,6 +61,14 @@ dependencies {
     // Additional dependencies for proper Compose support
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    // Firebase for Gemini translation
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+    implementation("com.google.firebase:firebase-vertexai")
+    implementation("com.google.firebase:firebase-common-ktx")
+    
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
 
 flutter {

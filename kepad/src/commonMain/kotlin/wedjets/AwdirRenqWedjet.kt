@@ -55,12 +55,7 @@ fun AwdirRenqWedjet(
                     val longPressLabel = longPressLabels.getOrNull(index) ?: ""
                     val hexColor = KepadKonfeg.rainbowColors[index]
                     
-                    // Override text color for Top (11) and Bottom (5) to swap their colors
-                    val textColor = when (index) {
-                        5 -> KepadKonfeg.rainbowColors[11] // Bottom (Turquoise bg) -> Maroon text
-                        11 -> KepadKonfeg.rainbowColors[5] // Top (Maroon bg) -> Turquoise text
-                        else -> KepadKonfeg.getComplementaryColor(hexColor)
-                    }
+                    val textColor = KepadKonfeg.getComplementaryColor(hexColor)
 
                     val hexSizeDp = with(density) { geometry.hexWidth.toFloat().toDp() }
 

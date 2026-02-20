@@ -46,14 +46,12 @@ class AwdirRenqWedjet extends StatelessWidget {
             final hexColor = KepadKonfeg.rainbowColors[index];
 
             return Positioned(
-              left: stackWidth / 2 +
-                  position.x -
-                  geometry.hexWidth / 2,
-              top: stackHeight / 2 +
-                  position.y -
-                  geometry.hexHeight / 2,
+              left: stackWidth / 2 + position.x - geometry.hexWidth / 2,
+              top: stackHeight / 2 + position.y - geometry.hexHeight / 2,
               child: HeksagonWedjet(
-                key: (keys != null && keys!.length > index) ? keys![index] : null,
+                key: (keys != null && keys!.length > index)
+                    ? keys![index]
+                    : null,
                 label: tapLabel,
                 secondaryLabel:
                     inputService.isLetterMode && longPressLabel.isNotEmpty

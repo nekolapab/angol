@@ -55,7 +55,8 @@ class _KepadModyilState extends State<KepadModyil> {
   void didUpdateWidget(covariant KepadModyil oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.geometry != widget.geometry) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _cacheHexRenderData());
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _cacheHexRenderData());
     }
   }
 
@@ -76,8 +77,6 @@ class _KepadModyilState extends State<KepadModyil> {
       _isCenterHexPressed = isPressed;
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +250,8 @@ class _KepadModyilState extends State<KepadModyil> {
                     child: IgnorePointer(
                       child: Center(
                         child: AwtpitTekstWedjet(
-                          text: inputService.getDisplayText(widget.displayLength),
+                          text:
+                              inputService.getDisplayText(widget.displayLength),
                           style: TextStyle(
                             color: _isCenterHexPressed
                                 ? (inputService.isLetterMode

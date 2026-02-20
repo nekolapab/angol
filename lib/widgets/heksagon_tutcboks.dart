@@ -36,14 +36,16 @@ class RenderHeksagonTutcboks extends RenderProxyBox {
   double? _cachedRotation;
 
   Path _createHexagonPath(Size size) {
-    if (_cachedHexPath != null && _cachedSize == size && _cachedRotation == rotationAngle) {
+    if (_cachedHexPath != null &&
+        _cachedSize == size &&
+        _cachedRotation == rotationAngle) {
       return _cachedHexPath!;
     }
 
     final path = Path();
     final centerX = size.width / 2;
     final centerY = size.height / 2;
-    
+
     // The painter uses size.height / 2 for the radius. We subtract a small
     // amount to create a "safe zone" and prevent the hit area from
     // bleeding into neighboring hexagons.
@@ -71,7 +73,7 @@ class RenderHeksagonTutcboks extends RenderProxyBox {
   }
 
   @override
-  bool hitTest(BoxHitTestResult result, { required Offset position }) {
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
     // Custom check: ensure the point is inside the hexagon path. If not,
     // we return false immediately, and neither this widget nor its children
     // (including the GestureDetector) will receive the event.
@@ -82,6 +84,4 @@ class RenderHeksagonTutcboks extends RenderProxyBox {
     // logic for our children.
     return super.hitTest(result, position: position);
   }
-
-
 }

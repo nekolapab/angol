@@ -23,8 +23,6 @@ class DaylModyil extends StatelessWidget {
     final daylModule =
         modules.firstWhere((m) => m.id == 'dayl', orElse: () => modules.first);
 
-
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final stackWidth = constraints.maxWidth;

@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'dart:developer' as developer;
 
 class EnpitSirves extends ChangeNotifier {
-
   final StringBuffer _inputText = StringBuffer();
   bool _isLetterMode = true;
   bool _shouldCapitalize = false;
@@ -23,7 +22,8 @@ class EnpitSirves extends ChangeNotifier {
     String finalChar = _shouldCapitalize ? char.toUpperCase() : char;
     _inputText.write(finalChar);
     _shouldCapitalize = false;
-    developer.log('EnpitSirves: _inputText updated to: "${_inputText.toString()}"');
+    developer
+        .log('EnpitSirves: _inputText updated to: "${_inputText.toString()}"');
     notifyListeners();
     developer.log('EnpitSirves: notifyListeners called.');
   }
@@ -47,8 +47,7 @@ class EnpitSirves extends ChangeNotifier {
     _inputText.clear();
     if (lastSpaceIndex != -1) {
       _inputText.write(trimmedText.substring(0, lastSpaceIndex));
-    }
-    else {
+    } else {
       _inputText.write('');
     }
     notifyListeners();

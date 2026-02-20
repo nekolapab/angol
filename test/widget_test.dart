@@ -32,6 +32,6 @@ void main() {
     expect(find.byType(Scaffold), findsOneWidget);
     // You might also check for specific text or widgets on DaylSkren if you know them.
     // For example, if DaylSkren has an AppBar with "Angol" title:
-    // expect(find.text('Angol'), findsOneWidget); 
+    // expect(find.text('Angol'), findsOneWidget);
   });
 }

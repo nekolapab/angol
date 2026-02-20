@@ -6,6 +6,7 @@ import android.inputmethodservice.InputMethodService
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -18,6 +19,7 @@ import com.google.firebase.vertexai.vertexAI
 import com.google.firebase.vertexai.type.content
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Log
@@ -62,6 +64,30 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private var isLetterMode by mutableStateOf(true)
     private var audioFocusRequest: Any? = null // AudioFocusRequest on API 26+
     
+    private var ignoreSelectionUpdateCount = 0
+    private var lastVoiceTriggerTime = 0L
+    private var wasStartedByUser = false
+    private var isClosing = false
+    private var lastSelStart = -1
+    private var lastSelEnd = -1
+
+    private val toneGeneratorStart = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 50) // 50% volume
+    private val toneGeneratorStop = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 17) // 17% volume (per request)
+
+    private fun debouncedStartVoiceInput() {
+        val now = System.currentTimeMillis()
+        if (now - lastVoiceTriggerTime > 1500) {
+            lastVoiceTriggerTime = now
+            Log.d(TAG, "debouncedStartVoiceInput: Triggering voice input")
+            wasStartedByUser = true
+            
+            // Quiet start sound at 50% volume
+            toneGeneratorStart.startTone(ToneGenerator.TONE_PROP_BEEP, 100)
+            
+            startVoiceInput()
+        }
+    }
+
     // Buffer to capture the current word being typed
     private var currentWordBuffer = StringBuilder()
 
@@ -161,8 +187,16 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
                     override fun onEndOfSpeech() {
                         Log.d(TAG, "SpeechRecognizer: End of speech")
+                        val wasListening = isListening
                         isListening = false
                         abandonAudioPriority()
+                        unmuteSystemStream()
+                        
+                        // Play quiet tone only if it was user-started and we are not closing
+                        if (wasStartedByUser && wasListening && !isClosing) {
+                            toneGeneratorStop.startTone(ToneGenerator.TONE_PROP_PROMPT, 150)
+                        }
+                        wasStartedByUser = false
                     }
 
                     override fun onError(error: Int) {
@@ -181,11 +215,14 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         Log.e(TAG, "SpeechRecognizer error: $error ($errorMessage)")
                         isListening = false
                         abandonAudioPriority()
+                        unmuteSystemStream()
+                        wasStartedByUser = false
                     }
 
                     override fun onResults(results: Bundle?) {
                         isListening = false
                         abandonAudioPriority()
+                        unmuteSystemStream()
                         val matches = results
                             ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         val text = matches?.firstOrNull() ?: return
@@ -214,7 +251,9 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
                                 val ic = currentInputConnection
                                 if (ic != null) {
-                                    ic.commitText(angolText, 1)
+                                    // Add space after STT result
+                                    ignoreSelectionUpdateCount++
+                                    ic.commitText("$angolText ", 1)
                                     // Add the committed text to corpus as well
                                     addToCorpus(angolText)
                                     Log.d(TAG, "Gemini conversion successful: $angolText")
@@ -225,7 +264,9 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                 val angolText = convertToAngolSpelling(text)
                                 val ic = currentInputConnection
                                 if (ic != null) {
-                                    ic.commitText(angolText, 1)
+                                    // Add space after fallback result
+                                    ignoreSelectionUpdateCount++
+                                    ic.commitText("$angolText ", 1)
                                     addToCorpus(angolText)
                                 }
                             }
@@ -355,7 +396,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private fun startVoiceInput() {
         if (isListening) return
         
-        // Check for permission at runtime (even if declared in manifest)
+        // Check for permission at runtime
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 Log.e(TAG, "startVoiceInput: Missing RECORD_AUDIO permission")
@@ -375,19 +416,54 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             Log.w(TAG, "startVoiceInput: Failed to gain audio focus priority")
         }
 
-        // Forcefully pause/stop other media/TTS
         val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        // Mute system and music sounds to suppress recognizer ding
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                am.adjustStreamVolume(AudioManager.STREAM_SYSTEM, AudioManager.ADJUST_MUTE, 0)
+                am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
+            } else {
+                @Suppress("DEPRECATION")
+                am.setStreamMute(AudioManager.STREAM_SYSTEM, true)
+                @Suppress("DEPRECATION")
+                am.setStreamMute(AudioManager.STREAM_MUSIC, true)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to mute streams: ${e.message}")
+        }
+
+        // Forcefully pause/stop other media/TTS
         am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PAUSE))
         am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PAUSE))
-        am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_STOP))
-        am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_STOP))
 
+        // Give the system a moment to apply mute before starting
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(100)
+            try {
+                recognizer.startListening(intent)
+                Log.d(TAG, "startVoiceInput: Listening started")
+            } catch (e: Exception) {
+                Log.e(TAG, "startVoiceInput: Failed to start listening: ${e.message}", e)
+                abandonAudioPriority()
+                unmuteSystemStream()
+            }
+        }
+    }
+
+    private fun unmuteSystemStream() {
+        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         try {
-            recognizer.startListening(intent)
-            Log.d(TAG, "startVoiceInput: Listening started")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                am.adjustStreamVolume(AudioManager.STREAM_SYSTEM, AudioManager.ADJUST_UNMUTE, 0)
+                am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
+            } else {
+                @Suppress("DEPRECATION")
+                am.setStreamMute(AudioManager.STREAM_SYSTEM, false)
+                @Suppress("DEPRECATION")
+                am.setStreamMute(AudioManager.STREAM_MUSIC, false)
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "startVoiceInput: Failed to start listening: ${e.message}", e)
-            abandonAudioPriority()
+            Log.w(TAG, "Failed to unmute streams: ${e.message}")
         }
     }
 
@@ -398,9 +474,11 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             isListening = false
             Log.d(TAG, "stopVoiceInput: Listening stopped")
             abandonAudioPriority()
+            unmuteSystemStream()
         } catch (e: Exception) {
             Log.e(TAG, "stopVoiceInput: Failed to stop listening: ${e.message}", e)
             abandonAudioPriority()
+            unmuteSystemStream()
         }
     }
 
@@ -443,11 +521,57 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                     
                     Log.d(TAG, "onHexKeyPress: char='$char', isLongPress=$isLongPress")
 
+                    if (char == "TRANSLATE") {
+                        Log.d(TAG, "TRANSLATE command received")
+                        val before = ic.getTextBeforeCursor(1000, 0) ?: ""
+                        val after = ic.getTextAfterCursor(1000, 0) ?: ""
+                        val fullText = "$before$after"
+                        
+                        // Show immediate feedback regardless of text presence to confirm gesture works
+                        android.widget.Toast.makeText(this@AngolImeService, "angol...", android.widget.Toast.LENGTH_SHORT).show()
+                        
+                        if (fullText.isNotBlank()) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                try {
+                                    val model = Firebase.vertexAI.generativeModel("gemini-1.5-flash")
+                                    val prompt = """
+                                        Convert the following text between 'Angol' spelling and standard English. 
+                                        If the text is in standard English, convert it to Angol spelling.
+                                        If the text is in Angol spelling, convert it to standard English.
+                                        
+                                        Angol is a phonetic spelling where 'the' is 'lha', 'to' is 'tu', 'ing' is 'enq', 'tion' is 'con', etc.
+                                        Only output the converted text, no explanations or extra text.
+                                        Text: $fullText
+                                    """.trimIndent()
+
+                                    val response = withContext(Dispatchers.IO) {
+                                        model.generateContent(content { text(prompt) })
+                                    }
+                                    
+                                    val convertedText = response.text?.trim()
+                                    if (convertedText != null) {
+                                        ic.beginBatchEdit()
+                                        ignoreSelectionUpdateCount++
+                                        ic.deleteSurroundingText(before.length, after.length)
+                                        ignoreSelectionUpdateCount++
+                                        ic.commitText(convertedText, 1)
+                                        ic.endBatchEdit()
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "Keyboard translation failed: ${e.message}")
+                                }
+                            }
+                        }
+                        return@KepadModyil
+                    }
+
                     if (char == "\n") {
                         if (isLongPress && primaryChar != null) {
+                            ignoreSelectionUpdateCount++
                             ic.deleteSurroundingText(primaryChar.length, 0)
                         }
                         // Use both commitText and sendKeyEvent for maximum compatibility
+                        ignoreSelectionUpdateCount++
                         ic.commitText("\n", 1)
                         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
                         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
@@ -466,48 +590,15 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         }
 
                         if (isLongPress) {
-                            ic.beginBatchEdit()
-                            try {
-                                val before = ic.getTextBeforeCursor(100, 0) ?: ""
-                                if (before.isNotEmpty()) {
-                                    val len = before.length
-                                    val lastSpace = before.lastIndexOf(' ')
-                                    
-                                    val toDelete = if (lastSpace == -1) {
-                                        // No spaces in the last 100 chars: delete exactly 12
-                                        minOf(len, 12)
-                                    } else if (lastSpace == len - 1) {
-                                        // Space is right at the cursor: delete the space and the word before it
-                                        val textBeforeSpace = before.substring(0, len - 1)
-                                        val secondToLastSpace = textBeforeSpace.lastIndexOf(' ')
-                                        val wordLen = if (secondToLastSpace == -1) len else len - 1 - secondToLastSpace
-                                        minOf(wordLen, 12)
-                                    } else {
-                                        // Delete from cursor back to the last space, capped at 12
-                                        val wordLen = len - 1 - lastSpace
-                                        minOf(wordLen, 12)
-                                    }
-                                    
-                                    if (toDelete > 0) {
-                                        ic.deleteSurroundingText(toDelete, 0)
-                                        if (currentWordBuffer.length >= toDelete) {
-                                            currentWordBuffer.setLength(currentWordBuffer.length - toDelete)
-                                        } else {
-                                            currentWordBuffer.clear()
-                                        }
-                                    }
-                                } else {
-                                    ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
-                                    ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
-                                    currentWordBuffer.clear()
-                                }
-                            } finally {
-                                ic.endBatchEdit()
-                            }
+                            ignoreSelectionUpdateCount++
+                            ic.deleteSurroundingText(12, 0)
+                            currentWordBuffer.clear()
                         } else {
                             if (primaryChar != null && primaryChar.isNotEmpty()) {
+                                ignoreSelectionUpdateCount++
                                 ic.deleteSurroundingText(primaryChar.length, 0)
                             } else {
+                                ignoreSelectionUpdateCount++
                                 ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
                                 ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
                             }
@@ -522,8 +613,6 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                             addToCorpus(currentWordBuffer.toString())
                             currentWordBuffer.clear()
                         }
-                        // Also add the separator itself if it's a punctuation mark? 
-                        // Maybe not necessary for style, but good for context.
                     } else {
                         // Append to buffer
                         currentWordBuffer.append(char)
@@ -531,13 +620,16 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
                     if (isLongPress) {
                         if (primaryChar != null) {
+                            ignoreSelectionUpdateCount += 2
                             ic.deleteSurroundingText(primaryChar.length, 0)
                             ic.commitText(char, 1)
                         } else {
+                            ignoreSelectionUpdateCount += 2
                             ic.deleteSurroundingText(1, 0)
                             ic.commitText(char, 1)
                         }
                     } else {
+                        ignoreSelectionUpdateCount++
                         ic.commitText(char, 1)
                     }
                 }
@@ -555,14 +647,57 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         return false // Disable fullscreen mode to keep the app visible above
     }
 
+    override fun onUpdateSelection(
+        oldSelStart: Int,
+        oldSelEnd: Int,
+        newSelStart: Int,
+        newSelEnd: Int,
+        candidatesStart: Int,
+        candidatesEnd: Int
+    ) {
+        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+        
+        if (ignoreSelectionUpdateCount > 0) {
+            ignoreSelectionUpdateCount--
+            lastSelStart = newSelStart
+            lastSelEnd = newSelEnd
+            return
+        }
+
+        // Check if the selection changed (e.g., due to user tap in the output field)
+        // while the input view is shown.
+        if (isInputViewShown && (newSelStart != oldSelStart || newSelEnd != oldSelEnd)) {
+            Log.d(TAG, "onUpdateSelection: Selection changed from ($oldSelStart, $oldSelEnd) to ($newSelStart, $newSelEnd)")
+            
+            // If the cursor moved but the selection is empty (no text highlighted),
+            // it's likely a tap. Trigger voice input if it's a new spot or we are explicitly debouncing.
+            if (newSelStart == newSelEnd && !isListening) {
+                // If the user tapped the EXACT same spot, onUpdateSelection might not fire 
+                // in some Android versions, but if it DOES, we trigger.
+                debouncedStartVoiceInput()
+            }
+        }
+        lastSelStart = newSelStart
+        lastSelEnd = newSelEnd
+    }
+
+    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        isClosing = false
+        super.onStartInputView(info, restarting)
+        Log.d(TAG, "onStartInputView: Input view started")
+    }
+
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
+        isClosing = false
         super.onStartInput(attribute, restarting)
-        Log.d(TAG, "onStartInput: Input started, restarting: $restarting, editorType: ${attribute?.imeOptions}")
-        // Automatically start voice input when the user focuses/touches an input field.
-        // startVoiceInput()
+        Log.d(TAG, "onStartInput: Input started, triggering voice input")
+        if (!isListening && !restarting) {
+            debouncedStartVoiceInput()
+        }
     }
 
     override fun onFinishInput() {
+        isClosing = true
         super.onFinishInput()
         Log.d(TAG, "onFinishInput: Input finished")
         // Hide your UI if it's visible
@@ -570,6 +705,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     }
 
     override fun onWindowShown() {
+        isClosing = false
         super.onWindowShown()
         Log.d(TAG, "onWindowShown: IME window shown")
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
@@ -577,6 +713,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     }
 
     override fun onWindowHidden() {
+        isClosing = true
         super.onWindowHidden()
         Log.d(TAG, "onWindowHidden: IME window hidden")
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
@@ -584,6 +721,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     }
 
     override fun onDestroy() {
+        isClosing = true
         super.onDestroy()
         Log.d(TAG, "onDestroy: IME Service destroyed")
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -591,5 +729,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         speechRecognizer?.destroy()
         speechRecognizer = null
         speechIntent = null
+        toneGeneratorStart.release()
+        toneGeneratorStop.release()
     }
 }

@@ -28,28 +28,29 @@ object KepadKonfeg {
     )
 
     // 12 rainbow colors for outer ring
+    // 12 colors for outer ring: Black/White at specified indices, rainbow elsewhere
     val rainbowColors: List<Color> = listOf(
-        Color(0xFFFF0000), // red
-        Color(0xFFFF8000), // orange
-        Color(0xFFFFFF00), // yellow
-        Color(0xFF80FF00), // chartreuse
-        Color(0xFF00FF00), // green
-        Color(0xFF00FF80), // turquoise
-        Color(0xFF00FFFF), // aqua
-        Color(0xFF0080FF), // azure
-        Color(0xFF0000FF), // blue
-        Color(0xFF8000FF), // purple
-        Color(0xFFFF00FF), // fuchsia
-        Color(0xFF800000)  // maroon
+        Color.Black,       // 0: Red -> Black
+        Color(0xFFFF8000), // 1: Orange
+        Color.White,       // 2: Yellow -> White
+        Color(0xFF80FF00), // 3: Chartreuse
+        Color.Black,       // 4: Green -> Black
+        Color(0xFF00FF80), // 5: Turquoise (6 o'clock)
+        Color.White,       // 6: Aqua -> White
+        Color(0xFF0080FF), // 7: Azure
+        Color.Black,       // 8: Blue -> Black
+        Color(0xFF8000FF), // 9: Purple
+        Color.White,       // 10: Fuchsia -> White
+        Color(0xFF800000)  // 11: Maroon (12 o'clock)
     )
 
     val innerRingColors: List<Color> = listOf(
-        rainbowColors[0], // red
-        rainbowColors[2], // yellow
-        rainbowColors[4], // green
-        rainbowColors[6], // aqua
-        rainbowColors[8], // blue
-        rainbowColors[10] // fuchsia
+        Color(0xFFFF0000), // red
+        Color(0xFFFFFF00), // yellow
+        Color(0xFF00FF00), // green
+        Color(0xFF00FFFF), // aqua
+        Color(0xFF0000FF), // blue
+        Color(0xFFFF00FF)  // fuchsia
     )
 
     /**

@@ -42,10 +42,15 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 * **Compose Keypad:** wirkenq and pozecond korrektle!
 * **IME Sirves:** enabled and set az defolt.
 * **Live Selekcon:** implemented and working! Sliding between keys deletes the previous char and types the new one (supports multi-char labels).
-* **Popup Numbirz:** implemented! Pressing or sliding onto a vowel shows numbers on the outer ring with a 1.25x scaling "popup" effect.
+* **Popup Numbirz:** implemented! Pressing or sliding onto a vowel shows numbers on the outer ring.
 * **Kapedolz (Capitalization):** Fixed! Now uses relative `initialY` for each key and 0.4f threshold.
-* **Sentir Hex (Enter & Toggle):** Fixed! Robust `\n` commit and faster 300ms "peek" mode toggle (returns to original mode before release).
-* **Backspace Repeat:** Fixed! Deletes exactly 12 characters per tick for strings without spaces, and caps word deletion at 12.
+* **Vejyuwalz:** Perfectly compact and automatic! Removed all padding and optimized layout to automatically fit any screen size (8.66 width divisor, 4.0 height divisor) for maximum efficiency.
+* **Fast Number Gesture:** Refined! Unified gesture handling with `longPressStartOffset` and added long-press support for numbers/symbols on the outer ring.
+* **Sentir Hex (Enter & Toggle):** Fixed! Robust `\n` commit and 1000ms "peek" mode toggle (returns to original mode before release).
+* **Backspace Repeat:** Fixed! Deletes exactly 12 characters per tick for strings without spaces. Repeat delay set to 500ms (default). Does not trigger voice input.
+* **angol:** implemented! "angol" option added to system text selection menu using string resource for better visibility.
+* **Voice Tap:** Improved! Tapping the output field triggers voice input. Quiet **ToneGenerator** start sound (50% volume) and even quieter stop sound (33% volume) which plays only on **successful end**. No sound on error or IME close. Adds a **space** automatically after results.
+* **Vejyuwalz:** Outer ring colors: Red, Yellow, Green, Aqua, Blue, Fuchsia indices are alternating **Black** and **White**. Others remain rainbow. Vowels are vibrant rainbow.
 * **Build:** suksesful build for x64 and arm64.
 
 ## **tasks (for Gemini)**
@@ -54,12 +59,17 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 3.  **DONE - Kapedolz:** emplement "Swayp Up" for capitalization en `KepadModyil.android.kt` welx improved 0.4f threshold.
 4.  **DONE - Sentir Hex Enhancements:** emplement newline (Enter) and temporary mode toggle on 1s hold.
 5.  **DONE - Fix Capitalization, Enter, and Retoggle:** Improved gesture reliability and service-level compatibility.
-6.  **DONE - Refine Backspace and Toggle Peek:** exactly 12-char deletion and faster 300ms peek-back toggle.
-7.  **Refine Fast Number Gesture:** (Next step) consider a top-level `GestureDetector` to further unify the gesture handling if needed.
+6.  **DONE - Refine Backspace and Toggle Peek:** exactly 12-char deletion and 1000ms peek-back toggle.
+7.  **DONE - angol and Voice Tap:** Add context menu command and trigger speech-to-text on output field interaction.
+8.  **DONE - Same-spot Voice Trigger:** Added `onViewClicked` to trigger voice input even when the cursor doesn't move.
+9.  **DONE - STT and Colors Refinement:** Specific outer ring indices B/W, quiet stop sound only, space after STT.
+10. **DONE - STT Sound Volumes and Backspace fix:** Start 50%, Stop 33%, backspace doesn't trigger STT.
+11. **DONE - Refine Fast Number Gesture:** Unified gesture handling with `longPressStartOffset` and added long-press support for numbers/symbols on the outer ring.
 
 ## **Nots**
 * **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`, allowing us to respond to cursor jumps or selection changes.
-* **Custom Context Menu:** We can add "Angol" commands (like Translate) to the system's text selection menu (Cut/Copy/Paste toolbar) by registering a `PROCESS_TEXT` intent handler in the Android app.
+* **Custom Context Menu (Unresolved):** The "angol" option in the system text selection menu (Cut/Copy/Paste toolbar) is implemented with an icon, but its visibility is inconsistent (shows in Vivaldi, but filtered out by apps like Grok or Google Voice). **Further research is needed to bypass app-specific filters or provide a more universal toggle.**
+* **Keyboard Workaround:** The **Swipe UP on Center Hex** gesture provides a reliable way to trigger translation regardless of the app's context menu behavior.
 
 ## **feylyirz tu not repet ded endz**:
     *   **Galaxy Wearable App**: Fails on emulator. Use "Wear OS by Google".

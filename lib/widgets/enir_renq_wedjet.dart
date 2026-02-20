@@ -56,12 +56,8 @@ class EnirRenqWedjet extends StatelessWidget {
         }
 
         return Positioned(
-          left: stackWidth / 2 +
-              position.x -
-              geometry.hexWidth / 2,
-          top: stackHeight / 2 +
-              position.y -
-              geometry.hexHeight / 2,
+          left: stackWidth / 2 + position.x - geometry.hexWidth / 2,
+          top: stackHeight / 2 + position.y - geometry.hexHeight / 2,
           child: positionedChild,
         );
       }).toList(),

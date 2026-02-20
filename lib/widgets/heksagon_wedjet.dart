@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform, kIsWeb; // Import for platform check
+import 'package:flutter/foundation.dart'
+    show
+        defaultTargetPlatform,
+        TargetPlatform,
+        kIsWeb; // Import for platform check
 import '../models/kepad_konfeg.dart';
 import 'heksagon_tutcboks.dart'; // Import the new touchbox
 

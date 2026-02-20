@@ -10,7 +10,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Request Microphone permission and check status
   var status = await Permission.microphone.status;
   if (status.isDenied) {
@@ -19,7 +19,8 @@ void main() async {
 
   if (status.isPermanentlyDenied) {
     // Ideally show a dialog, but for now we just log it
-    developer.log('Microphone permission permanently denied. Please enable in settings.');
+    developer.log(
+        'Microphone permission permanently denied. Please enable in settings.');
   }
 
   try {
@@ -54,7 +55,6 @@ class AngolApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const DaylSkren(),
-    ); 
+    );
   }
 }
-

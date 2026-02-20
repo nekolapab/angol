@@ -56,7 +56,9 @@ actual fun KepadModyil(
     val hoveredHexIndex = remember { mutableStateOf<Int?>(null) }
     val gestureStartedOnVowel = remember { mutableStateOf(false) }
     val isCapitalized = remember { mutableStateOf(false) }
+    val isCenterTranslateActive = remember { mutableStateOf(false) }
     val initialY = remember { mutableStateOf(0f) }
+    val longPressStartOffset = remember { mutableStateOf<androidx.compose.ui.geometry.Offset?>(null) }
     var isCenterHexPressed by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -67,8 +69,8 @@ actual fun KepadModyil(
     // Use a derived geometry for all calculations
     val geometry = remember(maxWidthPx, maxHeightPx, currentIsLetterMode) {
         val minDimension = if (maxWidthPx > 0) minOf(maxWidthPx, maxHeightPx) else 500f
-        val divisor = if (minDimension < 500) 10.0 else 8.0
-        val hexSize = minDimension / divisor
+        // Base hexSize on width for automatic fit (5 * sqrt(3) ~= 8.66)
+        val hexSize = if (maxWidthPx > 0) maxWidthPx / 8.66 else minDimension / 8.0
         HeksagonDjeyometre(
             hexSize = hexSize.toDouble(),
             center = HexagonPosition(x = 0.0, y = 0.0),
@@ -134,22 +136,18 @@ actual fun KepadModyil(
             delay(500)
             if (hoveredHexIndex.value != index) return@launch
 
-            // Center hex: single long-press action (toggle mode / space-dot swap)
+            // Center hex: long-press is a "peek" mode toggle only
             if (index == 18) {
-                // "Dubil taym hold" - wait longer for center toggle (1000ms total)
+                // "Double time hold" - wait longer for center toggle (1000ms total)
                 delay(500)
                 if (hoveredHexIndex.value != index) return@launch
                 
                 try {
-                    val currentAllLabels = getCurrentAllLabels(gestureStartedOnVowel.value)
-                    val primaryLabel = currentAllLabels.getOrNull(index) ?: ""
-                    
-                    // Commit NEWLINE (Enter) - replace the initial space/dot
-                    currentOnHexKeyPress("\n", true, primaryLabel)
-                    
-                    // Toggle mode (Shift) briefly - "peek" behavior
+                    // Toggle mode (Shift) briefly - "peek" behavior only.
+                    // Do NOT commit newline, to avoid apps treating it as DONE
+                    // and collapsing/hiding the keypad.
                     currentOnToggleMode()
-                    delay(300) // Reduced from 500ms to 300ms for snappier feel
+                    delay(1000) // Increased to 1000ms for a more deliberate feel
                     currentOnToggleMode() // Toggle back before letting go
                     
                 } catch (e: Exception) {
@@ -173,7 +171,7 @@ actual fun KepadModyil(
                 val labels = if (currentIsLetterMode && !startedOnVowel) {
                     KepadKonfeg.outerLongPress
                 } else {
-                    emptyList<String>()
+                    KepadKonfeg.outerLongPressNumber
                 }
                 labels.getOrNull(index - 6) ?: ""
             }
@@ -184,17 +182,16 @@ actual fun KepadModyil(
             val currentAllLabels = getCurrentAllLabels(startedOnVowel)
             val primaryLabel = currentAllLabels.getOrNull(index) ?: ""
 
-            // For backspace (⌫): while the key is held down, keep
-            // sending long-press events at a repeat interval, so
-            // holding the key repeatedly deletes words/spaces.
-            if (lpLabel == "⌫") {
-                while (hoveredHexIndex.value == index) {
-                    currentOnHexKeyPress("⌫", true, null)
-                    // Default repeat delay
-                    delay(500)
-                }
-            } else {
-                // Other long-press keys fire once
+                                            // For backspace (⌫): while the key is held down, keep
+                                            // sending long-press events at a repeat interval, so
+                                            // holding the key repeatedly deletes words/spaces.
+                                            if (lpLabel == "⌫") {
+                                                while (hoveredHexIndex.value == index) {
+                                                    currentOnHexKeyPress("⌫", true, null)
+                                                    // Reverted to default repeat delay
+                                                    delay(500)
+                                                }
+                                            } else {                // Other long-press keys fire once
                 currentOnHexKeyPress(lpLabel, true, primaryLabel)
             }
         }
@@ -203,13 +200,13 @@ actual fun KepadModyil(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(360.dp)
-            .padding(bottom = 32.dp)
+            .wrapContentHeight()
             .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
+        val gridHeightDp = with(LocalDensity.current) { (geometry.hexHeight * 4.0).toFloat().toDp() }
         BoxWithConstraints(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth().height(gridHeightDp),
             contentAlignment = Alignment.Center
         ) {
             maxWidthPx = constraints.maxWidth.toFloat()
@@ -222,8 +219,7 @@ actual fun KepadModyil(
             val displayOuterLabelsRaw = if (gestureStartedOnVowel.value) KepadKonfeg.outerTapNumber else (if (currentIsLetterMode) KepadKonfeg.outerTap else KepadKonfeg.outerTapNumber)
             val displayOuterLabels = if (isCapitalized.value) displayOuterLabelsRaw.map { it.uppercase() } else displayOuterLabelsRaw
             
-            val centerLabel = (if (currentIsLetterMode) " " else ".").let { if (isCapitalized.value) it.uppercase() else it }
-            val outerLongPressLabelsRaw = if (currentIsLetterMode && !gestureStartedOnVowel.value) KepadKonfeg.outerLongPress else emptyList()
+            val outerLongPressLabelsRaw = if (currentIsLetterMode && !gestureStartedOnVowel.value) KepadKonfeg.outerLongPress else KepadKonfeg.outerLongPressNumber
             val outerLongPressLabels = if (isCapitalized.value) outerLongPressLabelsRaw.map { it.uppercase() } else outerLongPressLabelsRaw
 
             // Main Gesture Layer
@@ -239,8 +235,11 @@ actual fun KepadModyil(
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
                             val downIndex = getHexIndexFromPosition(down.position.x, down.position.y)
+                            val gestureStartedIndex = downIndex
                             initialY.value = down.position.y
+                            longPressStartOffset.value = down.position
                             isCapitalized.value = false
+                            isCenterTranslateActive.value = false
                             
                             var longPressJob: Job? = null
                             if (downIndex != null) {
@@ -269,37 +268,45 @@ actual fun KepadModyil(
                                 val change = event.changes.firstOrNull { it.id == pointer }
                                 if (change == null || !change.pressed) break
                                 
-                                // Detect Swipe Up/Down for Capitalization
+                                // Detect Swipe Up/Down for Capitalization or Translation
                                 val dy = change.position.y - initialY.value
-                                val upThreshold = geometry.hexSize.toFloat() * 0.4f
+                                val upThreshold = if (gestureStartedIndex == 18) geometry.hexSize.toFloat() * 0.15f else geometry.hexSize.toFloat() * 0.4f
                                 val downThreshold = geometry.hexSize.toFloat() * 0.2f
                                 
-                                if (!isCapitalized.value && dy < -upThreshold) {
+                                if (!isCenterTranslateActive.value && !isCapitalized.value && dy < -upThreshold) {
                                     // Swipe UP detected
-                                    isCapitalized.value = true
-                                    // Replace current character with uppercase
-                                    if (hoveredHexIndex.value != null) {
-                                        val lowercaseLabels = getCurrentAllLabels(gestureStartedOnVowel.value).map { it.lowercase() }
-                                        val uppercaseLabels = getCurrentAllLabels(gestureStartedOnVowel.value).map { it.uppercase() }
-                                        if (hoveredHexIndex.value!! < lowercaseLabels.size) {
-                                            val oldLabel = lowercaseLabels[hoveredHexIndex.value!!]
-                                            val newLabel = uppercaseLabels[hoveredHexIndex.value!!]
-                                            if (oldLabel != newLabel) {
-                                                currentOnHexKeyPress("⌫", false, oldLabel)
-                                                currentOnHexKeyPress(newLabel, false, null)
+                                    if (gestureStartedIndex == 18) {
+                                        // Swipe UP on Center Hex -> Translate
+                                        currentOnHexKeyPress("TRANSLATE", false, null)
+                                        isCenterTranslateActive.value = true
+                                    } else {
+                                        isCapitalized.value = true
+                                        // Replace current character with uppercase
+                                        if (hoveredHexIndex.value != null) {
+                                            val lowercaseLabels = getCurrentAllLabels(gestureStartedOnVowel.value).map { it.lowercase() }
+                                            val uppercaseLabels = getCurrentAllLabels(gestureStartedOnVowel.value).map { it.uppercase() }
+                                            if (hoveredHexIndex.value!! < lowercaseLabels.size) {
+                                                val oldLabel = lowercaseLabels[hoveredHexIndex.value!!]
+                                                val newLabel = uppercaseLabels[hoveredHexIndex.value!!]
+                                                if (oldLabel != newLabel) {
+                                                    currentOnHexKeyPress("⌫", false, oldLabel)
+                                                    currentOnHexKeyPress(newLabel, false, null)
+                                                }
                                             }
                                         }
                                     }
-                                } else if (isCapitalized.value && dy > -downThreshold) {
+                                    longPressJob?.cancel() // Cancel long-press on swipe
+                                } else if ((isCenterTranslateActive.value || isCapitalized.value) && dy > -downThreshold) {
                                     // Swipe DOWN detected (or returned to center)
+                                    isCenterTranslateActive.value = false
                                     isCapitalized.value = false
                                     // Replace current character with lowercase
-                                    if (hoveredHexIndex.value != null) {
+                                    if (hoveredHexIndex.value != null && gestureStartedIndex != 18) {
                                         val uppercaseLabels = getCurrentAllLabels(gestureStartedOnVowel.value).map { it.uppercase() }
                                         val lowercaseLabels = getCurrentAllLabels(gestureStartedOnVowel.value).map { it.lowercase() }
                                         if (hoveredHexIndex.value!! < uppercaseLabels.size) {
                                             val oldLabel = uppercaseLabels[hoveredHexIndex.value!!]
-                                            val newLabel = lowercaseLabels[hoveredHexIndex.value!!]
+                                            val newLabel = uppercaseLabels[hoveredHexIndex.value!!]
                                             if (oldLabel != newLabel) {
                                                 currentOnHexKeyPress("⌫", false, oldLabel)
                                                 currentOnHexKeyPress(newLabel, false, null)
@@ -312,8 +319,11 @@ actual fun KepadModyil(
                                 if (moveIndex != hoveredHexIndex.value) {
                                     longPressJob?.cancel() 
                                     // Reset initialY and capitalization when moving to a new key
-                                    initialY.value = change.position.y
-                                    isCapitalized.value = false
+                                    if (gestureStartedIndex != 18) {
+                                        initialY.value = change.position.y
+                                        isCapitalized.value = false
+                                    }
+                                    longPressStartOffset.value = change.position
 
                                     val oldPopupMode = gestureStartedOnVowel.value
                                     if (moveIndex != null && moveIndex in 0..5) {
@@ -342,12 +352,26 @@ actual fun KepadModyil(
                                         }
                                     }
                                     hoveredHexIndex.value = moveIndex
+                                } else {
+                                    // Same hex, check distance for long-press cancellation
+                                    val startPos = longPressStartOffset.value
+                                    if (startPos != null) {
+                                        val dist = kotlin.math.sqrt(
+                                            (change.position.x - startPos.x).pow(2) + 
+                                            (change.position.y - startPos.y).pow(2)
+                                        )
+                                        if (dist > geometry.hexSize * 0.5) {
+                                            longPressJob?.cancel()
+                                        }
+                                    }
                                 }
                             }
                             longPressJob?.cancel()
                             hoveredHexIndex.value = null
                             gestureStartedOnVowel.value = false
                             isCapitalized.value = false
+                            isCenterTranslateActive.value = false
+                            longPressStartOffset.value = null
                         }
                     }
             )
@@ -386,6 +410,7 @@ actual fun KepadModyil(
             )
 
             // Center Hex
+            val centerLabel = if (isCenterTranslateActive.value) "TRANS" else ((if (currentIsLetterMode) " " else ".").let { if (isCapitalized.value) it.uppercase() else it })
             val centerHexColor = if (currentIsListening) Color.Red else (if (currentIsLetterMode) Color.White else Color.Black)
             val centerTextColor = if (currentIsListening) Color.White else (if (currentIsLetterMode) Color.Black else Color.White)
 
@@ -394,7 +419,7 @@ actual fun KepadModyil(
                 backgroundColor = centerHexColor,
                 textColor = centerTextColor,
                 size = hexWidthDp,
-                fontSize = (geometry.hexWidth * if (currentIsLetterMode) 0.6 else 0.8).toFloat(),
+                fontSize = (geometry.hexWidth * if (isCenterTranslateActive.value) 0.4 else if (currentIsLetterMode) 0.6 else 0.8).toFloat(),
                 isPressed = hoveredHexIndex.value == 18,
                 onPressedChanged = { pressed -> isCenterHexPressed = pressed }
             )
