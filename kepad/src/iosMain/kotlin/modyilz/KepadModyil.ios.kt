@@ -24,7 +24,14 @@ actual fun KepadModyil(
     isKeypadVisible: Boolean,
     displayLength: Int,
     isListening: Boolean,
-    onToggleVoice: () -> Unit
+    isLetterMode: Boolean,
+    isPunctuationMode: Boolean,
+    onToggleVoice: () -> Unit,
+    onToggleMode: () -> Unit,
+    onSetPunctuationMode: (Boolean) -> Unit,
+    isAngolMode: Boolean,
+    onToggleAngol: () -> Unit,
+    displayText: String
 ) {
     if (!isKeypadVisible) return
 

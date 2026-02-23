@@ -1,7 +1,10 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     id("com.android.library")
+    // Compose Multiplatform UI
     id("org.jetbrains.compose")
+    // Compose compiler plugin required for Kotlin 2.x
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 kotlin {

@@ -10,6 +10,11 @@ expect fun KepadModyil(
     displayLength: Int,
     isListening: Boolean = false,
     isLetterMode: Boolean = true,
+    isPunctuationMode: Boolean = false,
     onToggleVoice: () -> Unit = {},
-    onToggleMode: () -> Unit = {}
+    onToggleMode: () -> Unit = {},
+    onSetPunctuationMode: (Boolean) -> Unit = {},
+    isAngolMode: Boolean = true,
+    onToggleAngol: () -> Unit = {},
+    displayText: String = ""
 )

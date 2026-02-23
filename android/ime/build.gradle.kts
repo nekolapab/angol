@@ -1,6 +1,8 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
+    // Jetpack Compose compiler plugin (required for Kotlin 2.x with compose = true)
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -24,9 +26,6 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.11"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

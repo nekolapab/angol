@@ -14,6 +14,11 @@
 ### **Fast Reyenstol (Compose Native)**
 When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinstall the APK. Flutter Hot Reload does **not** apply.
 
+### **Disk Space Manedjment**
+*   **Odomadek Klenup:** Always run `flutter clean` before significant builds to reclaim disk space.
+*   **Kace Manedjment:** Delete old Gradle and Flutter caches. Keep only the **latest build** per module (`ime`, `kepad`, `app`).
+*   **No Redundant Beldz:** Ensure each module has only one active build artifact. Get rid of anything not strictly needed for the current iteration.
+
 **Protocol:**
 1.  **Stop** the running app (Ctrl+C in terminal).
 2.  **Run** `flutter build apk --debug --target-platform android-arm64 --android-skip-build-dependency-validation` (for physical device).
@@ -44,11 +49,12 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 * **Live Selekcon:** implemented and working! Sliding between keys deletes the previous char and types the new one (supports multi-char labels).
 * **Popup Numbirz:** implemented! Pressing or sliding onto a vowel shows numbers on the outer ring.
 * **Kapedolz (Capitalization):** Fixed! Now uses relative `initialY` for each key and 0.4f threshold.
-* **Vejyuwalz:** Perfectly compact and automatic! Removed all padding and optimized layout to automatically fit any screen size (8.66 width divisor, 4.0 height divisor) for maximum efficiency.
-* **Fast Number Gesture:** Refined! Unified gesture handling with `longPressStartOffset` and added long-press support for numbers/symbols on the outer ring.
-* **Sentir Hex (Enter & Toggle):** Fixed! Robust `\n` commit and 1000ms "peek" mode toggle (returns to original mode before release).
+* **Vejyuwalz:** Perfectly compact and automatic! Indices 0, 2, 4, 6, 8, 10 ar naw ol **White**. Removed all padding and optimized layout to automatically fit any screen size.
+* **Fast Number Gesture:** Refined! Shifted CCW by 1 position. Unified gesture handling with `longPressStartOffset` and specific vowel-to-number mappings.
+* **angol mode toggle:** implemented! A top bar with an 'a' icon allows toggling between Angol and Standard English modes for voice input.
+* **Sentir Hex (Enter & Toggle):** Fixed! Robust `\n` commit (tap) and types opposite char ('.' or ' ') while peeking mode on long-press.
 * **Backspace Repeat:** Fixed! Deletes exactly 12 characters per tick for strings without spaces. Repeat delay set to 500ms (default). Does not trigger voice input.
-* **angol:** implemented! "angol" option added to system text selection menu using string resource for better visibility.
+* **angol:** implemented! "angol" option added to system text selection menu and toggle bar.
 * **Voice Tap:** Improved! Tapping the output field triggers voice input. Quiet **ToneGenerator** start sound (50% volume) and even quieter stop sound (33% volume) which plays only on **successful end**. No sound on error or IME close. Adds a **space** automatically after results.
 * **Vejyuwalz:** Outer ring colors: Red, Yellow, Green, Aqua, Blue, Fuchsia indices are alternating **Black** and **White**. Others remain rainbow. Vowels are vibrant rainbow.
 * **Build:** suksesful build for x64 and arm64.
@@ -65,6 +71,12 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 9.  **DONE - STT and Colors Refinement:** Specific outer ring indices B/W, quiet stop sound only, space after STT.
 10. **DONE - STT Sound Volumes and Backspace fix:** Start 50%, Stop 33%, backspace doesn't trigger STT.
 11. **DONE - Refine Fast Number Gesture:** Unified gesture handling with `longPressStartOffset` and added long-press support for numbers/symbols on the outer ring.
+12. **DONE - Numbir Mod Perseytens:** `isLetterMode` steyt naw perseysts akros IME sescunz yuzenq `SharedPreferences`.
+13. **DONE - Punktuweycon Popop Refinement:** lha punktuweycon popop naw opinz on down-pres ov lha sentir heks and revirts on riles (unless a punktuweycon key ez selekted).
+14. **DONE - Odomadek Spetc-tu-Tekst:** spetc-tu-tekst naw akdeveyts odomadekle wen lha enpit feld ez empte, elhir on start or afdir deletenq ol tekst.
+15. **DONE - Sentir Heks Mod Togil Lup:** lonq-pres on lha sentir heks naw lup-togilz betwin ledir and numbir modz endefenetle hwayl held, steyenq at lha kurent mod on riles. Fixed bug hwer et kontenyuwd togilinq afdir riles.
+16. **DONE - UI Relokeycon:** muved 'angol' spelenq togil tu top left ov lha kepad and demd ets kulor wen enaktiv.
+17. **DONE - Spetc-tu-Tekst Speysenq:** removed traylenq speys and added ledinq speys onle ef tekst ekzests befor.
 
 ## **Nots**
 * **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`, allowing us to respond to cursor jumps or selection changes.

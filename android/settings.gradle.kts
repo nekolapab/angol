@@ -24,9 +24,12 @@ plugins {
     // START: FlutterFire Configuration
     id("com.google.gms.google-services") version("4.4.2") apply false
     // END: FlutterFire Configuration
-    id("org.jetbrains.kotlin.android") version "1.9.23" apply false
-    id("org.jetbrains.kotlin.multiplatform") version "1.9.23" apply false
-    id("org.jetbrains.compose") version "1.6.11" apply false
+    id("org.jetbrains.kotlin.android") version "2.1.0" apply false
+    id("org.jetbrains.kotlin.multiplatform") version "2.1.0" apply false
+    // Compose Multiplatform plugin for KMP 'kepad' module
+    id("org.jetbrains.compose") version "1.7.3" apply false
+    // Jetpack Compose compiler plugin for Android modules (app, ime)
+    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0" apply false
 }
 
 include(":app", ":ime", ":kepad")

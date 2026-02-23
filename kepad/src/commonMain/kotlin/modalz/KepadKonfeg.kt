@@ -16,29 +16,31 @@ object KepadKonfeg {
     )
 
     val outerTapNumber: List<String> = listOf(
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "A", "O"
+        "2", "3", "4", "5", "6", "7", "8", "9", "0", "A", "O", "1"
     )
 
     val outerLongPressNumber: List<String> = listOf(
-        "!", "!#", "$", "%", "^", "&", "*", "(", ")", "_", "|", "~"
+        "!#", "$", "%", "^", "&", "*", "(", ")", "_", "|", "~", "!"
     )
 
     val innerLongPressNumber: List<String> = listOf(
         "-", "/", ":", ")", "}", "⌫"
     )
 
+    val innerPunctuationMode: List<String> = listOf("?", "!", ",", ";", "'", "\n")
+
     // 12 rainbow colors for outer ring
     // 12 colors for outer ring: Black/White at specified indices, rainbow elsewhere
     val rainbowColors: List<Color> = listOf(
-        Color.Black,       // 0: Red -> Black
+        Color.White,       // 0: Red -> White
         Color(0xFFFF8000), // 1: Orange
         Color.White,       // 2: Yellow -> White
         Color(0xFF80FF00), // 3: Chartreuse
-        Color.Black,       // 4: Green -> Black
+        Color.White,       // 4: Green -> White
         Color(0xFF00FF80), // 5: Turquoise (6 o'clock)
         Color.White,       // 6: Aqua -> White
         Color(0xFF0080FF), // 7: Azure
-        Color.Black,       // 8: Blue -> Black
+        Color.White,       // 8: Blue -> White
         Color(0xFF8000FF), // 9: Purple
         Color.White,       // 10: Fuchsia -> White
         Color(0xFF800000)  // 11: Maroon (12 o'clock)
