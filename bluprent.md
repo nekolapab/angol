@@ -43,6 +43,31 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 * Debug Visual Layout ov `kepad` IME on WearOS emyuledir yuzenq `ComposeMainActivity`.
 * Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
 
+### **Angol Spelenq Lodjek (Pure Logic Strategy)**
+The goal is to achieve 100% consistent phonetic conversion without exceptions, prioritizing algorithmic speed and reliability over AI learning for basic spelling.
+
+**Core Phonetic Rules:**
+1.  **Vowel Shifts:**
+    *   Short **i** -> **e** (e.g., `it` -> `et`, `is` -> `ez`).
+    *   Long **a** -> **ey** (e.g., `base` -> `beys`, `make` -> `meyk`).
+    *   Long **i** -> **ay** (e.g., `I` -> `ay`, `like` -> `layk`).
+2.  **Consonant Clusters:**
+    *   **th** -> **lh** (at start) or **lx** (middle/end) (e.g., `the` -> `lha`, `with` -> `welx`).
+    *   **ch** -> **tc** (e.g., `change` -> `tceynj`, `each` -> `etc`).
+    *   **sh** -> **c** (e.g., `she` -> `ci`).
+    *   **j** / **soft g** -> **dj** (e.g., `logic` -> `lodjek`, `project` -> `prodjekt`).
+    *   **hard c** / **ck** -> **k** (e.g., `can` -> `kan`, `back` -> `bak`).
+3.  **Suffixes:**
+    *   `-ing` -> `-enq`.
+    *   `-tion` / `-sion` -> `-con`.
+    *   Plural **s** -> **z** (when voiced).
+
+**Implementation Strategy:**
+- Use a multi-stage transformation engine in `convertToAngolSpelling`.
+- Process suffixes first, then consonant clusters, then vowel shifts to avoid double-conversion.
+- Maintain a small "Core Vocabulary" map for high-frequency irreducible words.
+- Use Gemini for broader context/tone, but rely on Logic for spelling.
+
 ## **stadus**
 * **Compose Keypad:** wirkenq and pozecond korrektle!
 * **IME Sirves:** enabled and set az defolt.
@@ -77,6 +102,8 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 15. **DONE - Sentir Heks Mod Togil Lup:** lonq-pres on lha sentir heks naw lup-togilz betwin ledir and numbir modz endefenetle hwayl held, steyenq at lha kurent mod on riles. Fixed bug hwer et kontenyuwd togilinq afdir riles.
 16. **DONE - UI Relokeycon:** muved 'angol' spelenq togil tu top left ov lha kepad and demd ets kulor wen enaktiv.
 17. **DONE - Spetc-tu-Tekst Speysenq:** removed traylenq speys and added ledinq speys onle ef tekst ekzests befor.
+18. **DONE - Kod Klenup:** deleded redundant Flutter kepad faylz (`kepad_modyil.dart`, `awdir_renq_wedjet.dart`, and `awtpit_tekst_wedjet.dart`).
+19. **DONE - Lodjek-beyst Angol Spelenq:** emplemented a robust, algorithmic `convertToAngolSpelling` en lha IME tu ensur 100% konsestense.
 
 ## **Nots**
 * **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`, allowing us to respond to cursor jumps or selection changes.

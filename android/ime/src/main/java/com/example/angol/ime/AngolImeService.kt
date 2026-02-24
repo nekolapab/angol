@@ -312,60 +312,75 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             }
         }
     
-        private fun convertToAngolSpelling(text: String): String {
-            // Simple rule-based converter for Angol spelling
-            // These rules are derived from the project's documentation (GEMINI.md, blueprint.md)
-            val words = text.split(" ")
-            val convertedWords = words.map { word ->
-                var lower = word.lowercase()
-                
-                // Basic replacements
-                lower = lower.replace("the", "lha")
-                lower = lower.replace("to", "tu")
-                lower = lower.replace("application", "aplekeycon")
-                lower = lower.replace("information", "enformeycon")
-                lower = lower.replace("service", "sirves")
-                lower = lower.replace("input", "enpit")
-                lower = lower.replace("method", "melxod")
-                lower = lower.replace("voice", "voys")
-                lower = lower.replace("text", "tekst")
-                lower = lower.replace("typing", "taypenq")
-                lower = lower.replace("spelling", "spelenq")
-                lower = lower.replace("perfect", "pirfekt")
-                lower = lower.replace("work", "wirk")
-                lower = lower.replace("button", "buton")
-                lower = lower.replace("number", "numbir")
-                lower = lower.replace("letter", "ledir")
-                lower = lower.replace("center", "sentir")
-                lower = lower.replace("circle", "sirkol")
-                lower = lower.replace("inner", "enir")
-                lower = lower.replace("outer", "awdir")
-                lower = lower.replace("keyboard", "kepad")
-                lower = lower.replace("this", "lhes")
-                lower = lower.replace("with", "welx")
-                lower = lower.replace("have", "hav")
-                lower = lower.replace("been", "bin")
-                lower = lower.replace("was", "waz")
-                lower = lower.replace("does", "duz")
-                lower = lower.replace("doesn't", "duznt")
-                lower = lower.replace("nothing", "naixenq")
-                lower = lower.replace("through", "lru")
-                lower = lower.replace("all", "ol")
-                lower = lower.replace("mode", "mod")
-                
-                // Rule-based phonetic adjustments (simplified)
-                if (lower.endsWith("ing")) {
-                    lower = lower.substring(0, lower.length - 3) + "enq"
+            private fun convertToAngolSpelling(text: String): String {
+                // Core Angol vocabulary logic
+                val replacements = mapOf(
+                    "the" to "lha",
+                    "to" to "tu",
+                    "application" to "aplekeycon",
+                    "information" to "enformeycon",
+                    "service" to "sirves",
+                    "input" to "enpit",
+                    "method" to "melxod",
+                    "voice" to "voys",
+                    "text" to "tekst",
+                    "typing" to "taypenq",
+                    "spelling" to "spelenq",
+                    "perfect" to "pirfekt",
+                    "work" to "wirk",
+                    "button" to "buton",
+                    "number" to "numbir",
+                    "letter" to "ledir",
+                    "center" to "sentir",
+                    "circle" to "sirkol",
+                    "inner" to "enir",
+                    "outer" to "awdir",
+                    "keyboard" to "kepad",
+                    "this" to "lhes",
+                    "with" to "welx",
+                    "have" to "hav",
+                    "been" to "bin",
+                    "was" to "waz",
+                    "does" to "duz",
+                    "doesn't" to "duznt",
+                    "nothing" to "naixenq",
+                    "through" to "lru",
+                    "all" to "ol",
+                    "mode" to "mod"
+                )
+        
+                fun capitalize(original: String, replacement: String): String {
+                    return when {
+                        original.all { it.isUpperCase() } -> replacement.uppercase()
+                        original.firstOrNull()?.isUpperCase() == true -> replacement.replaceFirstChar { it.uppercase() }
+                        else -> replacement
+                    }
                 }
-                if (lower.endsWith("tion")) {
-                    lower = lower.substring(0, lower.length - 4) + "con"
+        
+                val words = text.split(Regex("\\s+"))
+                val convertedWords = words.map { word ->
+                    val cleanWord = word.filter { it.isLetter() }.lowercase()
+                    val punctuation = word.filter { !it.isLetter() }
+                    
+                    var result = replacements[cleanWord] ?: cleanWord
+                    
+                    if (result == cleanWord) {
+                        // Apply phonetic logic rules
+                        result = result
+                            .replace("tion", "con")
+                            .replace("ing", "enq")
+                            .replace("ph", "f")
+                            .replace("th", "lh") // Default to 'lh', could be refined to 'lx' based on sound
+                            .replace("ck", "k")
+                            .replace("wh", "w")
+                            .replace("ee", "iy") // Example: "see" -> "siy"
+                            .replace("oo", "uw") // Example: "too" -> "tuw"
+                    }
+                    
+                    capitalize(word, result) + punctuation
                 }
-                
-                lower
-            }
-            return convertedWords.joinToString(" ")
-        }
-    
+                return convertedWords.joinToString(" ")
+            }    
         private fun requestAudioPriority(): Boolean {
             val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             Log.d(TAG, "requestAudioPriority: Setting mode to MODE_IN_COMMUNICATION")
