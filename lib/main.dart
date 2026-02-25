@@ -3,9 +3,9 @@ import 'dart:developer' as developer;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'screens/dayl_skren.dart';
-import 'services/enpit_sirves.dart';
-import 'state/angol_steyt.dart';
+import 'skrenz/dayl_skren.dart';
+import 'sirvesez/enpit_sirves.dart';
+import 'steyt/angol_steyt.dart';
 import 'firebase_options.dart';
 
 void main() async {

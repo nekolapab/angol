@@ -31,6 +31,10 @@ class ComposeMainActivity : ComponentActivity() {
 fun WearApp() {
 
     var currentText by remember { mutableStateOf("") }
+    var isListening by remember { mutableStateOf(false) }
+    var isLetterMode by remember { mutableStateOf(true) }
+    var isPunctuationMode by remember { mutableStateOf(false) }
+    var isAngolMode by remember { mutableStateOf(true) }
 
     val displayLength = 7
 
@@ -53,6 +57,17 @@ fun WearApp() {
             isKeypadVisible = true,
 
             displayLength = displayLength,
+
+            isListening = isListening,
+            isLetterMode = isLetterMode,
+            isPunctuationMode = isPunctuationMode,
+            isAngolMode = isAngolMode,
+            displayText = currentText,
+
+            onToggleVoice = { isListening = !isListening },
+            onToggleMode = { isLetterMode = !isLetterMode },
+            onSetPunctuationMode = { isPunctuationMode = it },
+            onToggleAngol = { isAngolMode = !isAngolMode },
 
             onHexKeyPress = { char: String, isLongPress: Boolean, primaryChar: String? ->
 

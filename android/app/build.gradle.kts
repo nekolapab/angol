@@ -47,7 +47,6 @@ android {
 
 dependencies {
     implementation(project(":ime"))
-    implementation(project(":kepad"))
     // Compose BOM
     implementation(platform("androidx.compose:compose-bom:2024.12.01"))
     implementation("androidx.compose.ui:ui")

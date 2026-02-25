@@ -10,8 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart'; // Import provider
 
 import 'package:angol/main.dart';
-import 'package:angol/services/enpit_sirves.dart'; // Import EnpitSirves
-import 'package:angol/state/angol_steyt.dart'; // Import AngolSteyt
+import 'package:angol/sirvesez/enpit_sirves.dart'; // Import EnpitSirves
+import 'package:angol/steyt/angol_steyt.dart'; // Import AngolSteyt
 
 void main() {
   testWidgets('AngolApp renders DaylSkren', (WidgetTester tester) async {

@@ -32,5 +32,4 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.0" apply false
 }
 
-include(":app", ":ime", ":kepad")
-project(":kepad").projectDir = file("../kepad")
+include(":app", ":ime")

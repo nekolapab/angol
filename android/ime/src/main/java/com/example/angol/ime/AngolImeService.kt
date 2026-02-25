@@ -265,7 +265,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                         val response = withContext(Dispatchers.IO) {
                                                             model.generateContent(content { text(prompt) })
                                                          }
-                                                        val angolText = response.text?.trim() ?: convertToAngolSpelling(text)
+                                                        val angolText = response.text?.trim() ?: yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
                         
                                                         // Add leading space if needed
                                                         val finalAngolText = if (needsLeadingSpace) " $angolText" else angolText
@@ -278,7 +278,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                     } catch (e: Exception) {
                                                         Log.e(TAG, "Gemini conversion failed: ${e.message}")
                                                         // Fallback to rule-based conversion
-                                                        val angolText = convertToAngolSpelling(text)
+                                                        val angolText = yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
                                                         val ic = currentInputConnection
                                                         if (ic != null) {
                                                             val before = ic.getTextBeforeCursor(1, 0)
@@ -312,75 +312,6 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             }
         }
     
-            private fun convertToAngolSpelling(text: String): String {
-                // Core Angol vocabulary logic
-                val replacements = mapOf(
-                    "the" to "lha",
-                    "to" to "tu",
-                    "application" to "aplekeycon",
-                    "information" to "enformeycon",
-                    "service" to "sirves",
-                    "input" to "enpit",
-                    "method" to "melxod",
-                    "voice" to "voys",
-                    "text" to "tekst",
-                    "typing" to "taypenq",
-                    "spelling" to "spelenq",
-                    "perfect" to "pirfekt",
-                    "work" to "wirk",
-                    "button" to "buton",
-                    "number" to "numbir",
-                    "letter" to "ledir",
-                    "center" to "sentir",
-                    "circle" to "sirkol",
-                    "inner" to "enir",
-                    "outer" to "awdir",
-                    "keyboard" to "kepad",
-                    "this" to "lhes",
-                    "with" to "welx",
-                    "have" to "hav",
-                    "been" to "bin",
-                    "was" to "waz",
-                    "does" to "duz",
-                    "doesn't" to "duznt",
-                    "nothing" to "naixenq",
-                    "through" to "lru",
-                    "all" to "ol",
-                    "mode" to "mod"
-                )
-        
-                fun capitalize(original: String, replacement: String): String {
-                    return when {
-                        original.all { it.isUpperCase() } -> replacement.uppercase()
-                        original.firstOrNull()?.isUpperCase() == true -> replacement.replaceFirstChar { it.uppercase() }
-                        else -> replacement
-                    }
-                }
-        
-                val words = text.split(Regex("\\s+"))
-                val convertedWords = words.map { word ->
-                    val cleanWord = word.filter { it.isLetter() }.lowercase()
-                    val punctuation = word.filter { !it.isLetter() }
-                    
-                    var result = replacements[cleanWord] ?: cleanWord
-                    
-                    if (result == cleanWord) {
-                        // Apply phonetic logic rules
-                        result = result
-                            .replace("tion", "con")
-                            .replace("ing", "enq")
-                            .replace("ph", "f")
-                            .replace("th", "lh") // Default to 'lh', could be refined to 'lx' based on sound
-                            .replace("ck", "k")
-                            .replace("wh", "w")
-                            .replace("ee", "iy") // Example: "see" -> "siy"
-                            .replace("oo", "uw") // Example: "too" -> "tuw"
-                    }
-                    
-                    capitalize(word, result) + punctuation
-                }
-                return convertedWords.joinToString(" ")
-            }    
         private fun requestAudioPriority(): Boolean {
             val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             Log.d(TAG, "requestAudioPriority: Setting mode to MODE_IN_COMMUNICATION")
@@ -645,7 +576,13 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         }
     
                         if (char == "⌫") {
-                            if (currentWordBuffer.isNotEmpty()) {
+                            if (primaryChar != null && primaryChar.isNotEmpty()) {
+                                if (currentWordBuffer.length >= primaryChar.length) {
+                                    currentWordBuffer.delete(currentWordBuffer.length - primaryChar.length, currentWordBuffer.length)
+                                } else {
+                                    currentWordBuffer.clear()
+                                }
+                            } else if (currentWordBuffer.isNotEmpty()) {
                                 currentWordBuffer.deleteCharAt(currentWordBuffer.length - 1)
                             }
     
@@ -688,10 +625,16 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     
                         if (isLongPress) {
                             if (primaryChar != null) {
+                                if (currentWordBuffer.length >= primaryChar.length) {
+                                    currentWordBuffer.delete(currentWordBuffer.length - primaryChar.length, currentWordBuffer.length)
+                                }
                                 ignoreSelectionUpdateCount += 2
                                 ic.deleteSurroundingText(primaryChar.length, 0)
                                 ic.commitText(char, 1)
                             } else {
+                                if (currentWordBuffer.isNotEmpty()) {
+                                    currentWordBuffer.deleteCharAt(currentWordBuffer.length - 1)
+                                }
                                 ignoreSelectionUpdateCount += 2
                                 ic.deleteSurroundingText(1, 0)
                                 ic.commitText(char, 1)
