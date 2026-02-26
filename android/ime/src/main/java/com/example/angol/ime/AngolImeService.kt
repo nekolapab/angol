@@ -217,6 +217,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                 else -> "Unknown error"
                             }
                             Log.e(TAG, "SpeechRecognizer error: $error ($errorMessage)")
+                            android.widget.Toast.makeText(this@AngolImeService, "Error: $errorMessage", android.widget.Toast.LENGTH_SHORT).show()
                             isListening = false
                             abandonAudioPriority()
                             unmuteSystemStream()
@@ -365,14 +366,19 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG, "startVoiceInput: Missing RECORD_AUDIO permission")
+                    android.widget.Toast.makeText(this, "Microphone permission required", android.widget.Toast.LENGTH_SHORT).show()
                     return
                 }
             }
+            
+            // Set isListening to true immediately to avoid multiple triggers before onReadyForSpeech
+            isListening = true
     
             val recognizer = speechRecognizer
             val intent = speechIntent
             if (recognizer == null || intent == null) {
                 Log.w(TAG, "startVoiceInput: SpeechRecognizer or intent is null")
+                isListening = false
                 return
             }
     
@@ -416,6 +422,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                     Log.d(TAG, "startVoiceInput: Listening started")
                 } catch (e: Exception) {
                     Log.e(TAG, "startVoiceInput: Failed to start listening: ${e.message}", e)
+                    isListening = false
                     abandonAudioPriority()
                     unmuteSystemStream()
                 }
@@ -459,8 +466,17 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 unmuteSystemStream()
             } catch (e: Exception) {
                 Log.e(TAG, "stopVoiceInput: Failed to stop listening: ${e.message}", e)
+                isListening = false
                 abandonAudioPriority()
                 unmuteSystemStream()
+            }
+        }
+    
+        override fun onViewClicked(focusChanged: Boolean) {
+            super.onViewClicked(focusChanged)
+            Log.d(TAG, "onViewClicked: focusChanged = $focusChanged")
+            if (!isListening) {
+                debouncedStartVoiceInput()
             }
         }
     
@@ -491,6 +507,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         if (isListening) {
                             stopVoiceInput()
                         } else {
+                            wasStartedByUser = true
                             startVoiceInput()
                         }
                     },

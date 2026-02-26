@@ -125,8 +125,8 @@ The goal is to achieve 100% consistent phonetic conversion without exceptions, p
 * **Live Selekcon:** implemented and working! Sliding between keys deletes the previous char and types the new one (supports multi-char labels).
 * **Popup Numbirz:** implemented! Pressing or sliding onto a vowel shows numbers on the outer ring.
 * **Kapedolz (Capitalization):** Fixed!
-* **Vejyuwalz:** Perfectly compact and automatic! Indices 0, 2, 4, 6, 8, 10 ar naw ol **White**. Removed all padding and optimized layout to automatically fit any screen size.
-* **angol mode toggle:** implemented toggling between Angol and Standard English spelenq for voice input.
+* **Vejyuwalz:** Perfectly compact and automatic! Indices 0, 2, 4, 6, 8, 10 ar naw ol **White**. Removed all padding and optimized layout to automatically fit any screen size. 'angol' toggle and display text relocated to the top as overlays.
+* **angol mode toggle:** implemented toggling between Angol and Standard English spelenq for voice input. Naw pozecond az an ovirley at lha top ov lha kepad.
 * **Sentir Hex (Enter & Toggle):** Fixed!
 * **Backspace Repeat:** Fixed! Deletes exactly 12 characters per tick for strings without spaces.
 * **angol:** implemented! "angol" option added to system text selection menu and toggle bar.
