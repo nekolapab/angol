@@ -511,20 +511,21 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                             startVoiceInput()
                         }
                     },
-                                                    onToggleMode = {
-                                                        toggleLetterMode()
-                                                    },
-                                                    onSetPunctuationMode = {
-                                                        changePunctuationMode(it)
-                                                    },
-                                                    onToggleAngol = {                        isAngolMode = !isAngolMode
+                    onToggleMode = {
+                        toggleLetterMode()
+                    },
+                    onSetPunctuationMode = {
+                        changePunctuationMode(it)
+                    },
+                    onToggleAngol = {
+                        isAngolMode = !isAngolMode
                         Log.d(TAG, "onToggleAngol: isAngolMode = $isAngolMode")
                     },
-                    onHexKeyPress = { char, isLongPress, primaryChar ->
+                    onHexKeyPress = onHexKeyPress@{ char, isLongPress, primaryChar ->
                         val ic = currentInputConnection
                         if (ic == null) {
                             Log.e(TAG, "onHexKeyPress: currentInputConnection is NULL")
-                            return@KepadModyil
+                            return@onHexKeyPress
                         }
                         
                         Log.d(TAG, "onHexKeyPress: char='$char', isLongPress=$isLongPress")
@@ -570,7 +571,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                     }
                                 }
                             }
-                            return@KepadModyil
+                            return@onHexKeyPress
                         }
     
                         if (char == "\n") {
@@ -589,7 +590,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                 currentWordBuffer.clear()
                             }
                             addToCorpus("\n")
-                            return@KepadModyil
+                            return@onHexKeyPress
                         }
     
                         if (char == "⌫") {
@@ -602,32 +603,32 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                             } else if (currentWordBuffer.isNotEmpty()) {
                                 currentWordBuffer.deleteCharAt(currentWordBuffer.length - 1)
                             }
-    
-                                                    if (isLongPress) {
-                                                        ignoreSelectionUpdateCount++
-                                                        val textBefore = ic.getTextBeforeCursor(100, 0) ?: ""
-                                                        val deleteCount = calculateDeleteCount(textBefore.toString())
-                                                        ic.deleteSurroundingText(deleteCount, 0)
-                                                        currentWordBuffer.clear()
-                                                    } else {
-                                                        if (primaryChar != null && primaryChar.isNotEmpty()) {
-                                                            ignoreSelectionUpdateCount++
-                                                            ic.deleteSurroundingText(primaryChar.length, 0)
-                                                        } else {
-                                                            ignoreSelectionUpdateCount++
-                                                            ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
-                                                            ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
-                                                        }
-                                                    }
-                                                    // Launch a coroutine to check if the input is empty after the delete operation
-                                                    CoroutineScope(Dispatchers.Main).launch {
-                                                        delay(100) // A short delay to allow the input connection to update
-                                                        if (isInputEmpty() && !isListening) {
-                                                            debouncedStartVoiceInput()
-                                                        }
-                                                    }
-                                                    return@KepadModyil
-                                                }    
+
+                            if (isLongPress) {
+                                ignoreSelectionUpdateCount++
+                                val textBefore = ic.getTextBeforeCursor(100, 0) ?: ""
+                                val deleteCount = calculateDeleteCount(textBefore.toString())
+                                ic.deleteSurroundingText(deleteCount, 0)
+                                currentWordBuffer.clear()
+                            } else {
+                                if (primaryChar != null && primaryChar.isNotEmpty()) {
+                                    ignoreSelectionUpdateCount++
+                                    ic.deleteSurroundingText(primaryChar.length, 0)
+                                } else {
+                                    ignoreSelectionUpdateCount++
+                                    ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                                    ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
+                                }
+                            }
+                            // Launch a coroutine to check if the input is empty after the delete operation
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(100) // A short delay to allow the input connection to update
+                                if (isInputEmpty() && !isListening) {
+                                    debouncedStartVoiceInput()
+                                }
+                            }
+                            return@onHexKeyPress
+                        }    
                         // Don't commit characters for the center hex if it was just a voice toggle
                         if (char == " " || char == ".") {
                             // Save the current word to corpus
@@ -639,7 +640,7 @@ class AngolImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                             // Append to buffer
                             currentWordBuffer.append(char)
                         }
-    
+
                         if (isLongPress) {
                             if (primaryChar != null) {
                                 if (currentWordBuffer.length >= primaryChar.length) {

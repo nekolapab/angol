@@ -11,8 +11,15 @@ android {
 
     defaultConfig {
         minSdk = 25
-        targetSdk = 34
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    testOptions {
+        targetSdk = 34
+    }
+
+    lint {
+        targetSdk = 34
     }
 
     buildTypes {
@@ -47,7 +54,7 @@ dependencies {
     implementation("com.google.firebase:firebase-common-ktx")
 
     // Shared Compose dependencies
-    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
+    implementation(platform("androidx.compose:compose-bom:2025.12.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
@@ -57,6 +64,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material:material")
+    implementation("androidx.compose.material3:material3")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
