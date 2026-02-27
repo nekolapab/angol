@@ -79,8 +79,8 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 4.  **Default Keyboard Reset:**
     *   **Automation:**
         ```powershell
-        adb shell ime enable com.example.myapp/com.example.angol.ime.AngolImeService
-        adb shell ime set com.example.myapp/com.example.angol.ime.AngolImeService
+        adb shell ime enable com.example.myapp/com.example.angol.ime.DaylEnpitMelxod
+        adb shell ime set com.example.myapp/com.example.angol.ime.DaylEnpitMelxod
         ```
 
 ### **kepad**
@@ -93,6 +93,21 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 
 ### **angol neym melxod (pyir spelenq lodjek stradedje)**
 The goal is to achieve 100% consistent phonetic conversion without exceptions, prioritizing algorithmic speed and reliability over AI learning for basic spelling.
+
+**Vowel Phonetic Mapping (Keypad Shortcuts):**
+- **a1**: /ɑ/ (pasta, mama, spa)
+- **e2**: /æ/ (cat, bad, man)
+- **e3**: /ɛ/ (bed, get, set)
+- **e4**: /ɪ/ (bit, sit, fit)
+- **i5**: /i/ (be, me, see)
+- **i6**: /ɝ/ (her, bird, nurse)
+- **u7**: /ʊ/ (book, good, put)
+- **u8**: /ʌ/ (but, cup, fun)
+- **u9**: /u/ (too, zoo, food)
+- **o0**: /o/ (go, no, so)
+- **oA**: /oʊ/ (shone, special)
+- **oO**: /ɔ/ (on, tall, boss)
+
 1.  **Vowel Shifts:**
     *   Short **i** -> **e** (e.g., `it` -> `et`, `is` -> `ez`).
     *   Long **a** -> **ey** (e.g., `base` -> `beys`, `make` -> `meyk`).

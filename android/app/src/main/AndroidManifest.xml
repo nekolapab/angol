@@ -71,7 +71,7 @@
         </activity>
         
         <service
-            android:name="com.example.angol.ime.AngolImeService"
+            android:name="com.example.angol.ime.DaylEnpitMelxod"
             android:label="kepad"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true"

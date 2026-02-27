@@ -1,6 +1,6 @@
 Write-Host "Stopping IME service..." -ForegroundColor Yellow
-adb shell ime disable com.example.angol.ime/.AngolImeService
-adb shell ime set com.example.angol.ime/.AngolImeService
+adb shell ime disable com.example.angol.ime/.DaylEnpitMelxod
+adb shell ime set com.example.angol.ime/.DaylEnpitMelxod
 
 Write-Host "Stopping old Compose app..." -ForegroundColor Yellow
 adb shell am force-stop com.example.myapp

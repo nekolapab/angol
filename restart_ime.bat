@@ -1,7 +1,7 @@
 @echo off
 echo Stopping IME service...
-adb shell ime disable com.example.angol.ime/.AngolImeService
-adb shell ime set com.example.angol.ime/.AngolImeService
+adb shell ime disable com.example.angol.ime/.DaylEnpitMelxod
+adb shell ime set com.example.angol.ime/.DaylEnpitMelxod
 
 echo Stopping old Compose app...
 adb shell am force-stop com.example.myapp

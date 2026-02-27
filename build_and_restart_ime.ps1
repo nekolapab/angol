@@ -6,7 +6,7 @@ param (
 )
 
 $adbPackage = "com.example.myapp"
-$imeService = "com.example.myapp/com.example.angol.ime.AngolImeService"
+$imeService = "com.example.myapp/com.example.angol.ime.DaylEnpitMelxod"
 
 Write-Host ">>> Building and Installing Angol IME (Debug Mode)..." -ForegroundColor Cyan
 
