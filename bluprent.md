@@ -95,23 +95,24 @@ When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinsta
 The goal is to achieve 100% consistent phonetic conversion without exceptions, prioritizing algorithmic speed and reliability over AI learning for basic spelling.
 
 **Vowel Phonetic Mapping (Keypad Shortcuts):**
-- **a1**: /ɑ/ (pasta, mama, spa)
-- **e2**: /æ/ (cat, bad, man)
-- **e3**: /ɛ/ (bed, get, set)
-- **e4**: /ɪ/ (bit, sit, fit)
-- **i5**: /i/ (be, me, see)
-- **i6**: /ɝ/ (her, bird, nurse)
-- **u7**: /ʊ/ (book, good, put)
-- **u8**: /ʌ/ (but, cup, fun)
-- **u9**: /u/ (too, zoo, food)
-- **o0**: /o/ (go, no, so)
-- **oA**: /oʊ/ (shone, special)
-- **oO**: /ɔ/ (on, tall, boss)
+- **a1**: /ɑ/ (pasta, mama, spa, father, palm)
+- **a2**: /æ/ (cat, bad, man, at, as, and, trap)
+- **e3**: /ɛ/ (bed, get, set, end, met, red, dress)
+- **e4**: /ɪ/ (fit, sit, is, sin, ship, kit, bit)
+- **e5**: /i/ (be, me, see, he, tree, key, peace, keep)
+- **i6**: /ɝ/ (her, bur, bird, nurse, turn, word)
+- **i7**: /ʊ/ (book, good, put, full, push, foot)
+- **u8**: /ʌ/ (but, cup, fun, up, us, cut, luck, strut)
+- **u9**: /u/ (to, do, too, zoo, food, who, boot, flute)
+- **o0**: /oʊ/ (go, no, though, boat, tone, solo)
+- **oA**: /o/ (beau, faux, haut, chaud, tôt, dos)
+- **oO**: /ɔ/ or /ɒ/ (all, tall, fall, on, off, odd, boss, not, log, dog)
 
 1.  **Vowel Shifts:**
     *   Short **i** -> **e** (e.g., `it` -> `et`, `is` -> `ez`).
     *   Long **a** -> **ey** (e.g., `base` -> `beys`, `make` -> `meyk`).
     *   Long **i** -> **ay** (e.g., `I` -> `ay`, `like` -> `layk`).
+    *   Long **e** -> **e** (e.g., `keep` -> `kep`).
 2.  **Consonant Clusters:**
     *   **th** -> **lh** (at start) or **lx** (middle/end) (e.g., `the` -> `lha`, `with` -> `welx`).
     *   **ch** -> **tc** (e.g., `change` -> `tceynj`, `each` -> `etc`).
@@ -146,6 +147,7 @@ The goal is to achieve 100% consistent phonetic conversion without exceptions, p
 * **Backspace Repeat:** Fixed! Deletes exactly 12 characters per tick for strings without spaces.
 * **angol:** implemented! "angol" option added to system text selection menu and toggle bar.
 * **Voice Tap:** Improved! Tapping the output field triggers voice input. Quiet **ToneGenerator** start sound (50% volume) and even quieter stop sound (33% volume).
+* **Automatic Prompts:** Implemented! The app now automatically prompts the user to enable/select the keyboard on startup, and the IME prompts for microphone permissions if missing when voice input is triggered.
 * **Build:** suksesful build for x64 and arm64.
 
 ## **tasks**

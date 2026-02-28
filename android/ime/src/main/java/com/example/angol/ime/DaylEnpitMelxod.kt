@@ -15,7 +15,10 @@ import android.speech.SpeechRecognizer
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
 import com.google.firebase.vertexai.vertexAI
+import com.google.firebase.vertexai.GenerativeModel
 import com.google.firebase.vertexai.type.content
+import com.google.firebase.vertexai.type.generationConfig
+import com.google.firebase.vertexai.type.RequestOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -56,6 +60,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private var isLetterMode by mutableStateOf(true)
     private var isPunctuationMode by mutableStateOf(false)
     private var isAngolMode by mutableStateOf(true)
+    private var inputConnection by mutableStateOf<android.view.inputmethod.InputConnection?>(null)
     
     private var audioFocusRequest: Any? = null
     private var ignoreSelectionUpdateCount = 0
@@ -68,27 +73,32 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override val viewModelStore = ViewModelStore()
 
     override fun onCreate() {
+        Log.d(TAG, "onCreate - started")
         super.onCreate()
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         isLetterMode = prefs.getBoolean(KEY_LETTER_MODE, true)
         
         try {
             Firebase.initialize(this)
+            Log.d(TAG, "Firebase initialized")
         } catch (e: Exception) {
             Log.e(TAG, "Firebase init failed: ${e.message}")
         }
 
         savedStateRegistryController.performRestore(null)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        Log.d(TAG, "Lifecycle state: ${lifecycleRegistry.currentState}")
         
         if (SpeechRecognizer.isRecognitionAvailable(this)) {
+            Log.d(TAG, "Speech recognition is available")
             speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this).apply {
                 setRecognitionListener(object : RecognitionListener {
-                    override fun onReadyForSpeech(params: Bundle?) { isListening = true }
-                    override fun onBeginningOfSpeech() {}
+                    override fun onReadyForSpeech(params: Bundle?) { isListening = true; Log.d(TAG, "Voice: Ready") }
+                    override fun onBeginningOfSpeech() { Log.d(TAG, "Voice: Beginning") }
                     override fun onRmsChanged(rmsdB: Float) {}
                     override fun onBufferReceived(buffer: ByteArray?) {}
                     override fun onEndOfSpeech() {
+                        Log.d(TAG, "Voice: End")
                         isListening = false
                         abandonAudioPriority()
                         unmuteSystemStream()
@@ -102,30 +112,45 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         wasStartedByUser = false
                     }
                     override fun onResults(results: Bundle?) {
+                        Log.d(TAG, "Voice: Results")
                         isListening = false
                         abandonAudioPriority()
                         unmuteSystemStream()
                         val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: return
                         
                         CoroutineScope(Dispatchers.Main).launch {
-                            val ic = currentInputConnection ?: return@launch
-                            val before = ic.getTextBeforeCursor(1, 0)
-                            val needsLeadingSpace = before != null && before.isNotEmpty()
-                            
-                            val angolText = if (isAngolMode) {
-                                try {
-                                    val model = Firebase.vertexAI.generativeModel("gemini-1.5-flash")
-                                    val prompt = "Convert to Angol spelling: $text"
-                                    val response = withContext(Dispatchers.IO) { model.generateContent(content { text(prompt) }) }
-                                    response.text?.trim() ?: yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
-                                } catch (e: Exception) {
+                            try {
+                                val angolText = if (isAngolMode) {
+                                    /* try {
+                                        val model = com.google.firebase.vertexai.vertexAI(com.google.firebase.Firebase).generativeModel(
+                                            modelName = "gemini-1.5-flash",
+                                            generationConfig = com.google.firebase.vertexai.type.generationConfig { },
+                                            safetySettings = emptyList(),
+                                            tools = emptyList(),
+                                            toolConfig = null,
+                                            systemInstruction = null,
+                                            requestOptions = com.google.firebase.vertexai.type.RequestOptions()
+                                        )
+                                        val prompt = "Convert to Angol spelling: $text"
+                                        val response = withContext(Dispatchers.IO) { model.generateContent(com.google.firebase.vertexai.type.content { text(prompt) }) }
+                                        response.text?.trim() ?: yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
+                                    } catch (e: Exception) {
+                                        Log.e(TAG, "Gemini conversion failed: ${e.message}")
+                                        yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
+                                    } */
                                     yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
-                                }
-                            } else text
+                                } else text
 
-                            val finalStr = if (needsLeadingSpace) " $angolText" else angolText
-                            ignoreSelectionUpdateCount++
-                            ic.commitText(finalStr, 1)
+                                val ic = inputConnection ?: return@launch
+                                val before = ic.getTextBeforeCursor(1, 0)
+                                val needsLeadingSpace = before != null && before.isNotEmpty()
+                                val finalStr = if (needsLeadingSpace) " $angolText" else angolText
+                                
+                                ignoreSelectionUpdateCount++
+                                ic.commitText(finalStr, 1)
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Commit voice results failed: ${e.message}")
+                            }
                         }
                     }
                     override fun onPartialResults(partialResults: Bundle?) {}
@@ -137,6 +162,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             }
         }
+        Log.d(TAG, "onCreate - completed")
     }
 
     private fun debouncedStartVoiceInput() {
@@ -144,13 +170,22 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         if (now - lastVoiceTriggerTime > 1500) {
             lastVoiceTriggerTime = now
             wasStartedByUser = true
+            Log.d(TAG, "Triggering voice input")
             startVoiceInput()
         }
     }
 
     private fun startVoiceInput() {
+        Log.d(TAG, "startVoiceInput - isListening=$isListening")
         if (isListening) return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting microphone permission via Activity")
+            val intent = Intent(this, PermissionActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+            return
+        }
         
         isListening = true
         val recognizer = speechRecognizer ?: return
@@ -170,11 +205,13 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             try { recognizer.startListening(intent) } catch (e: Exception) { 
                 isListening = false
                 unmuteSystemStream()
+                Log.e(TAG, "Voice start failed: ${e.message}")
             }
         }
     }
 
     private fun stopVoiceInput() {
+        Log.d(TAG, "stopVoiceInput")
         speechRecognizer?.stopListening()
         isListening = false
         abandonAudioPriority()
@@ -214,37 +251,68 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     }
 
     override fun onCreateInputView(): View {
-        return ComposeView(this).apply {
-            setViewTreeLifecycleOwner(this@DaylEnpitMelxod)
-            setViewTreeViewModelStoreOwner(this@DaylEnpitMelxod)
-            setViewTreeSavedStateRegistryOwner(this@DaylEnpitMelxod)
-            setContent {
-                KepadModyil(
-                    ic = currentInputConnection,
-                    isListening = isListening,
-                    isLetterMode = isLetterMode,
-                    isPunctuationMode = isPunctuationMode,
-                    isAngolMode = isAngolMode,
-                    onToggleVoice = { if (isListening) stopVoiceInput() else { wasStartedByUser = true; startVoiceInput() } },
-                    onToggleMode = { isLetterMode = !isLetterMode; getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_LETTER_MODE, isLetterMode).apply() },
-                    onSetPunctuationMode = { isPunctuationMode = it },
-                    onToggleAngol = { isAngolMode = !isAngolMode },
-                    ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ }
-                )
+        Log.d(TAG, "onCreateInputView - started")
+        val composeView = ComposeView(this)
+        
+        // Set owners on the specific view
+        composeView.setViewTreeLifecycleOwner(this)
+        composeView.setViewTreeViewModelStoreOwner(this)
+        composeView.setViewTreeSavedStateRegistryOwner(this)
+        
+        // Attempt to set on window decor view as fallback for stricter hierarchy checks
+        try {
+            window?.window?.decorView?.let { decorView ->
+                Log.d(TAG, "Setting owners on decorView")
+                decorView.setViewTreeLifecycleOwner(this)
+                decorView.setViewTreeViewModelStoreOwner(this)
+                decorView.setViewTreeSavedStateRegistryOwner(this)
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to set owners on decorView: ${e.message}")
         }
+
+        composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+        
+        composeView.setContent {
+            Log.d(TAG, "Compose content block started")
+            KepadModyil(
+                ic = inputConnection,
+                isListening = isListening,
+                isLetterMode = isLetterMode,
+                isPunctuationMode = isPunctuationMode,
+                isAngolMode = isAngolMode,
+                onToggleVoice = { if (isListening) stopVoiceInput() else { wasStartedByUser = true; startVoiceInput() } },
+                onStartVoice = { wasStartedByUser = true; startVoiceInput() },
+                onStopVoice = { stopVoiceInput() },
+                onToggleMode = { isLetterMode = !isLetterMode; getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_LETTER_MODE, isLetterMode).apply() },
+                onSetPunctuationMode = { isPunctuationMode = it },
+                onToggleAngol = { isAngolMode = !isAngolMode },
+                ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ }
+            )
+        }
+        Log.d(TAG, "onCreateInputView - returning view")
+        return composeView
     }
 
     override fun onUpdateSelection(oldSelStart: Int, oldSelEnd: Int, newSelStart: Int, newSelEnd: Int, candidatesStart: Int, candidatesEnd: Int) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+        Log.d(TAG, "onUpdateSelection: $oldSelStart -> $newSelStart")
         if (ignoreSelectionUpdateCount > 0) { ignoreSelectionUpdateCount--; return }
-        if (isInputViewShown && newSelStart == newSelEnd && (newSelStart != oldSelStart || newSelEnd != oldSelEnd) && !isListening) debouncedStartVoiceInput()
+        // Automatic voice input removed to avoid conflicts
+    }
+
+    override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
+        super.onStartInput(attribute, restarting)
+        inputConnection = currentInputConnection
+        Log.d(TAG, "onStartInput - updated inputConnection")
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        Log.d(TAG, "onStartInputView")
         isClosing = false
         super.onStartInputView(info, restarting)
-        if (isInputEmpty() && !isListening) debouncedStartVoiceInput()
+        inputConnection = currentInputConnection
+        // Automatic voice input removed to avoid conflicts
     }
 
     private fun isInputEmpty(): Boolean {
@@ -252,7 +320,27 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         return ic.getTextBeforeCursor(1, 0).isNullOrEmpty() && ic.getTextAfterCursor(1, 0).isNullOrEmpty()
     }
 
-    override fun onWindowShown() { super.onWindowShown(); lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME) }
-    override fun onWindowHidden() { isClosing = true; super.onWindowHidden(); stopVoiceInput(); lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE) }
-    override fun onDestroy() { super.onDestroy(); lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY); speechRecognizer?.destroy() }
+    override fun onWindowShown() {
+        Log.d(TAG, "onWindowShown")
+        super.onWindowShown()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    }
+
+    override fun onWindowHidden() {
+        Log.d(TAG, "onWindowHidden")
+        isClosing = true
+        super.onWindowHidden()
+        stopVoiceInput()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy")
+        super.onDestroy()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        viewModelStore.clear()
+        speechRecognizer?.destroy()
+    }
 }

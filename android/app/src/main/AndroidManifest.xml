@@ -52,6 +52,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.example.angol.ime.PermissionActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true" />
+        <activity
             android:name=".ComposeMainActivity"
             android:exported="true"
             android:launchMode="singleTop"

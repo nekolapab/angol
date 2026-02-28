@@ -21,8 +21,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
-import com.google.firebase.vertexai.type.content
 import com.google.firebase.vertexai.vertexAI
+import com.google.firebase.vertexai.GenerativeModel
+import com.google.firebase.vertexai.type.content
+import com.google.firebase.vertexai.type.generationConfig
+import com.google.firebase.vertexai.type.RequestOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -55,6 +58,8 @@ fun KepadModyil(
     isLetterMode: Boolean,
     isPunctuationMode: Boolean,
     onToggleVoice: () -> Unit,
+    onStartVoice: () -> Unit,
+    onStopVoice: () -> Unit,
     onToggleMode: () -> Unit,
     onSetPunctuationMode: (Boolean) -> Unit,
     isAngolMode: Boolean,
@@ -63,6 +68,12 @@ fun KepadModyil(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    
+    // Ensure we always use the latest values from parent
+    val currentIc by rememberUpdatedState(ic)
+    val currentIsLetterMode by rememberUpdatedState(isLetterMode)
+    val currentIsPunctuationMode by rememberUpdatedState(isPunctuationMode)
+    val currentOnToggleMode by rememberUpdatedState(onToggleMode)
     
     // Buffer to capture the current word being typed
     val currentWordBuffer = remember { StringBuilder() }
@@ -137,18 +148,26 @@ fun KepadModyil(
     }
 
     fun handleKeyPress(char: String, isLongPress: Boolean, primaryChar: String?) {
-        if (ic == null) return
-        Log.d(TAG, "handleKeyPress: char='$char', isLongPress=$isLongPress")
+        val activeIc = currentIc ?: return
+        Log.d(TAG, "handleKeyPress: char='$char', isLongPress=$isLongPress, mode=${if(currentIsLetterMode) "ABC" else "123"}")
 
         if (char == "TRANSLATE") {
-            val before = ic.getTextBeforeCursor(1000, 0) ?: ""
-            val after = ic.getTextAfterCursor(1000, 0) ?: ""
+            val before = activeIc.getTextBeforeCursor(1000, 0) ?: ""
+            val after = activeIc.getTextAfterCursor(1000, 0) ?: ""
             val fullText = "$before$after"
             android.widget.Toast.makeText(context, "angol...", android.widget.Toast.LENGTH_SHORT).show()
-            if (fullText.isNotBlank()) {
+            /* if (fullText.isNotBlank()) {
                 scope.launch {
                     try {
-                        val model = Firebase.vertexAI.generativeModel("gemini-1.5-flash")
+                        val model = com.google.firebase.vertexai.vertexAI(com.google.firebase.Firebase).generativeModel(
+                            modelName = "gemini-1.5-flash",
+                            generationConfig = com.google.firebase.vertexai.type.generationConfig { },
+                            safetySettings = emptyList(),
+                            tools = emptyList(),
+                            toolConfig = null,
+                            systemInstruction = null,
+                            requestOptions = com.google.firebase.vertexai.type.RequestOptions()
+                        )
                         val prompt = """
                             Convert the following text between 'Angol' spelling and standard English. 
                             If the text is in standard English, convert it to Angol spelling.
@@ -156,33 +175,33 @@ fun KepadModyil(
                             Only output the converted text, no explanations or extra text.
                             Text: $fullText
                         """.trimIndent()
-                        val response = withContext(Dispatchers.IO) { model.generateContent(content { text(prompt) }) }
+                        val response = withContext(Dispatchers.IO) { model.generateContent(com.google.firebase.vertexai.type.content { text(prompt) }) }
                         val convertedText = response.text?.trim()
                         if (convertedText != null) {
-                            ic.beginBatchEdit()
+                            activeIc.beginBatchEdit()
                             ignoreSelectionUpdate()
-                            ic.deleteSurroundingText(before.length, after.length)
+                            activeIc.deleteSurroundingText(before.length, after.length)
                             ignoreSelectionUpdate()
-                            ic.commitText(convertedText, 1)
-                            ic.endBatchEdit()
+                            activeIc.commitText(convertedText, 1)
+                            activeIc.endBatchEdit()
                         }
                     } catch (e: Exception) {
                         Log.e(TAG, "Keyboard translation failed: ${e.message}")
                     }
                 }
-            }
+            } */
             return
         }
 
         if (char == "\n") {
             if (isLongPress && primaryChar != null) {
                 ignoreSelectionUpdate()
-                ic.deleteSurroundingText(primaryChar.length, 0)
+                activeIc.deleteSurroundingText(primaryChar.length, 0)
             }
             ignoreSelectionUpdate()
-            ic.commitText("\n", 1)
-            ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
-            ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+            activeIc.commitText("\n", 1)
+            activeIc.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+            activeIc.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
             if (currentWordBuffer.isNotEmpty()) {
                 addToCorpus(currentWordBuffer.toString())
                 currentWordBuffer.setLength(0)
@@ -206,19 +225,19 @@ fun KepadModyil(
 
             if (isLongPress) {
                 ignoreSelectionUpdate()
-                val textBefore = ic.getTextBeforeCursor(100, 0) ?: ""
+                val textBefore = activeIc.getTextBeforeCursor(100, 0) ?: ""
                 val deleteCount = calculateDeleteCount(textBefore.toString())
-                ic.deleteSurroundingText(deleteCount, 0)
+                activeIc.deleteSurroundingText(deleteCount, 0)
                 currentWordBuffer.setLength(0)
                 displayText = ""
             } else {
                 if (primaryChar != null && primaryChar.isNotEmpty()) {
                     ignoreSelectionUpdate()
-                    ic.deleteSurroundingText(primaryChar.length, 0)
+                    activeIc.deleteSurroundingText(primaryChar.length, 0)
                 } else {
                     ignoreSelectionUpdate()
-                    ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
-                    ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
+                    activeIc.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                    activeIc.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
                 }
             }
             return
@@ -238,19 +257,21 @@ fun KepadModyil(
         if (isLongPress) {
             if (primaryChar != null) {
                 if (currentWordBuffer.length >= primaryChar.length) currentWordBuffer.delete(currentWordBuffer.length - primaryChar.length, currentWordBuffer.length)
-                ignoreSelectionUpdate(); ignoreSelectionUpdate()
-                ic.deleteSurroundingText(primaryChar.length, 0)
-                ic.commitText(char, 1)
+                ignoreSelectionUpdate()
+                activeIc.deleteSurroundingText(primaryChar.length, 0)
+                ignoreSelectionUpdate()
+                activeIc.commitText(char, 1)
             } else {
                 if (currentWordBuffer.isNotEmpty()) currentWordBuffer.deleteCharAt(currentWordBuffer.length - 1)
-                ignoreSelectionUpdate(); ignoreSelectionUpdate()
-                ic.deleteSurroundingText(1, 0)
-                ic.commitText(char, 1)
+                ignoreSelectionUpdate()
+                activeIc.deleteSurroundingText(1, 0)
+                ignoreSelectionUpdate()
+                activeIc.commitText(char, 1)
             }
             displayText = currentWordBuffer.toString()
         } else {
             ignoreSelectionUpdate()
-            ic.commitText(char, 1)
+            activeIc.commitText(char, 1)
         }
     }
 
@@ -279,21 +300,21 @@ fun KepadModyil(
 
     fun getCurrentAllLabels(vowelIndex: Int?): List<String> {
         val inner = when {
-            isPunctuationMode -> KepadKonfeg.innerPunctuationMode
-            isLetterMode -> KepadKonfeg.innerLetterMode
+            currentIsPunctuationMode -> KepadKonfeg.innerPunctuationMode
+            currentIsLetterMode -> KepadKonfeg.innerLetterMode
             else -> KepadKonfeg.innerNumberMode
         }
-        val outer = if (vowelIndex != null && isLetterMode) {
+        val outer = if (vowelIndex != null && currentIsLetterMode) {
             when (vowelIndex) {
-                0 -> List(11) { "" } + listOf("1") // a -> 1
-                1 -> listOf("2", "3", "4") + List(9) { "" } // e -> 2, 3, 4
-                2 -> List(3) { "" } + listOf("5", "6") + List(7) { "" } // i -> 5, 6
-                3 -> List(5) { "" } + listOf("7", "8", "9") + List(4) { "" } // u -> 7, 8, 9
+                0 -> listOf("2") + List(10) { "" } + listOf("1") // a -> 1, 2
+                1 -> listOf("") + listOf("3", "4", "5") + List(8) { "" } // e -> 3, 4, 5
+                2 -> List(4) { "" } + listOf("6", "7") + List(6) { "" } // i -> 6, 7
+                3 -> List(6) { "" } + listOf("8", "9") + List(4) { "" } // u -> 8, 9
                 4 -> List(8) { "" } + listOf("0", "A", "O") + listOf("") // o -> 0, A, O
                 else -> KepadKonfeg.outerTap
             }
-        } else if (isLetterMode) KepadKonfeg.outerTap else KepadKonfeg.outerTapNumber
-        val center = if (isLetterMode) " " else "."
+        } else if (currentIsLetterMode) KepadKonfeg.outerTap else KepadKonfeg.outerTapNumber
+        val center = if (currentIsLetterMode) " " else "."
         val labels = inner + outer + listOf(center)
         return if (isCapitalized.value) labels.map { it.uppercase() } else labels
     }
@@ -303,27 +324,23 @@ fun KepadModyil(
             delay(500)
             if (hoveredHexIndex.value != index) return@launch
             if (index == 18) {
-                if (isLetterMode) onSetPunctuationMode(true)
-                try {
-                    while (hoveredHexIndex.value == 18) {
-                        val oldChar = if (isLetterMode) " " else "."
-                        onToggleMode()
-                        delay(50)
-                        val newChar = if (isLetterMode) " " else "."
-                        handleKeyPress("⌫", false, oldChar)
-                        handleKeyPress(newChar, false, null)
-                        delay(1000)
-                    }
-                } catch (e: Exception) { }
+                if (currentIsLetterMode) onSetPunctuationMode(true)
+                // Single toggle on long press to avoid stuck loops
+                val oldChar = if (currentIsLetterMode) " " else "."
+                currentOnToggleMode()
+                delay(50)
+                val newChar = if (currentIsLetterMode) " " else "."
+                handleKeyPress("⌫", false, oldChar)
+                handleKeyPress(newChar, false, null)
                 return@launch
             }
             val isInner = index < 6
             val startedVowelIndex = gestureStartedOnVowelIndex.value
             val lpLabelRaw = if (isInner) {
-                if (isLetterMode) KepadKonfeg.innerLetterMode.map { if (it == "⌫") "⌫" else "" }.getOrNull(index) ?: ""
+                if (currentIsLetterMode) KepadKonfeg.innerLetterMode.map { if (it == "⌫") "⌫" else "" }.getOrNull(index) ?: ""
                 else KepadKonfeg.innerLongPressNumber.getOrNull(index) ?: ""
             } else {
-                if (isLetterMode && startedVowelIndex == null) KepadKonfeg.outerLongPress.getOrNull(index - 6) ?: ""
+                if (currentIsLetterMode && startedVowelIndex == null) KepadKonfeg.outerLongPress.getOrNull(index - 6) ?: ""
                 else KepadKonfeg.outerLongPressNumber.getOrNull(index - 6) ?: ""
             }
             if (lpLabelRaw.isEmpty()) return@launch
@@ -359,8 +376,11 @@ fun KepadModyil(
         val gridHeightDp = with(LocalDensity.current) { (geometry.heksHayt * 4.0).toFloat().toDp() }
         Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
             val hexWidthDp = with(LocalDensity.current) { geometry.heksWidlx.toFloat().toDp() }
-            val displayOuterLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value).subList(6, 18)
-            val outerLongPressLabels = if (isLetterMode && gestureStartedOnVowelIndex.value == null) {
+            
+            // Labels derived from current state
+            val currentLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
+            val displayOuterLabels = currentLabels.subList(6, 18)
+            val outerLongPressLabels = if (currentIsLetterMode && gestureStartedOnVowelIndex.value == null) {
                 val raw = KepadKonfeg.outerLongPress
                 if (isCapitalized.value) raw.map { it.uppercase() } else raw
             } else emptyList()
@@ -381,15 +401,16 @@ fun KepadModyil(
                             
                             if (downIndex != null) {
                                 hoveredHexIndex.value = downIndex
-                                if (downIndex in 0..4 && isLetterMode && !isPunctuationMode) gestureStartedOnVowelIndex.value = downIndex
+                                if (downIndex in 0..4 && currentIsLetterMode && !currentIsPunctuationMode) gestureStartedOnVowelIndex.value = downIndex
                                 else gestureStartedOnVowelIndex.value = null
 
-                                if (downIndex == 18 && isLetterMode) onSetPunctuationMode(true)
+                                if (downIndex == 18 && currentIsLetterMode) onSetPunctuationMode(true)
                                 
-                                val currentLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
-                                if (downIndex < currentLabels.size && currentLabels[downIndex].isNotEmpty()) {
-                                    if (downIndex == 18 && displayText.isEmpty()) onToggleVoice()
-                                    else handleKeyPress(currentLabels[downIndex], false, null)
+                                if (downIndex == 18) onStartVoice()
+                                
+                                val downLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
+                                if (downIndex < downLabels.size && downLabels[downIndex].isNotEmpty()) {
+                                    handleKeyPress(downLabels[downIndex], false, null)
                                     longPressJob.value = startLongPressTimer(downIndex)
                                 }
                             } else {
@@ -408,9 +429,9 @@ fun KepadModyil(
                                     } else {
                                         isCapitalized.value = true
                                         hoveredHexIndex.value?.let { idx ->
-                                            val labels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
-                                            if (idx < labels.size) {
-                                                val old = labels[idx].lowercase(); val new = labels[idx].uppercase()
+                                            val upLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
+                                            if (idx < upLabels.size) {
+                                                val old = upLabels[idx].lowercase(); val new = upLabels[idx].uppercase()
                                                 if (old != new) { handleKeyPress("⌫", false, old); handleKeyPress(new, false, null) }
                                             }
                                         }
@@ -420,9 +441,9 @@ fun KepadModyil(
                                     isCenterTranslateActive.value = false; isCapitalized.value = false
                                     if (hoveredHexIndex.value != null && gestureStartedIndex != 18) {
                                         hoveredHexIndex.value?.let { idx ->
-                                            val labels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
-                                            if (idx < labels.size) {
-                                                val old = labels[idx].uppercase(); val new = labels[idx].lowercase()
+                                            val dtLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
+                                            if (idx < dtLabels.size) {
+                                                val old = dtLabels[idx].uppercase(); val new = dtLabels[idx].lowercase()
                                                 if (old != new) { handleKeyPress("⌫", false, old); handleKeyPress(new, false, null) }
                                             }
                                         }
@@ -434,17 +455,18 @@ fun KepadModyil(
                                     if (gestureStartedIndex != 18) { initialY.value = change.position.y; isCapitalized.value = false }
                                     longPressStartOffset.value = change.position
                                     val oldVowelIndex = gestureStartedOnVowelIndex.value
-                                    if (moveIndex != null && moveIndex in 0..4 && isLetterMode && !isPunctuationMode) gestureStartedOnVowelIndex.value = moveIndex
+                                    if (moveIndex != null && moveIndex in 0..4 && currentIsLetterMode && !currentIsPunctuationMode) gestureStartedOnVowelIndex.value = moveIndex
                                     else if (moveIndex != null && moveIndex >= 6 && oldVowelIndex != null) { }
                                     else gestureStartedOnVowelIndex.value = null
+                                    
                                     hoveredHexIndex.value?.let { idx ->
-                                        val labels = getCurrentAllLabels(oldVowelIndex)
-                                        if (idx < labels.size && labels[idx].isNotEmpty()) handleKeyPress("⌫", false, labels[idx])
+                                        val oldLabels = getCurrentAllLabels(oldVowelIndex)
+                                        if (idx < oldLabels.size && oldLabels[idx].isNotEmpty()) handleKeyPress("⌫", false, oldLabels[idx])
                                     }
                                     if (moveIndex != null) {
-                                        val labels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
-                                        if (moveIndex < labels.size && labels[moveIndex].isNotEmpty()) {
-                                            handleKeyPress(labels[moveIndex], false, null)
+                                        val moveLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
+                                        if (moveIndex < moveLabels.size && moveLabels[moveIndex].isNotEmpty()) {
+                                            handleKeyPress(moveLabels[moveIndex], false, null)
                                             longPressJob.value = startLongPressTimer(moveIndex)
                                         }
                                     }
@@ -457,7 +479,8 @@ fun KepadModyil(
                                 }
                             }
                             longPressJob.value?.cancel()
-                            if (isPunctuationMode) onSetPunctuationMode(false)
+                            if (isListening) onStopVoice()
+                            if (currentIsPunctuationMode) onSetPunctuationMode(false)
                             hoveredHexIndex.value = null; gestureStartedOnVowelIndex.value = null; isCapitalized.value = false; isCenterTranslateActive.value = false; longPressStartOffset.value = null
                         }
                     }
@@ -467,18 +490,29 @@ fun KepadModyil(
             val maxHeightDpVal = with(LocalDensity.current) { maxHeightPx.toDp() }
             EnirRenqWedjet(geometry = geometry, stackWidth = maxWidthDpVal, stackHeight = maxHeightDpVal) {
                 val innerLabelsToDisplay = when {
-                    isPunctuationMode -> KepadKonfeg.innerPunctuationMode
-                    isLetterMode -> KepadKonfeg.innerLetterMode
+                    currentIsPunctuationMode -> KepadKonfeg.innerPunctuationMode
+                    currentIsLetterMode -> KepadKonfeg.innerLetterMode
                     else -> KepadKonfeg.innerNumberMode
                 }
                 innerLabelsToDisplay.forEachIndexed { index, label ->
-                    val lpLabel = if (isLetterMode) "" else KepadKonfeg.innerLongPressNumber.getOrNull(index) ?: ""
-                    HeksagonWedjet(label = label, secondaryLabel = if (lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null, backgroundColor = KepadKonfeg.innerRingColors[index], textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]), size = hexWidthDp, fontSize = (geometry.heksWidlx * if (isLetterMode) 0.6 else 0.8).toFloat(), isPressed = hoveredHexIndex.value == index)
+                    val lpLabel = if (currentIsLetterMode) "" else KepadKonfeg.innerLongPressNumber.getOrNull(index) ?: ""
+                    HeksagonWedjet(label = label, secondaryLabel = if (lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null, backgroundColor = KepadKonfeg.innerRingColors[index], textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]), size = hexWidthDp, fontSize = (geometry.heksWidlx * if (currentIsLetterMode) 0.6 else 0.8).toFloat(), isPressed = hoveredHexIndex.value == index)
                 }
             }
-            AwdirRenqWedjet(geometry = geometry, onHexKeyPress = { _, _, _ -> }, tapLabels = displayOuterLabels, longPressLabels = outerLongPressLabels, initialLetterMode = isLetterMode, stackWidth = maxWidthDpVal, stackHeight = maxHeightDpVal, pressedIndex = if (hoveredHexIndex.value != null && hoveredHexIndex.value!! in 6..17) hoveredHexIndex.value!! - 6 else null, handleGestures = false, isPopup = gestureStartedOnVowelIndex.value != null)
-            val centerLabel = (if (isLetterMode) " " else ".").let { if (isCapitalized.value) it.uppercase() else it }
-            HeksagonWedjet(label = centerLabel, backgroundColor = if (isListening) Color.Red else if (isLetterMode) Color.White else Color.Black, textColor = if (isListening) Color.White else if (isLetterMode) Color.Black else Color.White, size = hexWidthDp, fontSize = (geometry.heksWidlx * 0.6).toFloat(), isPressed = hoveredHexIndex.value == 18, onPressedChanged = { isCenterHexPressed = it })
+            AwdirRenqWedjet(geometry = geometry, onHexKeyPress = { _, _, _ -> }, tapLabels = displayOuterLabels, longPressLabels = outerLongPressLabels, initialLetterMode = currentIsLetterMode, stackWidth = maxWidthDpVal, stackHeight = maxHeightDpVal, pressedIndex = if (hoveredHexIndex.value != null && hoveredHexIndex.value!! in 6..17) hoveredHexIndex.value!! - 6 else null, handleGestures = false, isPopup = gestureStartedOnVowelIndex.value != null)
+            val centerLabel = (if (currentIsLetterMode) " " else ".").let { if (isCapitalized.value) it.uppercase() else it }
+            HeksagonWedjet(
+                label = centerLabel, 
+                backgroundColor = if (isListening) Color.Red else if (currentIsLetterMode) Color.White else Color.Black, 
+                textColor = if (isListening) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
+                size = hexWidthDp, 
+                fontSize = (geometry.heksWidlx * 0.6).toFloat(), 
+                isPressed = hoveredHexIndex.value == 18, 
+                onPressedChanged = { 
+                    isCenterHexPressed = it
+                    if (!it && isListening) onStopVoice()
+                }
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(horizontal = 16.dp, vertical = 8.dp).pointerInput(Unit) { detectTapGestures { onToggleVoice() } },

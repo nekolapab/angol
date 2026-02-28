@@ -3,6 +3,13 @@ package yuteledez
 /**
  * Utility class for phonetic conversion of English text to 'Angol' spelling.
  * This provides a robust, rule-based transformation engine.
+ *
+ * Vowel Phonetic Mapping (Reference for Orthography):
+ * - a1: /ɑ/ (pasta) -> a     - i6: /ɝ/ (her)   -> ir    - o0: /oʊ/ (go)  -> o
+ * - a2: /æ/ (cat)   -> a     - i7: /ʊ/ (book)  -> i     - oA: /o/ (beau)  -> o
+ * - e3: /ɛ/ (bed)   -> e                              - oO: /ɔ/ (all)   -> o
+ * - e4: /ɪ/ (bit)   -> e     - u8: /ʌ/ (but)   -> u
+ * - e5: /i/ (keep)  -> e     - u9: /u/ (too)   -> u
  */
 object AngolSpelenqMelxod {
     private val replacements = mapOf(
@@ -120,7 +127,7 @@ object AngolSpelenqMelxod {
         result = result.replace("it", "et")
         
         result = result
-            .replace("ee", "iy")
+            .replace("ee", "e")
             .replace("oo", "uw")
             .replace("ai", "ey")
             .replace("ay", "ey")

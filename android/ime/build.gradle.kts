@@ -50,8 +50,8 @@ dependencies {
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
-    implementation("com.google.firebase:firebase-vertexai")
-    implementation("com.google.firebase:firebase-common-ktx")
+    implementation("com.google.firebase:firebase-vertexai:16.0.0-beta04")
+    implementation("com.google.firebase:firebase-common-ktx:21.0.0")
 
     // Shared Compose dependencies
     implementation(platform("androidx.compose:compose-bom:2025.12.00"))

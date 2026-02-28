@@ -62,8 +62,8 @@ dependencies {
 
     // Firebase for Gemini translation
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
-    implementation("com.google.firebase:firebase-vertexai")
-    implementation("com.google.firebase:firebase-common-ktx")
+    implementation("com.google.firebase:firebase-vertexai:16.0.0-beta04")
+    implementation("com.google.firebase:firebase-common-ktx:21.0.0")
     
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

@@ -8,6 +8,8 @@ import 'sirvesez/enpit_sirves.dart';
 import 'steyt/angol_steyt.dart';
 import 'firebase_options.dart';
 
+import 'sirvesez/platform_sirves.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -30,6 +32,7 @@ void main() async {
   } catch (e) {
     // Firebase already initialized, ignore
   }
+
   runApp(
     MultiProvider(
       providers: [
@@ -41,8 +44,81 @@ void main() async {
   );
 }
 
-class AngolApp extends StatelessWidget {
+class AngolApp extends StatefulWidget {
   const AngolApp({super.key});
+
+  @override
+  State<AngolApp> createState() => _AngolAppSteyt();
+}
+
+class _AngolAppSteyt extends State<AngolApp> {
+  @override
+  void initState() {
+    super.initState();
+    _checkImeStatus();
+  }
+
+  Future<void> _checkImeStatus() async {
+    // Small delay to ensure the app is rendered
+    await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+
+    final isEnabled = await PlatformSirves.isImeEnabled();
+    if (!isEnabled) {
+      if (!mounted) return;
+      _showImeDialog(
+        title: 'eneybil kepad',
+        content: 'tu yuz lha angol kepad, yu nid tu eneybil et en setenqz.',
+        buttonText: 'gow tu setenqz',
+        onPressed: () async {
+          await PlatformSirves.openImeSettings();
+        },
+      );
+      return;
+    }
+
+    final isSelected = await PlatformSirves.isImeSelected();
+    if (!isSelected) {
+      if (!mounted) return;
+      _showImeDialog(
+        title: 'seplekt kepad',
+        content: 'lha kepad ez eneybild, bit yu nid tu seplekt et az kirent.',
+        buttonText: 'seplekt kepad',
+        onPressed: () async {
+          await PlatformSirves.openInputMethodPicker();
+        },
+      );
+    }
+  }
+
+  void _showImeDialog({
+    required String title,
+    required String content,
+    required String buttonText,
+    required VoidCallback onPressed,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title, style: const TextStyle(color: Colors.cyanAccent)),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('laydir', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onPressed();
+            },
+            child:
+                Text(buttonText, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

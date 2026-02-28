@@ -53,56 +53,18 @@ fun WearApp() {
         // Show keypad directly (moved to back)
 
         KepadModyil(
-
-            isKeypadVisible = true,
-
-            displayLength = displayLength,
-
+            ic = null,
             isListening = isListening,
             isLetterMode = isLetterMode,
             isPunctuationMode = isPunctuationMode,
-            isAngolMode = isAngolMode,
-            displayText = currentText,
-
             onToggleVoice = { isListening = !isListening },
+            onStartVoice = { isListening = true },
+            onStopVoice = { isListening = false },
             onToggleMode = { isLetterMode = !isLetterMode },
             onSetPunctuationMode = { isPunctuationMode = it },
+            isAngolMode = isAngolMode,
             onToggleAngol = { isAngolMode = !isAngolMode },
-
-            onHexKeyPress = { char: String, isLongPress: Boolean, primaryChar: String? ->
-
-                android.util.Log.d("ComposeMainActivity", "onHexKeyPress: char=$char, isLongPress=$isLongPress, primary=$primaryChar")
-
-                if (char == "⌫") {
-
-                    if (isLongPress) {
-
-                        currentText = ""
-
-                    } else if (currentText.isNotEmpty()) {
-
-                        currentText = currentText.dropLast(1)
-
-                    }
-
-                } else {
-
-                    if (isLongPress && primaryChar != null) {
-
-                        currentText = currentText.dropLast(primaryChar.length) + char
-
-                    } else {
-
-                        currentText += char
-
-                    }
-
-                }
-
-                android.util.Log.d("ComposeMainActivity", "currentText is now: \"$currentText\"")
-
-            }
-
+            ignoreSelectionUpdate = { }
         )
 
 
