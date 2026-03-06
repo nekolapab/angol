@@ -41,9 +41,10 @@
         </activity>
 
         <activity
-            android:name="com.example.myapp.TranslateActivity"
+            android:name="io.angol.dayl.TranslateActivity"
             android:label="@string/angol_translate"
             android:icon="@mipmap/ic_launcher"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT" />
@@ -56,7 +57,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true" />
         <activity
-            android:name=".ComposeMainActivity"
+            android:name=".KepadSkren"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""

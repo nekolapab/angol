@@ -1,100 +1,43 @@
-## **AI development gaydlaynz for Flutter and Firebase Studio**
-
-lhez gaydlaynz defayn lha erir rezelyent opiraconal prensepilz for Gemini keypabil development wirkflow.
-
-## **envayrment an kontekst awer**
-lha AI opereyts welxen lha Firebase Studio development envayrment.
-
-* **prodjekt strukcir:** lha AI asumz a standard Flutter prodjekt strukcir. lha praymer aplekeycon entre poynt ez tepekle lib/main.dart.
-* **dev.nix konfegyireycon:** lha .idx/dev.nix fayl ez lha sors ov trulx for lha wirkpleys envayrment. lha AI cid levredj et tu encur envayrment konsestense and odomadekle konfegyir nesesere tulz.
-* **prevyu sirvir:** lha AI wel kontenyuwosle monetir lha awtput ov lha prevyu sirvir (e.g., konsol logz, erir mesedjez) for rel taym fedbak on tceyndjez.
-* **Firebase entegreycon:** lha AI rekognayzez standard Firebase entegreycon paternz en Flutter, enkludenq lha yus ov firebase_options.dart.
-
-## **kod modefekeycon & dependense manedjment**
-* **kor kod asumpcon:** wen a yuzir rekwestz a tceyndj, lha AI wel praymerele fokus on modefayenq lha Dart kod. lib/main.dart ez lha meyn entre poynt.
-* **pakej manedjment:** lha AI wel aydentefay and ad nesesere pakedjez yuzenq `flutter pub add`.
-* **kod djenereycon (build_runner):** wen a tceyndj rekwayrz kod djenereycon, lha AI wel odomadekle eksekyut `dart run build_runner build --delete-conflicting-outputs`.
-
-## **odomeyded erir detekcon & remedeyeycon**
-a kredekal funkcun ov lha AI ez tu kontenyuwosle monetir for and odomadekle rezolv erirz.
-
-* **post-modefekeycon tceks:** afdir evre kod modefekeycon, lha AI wel monetir IDE dayagnosteks, tirmenal awtput, and prevyu sirvir awtput for erirz or eksepsconz.
-* **odomadek erir korekcon:** lha AI wel atempt tu odomadekle feks detekded erirz (sentaks, tayp mesmatcez, null-safety, or lintenq vayoleycunz).
-* **problem reportenq:** ef an eror kanot be otomeytekle resolvd, lha AI wel klirle report lha spesefik eror mesej and lokeycon tu lha yuzir.
-
-## **eterativ development & yuzir entirakcon**
-* **plan jenereycon & bluprent manedjment:** etc taym lha yuzir rekwestz a tceyndj, lha AI wel ferst jenereyt a klir plan and **updeyt lha bluprent.md fayl**.
-  * lha bluprent.md fayl haz:
-    * prodjekt ovirvyu.
-    * diteyld awtlayn ov ol stayl, dezayn, and fetcirz emplemented.
-    * plan and steps for lha kurent rekwested tceyndj.
-* **eror tcekenq flo:**
-  1. **kod tceyndj:** AI aplayz modefekeycon.
-  2. **lent/format:** AI runz `dart format .` and adresez lint warnenqz.
-  3. **dependense tcek:** AI runz `flutter pub get` ef nesesere.
-  4. **kod jenereycon:** AI runz build_runner ef nesesere.
-  5. **kompayl & anelayz:** AI moneturz `flutter analyze` and kompayleycon erorz.
-  6. **test eksekyucon:** AI runz relevant tests.
-  7. **prevyu tcek:** AI observs lha prevyu sirvir for vezyual and runtaym erorz.
-  8. **remedeyeycon/report:** AI atempts otomeytik feksez or reports tu lha yuzir.
-
-## **Firebase MCP**
-wen rekwestenq Firebase ad lha folownq sirvir konfegyireyconz tu .idx/mcp.json and do not ad enelxenq els.
-
-```json
-{
-    "mcpServers": {
-        "firebase": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "firebase-tools@latest",
-                "experimental:mcp"
-            ]
-        }
-    }
-}
-```
-
-## *ovirvyuw*
-angol ez lha sestom neym and dayl ez lhe ap neym ov a sentir heksagon and 2 or 3 sirawndenq heksagonal renqz en Flutter and ets first modyil ez kepad kustom enput melxod en Compose. 
+## *prodjekt*
+angol dayl ez lhe ap neym ov a sentir heksagon and 2 or 3 sirawndenq heksagon renqz en Flutter. ets first modyil ez kepad kustom enput melxod en Compose. 
 
 *first enstrukcon*
-* yuz angol spelenq updeytenq refrensez globale for etc neym tceynj. eksept du not reneym wat kozez problemz for Flutter an Compose standard konvencon freymwirk klasez and faylz (sutc az main.dart  firebase_options.dart  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
+* yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du not reneym wat kozez problemz for Flutter an Compose standard konvencon freymwirk klasez and faylz (sutc az main.dart  firebase_options.dart  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
 
-## **Dev Prodokol (Compose IME)**
-
-### **Fast Reyenstol (Compose Native)**
-When modifying Kotlin/Compose code (`android/...`), you must rebuild and reinstall the APK. Flutter Hot Reload does **not** apply.
-
-### **Disk Space Manedjment**
+## **angol dayl ap development prodokol**
+* onle lha Compose virjon ov **kepad (Compose Input Method Editor)** ez yuzd. lha Flutter kepad ez remuvd. so do not yuz a Flutter virjon for lha enpit melxod and ensted delet remnant duplekat faylz and refaktor.
+* `KepadSkren` tu test lha kepad direktle welxen lha Android part ov lha prodjekt.
+* Debug Visual Layout ov `kepad` IME on WearOS emyuledir yuzenq `KepadSkren`.
+* Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
+* **Default Start Mode:** The keypad starts in 'letter' mode by default. Persistence of mode state across sessions is disabled to ensure consistent startup behavior.
+**Fast Reyenstol (Compose Native)**
+Modefayenq Kotlin/Compose code (`android/...`) must rebeld and reyenstal lhe APK etc taym. Flutter Hot Reload need **not** apply.
+**Desk Speys Manedjment**
 *   **Odomadek Klenup:** Always run `flutter clean` before significant builds to reclaim disk space.
-*   **Kace Manedjment:** Delete old Gradle and Flutter caches. Keep only the **latest build** per module (`ime`, `kepad`, `app`).
+*   **Kac Manedjment:** Delete old Gradle and Flutter caches. Keep only the **latest build** per module (`ime`, `kepad`, `app`).
 *   **No Redundant Beldz:** Ensure each module has only one active build artifact. Get rid of anything not strictly needed for the current iteration.
-
-**Prodokol:**
+  **Prodokol:**
 1.  **Stop** the running app (Ctrl+C in terminal).
 2.  **Run** `flutter build apk --debug --target-platform android-arm64 --android-skip-build-dependency-validation` (for physical device).
 3.  **Instol** `adb install -r build/app/outputs/flutter-apk/app-debug.apk`.
 4.  **Default Keyboard Reset:**
     *   **Automation:**
         ```powershell
-        adb shell ime enable com.example.myapp/com.example.angol.ime.DaylEnpitMelxod
-        adb shell ime set com.example.myapp/com.example.angol.ime.DaylEnpitMelxod
+        adb shell ime enable io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod
+        adb shell ime set io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod
         ```
 
-### **kepad**
-* **onle lha Compose virjon ov kepad ez tu be yuzd!** do not yuz lha Flutter virjon for lha enpit melxod.
-* **REMOVED:** lha entirnal Flutter keypad overlay haz bin removed from `DaylSkren.dart`.
-* we ar naw yuzenq `ComposeMainActivity` tu test lha kepad dayrektle welxen lha Android part ov lha prodjekt.
-* The `ime` module is now a library integrated into the main Flutter app.
-* Debug Visual Layout ov `kepad` IME on WearOS emyuledir yuzenq `ComposeMainActivity`.
-* Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
-
-### **angol neym melxod (pyir spelenq lodjek stradedje)**
-The goal is to achieve 100% consistent phonetic conversion without exceptions, prioritizing algorithmic speed and reliability over AI learning for basic spelling.
-
-**Vowel Phonetic Mapping (Keypad Shortcuts):**
+## **spetc tu tekst**
+**Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`, allowing us to respond to cursor jumps or selection changes.
+**Custom Context Menu:** The 'angol' option in the text selection system menu is implemented as a translucent Activity with a loading indicator and error handling. Verified implementation in `TranslateActivity.kt`.
+**Keyboard Translation:** The **AI** button in the top menu provides a reliable way to trigger translation between 'Angol' and standard English. This feature is powered by Firebase Vertex AI (Gemini 1.5 Flash).
+**angol neym melxod - pyir spelenq lodjek stradedje**
+The goal is to achieve 100% consistent pirfekt conversions, prioritizing AI learning reliability over algorithmic speed. 
+- Use a multi stage transformation engine in `convertToAngolSpelling`.
+- Process suffixes first, then consonant clusters, then vowel shifts to avoid double-conversion.
+- Maintain a small "Core Vocabulary" map for high-frequency irreducible words.
+- Use Gemini for broader context/tone, but rely on Logic for spelling.
+**Vowel Phonetic Mapping (Keypad Shortcuts):** pirfektle balansd 12 vowel layout (2-3-2-2-3) ring.
 - **a1**: /ɑ/ (pasta, mama, spa, father, palm)
 - **a2**: /æ/ (cat, bad, man, at, as, and, trap)
 - **e3**: /ɛ/ (bed, get, set, end, met, red, dress)
@@ -107,16 +50,15 @@ The goal is to achieve 100% consistent phonetic conversion without exceptions, p
 - **o0**: /oʊ/ (go, no, though, boat, tone, solo)
 - **oA**: /o/ (beau, faux, haut, chaud, tôt, dos)
 - **oO**: /ɔ/ or /ɒ/ (all, tall, fall, on, off, odd, boss, not, log, dog)
-
 1.  **Vowel Shifts:**
     *   Short **i** -> **e** (e.g., `it` -> `et`, `is` -> `ez`).
     *   Long **a** -> **ey** (e.g., `base` -> `beys`, `make` -> `meyk`).
     *   Long **i** -> **ay** (e.g., `I` -> `ay`, `like` -> `layk`).
     *   Long **e** -> **e** (e.g., `keep` -> `kep`).
 2.  **Consonant Clusters:**
-    *   **th** -> **lh** (at start) or **lx** (middle/end) (e.g., `the` -> `lha`, `with` -> `welx`).
+    *   **th** -> **lh** (at start) or **lx** (middle/end) (e.g., `the` -> `lha` or `lha`, `with` -> `welx`).
     *   **ch** -> **tc** (e.g., `change` -> `tceynj`, `each` -> `etc`).
-    *   **sh** -> **c** (e.g., `she` -> `ci`).
+    *   **sh** -> **c** (e.g., `she` -> `ce`).
     *   **j** / **soft g** -> **dj** (e.g., `logic` -> `lodjek`, `project` -> `prodjekt`).
     *   **hard c** / **ck** -> **k** (e.g., `can` -> `kan`, `back` -> `bak`).
 3.  **Suffixes:**
@@ -124,34 +66,17 @@ The goal is to achieve 100% consistent phonetic conversion without exceptions, p
     *   `-tion` / `-sion` -> `-con`.
     *   Plural **s** -> **z** (when voiced).
 
-**Implementation Strategy:**
-- Use a multi-stage transformation engine in `convertToAngolSpelling`.
-- Process suffixes first, then consonant clusters, then vowel shifts to avoid double-conversion.
-- Maintain a small "Core Vocabulary" map for high-frequency irreducible words.
-- Use Gemini for broader context/tone, but rely on Logic for spelling.
-
-### **spetc tu tekst**
-* **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`, allowing us to respond to cursor jumps or selection changes.
-* **Custom Context Menu (Unresolved):** The "angol" option in the system text selection menu (Cut/Copy/Paste toolbar) is implemented with an icon, but its visibility is inconsistent.
-* **Keyboard Workaround:** The **Swipe UP on Center Hex** gesture provides a reliable way to trigger translation regardless of the app's context menu behavior.
-
-## **stadus**
-* **Compose Keypad:** wirkenq and pozecond korrektle!
-* **IME Sirves:** enabled and set az defolt.
-* **Live Selekcon:** implemented and working! Sliding between keys deletes the previous char and types the new one (supports multi-char labels).
-* **Popup Numbirz:** implemented! Pressing or sliding onto a vowel shows numbers on the outer ring.
-* **Kapedolz (Capitalization):** Fixed!
-* **Vejyuwalz:** Perfectly compact and automatic! Indices 0, 2, 4, 6, 8, 10 ar naw ol **White**. Removed all padding and optimized layout to automatically fit any screen size. 'angol' toggle and display text relocated to the top as overlays.
-* **angol mode toggle:** implemented toggling between Angol and Standard English spelenq for voice input. Naw pozecond az an ovirley at lha top ov lha kepad.
-* **Sentir Hex (Enter & Toggle):** Fixed!
-* **Backspace Repeat:** Fixed! Deletes exactly 12 characters per tick for strings without spaces.
-* **angol:** implemented! "angol" option added to system text selection menu and toggle bar.
-* **Voice Tap:** Improved! Tapping the output field triggers voice input. Quiet **ToneGenerator** start sound (50% volume) and even quieter stop sound (33% volume).
-* **Automatic Prompts:** Implemented! The app now automatically prompts the user to enable/select the keyboard on startup, and the IME prompts for microphone permissions if missing when voice input is triggered.
-* **Build:** suksesful build for x64 and arm64.
-
-## **tasks**
-* (Empte - ol tasks kompleted)
+## **olhir fetcirz**
+* **Live Selekcon:** Sliding between keys deletes the previous char and types the new one (supports multi-char labels).
+* **Popup Numbirz:** Pressing or sliding onto a vowel shows numbers on the outer ring.
+* **Kapedolz (Capitalization):** 
+* **Vejyuwalz:** automatically fit any screen size. 
+* **angol mode toggle:** between Angol and Standard English spelenq for voice input az ovirley at lha top.
+* **Sentir Heksagon:** voys tu teks | Mod Togil | ' ' '.' 
+* **Backspace Repeat:** Deletes exactly 12 characters per tick for strings without spaces.
+* **Voice PTT:** Voice input uses a robust "Push-to-Talk" interaction—starts on press, stops on release, and automatically restarts if the button is still held.
+* **Automatic Prompts:** The app automatically prompts the user to enable/select the keyboard and pirmeconz on startup.
+* **Build:** build for x64 and arm64.
 
 ## **feylyirz tu not repet ded endz**:
     *   **Galaxy Wearable App**: Fails on emulator. Use "Wear OS by Google".

@@ -19,7 +19,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Step 3: Launch app
 Write-Host "🚀 Launching app..." -ForegroundColor Yellow
-adb shell am start -n com.example.myapp/.ComposeMainActivity
+adb shell am start -n io.angol.dayl/.KepadSkren
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Launch failed!" -ForegroundColor Red
     exit 1

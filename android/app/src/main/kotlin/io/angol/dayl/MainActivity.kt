@@ -1,4 +1,4 @@
-package com.example.myapp
+package io.angol.dayl
 
 import android.content.Intent
 import android.provider.Settings

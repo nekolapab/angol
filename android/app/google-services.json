@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:697321034497:android:a077e11aa9631f59da8100",
         "android_client_info": {
-          "package_name": "com.example.myapp"
+          "package_name": "io.angol.dayl"
         }
       },
       "oauth_client": [],

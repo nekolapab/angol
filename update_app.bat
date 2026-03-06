@@ -21,7 +21,7 @@ if %errorlevel% neq 0 (
 
 echo.
 echo 🚀 Launching app...
-adb shell am start -n com.example.myapp/.ComposeMainActivity
+adb shell am start -n io.angol.dayl/.KepadSkren
 if %errorlevel% neq 0 (
     echo ❌ Launch failed!
     pause

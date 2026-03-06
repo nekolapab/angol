@@ -44,6 +44,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import modyilz.KepadModyil
+import yuteledez.AngolSpelenqMelxod
 
 private const val TAG = "DaylEnpitMelxod"
 private const val PREFS_NAME = "AngolImePrefs"
@@ -61,10 +62,11 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private var isPunctuationMode by mutableStateOf(false)
     private var isAngolMode by mutableStateOf(true)
     private var inputConnection by mutableStateOf<android.view.inputmethod.InputConnection?>(null)
+    private var isCenterButtonPressed by mutableStateOf(false)
     
     private var audioFocusRequest: Any? = null
+    private var lastButtonDownTime = 0L
     private var ignoreSelectionUpdateCount = 0
-    private var lastVoiceTriggerTime = 0L
     private var wasStartedByUser = false
     private var isClosing = false
 
@@ -75,8 +77,6 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override fun onCreate() {
         Log.d(TAG, "onCreate - started")
         super.onCreate()
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        isLetterMode = prefs.getBoolean(KEY_LETTER_MODE, true)
         
         try {
             Firebase.initialize(this)
@@ -100,57 +100,58 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                     override fun onEndOfSpeech() {
                         Log.d(TAG, "Voice: End")
                         isListening = false
-                        abandonAudioPriority()
-                        unmuteSystemStream()
-                        wasStartedByUser = false
+                        // Don't restart here, wait for results or error
                     }
                     override fun onError(error: Int) {
                         Log.e(TAG, "Speech error: $error")
                         isListening = false
                         abandonAudioPriority()
                         unmuteSystemStream()
-                        wasStartedByUser = false
+                        
+                        if (isCenterButtonPressed && error != SpeechRecognizer.ERROR_RECOGNIZER_BUSY) {
+                            // Restart after a short delay to avoid loops
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(500)
+                                if (isCenterButtonPressed) startVoiceInput()
+                            }
+                        } else if (!isCenterButtonPressed) {
+                            wasStartedByUser = false
+                        }
                     }
                     override fun onResults(results: Bundle?) {
                         Log.d(TAG, "Voice: Results")
                         isListening = false
                         abandonAudioPriority()
                         unmuteSystemStream()
-                        val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: return
+                        val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: ""
                         
-                        CoroutineScope(Dispatchers.Main).launch {
-                            try {
-                                val angolText = if (isAngolMode) {
-                                    /* try {
-                                        val model = com.google.firebase.vertexai.vertexAI(com.google.firebase.Firebase).generativeModel(
-                                            modelName = "gemini-1.5-flash",
-                                            generationConfig = com.google.firebase.vertexai.type.generationConfig { },
-                                            safetySettings = emptyList(),
-                                            tools = emptyList(),
-                                            toolConfig = null,
-                                            systemInstruction = null,
-                                            requestOptions = com.google.firebase.vertexai.type.RequestOptions()
-                                        )
-                                        val prompt = "Convert to Angol spelling: $text"
-                                        val response = withContext(Dispatchers.IO) { model.generateContent(com.google.firebase.vertexai.type.content { text(prompt) }) }
-                                        response.text?.trim() ?: yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
-                                    } catch (e: Exception) {
-                                        Log.e(TAG, "Gemini conversion failed: ${e.message}")
+                        if (text.isNotEmpty()) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                try {
+                                    val angolText = if (isAngolMode) {
                                         yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
-                                    } */
-                                    yuteledez.AngolSpelenqMelxod.convertToAngolSpelling(text)
-                                } else text
+                                    } else text
 
-                                val ic = inputConnection ?: return@launch
-                                val before = ic.getTextBeforeCursor(1, 0)
-                                val needsLeadingSpace = before != null && before.isNotEmpty()
-                                val finalStr = if (needsLeadingSpace) " $angolText" else angolText
-                                
-                                ignoreSelectionUpdateCount++
-                                ic.commitText(finalStr, 1)
-                            } catch (e: Exception) {
-                                Log.e(TAG, "Commit voice results failed: ${e.message}")
+                                    val activeIc = inputConnection ?: return@launch
+                                    val before = activeIc.getTextBeforeCursor(1, 0)
+                                    val needsLeadingSpace = before != null && before.isNotEmpty() && !before.endsWith(" ")
+                                    val finalStr = if (needsLeadingSpace) " $angolText" else angolText
+                                    
+                                    ignoreSelectionUpdateCount++
+                                    activeIc.commitText(finalStr, 1)
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "Commit voice results failed: ${e.message}")
+                                }
                             }
+                        }
+                        
+                        if (isCenterButtonPressed) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(500)
+                                if (isCenterButtonPressed) startVoiceInput()
+                            }
+                        } else {
+                            wasStartedByUser = false
                         }
                     }
                     override fun onPartialResults(partialResults: Bundle?) {}
@@ -160,23 +161,18 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                // Try to prevent early timeout
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 10000L)
+                    putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 10000L)
+                }
             }
         }
         Log.d(TAG, "onCreate - completed")
     }
 
-    private fun debouncedStartVoiceInput() {
-        val now = System.currentTimeMillis()
-        if (now - lastVoiceTriggerTime > 1500) {
-            lastVoiceTriggerTime = now
-            wasStartedByUser = true
-            Log.d(TAG, "Triggering voice input")
-            startVoiceInput()
-        }
-    }
-
     private fun startVoiceInput() {
-        Log.d(TAG, "startVoiceInput - isListening=$isListening")
+        Log.d(TAG, "startVoiceInput - isListening=$isListening, pressed=$isCenterButtonPressed")
         if (isListening) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting microphone permission via Activity")
@@ -187,10 +183,10 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             return
         }
         
-        isListening = true
         val recognizer = speechRecognizer ?: return
         val intent = speechIntent ?: return
 
+        isListening = true
         requestAudioPriority()
         val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         try {
@@ -200,13 +196,21 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             }
         } catch (e: Exception) {}
 
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(200)
-            try { recognizer.startListening(intent) } catch (e: Exception) { 
-                isListening = false
-                unmuteSystemStream()
-                Log.e(TAG, "Voice start failed: ${e.message}")
-            }
+        // Ensure we only start if the button is still actually pressed (for PTT)
+        // or if it was a toggle start (not PTT).
+        if (wasStartedByUser && !isCenterButtonPressed) {
+            Log.d(TAG, "Cancelling voice start: button already released")
+            isListening = false
+            unmuteSystemStream()
+            return
+        }
+
+        try { 
+            recognizer.startListening(intent) 
+        } catch (e: Exception) { 
+            isListening = false
+            unmuteSystemStream()
+            Log.e(TAG, "Voice start failed: ${e.message}")
         }
     }
 
@@ -282,9 +286,21 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 isPunctuationMode = isPunctuationMode,
                 isAngolMode = isAngolMode,
                 onToggleVoice = { if (isListening) stopVoiceInput() else { wasStartedByUser = true; startVoiceInput() } },
-                onStartVoice = { wasStartedByUser = true; startVoiceInput() },
-                onStopVoice = { stopVoiceInput() },
-                onToggleMode = { isLetterMode = !isLetterMode; getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_LETTER_MODE, isLetterMode).apply() },
+                onStartVoice = { 
+                    isCenterButtonPressed = true
+                    lastButtonDownTime = System.currentTimeMillis()
+                    wasStartedByUser = true
+                    // Start after a tiny delay to see if it's a tap or a hold
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(150)
+                        if (isCenterButtonPressed) startVoiceInput()
+                    }
+                },
+                onStopVoice = { 
+                    isCenterButtonPressed = false
+                    stopVoiceInput() 
+                },
+                onToggleMode = { isLetterMode = !isLetterMode },
                 onSetPunctuationMode = { isPunctuationMode = it },
                 onToggleAngol = { isAngolMode = !isAngolMode },
                 ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ }

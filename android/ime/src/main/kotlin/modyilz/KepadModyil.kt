@@ -156,17 +156,14 @@ fun KepadModyil(
             val after = activeIc.getTextAfterCursor(1000, 0) ?: ""
             val fullText = "$before$after"
             android.widget.Toast.makeText(context, "angol...", android.widget.Toast.LENGTH_SHORT).show()
-            /* if (fullText.isNotBlank()) {
+            if (fullText.isNotBlank()) {
                 scope.launch {
                     try {
-                        val model = com.google.firebase.vertexai.vertexAI(com.google.firebase.Firebase).generativeModel(
+                        val model = Firebase.vertexAI.generativeModel(
                             modelName = "gemini-1.5-flash",
-                            generationConfig = com.google.firebase.vertexai.type.generationConfig { },
+                            generationConfig = generationConfig { },
                             safetySettings = emptyList(),
-                            tools = emptyList(),
-                            toolConfig = null,
-                            systemInstruction = null,
-                            requestOptions = com.google.firebase.vertexai.type.RequestOptions()
+                            requestOptions = RequestOptions()
                         )
                         val prompt = """
                             Convert the following text between 'Angol' spelling and standard English. 
@@ -175,7 +172,7 @@ fun KepadModyil(
                             Only output the converted text, no explanations or extra text.
                             Text: $fullText
                         """.trimIndent()
-                        val response = withContext(Dispatchers.IO) { model.generateContent(com.google.firebase.vertexai.type.content { text(prompt) }) }
+                        val response = withContext(Dispatchers.IO) { model.generateContent(content { text(prompt) }) }
                         val convertedText = response.text?.trim()
                         if (convertedText != null) {
                             activeIc.beginBatchEdit()
@@ -189,7 +186,7 @@ fun KepadModyil(
                         Log.e(TAG, "Keyboard translation failed: ${e.message}")
                     }
                 }
-            } */
+            }
             return
         }
 
@@ -401,12 +398,16 @@ fun KepadModyil(
                             
                             if (downIndex != null) {
                                 hoveredHexIndex.value = downIndex
-                                if (downIndex in 0..4 && currentIsLetterMode && !currentIsPunctuationMode) gestureStartedOnVowelIndex.value = downIndex
-                                else gestureStartedOnVowelIndex.value = null
+                                if (downIndex in 0..4 && currentIsLetterMode && !currentIsPunctuationMode) {
+                                    gestureStartedOnVowelIndex.value = downIndex
+                                } else {
+                                    gestureStartedOnVowelIndex.value = null
+                                }
 
-                                if (downIndex == 18 && currentIsLetterMode) onSetPunctuationMode(true)
-                                
-                                if (downIndex == 18) onStartVoice()
+                                if (downIndex == 18) {
+                                    isCenterHexPressed = true
+                                    onStartVoice()
+                                }
                                 
                                 val downLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
                                 if (downIndex < downLabels.size && downLabels[downIndex].isNotEmpty()) {
@@ -414,7 +415,8 @@ fun KepadModyil(
                                     longPressJob.value = startLongPressTimer(downIndex)
                                 }
                             } else {
-                                hoveredHexIndex.value = null; gestureStartedOnVowelIndex.value = null
+                                hoveredHexIndex.value = null
+                                gestureStartedOnVowelIndex.value = null
                             }
                             while (true) {
                                 val event = awaitPointerEvent()
@@ -454,10 +456,23 @@ fun KepadModyil(
                                     longPressJob.value?.cancel()
                                     if (gestureStartedIndex != 18) { initialY.value = change.position.y; isCapitalized.value = false }
                                     longPressStartOffset.value = change.position
+                                    
                                     val oldVowelIndex = gestureStartedOnVowelIndex.value
-                                    if (moveIndex != null && moveIndex in 0..4 && currentIsLetterMode && !currentIsPunctuationMode) gestureStartedOnVowelIndex.value = moveIndex
-                                    else if (moveIndex != null && moveIndex >= 6 && oldVowelIndex != null) { }
-                                    else gestureStartedOnVowelIndex.value = null
+                                    
+                                    // PTT: If we move away from center, stop voice
+                                    if (gestureStartedIndex == 18 && moveIndex != 18) {
+                                        isCenterHexPressed = false
+                                        onStopVoice()
+                                    }
+
+                                    // Update vowel popup state
+                                    if (moveIndex != null && moveIndex in 0..4 && currentIsLetterMode && !currentIsPunctuationMode) {
+                                        gestureStartedOnVowelIndex.value = moveIndex
+                                    } else if (moveIndex != null && moveIndex >= 6 && oldVowelIndex != null) {
+                                        // Keep current vowel index for "Fast Number"
+                                    } else {
+                                        gestureStartedOnVowelIndex.value = null
+                                    }
                                     
                                     hoveredHexIndex.value?.let { idx ->
                                         val oldLabels = getCurrentAllLabels(oldVowelIndex)
@@ -479,9 +494,16 @@ fun KepadModyil(
                                 }
                             }
                             longPressJob.value?.cancel()
-                            if (isListening) onStopVoice()
+                            if (gestureStartedIndex == 18) {
+                                isCenterHexPressed = false
+                                onStopVoice()
+                            }
                             if (currentIsPunctuationMode) onSetPunctuationMode(false)
-                            hoveredHexIndex.value = null; gestureStartedOnVowelIndex.value = null; isCapitalized.value = false; isCenterTranslateActive.value = false; longPressStartOffset.value = null
+                            hoveredHexIndex.value = null
+                            gestureStartedOnVowelIndex.value = null
+                            isCapitalized.value = false
+                            isCenterTranslateActive.value = false
+                            longPressStartOffset.value = null
                         }
                     }
             )
@@ -507,11 +529,7 @@ fun KepadModyil(
                 textColor = if (isListening) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
                 size = hexWidthDp, 
                 fontSize = (geometry.heksWidlx * 0.6).toFloat(), 
-                isPressed = hoveredHexIndex.value == 18, 
-                onPressedChanged = { 
-                    isCenterHexPressed = it
-                    if (!it && isListening) onStopVoice()
-                }
+                isPressed = hoveredHexIndex.value == 18
             )
 
             Row(

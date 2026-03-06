@@ -1,4 +1,4 @@
-package com.example.myapp
+package io.angol.dayl
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import modyilz.KepadModyil
 
-class ComposeMainActivity : ComponentActivity() {
+class KepadSkren : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

@@ -5,12 +5,12 @@ param (
     [string]$deviceId = ""
 )
 
-$adbPackage = "com.example.myapp"
-$imeService = "com.example.myapp/com.example.angol.ime.DaylEnpitMelxod"
+$adbPackage = "io.angol.dayl"
+$imeService = "io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod"
 
 Write-Host ">>> Building and Installing Angol IME (Debug Mode)..." -ForegroundColor Cyan
 
-$flutterArgs = @("install")
+$flutterArgs = @("install", "--debug")
 if ($deviceId) {
     $flutterArgs += "-d"
     $flutterArgs += $deviceId

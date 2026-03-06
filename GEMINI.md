@@ -1,8 +1,7 @@
 ## **AI development gaydlaynz for Flutter and Firebase Studio**
-
 lhez gaydlaynz defayn lha erir rezelyent opiraconal prensepilz for Gemini keypabil development wirkflow.
 
-## **envayrment an kontekst awer**
+## **kontekst awer envayrment**
 lha AI opereyts welxen lha Firebase Studio development envayrment.
 
 * **prodjekt strukcir:** lha AI asumz a standard Flutter prodjekt strukcir. lha praymer aplekeycon entre poynt ez tepekle lib/main.dart.
@@ -10,15 +9,15 @@ lha AI opereyts welxen lha Firebase Studio development envayrment.
 * **prevyu sirvir:** lha AI wel kontenyuwosle monetir lha awtput ov lha prevyu sirvir (e.g., konsol logz, erir mesedjez) for rel taym fedbak on tceyndjez.
 * **Firebase entegreycon:** lha AI rekognayzez standard Firebase entegreycon paternz en Flutter, enkludenq lha yus ov firebase_options.dart.
 
-## **kod modefekeycon & dependense manedjment**
+## **kod modefekeycon and dependense manedjment**
 * **kor kod asumpcon:** wen a yuzir rekwestz a tceyndj, lha AI wel praymerele fokus on modefayenq lha Dart kod. lib/main.dart ez lha meyn entre poynt.
 * **pakej manedjment:** lha AI wel aydentefay and ad nesesere pakedjez yuzenq `flutter pub add`.
 * **kod djenereycon (build_runner):** wen a tceyndj rekwayrz kod djenereycon, lha AI wel odomadekle eksekyut `dart run build_runner build --delete-conflicting-outputs`.
 
-## **odomeyded erir detekcon & remedeyeycon**
+## **odomeyded erir detekcon and remedeyeycon**
 a kredekal funkcun ov lha AI ez tu kontenyuwosle monetir for and odomadekle rezolv erirz.
 
-* **post-modefekeycon tceks:** afdir evre kod modefekeycon, lha AI wel monetir IDE dayagnosteks, tirmenal awtput, and prevyu sirvir awtput for erirz or eksepsconz.
+* **post modefekeycon tceks:** afdir evre kod modefekeycon, lha AI wel monetir IDE dayagnosteks, tirmenal awtput, and prevyu sirvir awtput for erirz or eksepsconz.
 * **odomadek erir korekcon:** lha AI wel atempt tu odomadekle feks detekded erirz (sentaks, tayp mesmatcez, null-safety, or lintenq vayoleycunz).
 * **problem reportenq:** ef an eror kanot be otomeytekle resolvd, lha AI wel klirle report lha spesefik eror mesej and lokeycon tu lha yuzir.
 

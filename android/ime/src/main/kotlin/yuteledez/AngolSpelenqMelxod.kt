@@ -89,54 +89,64 @@ object AngolSpelenqMelxod {
     private fun transformWord(word: String): String {
         var result = word
 
-        // 0. Handle known roots (like work in working)
-        for ((root, replacement) in replacements) {
-            if (root.length > 3 && word.startsWith(root) && (word.endsWith("ing") || word.endsWith("s") || word.endsWith("ed"))) {
-                result = replacement + word.substring(root.length)
-                break
-            }
-        }
+        // 0. Preliminary cleanup
+        result = result.replace("wh", "w")
+        result = result.replace("kn", "n")
+        result = result.replace("gn", "n")
+        result = result.replace("wr", "r")
 
-        // 1. Specific clusters first
+        // 1. Specific clusters first (ordered to prevent double-conversion)
+        result = result.replace("tch", "tc")
         result = result.replace("ch", "tc")
         result = result.replace("sh", "c")
         result = result.replace("ck", "k")
         result = result.replace("ph", "f")
-        result = result.replace("wh", "w")
+        result = result.replace("qu", "kw")
         result = result.replace(Regex("^th"), "lh")
         result = result.replace("th", "lx")
 
-        // 2. Suffixes (using placeholders for 'c' in 'con')
-        result = result.replace(Regex("tion$"), "C_ON")
-        result = result.replace(Regex("sion$"), "C_ON")
+        // 2. Suffixes
+        result = result.replace(Regex("tion$"), "con")
+        result = result.replace(Regex("sion$"), "con")
         result = result.replace(Regex("ing$"), "enq")
+        result = result.replace(Regex("ought$"), "ot")
+        result = result.replace(Regex("aught$"), "ot")
 
-        // 3. Vowel Shifts (Long vowels)
-        result = result.replace(Regex("a([bcdfghjklmnpqrstvwxyz])e$"), "EY$1")
-        result = result.replace(Regex("i([bcdfghjklmnpqrstvwxyz])e$"), "AY$1")
+        // 3. Vowel Shifts (Long vowels with silent 'e')
+        result = result.replace(Regex("a([bcdfghjklmnpqrstvwxyz])e$"), "ey$1")
+        result = result.replace(Regex("i([bcdfghjklmnpqrstvwxyz])e$"), "ay$1")
+        result = result.replace(Regex("o([bcdfghjklmnpqrstvwxyz])e$"), "o$1")
+        result = result.replace(Regex("u([bcdfghjklmnpqrstvwxyz])e$"), "uw$1")
         
         // 4. General Consonants
-        result = result.replace("tc", "T_C")
         result = result.replace(Regex("c(?=[eiy])"), "s") // soft c
         result = result.replace(Regex("c(?![eiy])"), "k") // hard c
         result = result.replace(Regex("(?i)j|(?<=^|[^aeiou])g(?=[eiy])"), "dj") // j or soft g
-        result = result.replace("T_C", "tc")
+        result = result.replace("x", "ks")
+        result = result.replace("q", "k")
 
         // 5. Short vowels and common combinations
         result = result.replace("is", "ez")
         result = result.replace("it", "et")
+        result = result.replace("ee", "e")
+        result = result.replace("oo", "uw")
+        result = result.replace("ea", "e")
+        result = result.replace("ai", "ey")
+        result = result.replace("ay", "ey")
+        result = result.replace("ie", "e")
+        result = result.replace("oa", "o")
         
-        result = result
-            .replace("ee", "e")
-            .replace("oo", "uw")
-            .replace("ai", "ey")
-            .replace("ay", "ey")
-            
-        // 6. Restore placeholders
-        result = result
-            .replace("C_ON", "con")
-            .replace("EY", "ey")
-            .replace("AY", "ay")
+        // 6. Double consonants -> single
+        val sb = StringBuilder()
+        if (result.isNotEmpty()) {
+            sb.append(result[0])
+            for (i in 1 until result.length) {
+                if (result[i] != result[i - 1]) {
+                    sb.append(result[i])
+                }
+            }
+        }
+        result = sb.toString()
 
         return result
     }
