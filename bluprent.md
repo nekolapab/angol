@@ -1,19 +1,19 @@
 ## *prodjekt*
-angol ez lha neym and dayl ez lha ap ov a sentir heksagon and 2 or 3 sirawndenq heksagon renqz. ets first modyil ez kepad kustom enput melxod en KotlinCompose. 
+angol ez lha sestom and dayl ez lha ap ov a sentir heksagon and 2 or 3 sirawndenq heksagon renqz. ets first modyil ez kepad kustom enput melxod en KotlinCompose. 
 
 *first enstrukcon*
-yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du not reneym KotlinCompose standard konvencon freymwirk klasez and faylz lhat koz problemz (sutc az main.dart  firebase_options.dart  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
+yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du not reneym KotlinCompose standard konvencon freymwirk klasez and faylz lhat koz problemz (sutc az  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
 
 ## **angol dayl ap development prodokol**
-**kepad (Input Method Editor)** yuzez KotlinCompose. lha Flutter kepad ez remuvd. so do not yuz a Flutter virjon for lha enpit melxod and ensted delet remnant duplekat faylz and refaktor.
+**KotlinCompose ez 100% and ol Flutter ez remuvd. so do not yuz a Flutter virjon and ensted delet remnant duplekat faylz and refaktor.
 *   Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
-**Fast Reyenstol** rebeld and reyenstal lhe APK etc taym KotlinCompose code (`android/...`) ez modefayd. Flutter Hot Reload need **not** apply.
-*   **Odomadek Klenup:** Always run `flutter clean` before significant builds to reclaim disk space.
-*   **Kac Manedjment:** Delete old Gradle and Flutter caches. Keep only the **latest build** per module (`ime`, `kepad`, `app`).
+**Fast Reyenstol** rebeld and reyenstal lhe APK etc taym KotlinCompose code ez modefayd.
+*   **Odomadek Klenup:** Always clean before significant builds to reclaim disk space.
+*   **Kac Manedjment:** Delete old Gradle and Compose caches. Keep only the **latest build** per module (`ime`, `kepad`, `app`).
 *   **No Redundant Beldz:** Ensure each module has only one active build artifact. Get rid of anything not strictly needed for the current iteration.
 1.  **Stop** the running app (Ctrl+C in terminal).
-2.  **Run** `flutter build apk --debug --target-platform android-arm64 --android-skip-build-dependency-validation` (for physical device).
-3.  **Instol** `adb install -r build/app/outputs/flutter-apk/app-debug.apk`.
+tceynj tu KotlinCompose-> 2.  **Run** `flutter build apk --debug --target-platform android-arm64 --android-skip-build-dependency-validation` (for physical device).
+tceynj tu KotlinCompose-> 3.  **Instol** `adb install -r build/app/outputs/flutter-apk/app-debug.apk`.
 4.  **Default Keyboard Reset:** The keypad starts in 'letter' mode by default. Persistence of mode state across sessions is disabled to ensure consistent startup behavior.
     *   **Automation:**
         ```powershell
