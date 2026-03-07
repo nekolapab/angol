@@ -166,10 +166,14 @@ fun KepadModyil(
                             requestOptions = RequestOptions()
                         )
                         val prompt = """
-                            Convert the following text between 'Angol' spelling and standard English. 
-                            If the text is in standard English, convert it to Angol spelling.
-                            If the text is in Angol spelling, convert it to standard English.
-                            Only output the converted text, no explanations or extra text.
+                            Transcribe the following text into the 'Angol' phonetic system. 
+                            Rules:
+                            1. Use exactly 36 characters: 24 consonants (l, lx, x, d, t, c, g, k, f, b, p, s, lh, h, n, y, r, j, nq, q, v, w, m, z) and 12 vowel symbols (1, 2, 3, 4, 5, 6, 7, 8, 9, 0, A, O).
+                            2. Transcription must be PURELY PHONETIC. If a sound is not spoken (like the 't' in 'exactly' if skipped), do not write it.
+                            3. 'nq' is the nasal sound in 'thing'. If followed by a 'g' sound (like 'Angol'), write 'nqg'.
+                            4. 'c' is the 'sh' sound, 'tc' is 'ch'. 'lh' is voiced 'the', 'lx' is unvoiced 'thin'.
+                            5. Vowels: 1=ah, 2=at, 3=eh, 4=it, 5=ee, 6=er, 7=put, 8=up, 9=too, 0=go, A=oh, O=all.
+                            6. Output ONLY the transcribed characters.
                             Text: $fullText
                         """.trimIndent()
                         val response = withContext(Dispatchers.IO) { model.generateContent(content { text(prompt) }) }
@@ -422,13 +426,10 @@ fun KepadModyil(
                                 val event = awaitPointerEvent()
                                 val change = event.changes.firstOrNull { it.pressed } ?: break
                                 val dy = change.position.y - initialY.value
-                                val upThreshold = if (gestureStartedIndex == 18) geometry.heksSayz.toFloat() * 0.15f else geometry.heksSayz.toFloat() * 0.4f
+                                val upThreshold = geometry.heksSayz.toFloat() * 0.4f
                                 val downThreshold = geometry.heksSayz.toFloat() * 0.2f
                                 if (!isCenterTranslateActive.value && !isCapitalized.value && dy < -upThreshold) {
-                                    if (gestureStartedIndex == 18) {
-                                        handleKeyPress("TRANSLATE", false, null)
-                                        isCenterTranslateActive.value = true
-                                    } else {
+                                    if (gestureStartedIndex != 18) {
                                         isCapitalized.value = true
                                         hoveredHexIndex.value?.let { idx ->
                                             val upLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
@@ -536,8 +537,13 @@ fun KepadModyil(
                 modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(horizontal = 16.dp, vertical = 8.dp).pointerInput(Unit) { detectTapGestures { onToggleVoice() } },
                 horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
             ) {
-                androidx.compose.material.TextButton(onClick = { onToggleAngol() }, modifier = Modifier.height(24.dp), contentPadding = PaddingValues(horizontal = 4.dp)) {
-                    androidx.compose.material.Text(text = "angol", color = if (isAngolMode) Color.White else Color.Gray.copy(alpha = 0.25f), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    androidx.compose.material.TextButton(onClick = { onToggleAngol() }, modifier = Modifier.height(24.dp), contentPadding = PaddingValues(horizontal = 4.dp)) {
+                        androidx.compose.material.Text(text = "angol", color = if (isAngolMode) Color.White else Color.Gray.copy(alpha = 0.25f), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                    androidx.compose.material.TextButton(onClick = { handleKeyPress("TRANSLATE", false, null) }, modifier = Modifier.height(24.dp), contentPadding = PaddingValues(horizontal = 4.dp)) {
+                        androidx.compose.material.Text(text = "AI", color = Color.Cyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
                 androidx.compose.material.Text(text = displayText, color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp, fontWeight = FontWeight.Normal, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.End)
             }

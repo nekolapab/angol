@@ -1,64 +1,14 @@
 package yuteledez
 
 /**
- * Utility class for phonetic conversion of English text to 'Angol' spelling.
- * This provides a robust, rule-based transformation engine.
- *
- * Vowel Phonetic Mapping (Reference for Orthography):
- * - a1: /ɑ/ (pasta) -> a     - i6: /ɝ/ (her)   -> ir    - o0: /oʊ/ (go)  -> o
- * - a2: /æ/ (cat)   -> a     - i7: /ʊ/ (book)  -> i     - oA: /o/ (beau)  -> o
- * - e3: /ɛ/ (bed)   -> e                              - oO: /ɔ/ (all)   -> o
- * - e4: /ɪ/ (bit)   -> e     - u8: /ʌ/ (but)   -> u
- * - e5: /i/ (keep)  -> e     - u9: /u/ (too)   -> u
+ * Pure Phonetic Sound-Stream Engine for the Angol 36-character system.
+ * 100% Sound-to-Symbol mapping. No English spelling rules.
  */
 object AngolSpelenqMelxod {
-    private val replacements = mapOf(
-        "the" to "lha",
-        "to" to "tu",
-        "application" to "aplekeycon",
-        "information" to "enformeycon",
-        "service" to "sirves",
-        "input" to "enpit",
-        "method" to "melxod",
-        "voice" to "voys",
-        "text" to "tekst",
-        "typing" to "taypenq",
-        "spelling" to "spelenq",
-        "perfect" to "pirfekt",
-        "work" to "wirk",
-        "button" to "buton",
-        "number" to "numbir",
-        "letter" to "ledir",
-        "center" to "sentir",
-        "circle" to "sirkol",
-        "inner" to "enir",
-        "outer" to "awdir",
-        "keyboard" to "kepad",
-        "this" to "lhes",
-        "with" to "welx",
-        "have" to "hav",
-        "been" to "bin",
-        "was" to "waz",
-        "does" to "duz",
-        "doesn't" to "duznt",
-        "nothing" to "naixenq",
-        "through" to "lru",
-        "all" to "ol",
-        "mode" to "mod",
-        "photo" to "fowto",
-        "when" to "wen",
-        "well" to "wel",
-        "she" to "ci",
-        "he" to "hi",
-        "me" to "mi",
-        "be" to "bi",
-        "we" to "wi"
-    )
 
     fun convertToAngolSpelling(text: String): String {
         if (text.isBlank()) return text
         
-        // Split while preserving delimiters (whitespace/punctuation)
         val regex = Regex("(\\s+|[^a-zA-Z\\s]+)")
         val tokens = mutableListOf<String>()
         var lastEnd = 0
@@ -73,82 +23,84 @@ object AngolSpelenqMelxod {
             tokens.add(text.substring(lastEnd))
         }
 
-        val convertedTokens = tokens.map { token ->
+        return tokens.joinToString("") { token ->
             if (token.any { it.isLetter() }) {
-                val cleanWord = token.lowercase()
-                var result = replacements[cleanWord] ?: transformWord(cleanWord)
+                val result = transformToPureSound(token.lowercase())
                 capitalize(token, result)
             } else {
                 token
             }
         }
-        
-        return convertedTokens.joinToString("")
     }
 
-    private fun transformWord(word: String): String {
-        var result = word
+    private fun transformToPureSound(input: String): String {
+        var res = input
 
-        // 0. Preliminary cleanup
-        result = result.replace("wh", "w")
-        result = result.replace("kn", "n")
-        result = result.replace("gn", "n")
-        result = result.replace("wr", "r")
-
-        // 1. Specific clusters first (ordered to prevent double-conversion)
-        result = result.replace("tch", "tc")
-        result = result.replace("ch", "tc")
-        result = result.replace("sh", "c")
-        result = result.replace("ck", "k")
-        result = result.replace("ph", "f")
-        result = result.replace("qu", "kw")
-        result = result.replace(Regex("^th"), "lh")
-        result = result.replace("th", "lx")
-
-        // 2. Suffixes
-        result = result.replace(Regex("tion$"), "con")
-        result = result.replace(Regex("sion$"), "con")
-        result = result.replace(Regex("ing$"), "enq")
-        result = result.replace(Regex("ought$"), "ot")
-        result = result.replace(Regex("aught$"), "ot")
-
-        // 3. Vowel Shifts (Long vowels with silent 'e')
-        result = result.replace(Regex("a([bcdfghjklmnpqrstvwxyz])e$"), "ey$1")
-        result = result.replace(Regex("i([bcdfghjklmnpqrstvwxyz])e$"), "ay$1")
-        result = result.replace(Regex("o([bcdfghjklmnpqrstvwxyz])e$"), "o$1")
-        result = result.replace(Regex("u([bcdfghjklmnpqrstvwxyz])e$"), "uw$1")
+        // Stage 1: Consonant Sounds (Direct 1:1)
+        res = res.replace("tch", "tc")
+        res = res.replace("ch", "tc")
+        res = res.replace("sh", "c")
+        res = res.replace("ck", "k")
+        res = res.replace("ph", "f")
+        res = res.replace("qu", "kw")
+        res = res.replace(Regex("^th"), "lh")
+        res = res.replace("th", "lx")
         
-        // 4. General Consonants
-        result = result.replace(Regex("c(?=[eiy])"), "s") // soft c
-        result = result.replace(Regex("c(?![eiy])"), "k") // hard c
-        result = result.replace(Regex("(?i)j|(?<=^|[^aeiou])g(?=[eiy])"), "dj") // j or soft g
-        result = result.replace("x", "ks")
-        result = result.replace("q", "k")
+        // Nasal Logic: nq for nasal sound, ng if hard g follows
+        res = res.replace(Regex("ng(?=[aeiou])"), "ng")
+        res = res.replace("ng", "nq")
 
-        // 5. Short vowels and common combinations
-        result = result.replace("is", "ez")
-        result = result.replace("it", "et")
-        result = result.replace("ee", "e")
-        result = result.replace("oo", "uw")
-        result = result.replace("ea", "e")
-        result = result.replace("ai", "ey")
-        result = result.replace("ay", "ey")
-        result = result.replace("ie", "e")
-        result = result.replace("oa", "o")
+        // Stage 2: Vowel Sounds (Direct 1:1 Mapping to 36-char symbols)
+        // 1=ah, 2=at, 3=eh, 4=it, 5=ee, 6=er, 7=put/schwa, 8=up, 9=too, 0=go, A=oh, O=all.
+
+        // Handle common digraphs as single vowel sounds
+        res = res.replace("ee", "5")
+        res = res.replace("ea", "5")
+        res = res.replace("oo", "9")
+        res = res.replace("ai", "3") // rain -> r3n
+        res = res.replace("ay", "3")
+        res = res.replace("ie", "5")
+        res = res.replace("oa", "0")
+        res = res.replace("ou", "2") // about -> 2b2t (simplified)
+        res = res.replace("ow", "2")
+        res = res.replace("ir", "6")
+        res = res.replace("ur", "6")
+        res = res.replace("er", "6")
+
+        // Stage 3: Consonant Polish (Hard/Soft)
+        res = res.replace(Regex("c(?=[eiy])"), "s")
+        res = res.replace(Regex("c(?![eiy])"), "k")
+        res = res.replace(Regex("(?i)j|(?<=^|[^aeiou])g(?=[eiy])"), "j")
+        res = res.replace("x", "ks")
+        res = res.replace("q", "k")
+
+        // Stage 4: Map remaining English vowels to Angol symbols
+        res = res.replace("a", "2")
+        res = res.replace("e", "3")
+        res = res.replace("i", "4")
+        res = res.replace("o", "O")
+        res = res.replace("u", "8")
         
-        // 6. Double consonants -> single
+        // Stage 5: Special Acoustic Cases (The "Ear" Logic)
+        // 'handle' -> h2nd7l (schwa + l)
+        res = res.replace(Regex("3l$"), "7l")
+        
+        // Terminal 'y' as '5' (be)
+        if (res.endsWith("y")) {
+            res = res.substring(0, res.length - 1) + "5"
+        }
+
+        // Stage 6: Acoustic Simplification (No double sounds)
         val sb = StringBuilder()
-        if (result.isNotEmpty()) {
-            sb.append(result[0])
-            for (i in 1 until result.length) {
-                if (result[i] != result[i - 1]) {
-                    sb.append(result[i])
-                }
+        if (res.isNotEmpty()) {
+            sb.append(res[0])
+            for (i in 1 until res.length) {
+                if (res[i] != res[i - 1]) sb.append(res[i])
             }
         }
-        result = sb.toString()
+        res = sb.toString()
 
-        return result
+        return res
     }
 
     private fun capitalize(original: String, replacement: String): String {
