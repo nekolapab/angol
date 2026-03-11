@@ -13,5 +13,5 @@ fun App(
     voiceService: VoiceService,
     isApp: Boolean = false
 ) {
-    skrenz.DaylSkren(keyboardController, platformServices, voiceService)
+    skrenz.DaylSkren(keyboardController, platformServices, voiceService, isApp = isApp)
 }

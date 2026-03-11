@@ -39,7 +39,7 @@ fun DaylSkren(
 
     BoxWithConstraints(
         modifier = Modifier
-            .fillMaxSize()
+            .then(if (isApp) Modifier.fillMaxSize() else Modifier.fillMaxWidth().wrapContentHeight())
             .background(
                 Brush.radialGradient(
                     0.0f to Color(0xFF1A1A2E),
@@ -62,16 +62,35 @@ fun DaylSkren(
             screenHeight.value / 8.0
         ).dp
 
-        val geometry = remember(hexSize) {
+        val geometry = remember(hexSize, screenWidth, screenHeight, isApp) {
+            val hexWidth = hexSize.value * sqrt(3.0)
+            
+            val isLandscape = screenWidth > screenHeight
+            val sentirX = if (!isApp && isLandscape) {
+                -screenWidth.value / 2.0 + 2.6666 * hexWidth
+            } else {
+                0.0
+            }
+            
             HeksagonDjeyometre(
                 heksSayz = hexSize.value.toDouble(),
-                sentir = HeksagonPozecon(0.0, 0.0),
+                sentir = HeksagonPozecon(sentirX, 0.0),
                 ezLeterMod = true
             )
         }
 
-        // Absolute centering for the Hub/Keypad
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        // Limit the height of the IME container to fit the keyboard perfectly (8 radii tall)
+        val contentModifier = if (isApp) {
+            Modifier.fillMaxSize()
+        } else {
+            Modifier.fillMaxWidth().height(hexSize * 8f)
+        }
+
+        // Absolute centering/bottom alignment for the Hub/Keypad
+        Box(
+            modifier = contentModifier, 
+            contentAlignment = if (isApp) Alignment.Center else Alignment.BottomCenter
+        ) {
             if (daylSteyt.ezKepadVezebil) {
                 var isLetterMode by remember { mutableStateOf(true) }
                 var isPunctuationMode by remember { mutableStateOf(false) }

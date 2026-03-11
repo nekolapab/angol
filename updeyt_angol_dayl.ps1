@@ -2,11 +2,9 @@
 $ErrorActionPreference = "Stop"
 Write-Host "🔄 Building and updating Angol Dayl app..." -ForegroundColor Cyan
 
-# Step 0: Uninstall old app to ensure fresh state
-Write-Host "🧹 Uninstalling old app..." -ForegroundColor Yellow
+# Step 0: Aggressive Cleanup
+Write-Host "🧹 Uninstalling existing package to clear cache..." -ForegroundColor Yellow
 adb uninstall io.angol.dayl
-# Also uninstall the other possible package name just in case
-adb uninstall com.example.angol.ime
 
 # Step 1: Clean and Build the APK
 Write-Host "📦 Cleaning and Building APK..." -ForegroundColor Yellow
@@ -31,7 +29,23 @@ if (Test-Path $apkPath) {
     exit 1
 }
 
-# Step 3: Launch app
+# Step 3: Deep Activation
+Write-Host "⌨️ Performing Deep Activation of 'kepad'..." -ForegroundColor Yellow
+$imeId = "io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod"
+
+# Layer 1: Standard IME commands
+adb shell ime enable $imeId
+adb shell ime set $imeId
+
+# Layer 2: Secure Settings (Forces it into the 'enabled' list)
+$currentEnabled = adb shell settings get secure enabled_input_methods
+if ($currentEnabled -notlike "*$imeId*") {
+    $newEnabled = "${currentEnabled}:${imeId}"
+    adb shell settings put secure enabled_input_methods "'$newEnabled'"
+}
+adb shell settings put secure default_input_method $imeId
+
+# Step 4: Launch app
 Write-Host "🚀 Launching app..." -ForegroundColor Yellow
 adb shell am start -n io.angol.dayl/com.example.angol.ime.MainActivity
 if ($LASTEXITCODE -ne 0) {
@@ -39,4 +53,4 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "✅ App updated and launched successfully!" -ForegroundColor Green
+Write-Host "✅ App updated and activation pushed!" -ForegroundColor Green

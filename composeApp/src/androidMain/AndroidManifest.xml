@@ -7,14 +7,14 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <application
-        android:label="dayl"
+        android:label="@string/ime_name"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
         <activity
             android:name="com.example.angol.ime.MainActivity"
-            android:label="dayl"
+            android:label="@string/ime_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -42,7 +42,7 @@
 
         <service
             android:name="com.example.angol.ime.DaylEnpitMelxod"
-            android:label="angol"
+            android:label="@string/ime_name"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true"
             android:foregroundServiceType="microphone">

@@ -1,11 +1,8 @@
-# Build and install IME script
-Write-Host "Building IME APK..." -ForegroundColor Cyan
+# Build and install KMP IME script
+Write-Host "Building KMP IME APK..." -ForegroundColor Cyan
 
-# Change to android directory
-Set-Location android
-
-# Build the IME
-.\gradlew.bat :ime:assembleDebug
+# Build the KMP APK
+./gradlew :composeApp:assembleDebug
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Build failed!" -ForegroundColor Red
@@ -13,20 +10,22 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Find the APK
-$apkPath = Get-ChildItem -Path "." -Recurse -Include "*.apk" | Where-Object { $_.FullName -like "*ime*" } | Select-Object -First 1
+$apkPath = "composeApp\build\outputs\apk\debug\composeApp-debug.apk"
 
-if ($apkPath) {
-    Write-Host "Found IME APK: $($apkPath.FullName)" -ForegroundColor Green
+if (Test-Path $apkPath) {
+    Write-Host "Found KMP IME APK: $apkPath" -ForegroundColor Green
 
     Write-Host "Installing IME APK..." -ForegroundColor Yellow
-    adb install -r $apkPath.FullName
+    adb install -r $apkPath
 
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "IME APK installed successfully!" -ForegroundColor Green
-        Write-Host "Now enable the IME in Android Settings > System > Languages & input > Virtual keyboard > Manage keyboards" -ForegroundColor Cyan
+        $imeId = "io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod"
+        adb shell ime enable $imeId
+        adb shell ime set $imeId
+        Write-Host "IME APK installed and activated successfully!" -ForegroundColor Green
     } else {
         Write-Host "Install failed!" -ForegroundColor Red
     }
 } else {
-    Write-Host "No IME APK found!" -ForegroundColor Red
+    Write-Host "No KMP IME APK found!" -ForegroundColor Red
 }

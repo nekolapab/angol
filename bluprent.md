@@ -113,12 +113,18 @@ The goal is to achieve 100% consistent pirfekt conversions, prioritizing AI lear
 * **Build:** build for x64 and arm64.
 
 ## **krent problemz (Known Issues)**
-- **Stale Deployment:** Source code changes (hub renamed to 'angol', angol spetc tu tekst togil) are NOT appearing on the device/emulator despite "Success" in build and install logs.
-- **IME Label Confusion:** The keyboard extension name intermittently reverts to 'angol' in Settings instead of 'kepad'.
-- **Docking vs Full-Screen:** The IME occasionally takes over the entire screen instead of staying docked at the bottom. `onEvaluateFullscreenMode` has been overridden to force docking.
-- **Auto Activation:** Manual toggle of keyboard in Settings despite automation attempts in the build script.
+- **Stale Deployment:** [FIXED] Old build scripts (`reinstall_ime.ps1`, `build_and_install_ime.ps1`) were pointing to the wrong directory (`android/ime/`). They have been updated to point to `composeApp/`. Using `updeyt_angol_dayl.ps1` is recommended as it performs a clean build and uninstall.
+- **IME Label Confusion:** [INVESTIGATING] The label is defined as 'kepad' in `strings.xml`, but the user reports it reverts to 'angol'. This may be due to the `applicationId` (io.angol.dayl) or caching.
+- **Docking vs Full-Screen:** [FIXED] `onEvaluateFullscreenMode` has been overridden to return `false` in `DaylEnpitMelxod.kt`.
+- **Auto Activation:** [FIXED] `updeyt_angol_dayl.ps1` now performs "Deep Activation" using secure settings commands.
 
-## **feylyirz tu not repet ded endz**:
+## **plan for krent rekwest**
+1.  **Refaktor Build Scripts:** (Done) Updated `reinstall_ime.ps1` and `build_and_install_ime.ps1` to use KMP paths.
+2.  **Verify Renames:** (Done) Hub is renamed to 'angol' in `DaylSteyt.kt`. 'angol' toggle is present in `KepadModyil.kt`.
+3.  **Perform Fresh Build:** (Done) Ran `updeyt_angol_dayl.ps1` successfully.
+4.  **Investigate Label:** Check for any other sources of the 'angol' label in the APK.
+
+## **kod modefekeycon and dependense manedjment**
     *   **Galaxy Wearable App**: Fails on emulator. Use "Wear OS by Google".
     *   **Messages / Account Sync**: Fails on emulator ("Update in progress" hang). Use custom `ime` app to test.
     *   **System Search**: Missing in Wear OS 6 UI. Use custom `ime` app.

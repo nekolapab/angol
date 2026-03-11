@@ -364,15 +364,11 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         isClosing = false
         super.onStartInputView(info, restarting)
-        
-        // Force full-screen window for the IME
-        window?.window?.let { win ->
-            win.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-            win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                win.setDecorFitsSystemWindows(false)
-            }
-        }
+    }
+
+    override fun onEvaluateFullscreenMode(): Boolean {
+        // Force the keyboard to stay docked and never go full-screen
+        return false
     }
 
     override fun onWindowShown() {
