@@ -27,6 +27,20 @@ data class ModyilDeyda(
     val pozecon: Int,
     val ezAktiv: Boolean = false
 ) {
+    fun copyWith(
+        id: String? = null,
+        neym: String? = null,
+        kulor: Color? = null,
+        pozecon: Int? = null,
+        ezAktiv: Boolean? = null
+    ): ModyilDeyda = ModyilDeyda(
+        id = id ?: this.id,
+        neym = neym ?: this.neym,
+        kulor = kulor ?: this.kulor,
+        pozecon = pozecon ?: this.pozecon,
+        ezAktiv = ezAktiv ?: this.ezAktiv
+    )
+
     /**
      * Converts the object to a JSON-like map.
      */

@@ -3,6 +3,7 @@ package com.example.angol.ime
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
@@ -10,11 +11,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import modyilz.App
 import androidx.compose.runtime.remember
+import androidx.core.view.WindowCompat
 import kotlinx.coroutines.MainScope
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
         
         val scope = MainScope()
         val platformServices = AndroidPlatformServices(this, scope)
@@ -32,7 +37,8 @@ class MainActivity : ComponentActivity() {
                     App(
                         keyboardController = keyboardController,
                         platformServices = platformServices,
-                        voiceService = voiceService
+                        voiceService = voiceService,
+                        isApp = true
                     )
                 }
             }

@@ -26,6 +26,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.getValue
@@ -138,19 +140,17 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         }
                         override fun onResults(results: Bundle?) {
                             val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: ""
-                            Log.d(TAG, "Voice Results received: '$text', isAiVoiceActive=$isAiVoiceActive")
+                            Log.d(TAG, "Voice FINAL Results: '$text', isAiVoiceActive=$isAiVoiceActive")
                             isListening.value = false
                             abandonAudioPriority()
                             unmuteSystemStream()
 
                             if (text.isNotEmpty()) {
-                                // CRITICAL: Capture InputConnection immediately outside the launch scope
-                                val ic: InputConnection? = currentInputConnection
-                                
+                                val ic = currentInputConnection
                                 scope.launch {
                                     try {
-                                        val finalStr = if (isAiVoiceActive) {
-                                            Log.d(TAG, "Starting Gemini transcription for: '$text'")
+                                        val processedText = if (isAiVoiceActive) {
+                                            Log.d(TAG, "Starting Gemini conversion...")
                                             android.widget.Toast.makeText(this@DaylEnpitMelxod, "AI conversion...", android.widget.Toast.LENGTH_SHORT).show()
                                             val model = Firebase.vertexAI.generativeModel(
                                                 modelName = "gemini-1.5-flash",
@@ -162,7 +162,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                 Transcribe the following text into the 'Angol' phonetic system. 
                                                 Rules:
                                                 1. Use exactly 36 characters: 24 consonants (l, lx, x, d, t, c, g, k, f, b, p, s, lh, h, n, y, r, j, nq, q, v, w, m, z) and 12 vowel symbols (1, 2, 3, 4, 5, 6, 7, 8, 9, 0, A, O).
-                                                2. Transcription must be PURELY PHONETIC. If a sound is not spoken (like the 't' in 'exactly' if skipped), do not write it.
+                                                2. Transcription must be PURELY PHONETIC.
                                                 3. 'nq' is the nasal sound in 'thing'. If followed by a 'g' sound (like 'Angol'), write 'nqg'.
                                                 4. 'c' is the 'sh' sound, 'tc' is 'ch'. 'lh' is voiced 'the', 'lx' is unvoiced 'thin'.
                                                 5. Vowels: 1=ah, 2=at, 3=eh, 4=it, 5=ee, 6=er, 7=put, 8=up, 9=too, 0=go, A=oh, O=all.
@@ -170,51 +170,53 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                                 Text: $text
                                             """.trimIndent()
                                             val response = withContext(Dispatchers.IO) { model.generateContent(content { text(prompt) }) }
-                                            val res = response.text?.trim() ?: text
-                                            Log.d(TAG, "Gemini response: '$res'")
-                                            res
+                                            response.text?.trim() ?: text
                                         } else {
-                                            if (isAngolMode) {
-                                                AngolSpelenqMelxod.convertToAngolSpelling(text)
-                                            } else text
+                                            if (isAngolMode) AngolSpelenqMelxod.convertToAngolSpelling(text) else text
                                         }
 
-                                        Log.d(TAG, "Attempting to commit text: '$finalStr'")
-                                        if (ic != null) {
-                                            val before = ic.getTextBeforeCursor(1, 0)
-                                            val needsLeadingSpace = before != null && before.isNotEmpty() && !before.endsWith(" ")
-                                            val commitStr = if (needsLeadingSpace) " $finalStr" else finalStr
-
+                                        Log.d(TAG, "Committing FINAL processed text: '$processedText'")
+                                        ic?.let {
+                                            it.beginBatchEdit()
+                                            // Finish any composing text first
+                                            it.finishComposingText()
+                                            
+                                            val before = it.getTextBeforeCursor(1, 0)
+                                            val needsSpace = before != null && before.isNotEmpty() && !before.endsWith(" ")
+                                            val finalCommit = if (needsSpace) " $processedText" else processedText
+                                            
                                             ignoreSelectionUpdateCount++
-                                            ic.beginBatchEdit()
-                                            ic.commitText(commitStr, 1)
-                                            ic.endBatchEdit()
-                                            Log.d(TAG, "commitText completed")
-                                        } else {
-                                            Log.e(TAG, "Cannot commit text: InputConnection was NULL at capture time")
-                                        }
+                                            it.commitText(finalCommit, 1)
+                                            it.endBatchEdit()
+                                            Log.d(TAG, "Successfully committed to text field")
+                                        } ?: Log.e(TAG, "InputConnection was NULL, cannot commit")
                                     } catch (e: Exception) {
-                                        Log.e(TAG, "Commit voice results failed: ${e.message}")
-                                        e.printStackTrace()
+                                        Log.e(TAG, "Processing failed: ${e.message}")
                                     } finally {
                                         isAiVoiceActive = false
                                     }
                                 }
-                            } else {
-                                Log.d(TAG, "Voice results were empty")
-                                isAiVoiceActive = false
                             }
                             
                             if (isCenterButtonPressed) {
-                                scope.launch {
-                                    delay(500)
-                                    if (isCenterButtonPressed) startVoiceInput()
-                                }
+                                scope.launch { delay(500); if (isCenterButtonPressed) startVoiceInput() }
                             } else {
                                 wasStartedByUser = false
                             }
                         }
-                        override fun onPartialResults(partialResults: Bundle?) {}
+                        override fun onPartialResults(partialResults: Bundle?) {
+                            val text = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: ""
+                            if (text.isNotEmpty()) {
+                                Log.d(TAG, "Voice PARTIAL: '$text'")
+                                val ic = currentInputConnection
+                                ic?.let {
+                                    val processed = if (isAngolMode && !isAiVoiceActive) {
+                                        AngolSpelenqMelxod.convertToAngolSpelling(text)
+                                    } else text
+                                    it.setComposingText(processed, 1)
+                                }
+                            }
+                        }
                         override fun onEvent(eventType: Int, params: Bundle?) {}
                     })
                 }
@@ -330,22 +332,11 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
                 
                 setContent {
-                    KepadModyil(
+                    modyilz.App(
                         keyboardController = keyboardController,
                         platformServices = platformServices,
                         voiceService = voiceService,
-                        isLetterMode = isLetterMode,
-                        isPunctuationMode = isPunctuationMode,
-                        isAngolMode = isAngolMode,
-                        onToggleMode = { isLetterMode = !isLetterMode },
-                        onSetPunctuationMode = { isPunctuationMode = it },
-                        onToggleAngol = { isAngolMode = !isAngolMode },
-                        onStartAiVoice = {
-                            isAiVoiceActive = true
-                            wasStartedByUser = true
-                            startVoiceInput()
-                        },
-                        ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ }
+                        isApp = false
                     )
                 }
             }
@@ -373,6 +364,15 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         isClosing = false
         super.onStartInputView(info, restarting)
+        
+        // Force full-screen window for the IME
+        window?.window?.let { win ->
+            win.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                win.setDecorFitsSystemWindows(false)
+            }
+        }
     }
 
     override fun onWindowShown() {

@@ -10,27 +10,8 @@ import androidx.compose.runtime.setValue
 fun App(
     keyboardController: KeyboardController?,
     platformServices: PlatformServices,
-    voiceService: VoiceService
+    voiceService: VoiceService,
+    isApp: Boolean = false
 ) {
-    var isLetterMode by remember { mutableStateOf(true) }
-    var isPunctuationMode by remember { mutableStateOf(false) }
-    var isAngolMode by remember { mutableStateOf(true) }
-
-    KepadModyil(
-        keyboardController = keyboardController,
-        platformServices = platformServices,
-        voiceService = voiceService,
-        isLetterMode = isLetterMode,
-        isPunctuationMode = isPunctuationMode,
-        onToggleMode = { isLetterMode = !isLetterMode },
-        onSetPunctuationMode = { isPunctuationMode = it },
-        isAngolMode = isAngolMode,
-        onToggleAngol = { isAngolMode = !isAngolMode },
-        onStartAiVoice = {
-            voiceService.startListening(isAiMode = true)
-        },
-        ignoreSelectionUpdate = {
-            // Callback for selection update ignored if needed
-        }
-    )
+    skrenz.DaylSkren(keyboardController, platformServices, voiceService)
 }

@@ -49,6 +49,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.okio)
+            implementation("androidx.compose.material:material-icons-extended:1.7.3")
         }
     }
 }

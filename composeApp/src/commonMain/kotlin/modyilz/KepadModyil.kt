@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -28,6 +29,7 @@ import wedjets.AwdirRenqWedjet
 import modalz.KepadKonfeg
 import modalz.HeksagonPozecon
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 private const val TAG = "KepadModyilCompose"
 
@@ -46,9 +48,11 @@ fun KepadModyil(
     isAngolMode: Boolean,
     onToggleAngol: () -> Unit,
     onStartAiVoice: () -> Unit,
-    ignoreSelectionUpdate: () -> Unit
+    ignoreSelectionUpdate: () -> Unit,
+    geometryOverride: HeksagonDjeyometre? = null
 ) {
     val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
     
     // Ensure we always use the latest values from parent
     val currentIsLetterMode by rememberUpdatedState(isLetterMode)
@@ -200,9 +204,9 @@ fun KepadModyil(
             val center = allHexPositions[closestIndex]
             val dx = kotlin.math.abs(localX - center.x)
             val dy = kotlin.math.abs(localY - center.y)
-            val sqrt3 = 1.73205080757
-            if (dx > hexSize * sqrt3 / 2.0) return null
-            if ((dx + sqrt3 * dy) <= (sqrt3 * hexSize)) return closestIndex
+            val sqrt3Val = 1.73205080757
+            if (dx > hexSize * sqrt3Val / 2.0) return null
+            if ((dx + sqrt3Val * dy) <= (sqrt3Val * hexSize)) return closestIndex
         }
         return null
     }
@@ -264,27 +268,33 @@ fun KepadModyil(
     }
 
     BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight().background(Color.Black),
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         contentAlignment = Alignment.TopCenter
     ) {
-        val maxWidthPx = constraints.maxWidth.toFloat()
-        val maxHeightPx = if (constraints.hasBoundedHeight) constraints.maxHeight.toFloat() else 1000f
-        val geometry = remember(maxWidthPx, maxHeightPx) {
-            val hexSizeWidth = maxWidthPx / 8.66
-            val hexSizeHeight = maxHeightPx / 8.0
-            val hexSize = if (maxWidthPx > 0 && maxHeightPx > 0) minOf(hexSizeWidth, hexSizeHeight) else maxWidthPx / 8.66
-            HeksagonDjeyometre(heksSayz = hexSize, sentir = HeksagonPozecon(x = 0.0, y = 0.0), ezLeterMod = true)
+        val maxWidthDp = maxWidth
+        
+        val geometry = remember(maxWidthDp, geometryOverride) {
+            if (geometryOverride != null) {
+                geometryOverride
+            } else {
+                // Perfect fit matching DaylSkren: 5 hexagons across
+                val hexWidth = maxWidthDp.value / 5.0
+                val hexSize = hexWidth / sqrt(3.0)
+                HeksagonDjeyometre(heksSayz = hexSize, sentir = HeksagonPozecon(x = 0.0, y = 0.0), ezLeterMod = true)
+            }
         }
+        
         val allHexPositions = remember(geometry) {
             val inner = geometry.getEnirRenqKowordenats().map { geometry.aksyalTuPeksel(it.q, it.r) }
             val outer = geometry.getAwdirRenqKowordenats().map { geometry.aksyalTuPeksel(it.q, it.r) }
             inner + outer + listOf(HeksagonPozecon(0.0, 0.0))
         }
 
-        val gridHeightDp = with(LocalDensity.current) { (geometry.heksHayt * 3.8).toFloat().toDp() }
+        // Height to fit 4 hexagons (8 * radius)
+        val gridHeightDp = (geometry.heksSayz * 8.0).dp
 
         Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
-            val hexWidthDp = with(LocalDensity.current) { geometry.heksWidlx.toFloat().toDp() }
+            val hexWidthDp = geometry.heksWidlx.dp
             
             val currentLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
             val displayOuterLabels = currentLabels.subList(6, 18)
@@ -294,13 +304,16 @@ fun KepadModyil(
             } else emptyList()
 
             Box(
-                modifier = Modifier.fillMaxSize().background(Brush.radialGradient(colors = listOf(Color(0xFF1A1A2E), Color(0xFF0F0F1E), Color.Black)))
-                    .pointerInput(maxWidthPx, maxHeightPx) {
-                        val w = size.width.toFloat()
-                        val h = size.height.toFloat()
+                modifier = Modifier.fillMaxSize()
+                    .pointerInput(Unit) {
+                        val wDp = size.width.toDp().value
+                        val hDp = size.height.toDp().value
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
-                            val downIndex = getHexIndexFromPosition(down.position.x, down.position.y, w, h, allHexPositions, geometry.heksSayz)
+                            val xDp = down.position.x.toDp().value
+                            val yDp = down.position.y.toDp().value
+                            
+                            val downIndex = getHexIndexFromPosition(xDp, yDp, wDp, hDp, allHexPositions, geometry.heksSayz)
                             val gestureStartedIndex = downIndex
                             initialY.value = down.position.y
                             longPressStartOffset.value = down.position
@@ -334,8 +347,9 @@ fun KepadModyil(
                                 val event = awaitPointerEvent()
                                 val change = event.changes.firstOrNull { it.pressed } ?: break
                                 val dy = change.position.y - initialY.value
-                                val upThreshold = geometry.heksSayz.toFloat() * 0.4f
-                                val downThreshold = geometry.heksSayz.toFloat() * 0.2f
+                                val upThreshold = with(density) { geometry.heksSayz.dp.toPx() } * 0.4f
+                                val downThreshold = with(density) { geometry.heksSayz.dp.toPx() } * 0.2f
+                                
                                 if (!isCenterTranslateActive.value && !isCapitalized.value && dy < -upThreshold) {
                                     if (gestureStartedIndex != 18) {
                                         isCapitalized.value = true
@@ -360,7 +374,11 @@ fun KepadModyil(
                                         }
                                     }
                                 }
-                                val moveIndex = getHexIndexFromPosition(change.position.x, change.position.y, w, h, allHexPositions, geometry.heksSayz)
+                                
+                                val moveXDp = change.position.x.toDp().value
+                                val moveYDp = change.position.y.toDp().value
+                                val moveIndex = getHexIndexFromPosition(moveXDp, moveYDp, wDp, hDp, allHexPositions, geometry.heksSayz)
+                                
                                 if (moveIndex != hoveredHexIndex.value) {
                                     longPressJob.value?.cancel()
                                     if (gestureStartedIndex != 18) { initialY.value = change.position.y; isCapitalized.value = false }
@@ -396,7 +414,7 @@ fun KepadModyil(
                                 } else {
                                     longPressStartOffset.value?.let { start ->
                                         val dist = kotlin.math.sqrt((change.position.x - start.x).pow(2) + (change.position.y - start.y).pow(2))
-                                        if (dist > geometry.heksSayz * 0.5) longPressJob.value?.cancel()
+                                        if (dist > with(density) { geometry.heksSayz.dp.toPx() } * 0.5) longPressJob.value?.cancel()
                                     }
                                 }
                             }
@@ -415,9 +433,7 @@ fun KepadModyil(
                     }
             )
 
-            val maxWidthDpVal = with(LocalDensity.current) { maxWidthPx.toDp() }
-            val maxHeightDpVal = with(LocalDensity.current) { maxHeightPx.toDp() }
-            EnirRenqWedjet(geometry = geometry, stackWidth = maxWidthDpVal, stackHeight = maxHeightDpVal) {
+            EnirRenqWedjet(geometry = geometry, stackWidth = maxWidthDp, stackHeight = gridHeightDp) {
                 val innerLabelsToDisplay = when {
                     currentIsPunctuationMode -> KepadKonfeg.innerPunctuationMode
                     currentIsLetterMode -> KepadKonfeg.innerLetterMode
@@ -425,52 +441,45 @@ fun KepadModyil(
                 }
                 innerLabelsToDisplay.forEachIndexed { index, label ->
                     val lpLabel = if (currentIsLetterMode) "" else KepadKonfeg.innerLongPressNumber.getOrNull(index) ?: ""
-                    HeksagonWedjet(label = label, secondaryLabel = if (lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null, backgroundColor = KepadKonfeg.innerRingColors[index], textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]), size = hexWidthDp, fontSize = (geometry.heksWidlx * if (currentIsLetterMode) 0.6 else 0.8).toFloat(), isPressed = hoveredHexIndex.value == index)
+                    HeksagonWedjet(label = label, secondaryLabel = if (lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null, backgroundColor = KepadKonfeg.innerRingColors[index], textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]), size = hexWidthDp, fontSize = (geometry.heksWidlx * if (currentIsLetterMode) 1.8 else 2.4).toFloat(), isPressed = hoveredHexIndex.value == index)
                 }
             }
-            AwdirRenqWedjet(geometry = geometry, onHexKeyPress = { _, _, _ -> }, tapLabels = displayOuterLabels, longPressLabels = outerLongPressLabels, initialLetterMode = currentIsLetterMode, stackWidth = maxWidthDpVal, stackHeight = maxHeightDpVal, pressedIndex = if (hoveredHexIndex.value != null && hoveredHexIndex.value!! in 6..17) hoveredHexIndex.value!! - 6 else null, handleGestures = false, isPopup = gestureStartedOnVowelIndex.value != null)
+            AwdirRenqWedjet(geometry = geometry, onHexKeyPress = { _, _, _ -> }, tapLabels = displayOuterLabels, longPressLabels = outerLongPressLabels, initialLetterMode = currentIsLetterMode, stackWidth = maxWidthDp, stackHeight = gridHeightDp, pressedIndex = if (hoveredHexIndex.value != null && hoveredHexIndex.value!! in 6..17) hoveredHexIndex.value!! - 6 else null, handleGestures = false, isPopup = gestureStartedOnVowelIndex.value != null)
             val centerLabel = (if (currentIsLetterMode) " " else ".").let { if (isCapitalized.value) it.uppercase() else it }
-            HeksagonWedjet(
-                label = centerLabel, 
-                backgroundColor = if (voiceService.isListening.value) Color.Red else if (currentIsLetterMode) Color.White else Color.Black, 
-                textColor = if (voiceService.isListening.value) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
-                size = hexWidthDp, 
-                fontSize = (geometry.heksWidlx * 0.6).toFloat(), 
-                isPressed = hoveredHexIndex.value == 18
-            )
+            
+            // Explicitly center the hub hexagon within the grid height
+            Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
+                HeksagonWedjet(
+                    label = centerLabel, 
+                    backgroundColor = if (voiceService.isListening.value) Color.Red else if (currentIsLetterMode) Color.White else Color.Black, 
+                    textColor = if (voiceService.isListening.value) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
+                    size = hexWidthDp, 
+                    fontSize = (geometry.heksWidlx * 1.8).toFloat(), 
+                    isPressed = hoveredHexIndex.value == 18
+                )
+            }
 
             // Overlay Controls (Tucked into top corners)
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(start = 12.dp, top = 2.dp)
-                    .height(24.dp)
+                    .padding(top = 0.dp)
+                    .size(72.dp)
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = { onToggleAngol() },
                             onLongPress = { onStartAiVoice() }
                         )
                     },
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.TopStart
             ) {
                 androidx.compose.material.Text(
                     text = "angol", 
                     color = if (isAngolMode) Color.White else Color.Gray.copy(alpha = 0.4f), 
-                    fontSize = 11.sp, 
+                    fontSize = 12.sp, 
                     fontWeight = FontWeight.Bold
                 )
             }
-
-            androidx.compose.material.Text(
-                text = displayText, 
-                color = Color.White.copy(alpha = 0.7f), 
-                fontSize = 11.sp, 
-                fontWeight = FontWeight.Normal, 
-                maxLines = 1, 
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, 
-                modifier = Modifier.align(Alignment.TopCenter).padding(top = 4.dp).fillMaxWidth(0.4f),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
         }
     }
 }

@@ -89,6 +89,13 @@ class AndroidPlatformServices(
             }
         }
     }
+
+    override fun openSettings() {
+        val intent = android.content.Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS).apply {
+            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
 }
 
 class AndroidVoiceService(

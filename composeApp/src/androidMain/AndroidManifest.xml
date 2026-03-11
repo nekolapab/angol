@@ -7,13 +7,14 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <application
-        android:label="kepad"
+        android:label="dayl"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
         <activity
             android:name="com.example.angol.ime.MainActivity"
-            android:label="kepad"
+            android:label="dayl"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -23,7 +24,7 @@
 
         <activity
             android:name="io.angol.dayl.TranslateActivity"
-            android:label="kepad translate"
+            android:label="translate"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true">
             <intent-filter>
@@ -35,13 +36,13 @@
 
         <activity
             android:name="com.example.angol.ime.PermissionActivity"
-            android:label="kepad permission"
+            android:label="permission"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true" />
 
         <service
             android:name="com.example.angol.ime.DaylEnpitMelxod"
-            android:label="kepad"
+            android:label="angol"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true"
             android:foregroundServiceType="microphone">

@@ -58,7 +58,13 @@ fun HeksagonWedjet(
 ) {
     val scope = rememberCoroutineScope()
     var isMomentarilyPressed by remember { mutableStateOf(false) }
-    // var isPointerOver by remember { mutableStateOf(false) } // Hover logic removed for KMP compatibility
+    
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            isMomentarilyPressed = false
+            onPressedChanged?.invoke(false)
+        }
+    }
 
     val hexHeight = size * (2f / sqrt(3f))
     val density = LocalDensity.current

@@ -57,7 +57,7 @@ fun AwdirRenqWedjet(
                     
                     val textColor = KepadKonfeg.getComplementaryColor(hexColor)
 
-                    val hexSizeDp = with(density) { geometry.heksWidlx.toFloat().toDp() }
+                    val hexSizeDp = geometry.heksWidlx.dp
 
                     HeksagonWedjet(
                         label = tapLabel,
@@ -65,7 +65,7 @@ fun AwdirRenqWedjet(
                         backgroundColor = hexColor,
                         textColor = textColor,
                         size = hexSizeDp,
-                        fontSize = (geometry.heksWidlx * if (isLetterMode) 0.6 else 0.8).toFloat(),
+                        fontSize = (geometry.heksWidlx * if (isLetterMode) 1.8 else 2.4).toFloat(),
                         verticalOffset = 0.dp, // Reset to centered
                         rotationAngle = geometry.roteyconAngol.toFloat(),
                         isPressed = pressedIndex == index,
@@ -82,8 +82,8 @@ fun AwdirRenqWedjet(
         val stackWidthPx = stackWidth.toPx()
         val stackHeightPx = stackHeight.toPx()
 
-        val hexWidthPx = geometry.heksWidlx.toFloat()
-        val hexHeightPx = geometry.heksHayt.toFloat()
+        val hexWidthPx = geometry.heksWidlx.dp.toPx()
+        val hexHeightPx = geometry.heksHayt.dp.toPx()
 
         // Measure each child with fixed constraints based on hexagon geometry.
         val childConstraints = androidx.compose.ui.unit.Constraints.fixed(
@@ -96,10 +96,10 @@ fun AwdirRenqWedjet(
             placeables.forEachIndexed { index, placeable ->
                 if (index < outerCoords.size) {
                     val coord = outerCoords[index]
-                    val position = geometry.aksyalTuPeksel(coord.q, coord.r)
+                    val positionDp = geometry.aksyalTuPeksel(coord.q, coord.r)
 
-                    val x = stackWidthPx / 2 + position.x - (placeable.width / 2)
-                    val y = stackHeightPx / 2 + position.y - (placeable.height / 2)
+                    val x = stackWidthPx / 2 + positionDp.x.dp.toPx() - (placeable.width / 2)
+                    val y = stackHeightPx / 2 + positionDp.y.dp.toPx() - (placeable.height / 2)
 
                     placeable.placeRelative(x.roundToInt(), y.roundToInt())
                 }

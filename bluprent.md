@@ -5,21 +5,27 @@ angol ez lha sestom and dayl ez lha ap ov a sentir heksagon and 2 or 3 sirawnden
 yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du not reneym KotlinCompose standard konvencon freymwirk klasez and faylz lhat koz problemz (sutc az  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
 
 ## **angol dayl ap development prodokol**
-**KotlinCompose ez 100% and ol Flutter ez remuvd. so do not yuz a Flutter virjon and ensted delet remnant duplekat faylz and refaktor.
-*   Verify `HeksagonDjeyometre` math and `Layout` placement logic in `KepadModyil.kt`.
-**Fast Reyenstol** rebeld and reyenstal lhe APK etc taym KotlinCompose code ez modefayd.
-*   **Odomadek Klenup:** Always clean before significant builds to reclaim disk space.
-*   **Kac Manedjment:** Delete old Gradle and Compose caches. Keep only the **latest build** per module (`ime`, `kepad`, `app`).
-*   **No Redundant Beldz:** Ensure each module has only one active build artifact. Get rid of anything not strictly needed for the current iteration.
-1.  **Stop** the running app (Ctrl+C in terminal).
-tceynj tu KotlinCompose-> 2.  **Run** `flutter build apk --debug --target-platform android-arm64 --android-skip-build-dependency-validation` (for physical device).
-tceynj tu KotlinCompose-> 3.  **Instol** `adb install -r build/app/outputs/flutter-apk/app-debug.apk`.
-4.  **Default Keyboard Reset:** The keypad starts in 'letter' mode by default. Persistence of mode state across sessions is disabled to ensure consistent startup behavior.
-    *   **Automation:**
-        ```powershell
-        adb shell ime enable io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod
-        adb shell ime set io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod
-        ```
+**KotlinCompose Multiplatform (KMP) ez 100% and ol Flutter ez kept onle az refrens en lha lib/ foldir. 
+
+### **Prodjekt Strukcir (Pure Clean KMP):**
+- `composeApp/src/commonMain/kotlin/`: Shared UI and logic.
+    - `modyilz/`: Main app components (App.kt, KepadModyil.kt, DaylModyil.kt).
+    - `skrenz/`: Screen definitions (DaylSkren.kt).
+    - `steyt/`: State management (DaylSteyt.kt).
+    - `modalz/`: Data models and config (AngolModalz.kt, KepadKonfeg.kt).
+    - `wedjets/`: Reusable Compose widgets.
+    - `yuteledez/`: Utilities (HeksagonDjeyometre.kt, AngolSpelenqMelxod.kt).
+- `composeApp/src/androidMain/kotlin/`: Android-specific IME service and Activity.
+    - `com.example.angol.ime/`: DaylEnpitMelxod.kt, MainActivity.kt.
+
+### **Build & Deploy:**
+- **Klen Build:** Always use `./gradlew clean` to ensure no remnants.
+- **Instal:** Use `./gradlew :composeApp:assembleDebug` and `adb install`.
+- **IME Activation:**
+    ```powershell
+    adb shell ime enable io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod
+    adb shell ime set io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod
+    ```
 
 ## **spetc tu tekst**
 **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`, allowing us to respond to cursor jumps or selection changes.
@@ -100,11 +106,17 @@ The goal is to achieve 100% consistent pirfekt conversions, prioritizing AI lear
 * **Kapedolz (Capitalization):** 
 * **Vejyuwalz:** automatically fit any screen size. 
 * **angol mode toggle:** between Angol and Standard English spelenq for voice input az ovirley at lha top.
-* **Sentir Heksagon:** voys tu teks | Mod Togil | ' ' '.' 
+* **Sentir Heksagon:** voys tu teks | Mod Togil | 'angol' 
 * **Backspace Repeat:** Deletes exactly 12 characters per tick for strings without spaces.
 * **Voice PTT:** Voice input uses a robust "Push-to-Talk" interaction—starts on press, stops on release, and automatically restarts if the button is still held.
 * **Automatic Prompts:** The app automatically prompts the user to enable/select the keyboard and pirmeconz on startup.
 * **Build:** build for x64 and arm64.
+
+## **krent problemz (Known Issues)**
+- **Stale Deployment:** Source code changes (hub renamed to 'angol', angol spetc tu tekst togil) are NOT appearing on the device/emulator despite "Success" in build and install logs.
+- **IME Label Confusion:** The keyboard extension name intermittently reverts to 'angol' in Settings instead of 'kepad'.
+- **Docking vs Full-Screen:** The IME occasionally takes over the entire screen instead of staying docked at the bottom. `onEvaluateFullscreenMode` has been overridden to force docking.
+- **Auto Activation:** Manual toggle of keyboard in Settings despite automation attempts in the build script.
 
 ## **feylyirz tu not repet ded endz**:
     *   **Galaxy Wearable App**: Fails on emulator. Use "Wear OS by Google".
