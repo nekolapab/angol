@@ -119,10 +119,16 @@ The goal is to achieve 100% consistent pirfekt conversions, prioritizing AI lear
 - **Auto Activation:** [FIXED] `updeyt_angol_dayl.ps1` now performs "Deep Activation" using secure settings commands.
 
 ## **plan for krent rekwest**
-1.  **Refaktor Build Scripts:** (Done) Updated `reinstall_ime.ps1` and `build_and_install_ime.ps1` to use KMP paths.
-2.  **Verify Renames:** (Done) Hub is renamed to 'angol' in `DaylSteyt.kt`. 'angol' toggle is present in `KepadModyil.kt`.
-3.  **Perform Fresh Build:** (Done) Ran `updeyt_angol_dayl.ps1` successfully.
-4.  **Investigate Label:** Check for any other sources of the 'angol' label in the APK.
+1.  **Refaktor Build Scripts:** [DONE] Updated `reinstall_ime.ps1` and `build_and_install_ime.ps1` to use KMP paths.
+2.  **Verify Renames:** [DONE] Hub is renamed to 'angol' in `DaylSteyt.kt`. 'angol' toggle is present in `KepadModyil.kt`.
+3.  **Perform Fresh Build:** [DONE] Ran `updeyt_angol_dayl.ps1` successfully on Emulator and Samsung.
+4.  **Investigate Label:** [DONE] Source is "kepad". System caching may delay update.
+5.  **Deactivate Flutter:** [DONE] Renamed `lib/main.dart` to `lib/main.dart.bak`.
+
+## **remeynenq maygreycon**
+- **Auth Flow:** Port `saynen_skren.dart` (Sign In) and `afdir_logen.dart` (User Profile/Home) to Kotlin Compose.
+- **Firebase Service:** Port `firebase_sirves.dart` (GitHub Auth and Cloud Firestore) to Kotlin using the already integrated Firebase KMP libraries.
+- **Voice Service:** Port `spetc_sirves.dart` to a shared Kotlin implementation if needed (though `DaylEnpitMelxod.kt` already handles basic voice).
 
 ## **kod modefekeycon and dependense manedjment**
     *   **Galaxy Wearable App**: Fails on emulator. Use "Wear OS by Google".

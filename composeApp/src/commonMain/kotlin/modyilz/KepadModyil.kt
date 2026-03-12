@@ -237,13 +237,15 @@ fun KepadModyil(
             delay(500)
             if (hoveredHexIndex.value != index) return@launch
             if (index == 18) {
-                if (currentIsLetterMode) onSetPunctuationMode(true)
-                val oldChar = if (currentIsLetterMode) " " else "."
-                currentOnToggleMode()
-                delay(50)
-                val newChar = if (currentIsLetterMode) " " else "."
-                handleKeyPress("⌫", false, oldChar)
-                handleKeyPress(newChar, false, null)
+                if (currentIsLetterMode) {
+                    // In letter mode, long press space for period
+                    handleKeyPress("⌫", false, " ")
+                    handleKeyPress(".", false, null)
+                } else {
+                    // In number mode, long press period for space
+                    handleKeyPress("⌫", false, ".")
+                    handleKeyPress(" ", false, null)
+                }
                 return@launch
             }
             val isInner = index < 6

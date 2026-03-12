@@ -17,7 +17,7 @@ class DaylSteyt {
         ModyilDeyda(id = "module4", neym = "mod 4", kulor = Color(0xFF00FFFF), pozecon = 4, ezAktiv = false),
         ModyilDeyda(id = "module5", neym = "mod 5", kulor = Color(0xFF0000FF), pozecon = 5, ezAktiv = false),
         ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 6, ezAktiv = false),
-        ModyilDeyda(id = "dayl", neym = "angol", kulor = Color(0xFF000000), pozecon = 7, ezAktiv = true)
+        ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 7, ezAktiv = true)
     ))
 
     val ezKepadVezebil: Boolean
@@ -45,7 +45,7 @@ class DaylSteyt {
             ModyilDeyda(id = "module4", neym = "mod 4", kulor = Color(0xFF00FFFF), pozecon = 4, ezAktiv = false),
             ModyilDeyda(id = "module5", neym = "mod 5", kulor = Color(0xFF0000FF), pozecon = 5, ezAktiv = false),
             ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 6, ezAktiv = false),
-            ModyilDeyda(id = "dayl", neym = "angol", kulor = Color(0xFF000000), pozecon = 7, ezAktiv = true)
+            ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 7, ezAktiv = true)
         )
     }
 }

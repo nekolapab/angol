@@ -364,11 +364,46 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         isClosing = false
         super.onStartInputView(info, restarting)
+        
+        // Re-add flags to show over system bars (No Limits)
+        window?.window?.let { win ->
+            win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                win.setDecorFitsSystemWindows(false)
+            }
+        }
     }
 
     override fun onEvaluateFullscreenMode(): Boolean {
         // Force the keyboard to stay docked and never go full-screen
         return false
+    }
+
+    override fun onComputeInsets(outInsets: Insets?) {
+        super.onComputeInsets(outInsets)
+        if (outInsets == null) return
+
+        val inputView = window?.window?.decorView ?: return
+        val totalHeight = inputView.height
+        
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        
+        val hexSizePx = screenWidth / (5.0 * kotlin.math.sqrt(3.0))
+        val contentHeightPx = (hexSizePx * 8.0).toInt()
+        
+        val visibleHeight = if (contentHeightPx > 0 && contentHeightPx < totalHeight) {
+            contentHeightPx
+        } else {
+            (totalHeight * 0.4).toInt()
+        }
+        
+        val top = totalHeight - visibleHeight
+        outInsets.contentTopInsets = top
+        outInsets.visibleTopInsets = top
+        outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_CONTENT
+        
+        Log.d(TAG, "onComputeInsets: total=$totalHeight, visible=$visibleHeight, top=$top")
     }
 
     override fun onWindowShown() {
