@@ -23,6 +23,10 @@ class DaylSteyt {
     val ezKepadVezebil: Boolean
         get() = modyilz.any { it.id == "keypad" && it.ezAktiv }
 
+    fun updateModules(newModules: List<ModyilDeyda>) {
+        modyilz = newModules
+    }
+
     fun togilModyil(index: Int) {
         val tappedModule = modyilz.find { it.pozecon == index } ?: return
         val wasActive = tappedModule.ezAktiv

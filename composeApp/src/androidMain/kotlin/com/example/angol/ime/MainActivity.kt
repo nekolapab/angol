@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
         
         val scope = MainScope()
         val platformServices = AndroidPlatformServices(this, scope)
+        val firebaseService = AndroidFirebaseService(this)
         val keyboardController = AndroidKeyboardController { null } // Dummy for preview
         val isListening = mutableStateOf(false)
         val voiceService = AndroidVoiceService(
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
                         keyboardController = keyboardController,
                         platformServices = platformServices,
                         voiceService = voiceService,
+                        firebaseService = firebaseService,
                         isApp = true
                     )
                 }

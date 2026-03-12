@@ -38,6 +38,8 @@ kotlin {
             // Firebase for Android
             implementation(platform(libs.firebase.bom.get()))
             implementation(libs.firebase.vertexai.get())
+            implementation(libs.firebase.auth.get())
+            implementation(libs.firebase.firestore.get())
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -66,8 +68,8 @@ android {
         applicationId = "io.angol.dayl"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
     }
     packaging {
         resources {

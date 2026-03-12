@@ -39,12 +39,22 @@ class AndroidKeyboardController(private val getIc: () -> InputConnection?) : Key
     }
 }
 
+import android.speech.tts.TextToSpeech
+import java.util.Locale
+
 class AndroidPlatformServices(
     private val context: Context,
     private val corpusScope: kotlinx.coroutines.CoroutineScope
-) : PlatformServices {
+) : PlatformServices, TextToSpeech.OnInitListener {
     private val CORPUS_FILE = "angol_corpus.txt"
     private val MAX_CORPUS_SIZE = 2000
+    private var tts: TextToSpeech? = TextToSpeech(context, this)
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts?.language = Locale.US
+        }
+    }
 
     override fun log(tag: String, message: String) {
         Log.d(tag, message)
@@ -95,6 +105,10 @@ class AndroidPlatformServices(
             addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
+    }
+
+    override fun speak(text: String) {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 }
 

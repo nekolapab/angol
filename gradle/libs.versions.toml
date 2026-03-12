@@ -23,6 +23,8 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-vertexai = { group = "com.google.firebase", name = "firebase-vertexai" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

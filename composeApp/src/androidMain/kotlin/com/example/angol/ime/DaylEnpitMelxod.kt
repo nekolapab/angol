@@ -75,6 +75,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     
     private lateinit var keyboardController: AndroidKeyboardController
     private lateinit var platformServices: AndroidPlatformServices
+    private lateinit var firebaseService: AndroidFirebaseService
     private lateinit var voiceService: AndroidVoiceService
 
     override val lifecycle: Lifecycle get() = lifecycleRegistry
@@ -92,6 +93,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
             keyboardController = AndroidKeyboardController { currentInputConnection }
             platformServices = AndroidPlatformServices(this, scope)
+            firebaseService = AndroidFirebaseService(null) // No activity context here
             voiceService = AndroidVoiceService(
                 onStart = { isAi -> 
                     isAiVoiceActive = isAi
@@ -336,6 +338,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         keyboardController = keyboardController,
                         platformServices = platformServices,
                         voiceService = voiceService,
+                        firebaseService = firebaseService,
                         isApp = false
                     )
                 }

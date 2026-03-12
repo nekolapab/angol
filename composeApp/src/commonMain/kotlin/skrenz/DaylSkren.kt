@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,14 +20,33 @@ import yuteledez.HeksagonDjeyometre
 import modalz.HeksagonPozecon
 import kotlin.math.sqrt
 
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
 @Composable
 fun DaylSkren(
     keyboardController: modyilz.KeyboardController?,
     platformServices: modyilz.PlatformServices,
     voiceService: modyilz.VoiceService,
-    isApp: Boolean = true
+    firebaseService: sirvesez.FirebaseService? = null,
+    isApp: Boolean = true,
+    onGoToHome: (() -> Unit)? = null
 ) {
     val daylSteyt = remember { DaylSteyt() }
+    val scope = rememberCoroutineScope()
+    
+    // Auth and Layout Sync
+    val user by (firebaseService?.authStateChanges ?: remember { mutableStateOf(null) }).collectAsState(initial = firebaseService?.currentUser)
+    
+    LaunchedEffect(user) {
+        if (user != null && firebaseService != null) {
+            firebaseService.watchModuleLayout().collectLatest { remoteModules ->
+                if (remoteModules.isNotEmpty()) {
+                    daylSteyt.updateModules(remoteModules)
+                }
+            }
+        }
+    }
     
     // If it's the IME (not isApp), we should probably start in keypad mode?
     // Or maybe the user wants the dial even in IME. 
@@ -120,6 +140,13 @@ fun DaylSkren(
                         // Tapping 'kepad' (index 1) toggles state which replaces Hub with in-app Keypad
                         // We do NOT call keyboardController.show() here to avoid the bottom system IME
                         daylSteyt.togilModyil(index)
+                        
+                        // Save to Firebase if logged in
+                        if (user != null && firebaseService != null) {
+                            scope.launch {
+                                firebaseService.saveModuleLayout(daylSteyt.modyilz)
+                            }
+                        }
                     },
                     stackWidth = screenWidth,
                     stackHeight = this@BoxWithConstraints.maxHeight
@@ -127,20 +154,32 @@ fun DaylSkren(
             }
         }
         
-        // Settings icon at the bottom, absolutely positioned
+        // Settings and Account icons at the bottom, absolutely positioned
         if (!daylSteyt.ezKepadVezebil) {
-            IconButton(
-                onClick = { platformServices.openSettings() },
+            Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = 32.dp),
+                horizontalArrangement = Arrangement.spacedBy(32.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = Color.White.copy(alpha = 0.5f),
-                    modifier = Modifier.size(32.dp)
-                )
+                IconButton(onClick = { platformServices.openSettings() }) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        tint = Color.White.copy(alpha = 0.5f),
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+                if (isApp) {
+                    IconButton(onClick = { onGoToHome?.invoke() }) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Account",
+                            tint = Color.White.copy(alpha = 0.5f),
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
             }
         }
     }

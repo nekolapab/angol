@@ -17,6 +17,7 @@ interface PlatformServices {
     fun addToCorpus(word: String)
     suspend fun getCorpus(): String
     fun openSettings()
+    fun speak(text: String)
 }
 
 interface VoiceService {
