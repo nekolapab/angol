@@ -5,7 +5,7 @@ angol ez lha sestom and dayl ez lha ap ov a sentir heksagon and 2 or 3 sirawnden
 yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du not reneym KotlinCompose standard konvencon freymwirk klasez and faylz lhat koz problemz (sutc az  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
 
 ## **angol dayl ap development prodokol**
-**KotlinCompose Multiplatform (KMP) ez 100% and ol Flutter ez kept onle az refrens en lha lib/ foldir. 
+**KotlinCompose Multiplatform (KMP) ez 100% and ol Flutter kod deleded.**
 
 ### **Prodjekt Strukcir (Pure Clean KMP):**
 - `composeApp/src/commonMain/kotlin/`: Shared UI and logic.
@@ -17,7 +17,7 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
     - `wedjets/`: Reusable Compose widgets.
     - `yuteledez/`: Utilities (HeksagonDjeyometre.kt, AngolSpelenqMelxod.kt).
 - `composeApp/src/androidMain/kotlin/`: Android-specific implementations.
-    - `com.example.angol.ime/`: DaylEnpitMelxod.kt, MainActivity.kt, AndroidFirebaseService.kt.
+    - `com.example.angol.ime/`: DaylEnpitMelxod.kt, MainActivity.kt, AndroidFirebaseService.kt, AndroidBridge.kt.
 
 ### **Build & Deploy:**
 - **Klen Build:** Always use `./gradlew clean` to ensure no remnants.
@@ -31,7 +31,9 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 - [x] **TTS (Text-to-Speech):** Fully migrated to Kotlin (`AndroidPlatformServices`).
 
 ### **Recent Changes:**
-- **Version 1.2:** Bumped app version and implemented native Text-to-Speech (TTS).
+- **Version .2:** Bumped app version (versionCode 2) 
+- **Pure Kotlin:** The codebase is now 100% Kotlin Multiplatform (KMP)
+- **Flutter Deletion:** Removed the old `lib/`, `web/`, `IOS/`, and Flutter-related configuration files.
 - **Auth Flow:** Implemented `FirebaseService` and `AndroidFirebaseService` for GitHub sign-in and auth state monitoring.
 - **UI Port:** Created `SaynEnSkren.kt` and `AfdirLogenSkren.kt` in Compose with navigation logic in `App.kt`.
 - **Layout Sync:** Added real-time synchronization of module states (active/inactive) with Firestore.
@@ -40,6 +42,7 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 ## **spetc tu tekst**
 **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`.
 **Keyboard Translation:** The **AI** button in the top menu triggers translation between 'Angol' and standard English via Gemini 1.5 Flash.
+**Text-to-Speech (TTS):** implemented native Kotlin.
 
 ## **angol 36-karaktir fonetik lodjek**
 The system uses a 1:1 mapping between **36 sounds** and **36 characters**.
@@ -50,7 +53,3 @@ The system uses a 1:1 mapping between **36 sounds** and **36 characters**.
 
 ### **vokalz (12)**
 - **1:** /ɑ/, **2:** /æ/, **3:** /ɛ/, **4:** /ɪ/, **5:** /i/, **6:** /ɝ/, **7:** /ʊ/, **8:** /ʌ/, **9:** /u/, **0:** /oʊ/, **A:** /o/, **O:** /ɔ/.
-
-## **krent problemz (Known Issues)**
-- **TTS Migration:** The Text-to-Speech feature from Flutter is not yet implemented in Kotlin.
-- **IME Label:** The label 'kepad' may sometimes appear as 'angol' due to system caching or package ID conflicts.

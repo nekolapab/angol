@@ -68,8 +68,8 @@ android {
         applicationId = "io.angol.dayl"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 2
+        versionName = ".2"
     }
     packaging {
         resources {
