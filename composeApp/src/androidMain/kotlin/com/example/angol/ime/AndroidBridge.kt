@@ -15,6 +15,9 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 
+import android.speech.tts.TextToSpeech
+import java.util.Locale
+
 class AndroidKeyboardController(private val getIc: () -> InputConnection?) : KeyboardController {
     override fun commitText(text: String) {
         getIc()?.commitText(text, 1)
@@ -38,9 +41,6 @@ class AndroidKeyboardController(private val getIc: () -> InputConnection?) : Key
         return getIc()?.getTextAfterCursor(n, 0)?.toString()
     }
 }
-
-import android.speech.tts.TextToSpeech
-import java.util.Locale
 
 class AndroidPlatformServices(
     private val context: Context,

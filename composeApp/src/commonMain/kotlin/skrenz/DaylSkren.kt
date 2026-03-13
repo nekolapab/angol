@@ -36,7 +36,8 @@ fun DaylSkren(
     val scope = rememberCoroutineScope()
     
     // Auth and Layout Sync
-    val user by (firebaseService?.authStateChanges ?: remember { mutableStateOf(null) }).collectAsState(initial = firebaseService?.currentUser)
+    val userState = firebaseService?.authStateChanges?.collectAsState(initial = firebaseService.currentUser)
+    val user = userState?.value
     
     LaunchedEffect(user) {
         if (user != null && firebaseService != null) {
@@ -149,7 +150,7 @@ fun DaylSkren(
                         }
                     },
                     stackWidth = screenWidth,
-                    stackHeight = this@BoxWithConstraints.maxHeight
+                    stackHeight = if (isApp) screenHeight else hexSize * 8f
                 )
             }
         }

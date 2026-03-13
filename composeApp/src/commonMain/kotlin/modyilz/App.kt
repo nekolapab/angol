@@ -21,10 +21,11 @@ fun App(
 ) {
     val user by firebaseService.authStateChanges.collectAsState(initial = firebaseService.currentUser)
     var currentScreen by remember { mutableStateOf("main") }
+    var isGuestMode by remember { mutableStateOf(false) }
 
     if (isApp) {
-        if (user == null) {
-            SaynEnSkren(firebaseService)
+        if (user == null && !isGuestMode) {
+            SaynEnSkren(firebaseService, onBypass = { isGuestMode = true })
         } else {
             when (currentScreen) {
                 "main" -> DaylSkren(keyboardController, platformServices, voiceService, firebaseService, isApp = true)
