@@ -25,23 +25,21 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 
 ### **Key Features Status:**
 - [x] **Hexagonal Keypad (IME):** Fully migrated to Kotlin Compose. Supports swipe, long-press, and phonetic conversion.
-- [x] **Voice Input:** Integrated with phonetic conversion and AI (Gemini) refinement in `DaylEnpitMelxod.kt`.
+- [x] **Voice Input:** Integrated with phonetic conversion and AI (Gemini 3.1) refinement in `DaylEnpitMelxod.kt`.
 - [x] **Auth & Hub:** Login (GitHub) and Home screens ported to Kotlin Compose.
 - [x] **Cloud Sync:** Module layouts synchronized with Firebase Firestore via `FirebaseService`.
 - [x] **TTS (Text-to-Speech):** Fully migrated to Kotlin (`AndroidPlatformServices`).
+- [x] **Versions Updeyt:** Kotlin 2.3.+, Compose 1.10.+, AGP 9.1+, CompileSdk 36.
 
 ### **Recent Changes:**
-- **Version .2:** Bumped app version (versionCode 2) 
-- **Pure Kotlin:** The codebase is now 100% Kotlin Multiplatform (KMP)
-- **Flutter Deletion:** Removed the old `lib/`, `web/`, `IOS/`, and Flutter-related configuration files.
-- **Auth Flow:** Implemented `FirebaseService` and `AndroidFirebaseService` for GitHub sign-in and auth state monitoring.
-- **UI Port:** Created `SaynEnSkren.kt` and `AfdirLogenSkren.kt` in Compose with navigation logic in `App.kt`.
-- **Layout Sync:** Added real-time synchronization of module states (active/inactive) with Firestore.
-- **Center Button:** Enhanced center hexagon to handle both ' ' (tap) and '.' (long-press) across all modes.
+- **AI Entegreycon:** Migrated to `firebase-ai` SDK and `gemini-3.1-flash`.
+- **Top Menu Mirjd:** 'angol' toggle at top-left handles toggle (tap) and AI Voice (long-press). Redundant top-right AI button removed.
+- **Geometry Fix:** Fixed hex positioning to correctly honor `geometry.sentir` offset.
+- **Dependency Migration:** Switched from `firebase-vertexai` to `firebase-ai` and updated to latest Firebase BoM.
 
 ## **spetc tu tekst**
 **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`.
-**Keyboard Translation:** The **AI** button in the top menu triggers translation between 'Angol' and standard English via Gemini 1.5 Flash.
+**Keyboard Translation:** The 'angol' toggle at the top-left triggers AI Voice refinement via long-press.
 **Text-to-Speech (TTS):** implemented native Kotlin.
 
 ## **angol 36-karaktir fonetik lodjek**

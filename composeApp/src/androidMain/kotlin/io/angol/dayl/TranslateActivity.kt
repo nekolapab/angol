@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
-import com.google.firebase.vertexai.vertexAI
-import com.google.firebase.vertexai.type.content
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -105,7 +105,7 @@ fun TranslateScreen(
             // Since this is an Activity, we can rely on Application onCreate or do it in Activity onCreate.
             // We'll assume it's initialized in onCreate of Activity or Application.
             
-            val model = Firebase.vertexAI.generativeModel("gemini-1.5-flash")
+            val model = Firebase.ai.generativeModel("gemini-3.1-flash")
             val prompt = """
                 Convert the following text between 'Angol' spelling and standard English. 
                 If the text is in standard English, convert it to Angol spelling.

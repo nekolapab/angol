@@ -26,8 +26,8 @@ class HeksagonDjeyometre(
         val x = heksSayz * (sqrt(3.0) * q + sqrt(3.0) / 2.0 * r)
         val y = heksSayz * (1.5) * r // 3.0 / 2.0 = 1.5
         return HeksagonPozecon(
-            x = x,
-            y = y
+            x = sentir.x + x,
+            y = sentir.y + y
         )
     }
 

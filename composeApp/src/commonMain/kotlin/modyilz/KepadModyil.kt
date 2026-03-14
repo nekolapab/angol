@@ -289,7 +289,7 @@ fun KepadModyil(
         val allHexPositions = remember(geometry) {
             val inner = geometry.getEnirRenqKowordenats().map { geometry.aksyalTuPeksel(it.q, it.r) }
             val outer = geometry.getAwdirRenqKowordenats().map { geometry.aksyalTuPeksel(it.q, it.r) }
-            inner + outer + listOf(HeksagonPozecon(0.0, 0.0))
+            inner + outer + listOf(geometry.sentir)
         }
 
         // Height to fit 4 hexagons (8 * radius)
@@ -449,7 +449,7 @@ fun KepadModyil(
             AwdirRenqWedjet(geometry = geometry, onHexKeyPress = { _, _, _ -> }, tapLabels = displayOuterLabels, longPressLabels = outerLongPressLabels, initialLetterMode = currentIsLetterMode, stackWidth = maxWidthDp, stackHeight = gridHeightDp, pressedIndex = if (hoveredHexIndex.value != null && hoveredHexIndex.value!! in 6..17) hoveredHexIndex.value!! - 6 else null, handleGestures = false, isPopup = gestureStartedOnVowelIndex.value != null)
             val centerLabel = (if (currentIsLetterMode) " " else ".").let { if (isCapitalized.value) it.uppercase() else it }
             
-            // Explicitly center the hub hexagon within the grid height
+            // Explicitly position the hub hexagon relative to the grid center
             Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
                 HeksagonWedjet(
                     label = centerLabel, 
@@ -457,30 +457,37 @@ fun KepadModyil(
                     textColor = if (voiceService.isListening.value) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
                     size = hexWidthDp, 
                     fontSize = (geometry.heksWidlx * 1.8).toFloat(), 
-                    isPressed = hoveredHexIndex.value == 18
+                    isPressed = hoveredHexIndex.value == 18,
+                    modifier = Modifier.offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp)
                 )
             }
 
             // Overlay Controls (Tucked into top corners)
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = 0.dp)
-                    .size(72.dp)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = { onToggleAngol() },
-                            onLongPress = { onStartAiVoice() }
-                        )
-                    },
-                contentAlignment = Alignment.TopStart
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                androidx.compose.material.Text(
-                    text = "angol", 
-                    color = if (isAngolMode) Color.White else Color.Gray.copy(alpha = 0.4f), 
-                    fontSize = 12.sp, 
-                    fontWeight = FontWeight.Bold
-                )
+                // Top Left: Angol Toggle / AI Voice (Long Press)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .size(64.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onToggleAngol() },
+                                onLongPress = { onStartAiVoice() }
+                            )
+                        },
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    androidx.compose.material.Text(
+                        text = "angol", 
+                        color = if (isAngolMode) Color.White else Color.Gray.copy(alpha = 0.4f), 
+                        fontSize = 12.sp, 
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }

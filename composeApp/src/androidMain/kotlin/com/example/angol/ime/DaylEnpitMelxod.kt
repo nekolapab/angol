@@ -14,11 +14,11 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
-import com.google.firebase.vertexai.vertexAI
-import com.google.firebase.vertexai.GenerativeModel
-import com.google.firebase.vertexai.type.content
-import com.google.firebase.vertexai.type.generationConfig
-import com.google.firebase.vertexai.type.RequestOptions
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.GenerativeModel
+import com.google.firebase.ai.type.content
+import com.google.firebase.ai.type.generationConfig
+import com.google.firebase.ai.type.RequestOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -154,8 +154,8 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                         val processedText = if (isAiVoiceActive) {
                                             Log.d(TAG, "Starting Gemini conversion...")
                                             android.widget.Toast.makeText(this@DaylEnpitMelxod, "AI conversion...", android.widget.Toast.LENGTH_SHORT).show()
-                                            val model = Firebase.vertexAI.generativeModel(
-                                                modelName = "gemini-1.5-flash",
+                                            val model = Firebase.ai.generativeModel(
+                                                modelName = "gemini-3.1-flash",
                                                 generationConfig = generationConfig { },
                                                 safetySettings = emptyList(),
                                                 requestOptions = RequestOptions()
@@ -371,6 +371,11 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         // Re-add flags to show over system bars (No Limits)
         window?.window?.let { win ->
             win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+            win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            win.navigationBarColor = android.graphics.Color.TRANSPARENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                win.isNavigationBarContrastEnforced = false
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 win.setDecorFitsSystemWindows(false)
             }

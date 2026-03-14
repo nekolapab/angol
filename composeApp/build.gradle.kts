@@ -36,22 +36,22 @@ kotlin {
             implementation(libs.kotlinx.coroutines.android)
             
             // Firebase for Android
-            implementation(platform(libs.firebase.bom.get()))
-            implementation(libs.firebase.vertexai.get())
-            implementation(libs.firebase.auth.get())
-            implementation(libs.firebase.firestore.get())
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.ai)
+            implementation(libs.firebase.auth)
+            implementation(libs.firebase.firestore)
         }
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
+            implementation(libs.compose.components.uiToolingPreview)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.okio)
-            implementation("androidx.compose.material:material-icons-extended:1.7.3")
+            implementation(libs.compose.material.icons.extended)
         }
     }
 }
@@ -91,5 +91,5 @@ android {
 }
 
 dependencies {
-    debugImplementation(compose.uiTooling)
+    debugImplementation(libs.compose.ui.tooling)
 }
