@@ -59,52 +59,52 @@ fun DaylSkren(
     }
 
     BoxWithConstraints(
-        modifier = Modifier
-            .then(if (isApp) Modifier.fillMaxSize() else Modifier.fillMaxWidth().wrapContentHeight())
-            .background(
-                Brush.radialGradient(
-                    0.0f to Color(0xFF1A1A2E),
-                    0.5f to Color(0xFF0F0F1E),
-                    1.0f to Color.Black,
-                    center = Offset.Unspecified,
-                    radius = 1000f
-                )
-            )
+        modifier = Modifier.fillMaxSize()
     ) {
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
         // Perfect fit: 5 hexagons across the screen width OR fit within height.
-        // hexWidth = ScreenWidth / 5.0
-        // hexSize (radius) = hexWidth / sqrt(3.0)
-        // gridHeight = 8 * hexSize (to fit 4 hexagons vertically)
         val hexSize = minOf(
             screenWidth.value / (5.0 * sqrt(3.0)),
-            screenHeight.value / 8.0
+            screenHeight.value / 10.0 // Safer 10-radii height
         ).dp
 
         val geometry = remember(hexSize, screenWidth, screenHeight, isApp) {
             val hexWidth = hexSize.value * sqrt(3.0)
-            
+
             val isLandscape = screenWidth > screenHeight
             val sentirX = if (!isApp && isLandscape) {
                 -screenWidth.value / 2.0 + 2.6666 * hexWidth
             } else {
                 0.0
             }
-            
+
             HeksagonDjeyometre(
                 heksSayz = hexSize.value.toDouble(),
                 sentir = HeksagonPozecon(sentirX, 0.0),
                 ezLeterMod = true
-            )
-        }
+            )        }
 
-        // Limit the height of the IME container to fit the keyboard perfectly (8 radii tall)
+        // Limit the height of the IME container to fit the keyboard perfectly (9 radii tall)
         val contentModifier = if (isApp) {
-            Modifier.fillMaxSize()
+            Modifier.fillMaxSize().background(
+                Brush.radialGradient(
+                    0.0f to Color(0xFF1A1A2E),
+                    0.5f to Color(0xFF0F0F1E),
+                    1.0f to Color.Black,
+                    radius = 2000f
+                )
+            )
         } else {
-            Modifier.fillMaxWidth().height(hexSize * 8f)
+            Modifier.fillMaxWidth().height(hexSize * 8.0f)
+                .align(Alignment.BottomCenter)
+                .background(
+                    Brush.verticalGradient(
+                        0.0f to Color.Black.copy(alpha = 0.7f),
+                        1.0f to Color.Black
+                    )
+                )
         }
 
         // Absolute centering/bottom alignment for the Hub/Keypad
@@ -115,7 +115,6 @@ fun DaylSkren(
             if (daylSteyt.ezKepadVezebil) {
                 var isLetterMode by remember { mutableStateOf(true) }
                 var isPunctuationMode by remember { mutableStateOf(false) }
-                var isAngolMode by remember { mutableStateOf(true) }
 
                 KepadModyil(
                     keyboardController = keyboardController,
@@ -125,8 +124,8 @@ fun DaylSkren(
                     isPunctuationMode = isPunctuationMode,
                     onToggleMode = { isLetterMode = !isLetterMode },
                     onSetPunctuationMode = { isPunctuationMode = it },
-                    isAngolMode = isAngolMode,
-                    onToggleAngol = { isAngolMode = !isAngolMode },
+                    isAngolMode = voiceService.isAngolMode.value,
+                    onToggleAngol = { voiceService.toggleAngolMode() },
                     onStartAiVoice = {
                         voiceService.startListening(isAiMode = true)
                     },

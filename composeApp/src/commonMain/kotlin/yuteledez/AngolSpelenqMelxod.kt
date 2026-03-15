@@ -46,8 +46,8 @@ object AngolSpelenqMelxod {
         res = res.replace(Regex("^th"), "lh")
         res = res.replace("th", "lx")
         
-        // Nasal Logic: nq for nasal sound, nqg if hard g follows
-        res = res.replace(Regex("ng(?=[aeiou])"), "nqg")
+        // Nasal Logic: nq for nasal sound, ng if hard g follows
+        res = res.replace(Regex("ng(?=[aeiou])"), "ng")
         res = res.replace("ng", "nq")
 
         // Stage 2: Vowel Sounds (Direct 1:1 Mapping to 36-char symbols)
@@ -57,11 +57,11 @@ object AngolSpelenqMelxod {
         res = res.replace("ee", "5")
         res = res.replace("ea", "5")
         res = res.replace("oo", "9")
-        res = res.replace("ai", "3") // rain -> r3n
+        res = res.replace("ai", "3")
         res = res.replace("ay", "3")
         res = res.replace("ie", "5")
         res = res.replace("oa", "0")
-        res = res.replace("ou", "2") // about -> 2b2t (simplified)
+        res = res.replace("ou", "2")
         res = res.replace("ow", "2")
         res = res.replace("ir", "6")
         res = res.replace("ur", "6")
@@ -78,12 +78,13 @@ object AngolSpelenqMelxod {
         res = res.replace("a", "2")
         res = res.replace("e", "3")
         res = res.replace("i", "4")
-        res = res.replace("o", "O")
+        res = res.replace("o", "A") // favor A for short o as in 'Angol' -> 2ngAl
         res = res.replace("u", "8")
         
         // Stage 5: Special Acoustic Cases (The "Ear" Logic)
         // 'handle' -> h2nd7l (schwa + l)
         res = res.replace(Regex("3l$"), "7l")
+        res = res.replace(Regex("4l$"), "7l") // english -> 4nql7c
         
         // Terminal 'y' as '5' (be)
         if (res.endsWith("y")) {

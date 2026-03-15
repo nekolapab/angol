@@ -22,6 +22,8 @@ interface PlatformServices {
 
 interface VoiceService {
     val isListening: State<Boolean>
+    val isAngolMode: State<Boolean>
     fun startListening(isAiMode: Boolean = false)
     fun stopListening()
+    fun toggleAngolMode()
 }

@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -42,7 +43,7 @@ class HexagonShape(private val rotationAngle: Float) : Shape {
 
         for (i in 0..5) {
             // Angle for pointy-top hexagons (-30 degrees offset), converted to radians.
-            val angleRad = (i * 60f - 30f) * (Math.PI.toFloat() / 180f) + rotation
+            val angleRad = (i * 60f - 30f) * (PI.toFloat() / 180f) + rotation
 
             val x = centerX + radius * cos(angleRad)
             val y = centerY + radius * sin(angleRad)

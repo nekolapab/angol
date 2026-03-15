@@ -16,20 +16,21 @@ fun App(
     keyboardController: KeyboardController?,
     platformServices: PlatformServices,
     voiceService: VoiceService,
-    firebaseService: FirebaseService,
+    firebaseService: FirebaseService? = null,
     isApp: Boolean = false
 ) {
-    val user by firebaseService.authStateChanges.collectAsState(initial = firebaseService.currentUser)
+    val userState = firebaseService?.authStateChanges?.collectAsState(initial = firebaseService.currentUser)
+    val user = userState?.value
     var currentScreen by remember { mutableStateOf("main") }
     var isGuestMode by remember { mutableStateOf(false) }
 
     if (isApp) {
-        if (user == null && !isGuestMode) {
+        if (user == null && !isGuestMode && firebaseService != null) {
             SaynEnSkren(firebaseService, onBypass = { isGuestMode = true })
         } else {
             when (currentScreen) {
                 "main" -> DaylSkren(keyboardController, platformServices, voiceService, firebaseService, isApp = true)
-                "home" -> AfdirLogenSkren(firebaseService, onContinue = { currentScreen = "main" })
+                "home" -> if (firebaseService != null) AfdirLogenSkren(firebaseService, onContinue = { currentScreen = "main" }) else DaylSkren(keyboardController, platformServices, voiceService, firebaseService, isApp = true)
             }
         }
     } else {

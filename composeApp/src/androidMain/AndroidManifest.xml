@@ -13,7 +13,7 @@
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
         <activity
-            android:name="com.example.angol.ime.MainActivity"
+            android:name="com.example.angol.ime.MeynAktevede"
             android:label="@string/ime_name"
             android:exported="true">
             <intent-filter>
@@ -23,7 +23,7 @@
         </activity>
 
         <activity
-            android:name="io.angol.dayl.TranslateActivity"
+            android:name="io.angol.dayl.TranzleytAngol"
             android:label="translate"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true">
@@ -51,7 +51,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.view.im"
-                android:resource="@xml/method" />
+                android:resource="@xml/melxod" />
         </service>
 
     </application>

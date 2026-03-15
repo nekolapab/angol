@@ -38,13 +38,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import yuteledez.AngolSpelenqMelxod
 
-private const val TAG = "TranslateActivity"
+private const val TAG = "TranzleytAngol"
 
 /**
  * An activity that handles the ACTION_PROCESS_TEXT intent, 
  * providing an "angol" option in the Android text selection menu.
  */
-class TranslateActivity : ComponentActivity() {
+class TranzleytAngol : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

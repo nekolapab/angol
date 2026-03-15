@@ -18,6 +18,7 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
     - `yuteledez/`: Utilities (HeksagonDjeyometre.kt, AngolSpelenqMelxod.kt).
 - `composeApp/src/androidMain/kotlin/`: Android-specific implementations.
     - `com.example.angol.ime/`: DaylEnpitMelxod.kt, MainActivity.kt, AndroidFirebaseService.kt, AndroidBridge.kt.
+    - `io.angol.dayl/`: TranzleytAngol.kt
 
 ### **Build & Deploy:**
 - **Klen Build:** Always use `./gradlew clean` to ensure no remnants.
@@ -36,6 +37,7 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 - **Top Menu Mirjd:** 'angol' toggle at top-left handles toggle (tap) and AI Voice (long-press). Redundant top-right AI button removed.
 - **Geometry Fix:** Fixed hex positioning to correctly honor `geometry.sentir` offset.
 - **Dependency Migration:** Switched from `firebase-vertexai` to `firebase-ai` and updated to latest Firebase BoM.
+- **Renaming:** Renamed `TranzleytAktevede` to `TranzleytAngol` and `method.xml` to `melxod.xml`.
 
 ## **spetc tu tekst**
 **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`.

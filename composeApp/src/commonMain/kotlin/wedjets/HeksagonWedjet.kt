@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import modalz.KepadKonfeg
+import kotlin.math.PI
 import kotlin.math.sqrt
 
 @Composable
@@ -76,15 +77,16 @@ fun HeksagonWedjet(
     }
     
     // Dynamic font scaling removed to keep sizes uniform. Px->Sp conversion fixed clipping.
-    val baseFontSize = fontSize ?: (size.value / 4f)
+    // Normalized by fontScale to prevent system font size settings from affecting the glyphs.
+    val baseFontSize = (fontSize ?: (size.value / 4f)) / density.fontScale
     val scaledFontSize = baseFontSize
 
     HeksagonTutcboks(
         rotationAngle = rotationAngle,
         modifier = modifier.size(width = size, height = hexHeight)
     ) {
-        val inputModifier = if (onTap != null || onLongPress != null) {
-            Modifier.pointerInput(onTap, onLongPress) {
+        val inputModifier = if (onTap != null || onLongPress != null || onPressedChanged != null) {
+            Modifier.pointerInput(onTap, onLongPress, onPressedChanged) {
                 detectTapGestures(
                     onPress = {
                         isMomentarilyPressed = true
@@ -137,7 +139,7 @@ fun HeksagonWedjet(
             // Label(s) or custom child
             Box(
                 modifier = Modifier
-                    .rotate(-rotationAngle * (180f / Math.PI.toFloat()))
+                    .rotate(-rotationAngle * (180f / PI.toFloat()))
                     .offset(y = verticalOffset),
                 contentAlignment = Alignment.Center
             ) {

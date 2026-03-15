@@ -58,10 +58,11 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private var speechRecognizer: SpeechRecognizer? = null
     private var speechIntent: Intent? = null
     
-    private var isListening = mutableStateOf(false)
+    private val isListening = mutableStateOf(false)
+    private val isAngolModeState = mutableStateOf(true)
     private var isLetterMode by mutableStateOf(true)
     private var isPunctuationMode by mutableStateOf(false)
-    private var isAngolMode by mutableStateOf(true)
+    private var isAngolMode by isAngolModeState
     private var isAiVoiceActive by mutableStateOf(false)
     private var isCenterButtonPressed by mutableStateOf(false)
     
@@ -96,12 +97,20 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             firebaseService = AndroidFirebaseService(null) // No activity context here
             voiceService = AndroidVoiceService(
                 onStart = { isAi -> 
+                    Log.d(TAG, "voiceService.onStart triggered, isAi=$isAi")
                     isAiVoiceActive = isAi
+                    isCenterButtonPressed = true
                     wasStartedByUser = true
                     startVoiceInput() 
                 },
-                onStop = { stopVoiceInput() },
-                isListening = isListening
+                onStop = { 
+                    Log.d(TAG, "voiceService.onStop triggered")
+                    isCenterButtonPressed = false
+                    stopVoiceInput() 
+                },
+                onToggleAngol = { isAngolMode = !isAngolMode },
+                isListening = isListening,
+                isAngolMode = isAngolModeState
             )
             Log.d(TAG, "Controllers and services initialized")
 
@@ -180,11 +189,10 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                         Log.d(TAG, "Committing FINAL processed text: '$processedText'")
                                         ic?.let {
                                             it.beginBatchEdit()
-                                            // Finish any composing text first
-                                            it.finishComposingText()
-                                            
+                                            // DO NOT call finishComposingText here as it makes the partial text permanent.
+                                            // Instead, commitText will automatically replace the current composing (partial) text.
                                             val before = it.getTextBeforeCursor(1, 0)
-                                            val needsSpace = before != null && before.isNotEmpty() && !before.endsWith(" ")
+                                            val needsSpace = before != null && before.isNotEmpty() && !before.endsWith(" ") && !before.endsWith("\n")
                                             val finalCommit = if (needsSpace) " $processedText" else processedText
                                             
                                             ignoreSelectionUpdateCount++
@@ -333,6 +341,11 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
                 
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                
                 setContent {
                     modyilz.App(
                         keyboardController = keyboardController,
@@ -368,22 +381,16 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         isClosing = false
         super.onStartInputView(info, restarting)
         
-        // Re-add flags to show over system bars (No Limits)
         window?.window?.let { win ->
-            win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
             win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             win.navigationBarColor = android.graphics.Color.TRANSPARENT
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 win.isNavigationBarContrastEnforced = false
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                win.setDecorFitsSystemWindows(false)
-            }
         }
     }
 
     override fun onEvaluateFullscreenMode(): Boolean {
-        // Force the keyboard to stay docked and never go full-screen
         return false
     }
 
@@ -393,25 +400,29 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
         val inputView = window?.window?.decorView ?: return
         val totalHeight = inputView.height
-        
-        val displayMetrics = resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        
+        val totalWidth = inputView.width
+        if (totalHeight <= 0) return
+
+        val screenWidth = resources.displayMetrics.widthPixels
         val hexSizePx = screenWidth / (5.0 * kotlin.math.sqrt(3.0))
-        val contentHeightPx = (hexSizePx * 8.0).toInt()
         
-        val visibleHeight = if (contentHeightPx > 0 && contentHeightPx < totalHeight) {
-            contentHeightPx
-        } else {
-            (totalHeight * 0.4).toInt()
-        }
+        // Strict Cluster Height: 8 radii high (4 hexagons vertically)
+        // We add a tiny bit of padding (0.5 radii) for the new 'angol' button at the top
+        val clusterHeightPx = (hexSizePx * 8.5).toInt()
+        val top = totalHeight - clusterHeightPx
         
-        val top = totalHeight - visibleHeight
+        // 1. PUSH content up so the input field is visible above the keys
         outInsets.contentTopInsets = top
         outInsets.visibleTopInsets = top
-        outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_CONTENT
         
-        Log.d(TAG, "onComputeInsets: total=$totalHeight, visible=$visibleHeight, top=$top")
+        // 2. Solid Cluster Region
+        outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
+        outInsets.touchableRegion.setEmpty()
+        
+        // Add the area covering the hexagon cluster
+        outInsets.touchableRegion.union(android.graphics.Rect(0, top, totalWidth, totalHeight))
+        
+        Log.d(TAG, "onComputeInsets: Pushing content to top=$top")
     }
 
     override fun onWindowShown() {

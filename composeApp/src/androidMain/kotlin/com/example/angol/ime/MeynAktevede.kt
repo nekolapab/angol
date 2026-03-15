@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.MainScope
 
-class MainActivity : ComponentActivity() {
+class MeynAktevede : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -26,10 +26,13 @@ class MainActivity : ComponentActivity() {
         val firebaseService = AndroidFirebaseService(this)
         val keyboardController = AndroidKeyboardController { null } // Dummy for preview
         val isListening = mutableStateOf(false)
+        val isAngolMode = mutableStateOf(true)
         val voiceService = AndroidVoiceService(
             onStart = { isListening.value = true },
             onStop = { isListening.value = false },
-            isListening = isListening
+            onToggleAngol = { isAngolMode.value = !isAngolMode.value },
+            isListening = isListening,
+            isAngolMode = isAngolMode
         )
 
         setContent {

@@ -1,17 +1,18 @@
 [versions]
+kotlin = "2.3.+"
+androidx-activityCompose = "1.13.+"
+compose-plugin = "1.10.+"
+compose-material3 = "1.7.0-beta01"
+androidx-appcompat = "1.7.+"
+androidx-core-ktx = "1.18.+"
+firebase-bom = "34.+"
+coroutines = "1.9.+"
+okio = "3.9.+"
 agp = "9.1+"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-androidx-activityCompose = "1.13.+"
-androidx-appcompat = "1.7.+"
-androidx-core-ktx = "1.18.+"
-compose-plugin = "1.10.+"
-kotlin = "2.3.+"
-firebase-bom = "34.+"
-coroutines = "1.9.+"
-okio = "3.9.+"
-compose-material3 = "1.7.0-beta01"
+
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

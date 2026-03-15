@@ -68,6 +68,7 @@ fun KepadModyil(
     val gestureStartedOnVowelIndex = remember { mutableStateOf<Int?>(null) }
     val isCapitalized = remember { mutableStateOf(false) }
     val isCenterTranslateActive = remember { mutableStateOf(false) }
+    val isEnterReady = remember { mutableStateOf(false) }
     val initialY = remember { mutableStateOf(0f) }
     val longPressStartOffset = remember { mutableStateOf<androidx.compose.ui.geometry.Offset?>(null) }
     var isCenterHexPressed by remember { mutableStateOf(false) }
@@ -118,7 +119,7 @@ fun KepadModyil(
             controller.commitText("\n")
             if (currentWordBuffer.isNotEmpty()) {
                 platformServices.addToCorpus(currentWordBuffer.toString())
-                currentWordBuffer.setLength(0)
+                currentWordBuffer.clear()
                 displayText = ""
             }
             platformServices.addToCorpus("\n")
@@ -128,12 +129,12 @@ fun KepadModyil(
         if (char == "⌫") {
             if (primaryChar != null && primaryChar.isNotEmpty()) {
                 if (currentWordBuffer.length >= primaryChar.length) {
-                    currentWordBuffer.delete(currentWordBuffer.length - primaryChar.length, currentWordBuffer.length)
+                    currentWordBuffer.deleteRange(currentWordBuffer.length - primaryChar.length, currentWordBuffer.length)
                 } else {
-                    currentWordBuffer.setLength(0)
+                    currentWordBuffer.clear()
                 }
             } else if (currentWordBuffer.isNotEmpty()) {
-                currentWordBuffer.deleteCharAt(currentWordBuffer.length - 1)
+                currentWordBuffer.deleteAt(currentWordBuffer.length - 1)
             }
             displayText = currentWordBuffer.toString()
 
@@ -142,7 +143,7 @@ fun KepadModyil(
                 val textBefore = controller.getTextBeforeCursor(100) ?: ""
                 val deleteCount = calculateDeleteCount(textBefore.toString())
                 controller.deleteSurroundingText(deleteCount, 0)
-                currentWordBuffer.setLength(0)
+                currentWordBuffer.clear()
                 displayText = ""
             } else {
                 if (primaryChar != null && primaryChar.isNotEmpty()) {
@@ -159,7 +160,7 @@ fun KepadModyil(
         if (char == " " || char == ".") {
             if (currentWordBuffer.isNotEmpty()) {
                 platformServices.addToCorpus(currentWordBuffer.toString())
-                currentWordBuffer.setLength(0)
+                currentWordBuffer.clear()
                 displayText = ""
             }
         } else {
@@ -169,13 +170,13 @@ fun KepadModyil(
 
         if (isLongPress) {
             if (primaryChar != null) {
-                if (currentWordBuffer.length >= primaryChar.length) currentWordBuffer.delete(currentWordBuffer.length - primaryChar.length, currentWordBuffer.length)
+                if (currentWordBuffer.length >= primaryChar.length) currentWordBuffer.deleteRange(currentWordBuffer.length - primaryChar.length, currentWordBuffer.length)
                 ignoreSelectionUpdate()
                 controller.deleteSurroundingText(primaryChar.length, 0)
                 ignoreSelectionUpdate()
                 controller.commitText(char)
             } else {
-                if (currentWordBuffer.isNotEmpty()) currentWordBuffer.deleteCharAt(currentWordBuffer.length - 1)
+                if (currentWordBuffer.isNotEmpty()) currentWordBuffer.deleteAt(currentWordBuffer.length - 1)
                 ignoreSelectionUpdate()
                 controller.deleteSurroundingText(1, 0)
                 ignoreSelectionUpdate()
@@ -213,11 +214,12 @@ fun KepadModyil(
 
     fun getCurrentAllLabels(vowelIndex: Int?): List<String> {
         val inner = when {
+            vowelIndex == 18 -> KepadKonfeg.innerPunctuationMode
             currentIsPunctuationMode -> KepadKonfeg.innerPunctuationMode
             currentIsLetterMode -> KepadKonfeg.innerLetterMode
             else -> KepadKonfeg.innerNumberMode
         }
-        val outer = if (vowelIndex != null && currentIsLetterMode) {
+        val outer = if (vowelIndex != null && vowelIndex in 0..4 && currentIsLetterMode) {
             when (vowelIndex) {
                 0 -> listOf("2") + List(10) { "" } + listOf("1") // a -> 1, 2
                 1 -> listOf("") + listOf("3", "4", "5") + List(8) { "" } // e -> 3, 4, 5
@@ -237,14 +239,18 @@ fun KepadModyil(
             delay(500)
             if (hoveredHexIndex.value != index) return@launch
             if (index == 18) {
-                if (currentIsLetterMode) {
-                    // In letter mode, long press space for period
-                    handleKeyPress("⌫", false, " ")
-                    handleKeyPress(".", false, null)
-                } else {
-                    // In number mode, long press period for space
-                    handleKeyPress("⌫", false, ".")
-                    handleKeyPress(" ", false, null)
+                // First Long Press: Toggle Mode (ABC <-> 123)
+                val oldChar = if (currentIsLetterMode) " " else "."
+                onToggleMode()
+                delay(50)
+                val newChar = if (currentIsLetterMode) " " else "."
+                handleKeyPress("⌫", false, oldChar)
+                handleKeyPress(newChar, false, null)
+                
+                // Wait for Second Long Press: Set Enter Ready flag
+                delay(500)
+                if (hoveredHexIndex.value == 18) {
+                    isEnterReady.value = true
                 }
                 return@launch
             }
@@ -270,8 +276,8 @@ fun KepadModyil(
     }
 
     BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-        contentAlignment = Alignment.TopCenter
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
     ) {
         val maxWidthDp = maxWidth
         
@@ -279,20 +285,24 @@ fun KepadModyil(
             if (geometryOverride != null) {
                 geometryOverride
             } else {
-                // Perfect fit matching DaylSkren: 5 hexagons across
+                // Perfect fit: 5 hexagons across
                 val hexWidth = maxWidthDp.value / 5.0
                 val hexSize = hexWidth / sqrt(3.0)
-                HeksagonDjeyometre(heksSayz = hexSize, sentir = HeksagonPozecon(x = 0.0, y = 0.0), ezLeterMod = true)
+                HeksagonDjeyometre(
+                    heksSayz = hexSize, 
+                    sentir = HeksagonPozecon(x = 0.0, y = 0.0), 
+                    ezLeterMod = true
+                )
             }
         }
-        
+
         val allHexPositions = remember(geometry) {
             val inner = geometry.getEnirRenqKowordenats().map { geometry.aksyalTuPeksel(it.q, it.r) }
             val outer = geometry.getAwdirRenqKowordenats().map { geometry.aksyalTuPeksel(it.q, it.r) }
             inner + outer + listOf(geometry.sentir)
         }
-
-        // Height to fit 4 hexagons (8 * radius)
+        
+        // Height to fit 4.0 hexagons (8 * radius) to perfectly fit the hexagons
         val gridHeightDp = (geometry.heksSayz * 8.0).dp
 
         Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
@@ -329,11 +339,6 @@ fun KepadModyil(
                                 } else {
                                     gestureStartedOnVowelIndex.value = null
                                 }
-
-                                if (downIndex == 18) {
-                                    isCenterHexPressed = true
-                                    voiceService.startListening()
-                                }
                                 
                                 val downLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
                                 if (downIndex < downLabels.size && downLabels[downIndex].isNotEmpty()) {
@@ -348,12 +353,20 @@ fun KepadModyil(
                             while (true) {
                                 val event = awaitPointerEvent()
                                 val change = event.changes.firstOrNull { it.pressed } ?: break
+                                val moveXDp = change.position.x.toDp().value
+                                val moveYDp = change.position.y.toDp().value
+                                val moveIndex = getHexIndexFromPosition(moveXDp, moveYDp, wDp, hDp, allHexPositions, geometry.heksSayz)
+                                
                                 val dy = change.position.y - initialY.value
                                 val upThreshold = with(density) { geometry.heksSayz.dp.toPx() } * 0.4f
                                 val downThreshold = with(density) { geometry.heksSayz.dp.toPx() } * 0.2f
                                 
                                 if (!isCenterTranslateActive.value && !isCapitalized.value && dy < -upThreshold) {
-                                    if (gestureStartedIndex != 18) {
+                                    if (gestureStartedIndex == 18) {
+                                        // Swipe Up on Center: Toggle Angol Mode
+                                        onToggleAngol()
+                                        isCenterTranslateActive.value = true
+                                    } else {
                                         isCapitalized.value = true
                                         hoveredHexIndex.value?.let { idx ->
                                             val upLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
@@ -377,10 +390,6 @@ fun KepadModyil(
                                     }
                                 }
                                 
-                                val moveXDp = change.position.x.toDp().value
-                                val moveYDp = change.position.y.toDp().value
-                                val moveIndex = getHexIndexFromPosition(moveXDp, moveYDp, wDp, hDp, allHexPositions, geometry.heksSayz)
-                                
                                 if (moveIndex != hoveredHexIndex.value) {
                                     longPressJob.value?.cancel()
                                     if (gestureStartedIndex != 18) { initialY.value = change.position.y; isCapitalized.value = false }
@@ -390,7 +399,7 @@ fun KepadModyil(
                                     
                                     if (gestureStartedIndex == 18 && moveIndex != 18) {
                                         isCenterHexPressed = false
-                                        voiceService.stopListening()
+                                        // Center hex release handled by HeksagonWedjet callback
                                     }
 
                                     if (moveIndex != null && moveIndex in 0..4 && currentIsLetterMode && !currentIsPunctuationMode) {
@@ -422,8 +431,13 @@ fun KepadModyil(
                             }
                             longPressJob.value?.cancel()
                             if (gestureStartedIndex == 18) {
-                                isCenterHexPressed = false
-                                voiceService.stopListening()
+                                // Handled by HeksagonWedjet callback
+                                if (hoveredHexIndex.value == 18 && isEnterReady.value) {
+                                    val currentMidChar = if (currentIsLetterMode) " " else "."
+                                    handleKeyPress("⌫", false, currentMidChar)
+                                    handleKeyPress("\n", false, null)
+                                }
+                                isEnterReady.value = false
                             }
                             if (currentIsPunctuationMode) onSetPunctuationMode(false)
                             hoveredHexIndex.value = null
@@ -449,6 +463,37 @@ fun KepadModyil(
             AwdirRenqWedjet(geometry = geometry, onHexKeyPress = { _, _, _ -> }, tapLabels = displayOuterLabels, longPressLabels = outerLongPressLabels, initialLetterMode = currentIsLetterMode, stackWidth = maxWidthDp, stackHeight = gridHeightDp, pressedIndex = if (hoveredHexIndex.value != null && hoveredHexIndex.value!! in 6..17) hoveredHexIndex.value!! - 6 else null, handleGestures = false, isPopup = gestureStartedOnVowelIndex.value != null)
             val centerLabel = (if (currentIsLetterMode) " " else ".").let { if (isCapitalized.value) it.uppercase() else it }
             
+            // Top Center: Angol Toggle (Between P and S)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(gridHeightDp)
+                    .offset(x = -(geometry.heksWidlx / 2.0).dp, y = (geometry.heksHayt / 48.0).dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                androidx.compose.material.TextButton(
+                    onClick = { onToggleAngol() },
+                    modifier = Modifier.height(24.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    voiceService.startListening()
+                                    try { awaitRelease() } finally { voiceService.stopListening() }
+                                },
+                                onTap = { onToggleAngol() }
+                            )
+                        },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    androidx.compose.material.Text(
+                        text = "angol",
+                        color = if (isAngolMode) Color.White else Color.Gray.copy(alpha = 0.4f),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
             // Explicitly position the hub hexagon relative to the grid center
             Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
                 HeksagonWedjet(
@@ -458,36 +503,21 @@ fun KepadModyil(
                     size = hexWidthDp, 
                     fontSize = (geometry.heksWidlx * 1.8).toFloat(), 
                     isPressed = hoveredHexIndex.value == 18,
+                    onPressedChanged = { pressed ->
+                        if (pressed) {
+                            hoveredHexIndex.value = 18
+                            isCenterHexPressed = true
+                            voiceService.startListening()
+                        } else {
+                            if (hoveredHexIndex.value == 18) {
+                                hoveredHexIndex.value = null
+                                isCenterHexPressed = false
+                                voiceService.stopListening()
+                            }
+                        }
+                    },
                     modifier = Modifier.offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp)
                 )
-            }
-
-            // Overlay Controls (Tucked into top corners)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                // Top Left: Angol Toggle / AI Voice (Long Press)
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .size(64.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onToggleAngol() },
-                                onLongPress = { onStartAiVoice() }
-                            )
-                        },
-                    contentAlignment = Alignment.TopStart
-                ) {
-                    androidx.compose.material.Text(
-                        text = "angol", 
-                        color = if (isAngolMode) Color.White else Color.Gray.copy(alpha = 0.4f), 
-                        fontSize = 12.sp, 
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
         }
     }
