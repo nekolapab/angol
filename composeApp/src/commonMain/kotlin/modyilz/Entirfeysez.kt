@@ -22,8 +22,8 @@ interface PlatformServices {
 
 interface VoiceService {
     val isListening: State<Boolean>
-    val isAngolMode: State<Boolean>
+    val angolSpelenqMod: State<Int> // 0=Off, 1=Angol1, 2=Angol2
     fun startListening(isAiMode: Boolean = false)
     fun stopListening()
-    fun toggleAngolMode()
+    fun togilAngolMod(isLongPress: Boolean = false)
 }

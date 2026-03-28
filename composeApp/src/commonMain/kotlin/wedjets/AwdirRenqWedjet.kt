@@ -65,7 +65,7 @@ fun AwdirRenqWedjet(
                         backgroundColor = hexColor,
                         textColor = textColor,
                         size = hexSizeDp,
-                        fontSize = (geometry.heksWidlx * if (isLetterMode) 1.8 else 2.4).toFloat(),
+                        fontSize = (geometry.heksWidlx * 1.0).toFloat(), // Perfect fit scale 1.0
                         verticalOffset = 0.dp, // Reset to centered
                         rotationAngle = geometry.roteyconAngol.toFloat(),
                         isPressed = pressedIndex == index,

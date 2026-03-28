@@ -6,7 +6,7 @@ package yuteledez
  */
 object AngolSpelenqMelxod {
 
-    fun convertToAngolSpelling(text: String): String {
+    fun convertToAngolSpelling(text: String, mode: Int = 1): String {
         if (text.isBlank()) return text
         
         val regex = Regex("(\\s+|[^a-zA-Z\\s]+)")
@@ -25,12 +25,24 @@ object AngolSpelenqMelxod {
 
         return tokens.joinToString("") { token ->
             if (token.any { it.isLetter() }) {
-                val result = transformToPureSound(token.lowercase())
+                var result = transformToPureSound(token.lowercase())
+                if (mode == 2) result = collapseToAngol2(result)
                 capitalize(token, result)
             } else {
                 token
             }
         }
+    }
+
+    private fun collapseToAngol2(phonetic: String): String {
+        var res = phonetic
+        // Map 36-char symbols back to base vowels
+        res = res.replace(Regex("[12]"), "a")
+        res = res.replace(Regex("[35]"), "e")
+        res = res.replace(Regex("[467]"), "i")
+        res = res.replace(Regex("[89]"), "u")
+        res = res.replace(Regex("[0AO]"), "o")
+        return res
     }
 
     private fun transformToPureSound(input: String): String {

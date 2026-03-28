@@ -46,8 +46,8 @@ fun HeksagonWedjet(
     backgroundColor: Color,
     textColor: Color,
     size: Dp,
-    isPressed: Boolean = false, // Represents the "active" state from the model
-    isHovering: Boolean = false, // Represents the "hover" state from the model
+    isPressed: Boolean = false,
+    isHovering: Boolean = false,
     onTap: (() -> Unit)? = null,
     onLongPress: (() -> Unit)? = null,
     onHover: ((Boolean) -> Unit)? = null,
@@ -57,7 +57,7 @@ fun HeksagonWedjet(
     verticalOffset: Dp = 0.dp,
     child: @Composable (() -> Unit)? = null
 ) {
-    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
     var isMomentarilyPressed by remember { mutableStateOf(false) }
     
     androidx.compose.runtime.DisposableEffect(Unit) {
@@ -68,18 +68,11 @@ fun HeksagonWedjet(
     }
 
     val hexHeight = size * (2f / sqrt(3f))
-    val density = LocalDensity.current
-
-    val contrastColor = if (isMomentarilyPressed || isPressed) {
-        backgroundColor // If pressed, background is inverted, so text is original bg color
-    } else {
-        textColor // Use the provided text color
-    }
+    val contrastColor = if (isMomentarilyPressed || isPressed) backgroundColor else textColor
     
-    // Dynamic font scaling removed to keep sizes uniform. Px->Sp conversion fixed clipping.
-    // Normalized by fontScale to prevent system font size settings from affecting the glyphs.
-    val baseFontSize = (fontSize ?: (size.value / 4f)) / density.fontScale
-    val scaledFontSize = baseFontSize
+    // DELETE font scaling: divide by fontScale to ignore system settings
+    val rawFontSize = fontSize ?: (size.value / 4f)
+    val finalFontSize = (rawFontSize / density.fontScale).sp
 
     HeksagonTutcboks(
         rotationAngle = rotationAngle,
@@ -91,16 +84,15 @@ fun HeksagonWedjet(
                     onPress = {
                         isMomentarilyPressed = true
                         onPressedChanged?.invoke(true)
-                        onTap?.invoke() // Fire action immediately on press down
+                        onTap?.invoke()
                         try {
                             awaitRelease()
                         } finally {
-                            // Coroutine ensures this runs even if gesture is cancelled.
                             isMomentarilyPressed = false
                             onPressedChanged?.invoke(false)
                         }
                     },
-                    onTap = { /* Action handled in onPress */ },
+                    onTap = { },
                     onLongPress = { onLongPress?.invoke() }
                 )
             }
@@ -109,24 +101,16 @@ fun HeksagonWedjet(
         }
 
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .then(inputModifier),
+            modifier = Modifier.fillMaxSize().then(inputModifier),
             contentAlignment = Alignment.Center
         ) {
-            // Drawing Canvas with caching
             Spacer(
                 modifier = Modifier
                     .fillMaxSize()
                     .drawWithCache {
                         val path = createVisualPath(this.size)
                         onDrawBehind {
-                            val displayColor = if (isMomentarilyPressed || isPressed) {
-                                textColor
-                            } else {
-                                backgroundColor
-                            }
-                            
+                            val displayColor = if (isMomentarilyPressed || isPressed) textColor else backgroundColor
                             val fillPaint = Paint().apply {
                                 color = displayColor
                                 style = PaintingStyle.Fill
@@ -136,42 +120,20 @@ fun HeksagonWedjet(
                     }
             )
 
-            // Label(s) or custom child
             Box(
-                modifier = Modifier
-                    .rotate(-rotationAngle * (180f / PI.toFloat()))
-                    .offset(y = verticalOffset),
+                modifier = Modifier.rotate(-rotationAngle * (180f / PI.toFloat())).offset(y = verticalOffset),
                 contentAlignment = Alignment.Center
             ) {
                 if (child != null) {
                     child()
                 } else if (secondaryLabel != null) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = label,
-                            color = contrastColor,
-                            fontSize = with(density) { scaledFontSize.toSp() },
-                            fontWeight = FontWeight.Bold,
-                            softWrap = false
-                        )
+                        Text(text = label, color = contrastColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = secondaryLabel,
-                            color = contrastColor,
-                            fontSize = with(density) { scaledFontSize.toSp() },
-                            fontWeight = FontWeight.Bold,
-                            softWrap = false
-                        )
+                        Text(text = secondaryLabel, color = contrastColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                     }
                 } else {
-                    Text(
-                        text = label,
-                        color = contrastColor,
-                        fontSize = with(density) { scaledFontSize.toSp() },
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        softWrap = false
-                    )
+                    Text(text = label, color = contrastColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, softWrap = false)
                 }
             }
         }
@@ -183,8 +145,6 @@ private fun createVisualPath(size: Size): Path {
     val centerX = size.width / 2f
     val centerY = size.height / 2f
     val side = size.height / 2f
-
-    // Vertices for a pointy-top hexagon
     path.moveTo(centerX, centerY - side)
     path.lineTo(centerX + side * sqrt(3f) / 2f, centerY - side / 2f)
     path.lineTo(centerX + side * sqrt(3f) / 2f, centerY + side / 2f)

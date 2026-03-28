@@ -24,10 +24,68 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
+fun DaylSkrenEntry(
+    keyboardController: modyilz.KeyboardController?,
+    platformServices: modyilz.PlatformServices,
+    voiceService: modyilz.VoiceService,
+    isLetterMode: Boolean = true,
+    isPunctuationMode: Boolean = false,
+    onTogilMod: () -> Unit = {},
+    onSetPunkcuweyconMod: (Boolean) -> Unit = {},
+    ezAngolMod: Boolean = true,
+    onTogilAngol: (Boolean) -> Unit = {},
+    onStartAiVoys: () -> Unit = {},
+    ignoreSelectionUpdate: () -> Unit = {},
+    firebaseService: sirvesez.FirebaseService? = null,
+    isApp: Boolean = false
+) {
+    val userState = firebaseService?.authStateChanges?.collectAsState(initial = firebaseService.currentUser)
+    val user = userState?.value
+    var currentScreen by remember { mutableStateOf("main") }
+    var isGuestMode by remember { mutableStateOf(false) }
+
+    if (isApp) {
+        if (user == null && !isGuestMode && firebaseService != null) {
+            SaynEnSkren(firebaseService, onBypass = { isGuestMode = true })
+        } else {
+            when (currentScreen) {
+                "main" -> DaylSkren(
+                    keyboardController, platformServices, voiceService,
+                    isLetterMode, isPunctuationMode, onTogilMod, onSetPunkcuweyconMod,
+                    ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
+                    firebaseService, isApp = true
+                )
+                "home" -> if (firebaseService != null) AfdirLogenSkren(firebaseService, onContinue = { currentScreen = "main" }) else DaylSkren(
+                    keyboardController, platformServices, voiceService,
+                    isLetterMode, isPunctuationMode, onTogilMod, onSetPunkcuweyconMod,
+                    ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
+                    firebaseService, isApp = true
+                )
+            }
+        }
+    } else {
+        DaylSkren(
+            keyboardController, platformServices, voiceService,
+            isLetterMode, isPunctuationMode, onTogilMod, onSetPunkcuweyconMod,
+            ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
+            firebaseService, isApp = false
+        )
+    }
+}
+
+@Composable
 fun DaylSkren(
     keyboardController: modyilz.KeyboardController?,
     platformServices: modyilz.PlatformServices,
     voiceService: modyilz.VoiceService,
+    isLetterMode: Boolean,
+    isPunctuationMode: Boolean,
+    onTogilMod: () -> Unit,
+    onSetPunkcuweyconMod: (Boolean) -> Unit,
+    ezAngolMod: Boolean,
+    onTogilAngol: (Boolean) -> Unit,
+    onStartAiVoys: () -> Unit,
+    ignoreSelectionUpdate: () -> Unit,
     firebaseService: sirvesez.FirebaseService? = null,
     isApp: Boolean = true,
     onGoToHome: (() -> Unit)? = null
@@ -49,9 +107,6 @@ fun DaylSkren(
         }
     }
     
-    // If it's the IME (not isApp), we should probably start in keypad mode?
-    // Or maybe the user wants the dial even in IME. 
-    // Let's force keypad mode if isApp is false.
     LaunchedEffect(isApp) {
         if (!isApp) {
             daylSteyt.togilModyil(1) // Toggle keypad (id="keypad", pozecon=1)
@@ -64,7 +119,6 @@ fun DaylSkren(
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
-        // Perfect fit: 5 hexagons across the screen width OR fit within height.
         val hexSize = minOf(
             screenWidth.value / (5.0 * sqrt(3.0)),
             screenHeight.value / 10.0 // Safer 10-radii height
@@ -72,7 +126,6 @@ fun DaylSkren(
 
         val geometry = remember(hexSize, screenWidth, screenHeight, isApp) {
             val hexWidth = hexSize.value * sqrt(3.0)
-
             val isLandscape = screenWidth > screenHeight
             val sentirX = if (!isApp && isLandscape) {
                 -screenWidth.value / 2.0 + 2.6666 * hexWidth
@@ -84,9 +137,10 @@ fun DaylSkren(
                 heksSayz = hexSize.value.toDouble(),
                 sentir = HeksagonPozecon(sentirX, 0.0),
                 ezLeterMod = true
-            )        }
+            )
+        }
 
-        // Limit the height of the IME container to fit the keyboard perfectly (9 radii tall)
+        // Limit the height of the IME container to fit the keyboard perfectly (8 radii tall)
         val contentModifier = if (isApp) {
             Modifier.fillMaxSize().background(
                 Brush.radialGradient(
@@ -113,23 +167,18 @@ fun DaylSkren(
             contentAlignment = if (isApp) Alignment.Center else Alignment.BottomCenter
         ) {
             if (daylSteyt.ezKepadVezebil) {
-                var isLetterMode by remember { mutableStateOf(true) }
-                var isPunctuationMode by remember { mutableStateOf(false) }
-
                 KepadModyil(
                     keyboardController = keyboardController,
                     platformServices = platformServices,
                     voiceService = voiceService,
                     isLetterMode = isLetterMode,
                     isPunctuationMode = isPunctuationMode,
-                    onToggleMode = { isLetterMode = !isLetterMode },
-                    onSetPunctuationMode = { isPunctuationMode = it },
-                    isAngolMode = voiceService.isAngolMode.value,
-                    onToggleAngol = { voiceService.toggleAngolMode() },
-                    onStartAiVoice = {
-                        voiceService.startListening(isAiMode = true)
-                    },
-                    ignoreSelectionUpdate = { },
+                    onTogilMod = onTogilMod,
+                    onSetPunkcuweyconMod = onSetPunkcuweyconMod,
+                    ezAngolMod = ezAngolMod,
+                    onTogilAngol = onTogilAngol,
+                    onStartAiVoys = onStartAiVoys,
+                    ignoreSelectionUpdate = ignoreSelectionUpdate,
                     geometryOverride = geometry
                 )
             } else {
@@ -137,11 +186,7 @@ fun DaylSkren(
                     geometry = geometry,
                     modyilz = daylSteyt.modyilz,
                     onToggleModule = { index ->
-                        // Tapping 'kepad' (index 1) toggles state which replaces Hub with in-app Keypad
-                        // We do NOT call keyboardController.show() here to avoid the bottom system IME
                         daylSteyt.togilModyil(index)
-                        
-                        // Save to Firebase if logged in
                         if (user != null && firebaseService != null) {
                             scope.launch {
                                 firebaseService.saveModuleLayout(daylSteyt.modyilz)
@@ -154,7 +199,7 @@ fun DaylSkren(
             }
         }
         
-        // Settings and Account icons at the bottom, absolutely positioned
+        // Settings and Account icons at the bottom
         if (!daylSteyt.ezKepadVezebil) {
             Row(
                 modifier = Modifier

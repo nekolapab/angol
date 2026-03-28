@@ -115,9 +115,9 @@ class AndroidPlatformServices(
 class AndroidVoiceService(
     private val onStart: (Boolean) -> Unit,
     private val onStop: () -> Unit,
-    private val onToggleAngol: () -> Unit,
+    private val onTogilAngol: (Boolean) -> Unit,
     override val isListening: State<Boolean>,
-    override val isAngolMode: State<Boolean>
+    override val angolSpelenqMod: State<Int>
 ) : VoiceService {
     override fun startListening(isAiMode: Boolean) {
         onStart(isAiMode)
@@ -127,7 +127,7 @@ class AndroidVoiceService(
         onStop()
     }
 
-    override fun toggleAngolMode() {
-        onToggleAngol()
+    override fun togilAngolMod(isLongPress: Boolean) {
+        onTogilAngol(isLongPress)
     }
 }

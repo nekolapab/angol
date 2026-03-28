@@ -1,6 +1,11 @@
 ## **AI development gaydlaynz for Kotlin Compose Multiplatform (KMP)**
 lhez gaydlaynz defayn lha erir rezelyent opiraconal prensepilz for Gemini keypabil development wirkflow.
 
+## **kontekst efecon-se (Context Efficiency)**
+* **cort and klin:** lha AI cid olwayz tray tu kip lha kontekst cort.
+* **prefir 'replace':** olwayz prefir yuzenq lha `replace` tul ensted ov `write_file` tu avoyd lonq awtputs lhat fel 8p lha kontekst.
+* **trunkeyded awtput:** ef a tul awtput ez tuw lonq, lha AI cid fokus on lha relevant part and avoyd repedenq entayir faylz.
+
 ## **kontekst awer envayrment**
 lha AI opereyts welxen lha Kotlin Compose development envayrment.
 
