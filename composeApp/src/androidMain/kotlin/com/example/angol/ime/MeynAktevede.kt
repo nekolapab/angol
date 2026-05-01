@@ -3,6 +3,7 @@ package com.example.angol.ime
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,14 +15,19 @@ class MeynAktevede : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        val keyboardController = AndroidKeyboardController { null }
+        val keyboardController = AndroidKeyboardController(
+            getIc = { null },
+            onSmartEnter = {},
+            onForcedSubmit = {}
+        )
         val platformServices = AndroidPlatformServices(this, scope)
         val voiceService = AndroidVoiceService(
-            onStart = {},
-            onStop = {},
-            onTogilAngol = {},
+            onStart = { },
+            onStop = { },
+            onTogilAngol = { },
             isListening = mutableStateOf(false),
-            angolSpelenqMod = mutableStateOf(1)
+            hasSpoken = mutableStateOf(false),
+            angolSpelenqMod = mutableIntStateOf(0)
         )
 
         setContent {

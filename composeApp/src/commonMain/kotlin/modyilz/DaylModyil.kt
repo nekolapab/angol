@@ -12,52 +12,47 @@ import modalz.KepadKonfeg
 import wedjets.SentirModWedjet
 import wedjets.EnirRenqWedjet
 import wedjets.HeksagonWedjet
+import wedjets.HeksagonGred
+import wedjets.GredItem
 
 @Composable
 fun DaylModyil(
     geometry: HeksagonDjeyometre,
     modyilz: List<ModyilDeyda>,
     onToggleModule: (Int) -> Unit,
+    onSwapModules: (Int, Int) -> Unit,
+    onCopyToEmpty: (Int, Int) -> Unit,
+    onMoveToCenter: (Int) -> Unit,
     stackWidth: Dp,
     stackHeight: Dp
 ) {
     val daylModule = modyilz.find { it.id == "dayl" } ?: modyilz.first()
-    // Ring modules are anything that is NOT the center 'dayl' hub
-    val ringModules = modyilz.filter { it.id != "dayl" }.sortedBy { it.pozecon }
+    
+    // Map modules to GredItem for HeksagonGred
+    val gredItems = modyilz.filter { it.id != "dayl" }.map { mod ->
+        GredItem(
+            index = mod.pozecon,
+            label = mod.neym,
+            color = mod.kulor,
+            isFolder = true, // Modules act as folders for glefz
+            deyda = mod
+        )
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        // Center hexagon - only show if no other module is active? 
-        // Or always show as the 'Hub' base.
-        SentirModWedjet(
-            label = daylModule.neym,
+        HeksagonGred(
             geometry = geometry,
-            backgroundColor = daylModule.kulor,
-            textColor = KepadKonfeg.getComplementaryColor(daylModule.kulor),
-            fontSize = (geometry.heksWidlx.toFloat() * 0.75f), // Tripled font size
-            onTap = { onToggleModule(daylModule.pozecon) }
+            items = gredItems,
+            centerLabel = daylModule.neym,
+            centerColor = daylModule.kulor,
+            onSwap = onSwapModules,
+            onCopyToEmpty = onCopyToEmpty,
+            onMoveToCenter = onMoveToCenter,
+            onDropOnFolder = { from, to -> /* Handle folder drop */ },
+            modifier = Modifier.fillMaxSize()
         )
-
-        // Inner ring layout
-        EnirRenqWedjet(
-            geometry = geometry,
-            stackWidth = stackWidth,
-            stackHeight = stackHeight
-        ) {
-            ringModules.forEach { module ->
-                HeksagonWedjet(
-                    label = module.neym,
-                    backgroundColor = module.kulor,
-                    textColor = KepadKonfeg.getComplementaryColor(module.kulor),
-                    size = geometry.heksWidlx.toFloat().dp,
-                    fontSize = (geometry.heksWidlx.toFloat() * 0.75f), // Tripled font size
-                    isPressed = module.ezAktiv,
-                    rotationAngle = geometry.roteyconAngol.toFloat(),
-                    onTap = { onToggleModule(module.pozecon) }
-                )
-            }
-        }
     }
 }

@@ -25,20 +25,23 @@ data class ModyilDeyda(
     val neym: String,
     val kulor: Color,
     val pozecon: Int,
-    val ezAktiv: Boolean = false
+    val ezAktiv: Boolean = false,
+    val glefz: List<String> = emptyList()
 ) {
     fun copyWith(
         id: String? = null,
         neym: String? = null,
         kulor: Color? = null,
         pozecon: Int? = null,
-        ezAktiv: Boolean? = null
+        ezAktiv: Boolean? = null,
+        glefz: List<String>? = null
     ): ModyilDeyda = ModyilDeyda(
         id = id ?: this.id,
         neym = neym ?: this.neym,
         kulor = kulor ?: this.kulor,
         pozecon = pozecon ?: this.pozecon,
-        ezAktiv = ezAktiv ?: this.ezAktiv
+        ezAktiv = ezAktiv ?: this.ezAktiv,
+        glefz = glefz ?: this.glefz
     )
 
     /**
@@ -49,7 +52,8 @@ data class ModyilDeyda(
         "neym" to neym,
         "kulor" to kulor.toArgb(), // Serialize color as an ARGB Int
         "pozecon" to pozecon,
-        "ezAktiv" to ezAktiv
+        "ezAktiv" to ezAktiv,
+        "glefz" to glefz
     )
 
     companion object {
@@ -68,7 +72,8 @@ data class ModyilDeyda(
                 neym = json["neym"] as? String ?: "",
                 kulor = Color(colorValue),
                 pozecon = json["pozecon"] as? Int ?: 0,
-                ezAktiv = json["ezAktiv"] as? Boolean ?: false
+                ezAktiv = json["ezAktiv"] as? Boolean ?: false,
+                glefz = (json["glefz"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
             )
         }
     }

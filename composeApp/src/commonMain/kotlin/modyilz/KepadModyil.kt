@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -43,13 +44,15 @@ fun KepadModyil(
     voiceService: VoiceService,
     isLetterMode: Boolean,
     isPunctuationMode: Boolean,
+    ezUpsayddawn: Boolean = false,
     onTogilMod: () -> Unit,
     onSetPunkcuweyconMod: (Boolean) -> Unit,
     ezAngolMod: Boolean,
     onTogilAngol: (Boolean) -> Unit,
     onStartAiVoys: () -> Unit,
     ignoreSelectionUpdate: () -> Unit,
-    geometryOverride: HeksagonDjeyometre? = null
+    geometryOverride: HeksagonDjeyometre? = null,
+    glefzOverride: List<String>? = null
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -61,6 +64,8 @@ fun KepadModyil(
     
     val currentWordBuffer = remember { StringBuilder() }
     var dezspleyTekst by remember { mutableStateOf("") }
+    
+    var dialRotationAngle by remember { mutableStateOf(0f) }
 
     val huvirdHeksIndeks = remember { mutableStateOf<Int?>(null) }
     val lonqPresDjob = remember { mutableStateOf<Job?>(null) }
@@ -96,6 +101,29 @@ fun KepadModyil(
             }
         }
         return if (count > 0) count else 1
+    }
+
+    fun getHexIndexFromPosition(offsetX: Float, offsetY: Float, w: Float, h: Float, allHexPositions: List<HeksagonPozecon>, hexSize: Double): Int? {
+        val localX = offsetX - w / 2
+        val localY = offsetY - h / 2
+        var closestIndex: Int? = null
+        var minDistSq = Double.MAX_VALUE
+        for (i in allHexPositions.indices) {
+            val hexPos = allHexPositions[i]
+            val distSq = (localX - hexPos.x).pow(2) + (localY - hexPos.y).pow(2)
+            if (distSq < minDistSq) {
+                minDistSq = distSq; closestIndex = i
+            }
+        }
+        if (closestIndex != null) {
+            val center = allHexPositions[closestIndex]
+            val dx = kotlin.math.abs(localX - center.x)
+            val dy = kotlin.math.abs(localY - center.y)
+            val sqrt3Val = 1.73205080757
+            if (dx > hexSize * sqrt3Val / 2.0) return null
+            if ((dx + sqrt3Val * dy) <= (sqrt3Val * hexSize)) return closestIndex
+        }
+        return null
     }
 
     fun handilKePres(char: String, isLongPress: Boolean, primaryChar: String?) {
@@ -185,30 +213,11 @@ fun KepadModyil(
         }
     }
 
-    fun getHexIndexFromPosition(offsetX: Float, offsetY: Float, w: Float, h: Float, allHexPositions: List<HeksagonPozecon>, hexSize: Double): Int? {
-        val localX = offsetX - w / 2
-        val localY = offsetY - h / 2
-        var closestIndex: Int? = null
-        var minDistSq = Double.MAX_VALUE
-        for (i in allHexPositions.indices) {
-            val hexPos = allHexPositions[i]
-            val distSq = (localX - hexPos.x).pow(2) + (localY - hexPos.y).pow(2)
-            if (distSq < minDistSq) {
-                minDistSq = distSq; closestIndex = i
-            }
-        }
-        if (closestIndex != null) {
-            val center = allHexPositions[closestIndex]
-            val dx = kotlin.math.abs(localX - center.x)
-            val dy = kotlin.math.abs(localY - center.y)
-            val sqrt3Val = 1.73205080757
-            if (dx > hexSize * sqrt3Val / 2.0) return null
-            if ((dx + sqrt3Val * dy) <= (sqrt3Val * hexSize)) return closestIndex
-        }
-        return null
-    }
-
     fun getCurrentAllLabels(vowelIndex: Int?): List<String> {
+        if (glefzOverride != null && glefzOverride.isNotEmpty() && vowelIndex == null && currentIsLetterMode && !currentIsPunctuationMode) {
+            return if (isCapitalized) glefzOverride.map { it.uppercase() } else glefzOverride
+        }
+
         val inner = when {
             vowelIndex == 18 -> KepadKonfeg.innerPunctuationMode
             currentIsPunctuationMode -> KepadKonfeg.innerPunctuationMode
@@ -234,20 +243,27 @@ fun KepadModyil(
         return scope.launch {
             delay(500)
             if (huvirdHeksIndeks.value != index) return@launch
+            
             if (index == 18) {
-                delay(500)
-                if (huvirdHeksIndeks.value == 18) {
-                    val oldChar = if (currentIsLetterMode) " " else "."
-                    onTogilMod()
-                    delay(50)
-                    val newChar = if (currentIsLetterMode) " " else "."
-                    handilKePres("⌫", false, oldChar)
-                    handilKePres(newChar, false, null)
+                // Tier 1: 500ms -> Type Dot shortcut ONLY in Letter Mode
+                if (currentIsLetterMode) {
+                    handilKePres(".", false, null)
+                }
+                
+                delay(1500) // Total 2000ms (2s)
+                if (huvirdHeksIndeks.value != 18) return@launch
+                
+                // Tier 2: 2000ms -> Delete shortcut if it was typed
+                if (currentIsLetterMode) {
+                    keyboardController?.finishComposingText()
+                    handilKePres("⌫", false, null)
                 }
                 return@launch
             }
+            
             val isInner = index < 6
             val startedVowelIndex = gestureStartedOnVowelIndex.value
+            
             val lpLabelRaw = if (isInner) {
                 if (currentIsLetterMode) KepadKonfeg.innerLetterMode.map { if (it == "⌫") "⌫" else "" }.getOrNull(index) ?: ""
                 else KepadKonfeg.innerLongPressNumber.getOrNull(index) ?: ""
@@ -273,13 +289,18 @@ fun KepadModyil(
     ) {
         val maxWidthDp = maxWidth
         
-        val geometry = remember(maxWidthDp, geometryOverride) {
+        val geometry = remember(maxWidthDp, geometryOverride, dialRotationAngle, currentIsLetterMode) {
             if (geometryOverride != null) {
                 geometryOverride
             } else {
                 val hexWidth = maxWidthDp.value / 5.0
                 val hexSize = hexWidth / sqrt(3.0)
-                HeksagonDjeyometre(heksSayz = hexSize, sentir = HeksagonPozecon(x = 0.0, y = 0.0), ezLeterMod = true)
+                HeksagonDjeyometre(
+                    heksSayz = hexSize, 
+                    sentir = HeksagonPozecon(x = 0.0, y = 0.0), 
+                    ezLeterMod = currentIsLetterMode,
+                    roteyconAngol = dialRotationAngle.toDouble()
+                )
             }
         }
 
@@ -295,6 +316,7 @@ fun KepadModyil(
             val hexWidthDp = geometry.heksWidlx.dp
             
             val currentLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
+            val displayInnerLabels = currentLabels.subList(0, 6)
             val displayOuterLabels = currentLabels.subList(6, 18)
             val outerLongPressLabels = if (currentIsLetterMode && gestureStartedOnVowelIndex.value == null) {
                 val raw = KepadKonfeg.outerLongPress
@@ -304,13 +326,19 @@ fun KepadModyil(
             // GRID TOUCH LAYER
             Box(
                 modifier = Modifier.fillMaxSize()
-                    .pointerInput(Unit) {
+                    .pointerInput(allHexPositions, ezUpsayddawn) {
                         val wDp = size.width.toDp().value
                         val hDp = size.height.toDp().value
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
-                            val xDp = down.position.x.toDp().value
-                            val yDp = down.position.y.toDp().value
+                            val startTime = System.currentTimeMillis()
+                            
+                            val rawXDp = down.position.x.toDp().value
+                            val rawYDp = down.position.y.toDp().value
+                            
+                            // Flip touch coordinates if upside down
+                            val xDp = if (ezUpsayddawn) wDp - rawXDp else rawXDp
+                            val yDp = if (ezUpsayddawn) hDp - rawYDp else rawYDp
                             
                             val downIndex = getHexIndexFromPosition(xDp, yDp, wDp, hDp, allHexPositions, geometry.heksSayz)
                             val gestureStartedIndex = downIndex
@@ -318,6 +346,10 @@ fun KepadModyil(
                             longPressStartOffset.value = down.position
                             isCapitalized = false
                             isCenterTranslateActive = false
+                            
+                            var rotationTriggered = false
+                            var initialAngle: Float? = null
+                            val startDialAngle = dialRotationAngle
 
                             if (downIndex != null) {
                                 huvirdHeksIndeks.value = downIndex
@@ -329,6 +361,7 @@ fun KepadModyil(
 
                                 if (downIndex == 18) {
                                     isCenterHexPressed = true
+                                    // Start voice immediately on press
                                     voiceService.startListening()
                                 }
                                 
@@ -346,9 +379,43 @@ fun KepadModyil(
                             
                             while (true) {
                                 val event = awaitPointerEvent()
-                                val change = event.changes.firstOrNull { it.pressed } ?: break
-                                val moveXDp = change.position.x.toDp().value
-                                val moveYDp = change.position.y.toDp().value
+                                val changes = event.changes
+                                val activePointers = changes.filter { it.pressed }
+
+                                // TWO-FINGER ROTATION LOGIC
+                                if (activePointers.size == 2) {
+                                    val p1 = activePointers[0].position
+                                    val p2 = activePointers[1].position
+                                    val currentAngle = kotlin.math.atan2(p2.y - p1.y, p2.x - p1.x)
+                                    
+                                    if (initialAngle == null) {
+                                        initialAngle = currentAngle
+                                    } else {
+                                        var diff = currentAngle - initialAngle!!
+                                        while (diff <= -kotlin.math.PI) diff += (2 * kotlin.math.PI).toFloat()
+                                        while (diff > kotlin.math.PI) diff -= (2 * kotlin.math.PI).toFloat()
+                                        
+                                        // Update visual rotation live
+                                        dialRotationAngle = startDialAngle + diff
+                                        
+                                        // Lower threshold: 15 degrees = 0.26 radians
+                                        if (kotlin.math.abs(diff) >= 0.26f && !rotationTriggered) {
+                                            currentOnToggleMode()
+                                            rotationTriggered = true
+                                        }
+                                    }
+                                }
+
+                                val change = changes.firstOrNull { it.id == down.id } ?: changes.firstOrNull { it.pressed } ?: break
+                                if (!change.pressed && changes.all { !it.pressed }) break
+                                
+                                val rawMoveXDp = change.position.x.toDp().value
+                                val rawMoveYDp = change.position.y.toDp().value
+                                
+                                // Flip move coordinates if upside down
+                                val moveXDp = if (ezUpsayddawn) wDp - rawMoveXDp else rawMoveXDp
+                                val moveYDp = if (ezUpsayddawn) hDp - rawMoveYDp else rawMoveYDp
+                                
                                 val moveIndex = getHexIndexFromPosition(moveXDp, moveYDp, wDp, hDp, allHexPositions, geometry.heksSayz)
                                 
                                 val dy = change.position.y - initialY.value
@@ -391,7 +458,7 @@ fun KepadModyil(
                                     
                                     if (gestureStartedIndex == 18 && moveIndex != 18) {
                                         isCenterHexPressed = false
-                                        voiceService.stopListening()
+                                        // Mic continues listening in persistent mode
                                     }
 
                                     // STICKY POPUP
@@ -431,12 +498,33 @@ fun KepadModyil(
                             lonqPresDjob.value?.cancel()
                             if (gestureStartedIndex == 18) {
                                 isCenterHexPressed = false
-                                voiceService.stopListening()
-                                if (huvirdHeksIndeks.value == 18) {
-                                    val relLabels = getCurrentAllLabels(gestureStartedOnVowelIndex.value)
-                                    if (18 < relLabels.size) handilKePres(relLabels[18], false, null)
+                                
+                                val duration = System.currentTimeMillis() - startTime
+                                // Tiered release logic for center hex (index 18)
+                                if (huvirdHeksIndeks.value == 18 && !rotationTriggered) {
+                                    when {
+                                        duration < 510 -> {
+                                            // Quick tap: ONLY way to stop mic and type current char
+                                            voiceService.stopListening()
+                                            val centerChar = if (currentIsLetterMode) " " else "."
+                                            handilKePres(centerChar, false, null)
+                                        }
+                                        duration in 510..1999 -> {
+                                            // Medium release: type space ALWAYS (mic stays ON)
+                                            handilKePres(" ", false, null)
+                                        }
+                                        else -> {
+                                            // Double Long release (>2s): perform Submit Action ONLY (mic stays ON)
+                                            // Dot was already deleted by the 2s timer
+                                            keyboardController?.performSubmitAction()
+                                        }
+                                    }
                                 }
                             }
+                            
+                            // Reset visual rotation on release
+                            dialRotationAngle = 0f
+                            
                             if (currentIsPunctuationMode) onSetPunkcuweyconMod(false)
                             huvirdHeksIndeks.value = null
                             gestureStartedOnVowelIndex.value = null
@@ -447,66 +535,94 @@ fun KepadModyil(
                     }
             )
 
-            EnirRenqWedjet(geometry = geometry, stackWidth = maxWidthDp, stackHeight = gridHeightDp) {
-                val innerLabelsToDisplay = when {
-                    gestureStartedOnVowelIndex.value == 18 -> KepadKonfeg.innerPunctuationMode
-                    currentIsPunctuationMode -> KepadKonfeg.innerPunctuationMode
-                    currentIsLetterMode -> KepadKonfeg.innerLetterMode
-                    else -> KepadKonfeg.innerNumberMode
-                }
-                innerLabelsToDisplay.forEachIndexed { index, label ->
-                    val lpLabel = if (currentIsLetterMode) "" else KepadKonfeg.innerLongPressNumber.getOrNull(index) ?: ""
-                    val baseScale = 1.0f
-                    val normalizedFontSize = (geometry.heksWidlx * baseScale).toFloat()
-                    HeksagonWedjet(label = label, secondaryLabel = if (lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null, backgroundColor = KepadKonfeg.innerRingColors[index], textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]), size = hexWidthDp, fontSize = normalizedFontSize, isPressed = huvirdHeksIndeks.value == index)
-                }
-            }
-            AwdirRenqWedjet(geometry = geometry, onHexKeyPress = { _, _, _ -> }, tapLabels = displayOuterLabels, longPressLabels = outerLongPressLabels, initialLetterMode = currentIsLetterMode, stackWidth = maxWidthDp, stackHeight = gridHeightDp, pressedIndex = if (huvirdHeksIndeks.value != null && huvirdHeksIndeks.value!! in 6..17) huvirdHeksIndeks.value!! - 6 else null, handleGestures = false, isPopup = gestureStartedOnVowelIndex.value != null)
-            val centerLabel = (if (currentIsLetterMode) " " else ".").let { if (isCapitalized) it.uppercase() else it }
-            
-            // DEDICATED TOGGLE LAYER (Always on top, never blocked)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(gridHeightDp)
-                    .offset(x = -(geometry.heksWidlx / 2.0).dp, y = -(geometry.heksHayt / 12.0).dp),
-                contentAlignment = Alignment.TopCenter
+                    .graphicsLayer {
+                        if (ezUpsayddawn) {
+                            rotationZ = 180f
+                        }
+                    },
+                contentAlignment = Alignment.Center
             ) {
+                EnirRenqWedjet(geometry = geometry, stackWidth = maxWidthDp, stackHeight = gridHeightDp) {
+                    displayInnerLabels.forEachIndexed { index, label ->
+                        val lpLabel = if (currentIsLetterMode) "" else KepadKonfeg.innerLongPressNumber.getOrNull(index) ?: ""
+                        val baseScale = 1.0f
+                        val normalizedFontSize = (geometry.heksWidlx * baseScale).toFloat()
+                        HeksagonWedjet(
+                            label = label, 
+                            secondaryLabel = if (lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null, 
+                            backgroundColor = KepadKonfeg.innerRingColors[index], 
+                            textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]), 
+                            size = hexWidthDp, 
+                            fontSize = normalizedFontSize, 
+                            rotationAngle = geometry.roteyconAngol.toFloat(),
+                            isPressed = huvirdHeksIndeks.value == index
+                        )
+                    }
+                }
+                AwdirRenqWedjet(
+                    geometry = geometry, 
+                    onHexKeyPress = { _, _, _ -> }, 
+                    tapLabels = displayOuterLabels, 
+                    longPressLabels = outerLongPressLabels, 
+                    initialLetterMode = currentIsLetterMode, 
+                    stackWidth = maxWidthDp, 
+                    stackHeight = gridHeightDp, 
+                    pressedIndex = if (huvirdHeksIndeks.value != null && huvirdHeksIndeks.value!! in 6..17) huvirdHeksIndeks.value!! - 6 else null, 
+                    handleGestures = false, 
+                    isPopup = gestureStartedOnVowelIndex.value != null
+                )
+                
+                val centerLabel = (if (currentIsLetterMode) " " else ".").let { if (isCapitalized) it.uppercase() else it }
+                
+                // DEDICATED TOGGLE LAYER (Always on top, never blocked)
                 Box(
                     modifier = Modifier
-                        .height(32.dp)
-                        .width(100.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onTogilAngol(false) },
-                                onLongPress = { onTogilAngol(true) }
-                            )
-                        },
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .height(gridHeightDp)
+                        .offset(x = -(geometry.heksWidlx / 2.0).dp, y = -(geometry.heksHayt / 12.0).dp),
+                    contentAlignment = Alignment.TopCenter
                 ) {
-                    androidx.compose.material.Text(
-                        text = "angol",
-                        color = when (currentAngolMode) {
-                            1 -> Color.Yellow // Mode 1 -> Yellow
-                            2 -> Color.White  // Mode 2 -> White
-                            else -> Color.Gray.copy(alpha = 0.4f)
-                        },
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                    Box(
+                        modifier = Modifier
+                            .height(32.dp)
+                            .width(100.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = { onTogilAngol(false) },
+                                    onLongPress = { onTogilAngol(true) }
+                                )
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        androidx.compose.material.Text(
+                            text = "angol",
+                            color = when (currentAngolMode) {
+                                1 -> Color.Yellow // Mode 1 -> Yellow (AI/Angol 2)
+                                2 -> Color.White  // Mode 2 -> White (Default/Angol 1)
+                                else -> Color.Gray.copy(alpha = 0.4f)
+                            },
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
+                    HeksagonWedjet(
+                        label = centerLabel, 
+                        backgroundColor = if (voiceService.isListening.value) Color.Red else if (currentIsLetterMode) Color.White else Color.Black, 
+                        textColor = if (voiceService.isListening.value) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
+                        size = hexWidthDp, 
+                        fontSize = (geometry.heksWidlx * 1.0).toFloat(),
+                        rotationAngle = geometry.roteyconAngol.toFloat(),
+                        isPressed = huvirdHeksIndeks.value == 18,
+                        modifier = Modifier.offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp)
                     )
                 }
-            }
-
-            Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
-                HeksagonWedjet(
-                    label = centerLabel, 
-                    backgroundColor = if (voiceService.isListening.value) Color.Red else if (currentIsLetterMode) Color.White else Color.Black, 
-                    textColor = if (voiceService.isListening.value) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
-                    size = hexWidthDp, 
-                    fontSize = (geometry.heksWidlx * 1.0).toFloat(),
-                    isPressed = huvirdHeksIndeks.value == 18,
-                    modifier = Modifier.offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp)
-                )
             }
         }
     }

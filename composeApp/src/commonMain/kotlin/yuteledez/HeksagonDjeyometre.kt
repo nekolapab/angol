@@ -7,7 +7,8 @@ import kotlin.math.sqrt
 class HeksagonDjeyometre(
     val heksSayz: Double,
     val sentir: HeksagonPozecon,
-    val ezLeterMod: Boolean = true
+    val ezLeterMod: Boolean = true,
+    val roteyconAngol: Double = 0.0
 ) {
     val heksWidlx: Double
         get() = sqrt(3.0) * heksSayz
@@ -15,19 +16,25 @@ class HeksagonDjeyometre(
     val heksHayt: Double
         get() = 2 * heksSayz
 
-    val roteyconAngol: Double = 0.0
-
     /**
      * Converts axial coordinates (q, r) to pixel coordinates (x, y).
      */
     fun aksyalTuPeksel(q: Int, r: Int): HeksagonPozecon {
         // In Kotlin, integer division `3 / 2` would result in 1.
         // We use floating-point numbers to match the original Dart behavior.
-        val x = heksSayz * (sqrt(3.0) * q + sqrt(3.0) / 2.0 * r)
-        val y = heksSayz * (1.5) * r // 3.0 / 2.0 = 1.5
+        val rawX = heksSayz * (sqrt(3.0) * q + sqrt(3.0) / 2.0 * r)
+        val rawY = heksSayz * (1.5) * r // 3.0 / 2.0 = 1.5
+        
+        // Apply rotation
+        val cosA = kotlin.math.cos(roteyconAngol)
+        val sinA = kotlin.math.sin(roteyconAngol)
+        
+        val rotatedX = rawX * cosA - rawY * sinA
+        val rotatedY = rawX * sinA + rawY * cosA
+        
         return HeksagonPozecon(
-            x = sentir.x + x,
-            y = sentir.y + y
+            x = sentir.x + rotatedX,
+            y = sentir.y + rotatedY
         )
     }
 

@@ -8,6 +8,9 @@ interface KeyboardController {
     fun sendKeyEvent(keyCode: Int)
     fun getTextBeforeCursor(n: Int): String?
     fun getTextAfterCursor(n: Int): String?
+    fun performSmartEnter()
+    fun performSubmitAction()
+    fun finishComposingText()
 }
 
 interface PlatformServices {
@@ -22,6 +25,7 @@ interface PlatformServices {
 
 interface VoiceService {
     val isListening: State<Boolean>
+    val hasSpoken: State<Boolean>
     val angolSpelenqMod: State<Int> // 0=Off, 1=Angol1, 2=Angol2
     fun startListening(isAiMode: Boolean = false)
     fun stopListening()

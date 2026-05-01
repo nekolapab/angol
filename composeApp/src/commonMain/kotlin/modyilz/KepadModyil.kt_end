@@ -1,0 +1,63 @@
+            AwdirRenqWedjet(
+                geometry = geometry, 
+                onHexKeyPress = { _, _, _ -> }, 
+                tapLabels = displayOuterLabels, 
+                longPressLabels = outerLongPressLabels, 
+                initialLetterMode = currentIsLetterMode, 
+                stackWidth = maxWidthDp, 
+                stackHeight = gridHeightDp, 
+                pressedIndex = if (huvirdHeksIndeks.value != null && huvirdHeksIndeks.value!! in 6..17) huvirdHeksIndeks.value!! - 6 else null, 
+                handleGestures = false, 
+                isPopup = gestureStartedOnVowelIndex.value != null
+            )
+            
+            val centerLabel = (if (currentIsLetterMode) " " else ".").let { if (isCapitalized) it.uppercase() else it }
+            
+            // DEDICATED TOGGLE LAYER (Always on top, never blocked)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(gridHeightDp)
+                    .offset(x = -(geometry.heksWidlx / 2.0).dp, y = -(geometry.heksHayt / 12.0).dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Box(
+                    modifier = Modifier
+                        .height(32.dp)
+                        .width(100.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onTogilAngol(false) },
+                                onLongPress = { onTogilAngol(true) }
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.compose.material.Text(
+                        text = "angol",
+                        color = when (currentAngolMode) {
+                            1 -> Color.Yellow // Mode 1 -> Yellow (AI/Angol 2)
+                            2 -> Color.White  // Mode 2 -> White (Default/Angol 1)
+                            else -> Color.Gray.copy(alpha = 0.4f)
+                        },
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
+                HeksagonWedjet(
+                    label = centerLabel, 
+                    backgroundColor = if (voiceService.isListening.value) Color.Red else if (currentIsLetterMode) Color.White else Color.Black, 
+                    textColor = if (voiceService.isListening.value) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
+                    size = hexWidthDp, 
+                    fontSize = (geometry.heksWidlx * 1.0).toFloat(),
+                    rotationAngle = geometry.roteyconAngol.toFloat(),
+                    isPressed = huvirdHeksIndeks.value == 18,
+                    modifier = Modifier.offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp)
+                )
+            }
+        }
+    }
+}

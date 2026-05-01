@@ -18,7 +18,11 @@ import java.io.IOException
 import android.speech.tts.TextToSpeech
 import java.util.Locale
 
-class AndroidKeyboardController(private val getIc: () -> InputConnection?) : KeyboardController {
+class AndroidKeyboardController(
+    private val getIc: () -> InputConnection?,
+    private val onSmartEnter: () -> Unit,
+    private val onForcedSubmit: () -> Unit
+) : KeyboardController {
     override fun commitText(text: String) {
         getIc()?.commitText(text, 1)
     }
@@ -39,6 +43,18 @@ class AndroidKeyboardController(private val getIc: () -> InputConnection?) : Key
 
     override fun getTextAfterCursor(n: Int): String? {
         return getIc()?.getTextAfterCursor(n, 0)?.toString()
+    }
+
+    override fun performSmartEnter() {
+        onSmartEnter()
+    }
+
+    override fun performSubmitAction() {
+        onForcedSubmit()
+    }
+
+    override fun finishComposingText() {
+        getIc()?.finishComposingText()
     }
 }
 
@@ -117,6 +133,7 @@ class AndroidVoiceService(
     private val onStop: () -> Unit,
     private val onTogilAngol: (Boolean) -> Unit,
     override val isListening: State<Boolean>,
+    override val hasSpoken: State<Boolean>,
     override val angolSpelenqMod: State<Int>
 ) : VoiceService {
     override fun startListening(isAiMode: Boolean) {

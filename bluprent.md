@@ -29,10 +29,20 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 - [x] **Voice Input:** Integrated with phonetic conversion and AI (Gemini 3.1) refinement in `DaylEnpitMelxod.kt`.
 - [x] **Auth & Hub:** Login (GitHub) and Home screens ported to Kotlin Compose.
 - [x] **Cloud Sync:** Module layouts synchronized with Firebase Firestore via `FirebaseService`.
+- [x] **Beldir Modyil (Builder):** Added a module for managing others (kope, delet, reneym).
+- [x] **Hexagon Management:** Added ability to rename individual hexagon labels (glefz) and swap their positions (drag & drop logic) within the Beldir module.
 - [x] **TTS (Text-to-Speech):** Fully migrated to Kotlin (`AndroidPlatformServices`).
 - [x] **Versions Updeyt:** Kotlin 2.3.+, Compose 1.10.+, AGP 9.1+, CompileSdk 36.
 
 ### **Recent Changes:**
+- **Microphone (Press-to-Talk):** Fixed by adding `<queries>` to `AndroidManifest.xml` and implementing runtime permission requests in `DaylEnpitMelxod.kt` (using `PermissionActivity.kt`).
+- **Update Script:** Renamed `updeyt_angol_dayl_simple.ps1` to `updeyt_angol_dayl_sempil.ps1` to match the project's phonetic naming convention.
+- **Hexagon Glefz:** Added `glefz` list to `ModyilDeyda` and implemented `reneymGlef` and `swopGlefz` in `DaylSteyt`.
+- **Builder UI:** Updated `BeldirModyil.kt` with a sub-screen for editing individual hexagon labels and swapping their positions via a simplified drag-and-drop (long-press to start, tap target to swap).
+- **Keypad Sync:** `KepadModyil` now prioritizes custom `glefz` labels if they are provided by the active module.
+- **Beldir Modyil:** Implemented `BeldirModyil.kt` for copying, deleting, and renaming modules.
+- **State Management:** Added `kopeModyil`, `deletModyil`, and `reneymModyil` to `DaylSteyt.kt`.
+- **UI Integration:** Integrated `BeldirModyil` into `DaylSkren.kt` with automatic Firebase sync.
 - **AI Entegreycon:** Migrated to `firebase-ai` SDK and `gemini-3.1-flash`.
 - **Top Menu Mirjd:** 'angol' toggle at top-left handles toggle (tap) and AI Voice (long-press). Redundant top-right AI button removed.
 - **Geometry Fix:** Fixed hex positioning to correctly honor `geometry.sentir` offset.

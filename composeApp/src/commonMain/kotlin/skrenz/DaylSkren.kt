@@ -30,6 +30,7 @@ fun DaylSkrenEntry(
     voiceService: modyilz.VoiceService,
     isLetterMode: Boolean = true,
     isPunctuationMode: Boolean = false,
+    ezUpsayddawn: Boolean = false,
     onTogilMod: () -> Unit = {},
     onSetPunkcuweyconMod: (Boolean) -> Unit = {},
     ezAngolMod: Boolean = true,
@@ -51,13 +52,13 @@ fun DaylSkrenEntry(
             when (currentScreen) {
                 "main" -> DaylSkren(
                     keyboardController, platformServices, voiceService,
-                    isLetterMode, isPunctuationMode, onTogilMod, onSetPunkcuweyconMod,
+                    isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
                     firebaseService, isApp = true
                 )
                 "home" -> if (firebaseService != null) AfdirLogenSkren(firebaseService, onContinue = { currentScreen = "main" }) else DaylSkren(
                     keyboardController, platformServices, voiceService,
-                    isLetterMode, isPunctuationMode, onTogilMod, onSetPunkcuweyconMod,
+                    isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
                     firebaseService, isApp = true
                 )
@@ -66,7 +67,7 @@ fun DaylSkrenEntry(
     } else {
         DaylSkren(
             keyboardController, platformServices, voiceService,
-            isLetterMode, isPunctuationMode, onTogilMod, onSetPunkcuweyconMod,
+            isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
             ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
             firebaseService, isApp = false
         )
@@ -80,6 +81,7 @@ fun DaylSkren(
     voiceService: modyilz.VoiceService,
     isLetterMode: Boolean,
     isPunctuationMode: Boolean,
+    ezUpsayddawn: Boolean,
     onTogilMod: () -> Unit,
     onSetPunkcuweyconMod: (Boolean) -> Unit,
     ezAngolMod: Boolean,
@@ -96,6 +98,14 @@ fun DaylSkren(
     // Auth and Layout Sync
     val userState = firebaseService?.authStateChanges?.collectAsState(initial = firebaseService.currentUser)
     val user = userState?.value
+
+    val saveLayout = {
+        if (user != null && firebaseService != null) {
+            scope.launch {
+                firebaseService.saveModuleLayout(daylSteyt.modyilz)
+            }
+        }
+    }
     
     LaunchedEffect(user) {
         if (user != null && firebaseService != null) {
@@ -166,37 +176,25 @@ fun DaylSkren(
             modifier = contentModifier, 
             contentAlignment = if (isApp) Alignment.Center else Alignment.BottomCenter
         ) {
-            if (daylSteyt.ezKepadVezebil) {
-                KepadModyil(
-                    keyboardController = keyboardController,
-                    platformServices = platformServices,
-                    voiceService = voiceService,
-                    isLetterMode = isLetterMode,
-                    isPunctuationMode = isPunctuationMode,
-                    onTogilMod = onTogilMod,
-                    onSetPunkcuweyconMod = onSetPunkcuweyconMod,
-                    ezAngolMod = ezAngolMod,
-                    onTogilAngol = onTogilAngol,
-                    onStartAiVoys = onStartAiVoys,
-                    ignoreSelectionUpdate = ignoreSelectionUpdate,
-                    geometryOverride = geometry
-                )
-            } else {
-                DaylModyil(
-                    geometry = geometry,
-                    modyilz = daylSteyt.modyilz,
-                    onToggleModule = { index ->
-                        daylSteyt.togilModyil(index)
-                        if (user != null && firebaseService != null) {
-                            scope.launch {
-                                firebaseService.saveModuleLayout(daylSteyt.modyilz)
-                            }
-                        }
-                    },
-                    stackWidth = screenWidth,
-                    stackHeight = if (isApp) screenHeight else hexSize * 8f
-                )
-            }
+            ModuleContent(
+                daylSteyt = daylSteyt,
+                geometry = geometry,
+                keyboardController = keyboardController,
+                platformServices = platformServices,
+                voiceService = voiceService,
+                isLetterMode = isLetterMode,
+                isPunctuationMode = isPunctuationMode,
+                ezUpsayddawn = ezUpsayddawn,
+                onTogilMod = onTogilMod,
+                onSetPunkcuweyconMod = onSetPunkcuweyconMod,
+                ezAngolMod = ezAngolMod,
+                onTogilAngol = onTogilAngol,
+                onStartAiVoys = onStartAiVoys,
+                ignoreSelectionUpdate = ignoreSelectionUpdate,
+                onSaveLayout = saveLayout,
+                screenWidth = screenWidth,
+                screenHeight = if (isApp) screenHeight else hexSize * 8f
+            )
         }
         
         // Settings and Account icons at the bottom
@@ -227,5 +225,77 @@ fun DaylSkren(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ModuleContent(
+    daylSteyt: DaylSteyt,
+    geometry: HeksagonDjeyometre,
+    keyboardController: modyilz.KeyboardController?,
+    platformServices: modyilz.PlatformServices,
+    voiceService: modyilz.VoiceService,
+    isLetterMode: Boolean,
+    isPunctuationMode: Boolean,
+    ezUpsayddawn: Boolean,
+    onTogilMod: () -> Unit,
+    onSetPunkcuweyconMod: (Boolean) -> Unit,
+    ezAngolMod: Boolean,
+    onTogilAngol: (Boolean) -> Unit,
+    onStartAiVoys: () -> Unit,
+    ignoreSelectionUpdate: () -> Unit,
+    onSaveLayout: () -> Unit,
+    screenWidth: androidx.compose.ui.unit.Dp,
+    screenHeight: androidx.compose.ui.unit.Dp
+) {
+    val activeMod = daylSteyt.activeModule
+    
+    when (activeMod?.id) {
+        "keypad" -> KepadModyil(
+            keyboardController = keyboardController,
+            platformServices = platformServices,
+            voiceService = voiceService,
+            isLetterMode = isLetterMode,
+            isPunctuationMode = isPunctuationMode,
+            ezUpsayddawn = ezUpsayddawn,
+            onTogilMod = onTogilMod,
+            onSetPunkcuweyconMod = onSetPunkcuweyconMod,
+            ezAngolMod = ezAngolMod,
+            onTogilAngol = onTogilAngol,
+            onStartAiVoys = onStartAiVoys,
+            ignoreSelectionUpdate = ignoreSelectionUpdate,
+            geometryOverride = geometry,
+            glefzOverride = activeMod.glefz
+        )
+        "beldir" -> modyilz.BeldirModyil(
+            daylSteyt = daylSteyt,
+            onClose = { 
+                daylSteyt.togilModyil(activeMod.pozecon)
+                onSaveLayout()
+            },
+            onAction = onSaveLayout
+        )
+        else -> DaylModyil(
+            geometry = geometry,
+            modyilz = daylSteyt.modyilz,
+            onToggleModule = { index ->
+                daylSteyt.togilModyil(index)
+                onSaveLayout()
+            },
+            onSwapModules = { from, to ->
+                daylSteyt.swopModyilz(from, to)
+                onSaveLayout()
+            },
+            onCopyToEmpty = { from, to ->
+                daylSteyt.kopeModyilTuEmpt(from, to)
+                onSaveLayout()
+            },
+            onMoveToCenter = { from ->
+                daylSteyt.muvModyilTuParent(from)
+                onSaveLayout()
+            },
+            stackWidth = screenWidth,
+            stackHeight = screenHeight
+        )
     }
 }
