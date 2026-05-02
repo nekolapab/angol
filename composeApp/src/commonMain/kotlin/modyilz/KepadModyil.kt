@@ -65,7 +65,7 @@ fun KepadModyil(
     val currentWordBuffer = remember { StringBuilder() }
     var dezspleyTekst by remember { mutableStateOf("") }
     
-    var dialRotationAngle by remember { mutableStateOf(0f) }
+    var daylRotationAngle by remember { mutableStateOf(0f) }
 
     val huvirdHeksIndeks = remember { mutableStateOf<Int?>(null) }
     val lonqPresDjob = remember { mutableStateOf<Job?>(null) }
@@ -289,7 +289,7 @@ fun KepadModyil(
     ) {
         val maxWidthDp = maxWidth
         
-        val geometry = remember(maxWidthDp, geometryOverride, dialRotationAngle, currentIsLetterMode) {
+        val geometry = remember(maxWidthDp, geometryOverride, daylRotationAngle, currentIsLetterMode) {
             if (geometryOverride != null) {
                 geometryOverride
             } else {
@@ -299,7 +299,7 @@ fun KepadModyil(
                     heksSayz = hexSize, 
                     sentir = HeksagonPozecon(x = 0.0, y = 0.0), 
                     ezLeterMod = currentIsLetterMode,
-                    roteyconAngol = dialRotationAngle.toDouble()
+                    roteyconAngol = daylRotationAngle.toDouble()
                 )
             }
         }
@@ -349,7 +349,7 @@ fun KepadModyil(
                             
                             var rotationTriggered = false
                             var initialAngle: Float? = null
-                            val startDialAngle = dialRotationAngle
+                            val startDaylAngle = daylRotationAngle
 
                             if (downIndex != null) {
                                 huvirdHeksIndeks.value = downIndex
@@ -396,7 +396,7 @@ fun KepadModyil(
                                         while (diff > kotlin.math.PI) diff -= (2 * kotlin.math.PI).toFloat()
                                         
                                         // Update visual rotation live
-                                        dialRotationAngle = startDialAngle + diff
+                                        daylRotationAngle = startDaylAngle + diff
                                         
                                         // Lower threshold: 15 degrees = 0.26 radians
                                         if (kotlin.math.abs(diff) >= 0.26f && !rotationTriggered) {
@@ -523,7 +523,7 @@ fun KepadModyil(
                             }
                             
                             // Reset visual rotation on release
-                            dialRotationAngle = 0f
+                            daylRotationAngle = 0f
                             
                             if (currentIsPunctuationMode) onSetPunkcuweyconMod(false)
                             huvirdHeksIndeks.value = null
@@ -617,7 +617,7 @@ fun KepadModyil(
                         backgroundColor = if (voiceService.isListening.value) Color.Red else if (currentIsLetterMode) Color.White else Color.Black, 
                         textColor = if (voiceService.isListening.value) Color.White else if (currentIsLetterMode) Color.Black else Color.White, 
                         size = hexWidthDp, 
-                        fontSize = (geometry.heksWidlx * 1.0).toFloat(),
+                        fontSize = (geometry.heksWidlx * 0.5).toFloat(),
                         rotationAngle = geometry.roteyconAngol.toFloat(),
                         isPressed = huvirdHeksIndeks.value == 18,
                         modifier = Modifier.offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp)

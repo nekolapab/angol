@@ -31,7 +31,9 @@ fun DaylModyil(
     // Map modules to GredItem for HeksagonGred
     val gredItems = modyilz.filter { it.id != "dayl" }.map { mod ->
         GredItem(
-            index = mod.pozecon,
+            // UI grid (`HeksagonGred`) is 0-based: 0-5 inner ring, 6-17 outer ring, 18 center.
+            // Module state (`pozecon`) is 1-based, so translate here.
+            index = mod.pozecon - 1,
             label = mod.neym,
             color = mod.kulor,
             isFolder = true, // Modules act as folders for glefz
@@ -52,7 +54,8 @@ fun DaylModyil(
             onCopyToEmpty = onCopyToEmpty,
             onMoveToCenter = onMoveToCenter,
             onDropOnFolder = { from, to -> /* Handle folder drop */ },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            onTap = onToggleModule
         )
     }
 }

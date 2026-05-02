@@ -70,8 +70,18 @@ fun HeksagonWedjet(
     val hexHeight = size * (2f / sqrt(3f))
     val contrastColor = if (isMomentarilyPressed || isPressed) backgroundColor else textColor
     
-    // DELETE font scaling: divide by fontScale to ignore system settings
-    val rawFontSize = fontSize ?: (size.value / 4f)
+    // Dynamic font scaling based on label length
+    val baseFontSize = fontSize ?: (size.value / 4f)
+    val lengthFactor = when {
+        label.length <= 3 -> 14f / 12f
+        label.length <= 4 -> 13f / 12f
+        label.length <= 5 -> 12f / 12f
+        label.length <= 6 -> 11f / 12f
+        label.length <= 7 -> 10f / 12f
+        label.length <= 8 -> 9f / 12f
+        else -> 8f / 12f
+    }
+    val rawFontSize = baseFontSize * lengthFactor
     val finalFontSize = (rawFontSize / density.fontScale).sp
 
     HeksagonTutcboks(
@@ -84,7 +94,6 @@ fun HeksagonWedjet(
                     onPress = {
                         isMomentarilyPressed = true
                         onPressedChanged?.invoke(true)
-                        onTap?.invoke()
                         try {
                             awaitRelease()
                         } finally {
@@ -92,7 +101,7 @@ fun HeksagonWedjet(
                             onPressedChanged?.invoke(false)
                         }
                     },
-                    onTap = { },
+                    onTap = { onTap?.invoke() },
                     onLongPress = { onLongPress?.invoke() }
                 )
             }
@@ -133,7 +142,15 @@ fun HeksagonWedjet(
                         Text(text = secondaryLabel, color = contrastColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                     }
                 } else {
-                    Text(text = label, color = contrastColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, softWrap = false)
+                    Text(
+                        text = label, 
+                        color = contrastColor, 
+                        fontSize = finalFontSize, 
+                        fontWeight = FontWeight.Bold, 
+                        textAlign = TextAlign.Center, 
+                        softWrap = false,
+                        maxLines = 1
+                    )
                 }
             }
         }

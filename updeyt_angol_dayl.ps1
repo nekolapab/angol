@@ -22,12 +22,8 @@ if ($devices.Count -eq 0) {
 foreach ($device in $devices) {
     Write-Host "--- Processing Device: $device ---"
 
-    # Step 0: Aggressive Cleanup
-    Write-Host "Uninstalling existing package on $device..."
-    adb -s $device uninstall io.angol.dayl
-
-    # Step 2: Install on device
-    Write-Host "Installing APK on $device..."
+    # Step 0: In-place update (Preserves data and location)
+    Write-Host "Updating package on $device..."
     $apkPath = Join-Path (Get-Location) "composeApp\build\outputs\apk\debug\composeApp-debug.apk"
     if (Test-Path $apkPath) {
         adb -s $device install -r $apkPath

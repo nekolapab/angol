@@ -23,12 +23,12 @@ class DaylSteyt {
             ezAktiv = false,
             glefz = modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap + listOf(" ")
         ),
-        ModyilDeyda(id = "beldir", neym = "beldir", kulor = Color(0xFF888888), pozecon = 2, ezAktiv = false),
+        ModyilDeyda(id = "beldir", neym = "beldir", kulor = Color(0xFFFFFF00), pozecon = 2, ezAktiv = false),
         ModyilDeyda(id = "module3", neym = "mod 3", kulor = Color(0xFF00FF00), pozecon = 3, ezAktiv = false),
         ModyilDeyda(id = "module4", neym = "mod 4", kulor = Color(0xFF00FFFF), pozecon = 4, ezAktiv = false),
         ModyilDeyda(id = "module5", neym = "mod 5", kulor = Color(0xFF0000FF), pozecon = 5, ezAktiv = false),
         ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 6, ezAktiv = false),
-        ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 7, ezAktiv = true)
+        ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 19, ezAktiv = true)
     ))
 
     val activeModule: ModyilDeyda?

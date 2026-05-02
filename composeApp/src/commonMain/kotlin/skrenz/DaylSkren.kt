@@ -279,19 +279,23 @@ fun ModuleContent(
             geometry = geometry,
             modyilz = daylSteyt.modyilz,
             onToggleModule = { index ->
-                daylSteyt.togilModyil(index)
+                // UI is 0-based; state is 1-based.
+                daylSteyt.togilModyil(index + 1)
                 onSaveLayout()
             },
             onSwapModules = { from, to ->
-                daylSteyt.swopModyilz(from, to)
+                // UI is 0-based; state is 1-based.
+                daylSteyt.swopModyilz(from + 1, to + 1)
                 onSaveLayout()
             },
             onCopyToEmpty = { from, to ->
-                daylSteyt.kopeModyilTuEmpt(from, to)
+                // UI is 0-based; state is 1-based.
+                daylSteyt.kopeModyilTuEmpt(from + 1, to + 1)
                 onSaveLayout()
             },
             onMoveToCenter = { from ->
-                daylSteyt.muvModyilTuParent(from)
+                // UI is 0-based; state is 1-based.
+                daylSteyt.muvModyilTuParent(from + 1)
                 onSaveLayout()
             },
             stackWidth = screenWidth,

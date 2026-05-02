@@ -7,14 +7,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import yuteledez.HeksagonDjeyometre
 import modalz.HeksagonPozecon
 import modalz.KepadKonfeg
 import kotlin.math.pow
-import kotlin.math.sqrt
 import kotlin.math.sqrt
 
 @Composable
@@ -27,11 +28,16 @@ fun HeksagonGred(
     onDropOnFolder: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
     centerLabel: String = "",
-    centerColor: Color = Color.Black
+    centerColor: Color = Color.Black,
+    onTap: (Int) -> Unit = {}
 ) {
+    val haptic = LocalHapticFeedback.current
     var draggingIndex by remember { mutableStateOf<Int?>(null) }
     var dragOffset by remember { mutableStateOf(Offset.Zero) }
     var currentHoverIndex by remember { mutableStateOf<Int?>(null) }
+    /** After a drop on the same hex, next long-press on that hex is a copy-drag (empty slots only). */
+    var lastSameSpotIndex by remember { mutableStateOf<Int?>(null) }
+    var isCopyDrag by remember { mutableStateOf(false) }
 
     val allHexPositions = remember(geometry) {
         val inner = geometry.getEnirRenqKowordenats().map { geometry.aksyalTuPeksel(it.q, it.r) }
@@ -52,6 +58,8 @@ fun HeksagonGred(
                             allHexPositions, geometry.heksSayz
                         )
                         if (idx != null && items.any { it.index == idx }) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            isCopyDrag = (lastSameSpotIndex == idx)
                             draggingIndex = idx
                             dragOffset = offset
                         }
@@ -68,29 +76,51 @@ fun HeksagonGred(
                     onDragEnd = {
                         val fromIdx = draggingIndex
                         val toIdx = currentHoverIndex
-                        
+
                         if (fromIdx != null) {
-                            when {
-                                toIdx == 18 -> onMoveToCenter(fromIdx)
-                                toIdx != null -> {
-                                    val targetItem = items.find { it.index == toIdx }
-                                    if (targetItem != null) {
-                                        if (targetItem.isFolder) {
-                                            onDropOnFolder(fromIdx, toIdx)
-                                        } else {
-                                            onSwap(fromIdx, toIdx)
+                            val sameSpot = (toIdx == fromIdx)
+                            if (sameSpot) {
+                                lastSameSpotIndex = fromIdx
+                            } else {
+                                lastSameSpotIndex = null
+                                if (toIdx == null) {
+                                    // Dropped in empty space: cancel move/copy.
+                                } else if (isCopyDrag) {
+                                    when (toIdx) {
+                                        18 -> { /* no copy-to-center */ }
+                                        else -> {
+                                            val targetItem = items.find { it.index == toIdx }
+                                            if (targetItem == null) {
+                                                onCopyToEmpty(fromIdx, toIdx)
+                                            }
                                         }
-                                    } else {
-                                        onCopyToEmpty(fromIdx, toIdx)
+                                    }
+                                } else {
+                                    when {
+                                        toIdx == 18 -> onMoveToCenter(fromIdx)
+                                        else -> {
+                                            val targetItem = items.find { it.index == toIdx }
+                                            if (targetItem != null) {
+                                                if (targetItem.isFolder) {
+                                                    onDropOnFolder(fromIdx, toIdx)
+                                                } else {
+                                                    onSwap(fromIdx, toIdx)
+                                                }
+                                            } else {
+                                                onCopyToEmpty(fromIdx, toIdx)
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+                        isCopyDrag = false
                         draggingIndex = null
                         currentHoverIndex = null
                         dragOffset = Offset.Zero
                     },
                     onDragCancel = {
+                        isCopyDrag = false
                         draggingIndex = null
                         currentHoverIndex = null
                         dragOffset = Offset.Zero
@@ -106,8 +136,9 @@ fun HeksagonGred(
             backgroundColor = if (currentHoverIndex == 18) Color.White.copy(alpha = 0.5f) else centerColor,
             textColor = KepadKonfeg.getComplementaryColor(centerColor),
             size = hexWidthDp,
-            fontSize = (geometry.heksWidlx * 0.8).toFloat(),
-            modifier = Modifier.align(Alignment.Center).offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp)
+            fontSize = (geometry.heksWidlx * 0.5).toFloat(),
+            modifier = Modifier.align(Alignment.Center).offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp),
+            onTap = { onTap(18) }
         )
 
         // Render Items
@@ -128,7 +159,8 @@ fun HeksagonGred(
                             backgroundColor = if (isHovered) Color.White.copy(alpha = 0.5f) else item.color,
                             textColor = KepadKonfeg.getComplementaryColor(item.color),
                             size = hexWidthDp,
-                            fontSize = (geometry.heksWidlx * 0.8).toFloat(),
+                            fontSize = (geometry.heksWidlx * 0.5).toFloat(),
+                            onTap = { onTap(index) },
                             modifier = if (isDragging) Modifier.offset(
                                 x = (dragOffset.x - pos.x - this@BoxWithConstraints.constraints.maxWidth / 2).dp,
                                 y = (dragOffset.y - pos.y - this@BoxWithConstraints.constraints.maxHeight / 2).dp

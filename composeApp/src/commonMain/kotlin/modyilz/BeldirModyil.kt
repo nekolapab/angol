@@ -3,20 +3,13 @@ package modyilz
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.consumeAllChanges
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import modalz.ModyilDeyda
@@ -34,8 +27,6 @@ fun BeldirModyil(
     onAction: () -> Unit = {}
 ) {
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
-    var editingModuleId by remember { mutableStateOf<String?>(null) }
-    var newNeym by remember { mutableStateOf("") }
 
     if (selectedModuleId != null) {
         val mod = daylSteyt.modyilz.find { it.id == selectedModuleId }
@@ -58,135 +49,96 @@ fun BeldirModyil(
                 onMoveToParent = { from ->
                     daylSteyt.muvGlefTuHub(mod.id, from)
                     onAction()
+                },
+                onReneymMod = { newNeym ->
+                    daylSteyt.reneymModyil(mod.id, newNeym)
+                    onAction()
                 }
             )
             return
         }
     }
 
-    Column(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.9f))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "beldir modyil",
-                color = Color.White,
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.h5
+        val screenWidth = maxWidth
+        val screenHeight = maxHeight
+        val hexSize = minOf(screenWidth.value / (5.0 * sqrt(3.0)), screenHeight.value / 10.0).dp
+        
+        val geometry = remember(hexSize) {
+            HeksagonDjeyometre(
+                heksSayz = hexSize.value.toDouble(),
+                sentir = HeksagonPozecon(0.0, 0.0),
+                ezLeterMod = true
             )
-            Button(onClick = onClose) {
-                Text("kloz")
-            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        val daylModule = daylSteyt.modyilz.find { it.id == "dayl" } ?: daylSteyt.modyilz.first()
+        val gredItems = daylSteyt.modyilz.filter { it.id != "dayl" }.map { mod ->
+            GredItem(
+                index = mod.pozecon - 1,
+                label = mod.neym,
+                color = mod.kulor,
+                isFolder = true,
+                deyda = mod
+            )
+        }
 
-        LazyColumn(
-            modifier = Modifier.weight(1f)
-        ) {
-            items(daylSteyt.modyilz) { mod ->
-                ModyilRow(
-                    mod = mod,
-                    isEditing = editingModuleId == mod.id,
-                    newNeym = if (editingModuleId == mod.id) newNeym else mod.neym,
-                    onNeymChange = { newNeym = it },
-                    onEdit = {
-                        editingModuleId = mod.id
-                        newNeym = mod.neym
-                    },
-                    onSave = {
-                        daylSteyt.reneymModyil(mod.id, newNeym)
-                        editingModuleId = null
-                        onAction()
-                    },
-                    onCancel = { editingModuleId = null },
-                    onCopy = { 
-                        daylSteyt.kopeModyil(mod.id)
-                        onAction()
-                    },
-                    onDelete = { 
-                        daylSteyt.deletModyil(mod.id)
-                        onAction()
-                    },
-                    onSelect = { selectedModuleId = mod.id }
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "beldir modyil",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    style = MaterialTheme.typography.h5
                 )
             }
-        }
-    }
-}
 
-@Composable
-fun ModyilRow(
-    mod: ModyilDeyda,
-    isEditing: Boolean,
-    newNeym: String,
-    onNeymChange: (String) -> Unit,
-    onEdit: () -> Unit,
-    onSave: () -> Unit,
-    onCancel: () -> Unit,
-    onCopy: () -> Unit,
-    onDelete: () -> Unit,
-    onSelect: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { onSelect() },
-        backgroundColor = Color.DarkGray,
-        elevation = 4.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if (isEditing) {
-                TextField(
-                    value = newNeym,
-                    onValueChange = onNeymChange,
-                    modifier = Modifier.weight(1f),
-                    colors = TextFieldDefaults.textFieldColors(
-                        textColor = Color.White,
-                        backgroundColor = Color.Black
-                    )
-                )
-                IconButton(onClick = onSave) {
-                    Icon(Icons.Default.Edit, contentDescription = "Save", tint = Color.Green)
-                }
-                IconButton(onClick = onCancel) {
-                    Text("X", color = Color.Red)
-                }
-            } else {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = mod.neym, color = Color.White, fontSize = 18.sp)
-                    Text(text = "id: ${mod.id}", color = Color.Gray, fontSize = 12.sp)
-                }
-                
-                Row {
-                    IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = "Rename", tint = Color.Cyan)
-                    }
-                    IconButton(onClick = onCopy) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Color.Yellow)
-                    }
-                    if (mod.id != "dayl" && mod.id != "keypad" && mod.id != "beldir") {
-                        IconButton(onClick = onDelete) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+            Box(modifier = Modifier.weight(1f)) {
+                HeksagonGred(
+                    geometry = geometry,
+                    items = gredItems,
+                    centerLabel = daylModule.neym,
+                    centerColor = daylModule.kulor,
+                    onSwap = { from, to ->
+                        daylSteyt.swopModyilz(from + 1, to + 1)
+                        onAction()
+                    },
+                    onCopyToEmpty = { from, to ->
+                        daylSteyt.kopeModyilTuEmpt(from + 1, to + 1)
+                        onAction()
+                    },
+                    onMoveToCenter = { from ->
+                        daylSteyt.muvModyilTuParent(from + 1)
+                        onAction()
+                    },
+                    onDropOnFolder = { _, _ -> },
+                    onTap = { index ->
+                        if (index == 18) { // Center
+                            onClose()
+                        } else {
+                            val clickedMod = daylSteyt.modyilz.find { it.pozecon == index + 1 }
+                            if (clickedMod != null) {
+                                selectedModuleId = clickedMod.id
+                            }
                         }
                     }
-                }
+                )
             }
+            
+            Text(
+                "Lonq-pres: vaybreyt, den dreq tu swop, kope tu empt, o besayd. Seym spot: tap tu edet neym; lonq-pres agen (vaybreyt) den dreq tu kope tu empt.",
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 8.dp).align(Alignment.CenterHorizontally)
+            )
         }
     }
 }
@@ -198,10 +150,13 @@ fun GlefzEditSkren(
     onReneymGlef: (Int, String) -> Unit,
     onSwopGlefz: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
-    onMoveToParent: (Int) -> Unit
+    onMoveToParent: (Int) -> Unit,
+    onReneymMod: (String) -> Unit
 ) {
     var editingGlefIndex by remember { mutableStateOf<Int?>(null) }
     var newGlefLabel by remember { mutableStateOf("") }
+    var isEditingModNeym by remember { mutableStateOf(false) }
+    var newModNeym by remember { mutableStateOf(mod.neym) }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         val screenWidth = maxWidth
@@ -227,12 +182,28 @@ fun GlefzEditSkren(
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = onBack) { Text("Bek") }
-                Text(text = "beldir: ${mod.neym}", color = Color.White, fontSize = 20.sp)
-                Spacer(modifier = Modifier.width(48.dp))
+                if (isEditingModNeym) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
+                        TextField(
+                            value = newModNeym,
+                            onValueChange = { newModNeym = it },
+                            modifier = Modifier.weight(1f),
+                            colors = TextFieldDefaults.textFieldColors(textColor = Color.White)
+                        )
+                        IconButton(onClick = {
+                            onReneymMod(newModNeym)
+                            isEditingModNeym = false
+                        }) { Icon(Icons.Default.Edit, "Save", tint = Color.Green) }
+                    }
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { isEditingModNeym = true }) {
+                        Text(text = "beldir: ${mod.neym}", color = Color.White, fontSize = 20.sp)
+                        Icon(Icons.Default.Edit, "Rename", tint = Color.Cyan, modifier = Modifier.size(16.dp).padding(start = 4.dp))
+                    }
+                }
             }
 
             Box(modifier = Modifier.weight(1f)) {
@@ -244,7 +215,15 @@ fun GlefzEditSkren(
                     onSwap = onSwopGlefz,
                     onCopyToEmpty = onCopyToEmpty,
                     onMoveToCenter = onMoveToParent,
-                    onDropOnFolder = { from, to -> /* Handle folder drop if needed */ }
+                    onDropOnFolder = { from, to -> /* Handle folder drop if needed */ },
+                    onTap = { index ->
+                        if (index == 18) { // Center
+                            onBack()
+                        } else {
+                            editingGlefIndex = index
+                            newGlefLabel = mod.glefz.getOrNull(index) ?: ""
+                        }
+                    }
                 )
             }
             
@@ -269,14 +248,11 @@ fun GlefzEditSkren(
                 }
             } else {
                 Text(
-                    "Long-press tu drag. Center tu Hub. Empty tu Kope.",
+                    "Lonq-pres: vaybreyt, den dreq. Center → Hub. Empt → kope. Seym spot: tap glef; lonq-pres agen → kope dreq tu empt.",
                     color = Color.Gray,
                     modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)
                 )
             }
         }
-        
-        // Overlay for tap-to-rename since HeksagonGred consumes gestures for drag
-        // We might want to add an 'onTap' to GredItem or HeksagonGred
     }
 }

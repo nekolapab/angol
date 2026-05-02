@@ -13,30 +13,34 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
     - `skrenz/`: Screen definitions (DaylSkren.kt, SaynEnSkren.kt, AfdirLogenSkren.kt).
     - `steyt/`: State management (DaylSteyt.kt).
     - `modalz/`: Data models and config (AngolModalz.kt, KepadKonfeg.kt).
-    - `sirvesez/`: Shared interfaces (FirebaseService.kt).
+    - `sirvesez/`: Shared interfaces (FirebaseSirves.kt).
     - `wedjets/`: Reusable Compose widgets.
     - `yuteledez/`: Utilities (HeksagonDjeyometre.kt, AngolSpelenqMelxod.kt).
-- `composeApp/src/androidMain/kotlin/`: Android-specific implementations.
-    - `com.example.angol.ime/`: DaylEnpitMelxod.kt, MainActivity.kt, AndroidFirebaseService.kt, AndroidBridge.kt.
-    - `io.angol.dayl/`: TranzleytAngol.kt
+- `sirvesez/`: Shared interfaces (FirebaseSirves.kt).
+- `com.example.angol.ime/`: DaylEnpitMelxod.kt, MeynAktevede.kt, AndroidFirebaseSirves.kt, AndroidBredj.kt, PermisconAktevede.kt.
+- `io.angol.dayl/`: TranzleytAngol.kt
 
-### **Build & Deploy:**
+### Build & Deploy:
 - **Klen Build:** Always use `./gradlew clean` to ensure no remnants.
-- **Instal:** Use `powershell.exe -File updeyt_angol_dayl.ps1` for clean build and automatic IME activation.
+- **Instal:** Use `powershell.exe -File updeyt_angol_dayl.ps1` for clean build and in-place update.
 
-### **Key Features Status:**
+### Key Features Status:
 - [x] **Hexagonal Keypad (IME):** Fully migrated to Kotlin Compose. Supports swipe, long-press, and phonetic conversion.
 - [x] **Voice Input:** Integrated with phonetic conversion and AI (Gemini 3.1) refinement in `DaylEnpitMelxod.kt`.
 - [x] **Auth & Hub:** Login (GitHub) and Home screens ported to Kotlin Compose.
-- [x] **Cloud Sync:** Module layouts synchronized with Firebase Firestore via `FirebaseService`.
-- [x] **Beldir Modyil (Builder):** Added a module for managing others (kope, delet, reneym).
-- [x] **Hexagon Management:** Added ability to rename individual hexagon labels (glefz) and swap their positions (drag & drop logic) within the Beldir module.
+- [x] **Cloud Sync:** Module layouts synchronized with Firebase Firestore via `FirebaseSirves`.
+- [x] **Beldir Modyil (Builder):** Transitioned from a list-based UI to a hexagon ring layout.
+- **Tap:** Rename a module or individual glyph.
+- **Long-press (Vibrate):** Start drag-and-drop to swap positions or move to center for deletion.
+- **Long-press again (Vibrate):** If on the same spot as a previous drag/tap, start a copy-drag to empty slots.
+- **Center Navigation:** Tap the center hexagon (**dayl** or **Hub**) to go back or close the builder.
 - [x] **TTS (Text-to-Speech):** Fully migrated to Kotlin (`AndroidPlatformServices`).
 - [x] **Versions Updeyt:** Kotlin 2.3.+, Compose 1.10.+, AGP 9.1+, CompileSdk 36.
 
-### **Recent Changes:**
-- **Microphone (Press-to-Talk):** Fixed by adding `<queries>` to `AndroidManifest.xml` and implementing runtime permission requests in `DaylEnpitMelxod.kt` (using `PermissionActivity.kt`).
-- **Update Script:** Renamed `updeyt_angol_dayl_simple.ps1` to `updeyt_angol_dayl_sempil.ps1` to match the project's phonetic naming convention.
+### Recent Changes:
+- **Microphone (Press-to-Talk):** Fixed by adding `<queries>` to `AndroidManifest.xml` and implementing runtime permission requests in `DaylEnpitMelxod.kt` (using `PermisconAktevede.kt`).
+- **Update Script:** Renamed `updeyt_angol_dayl_simple.ps1` to `updeyt_angol_dayl_sempil.ps1` and updated to use `install -r` for in-place updates.
+- **Phonetic Cleanup:** Renamed `FirebaseService` to `FirebaseSirves` and `PermissionActivity` to `PermisconAktevede`.
 - **Hexagon Glefz:** Added `glefz` list to `ModyilDeyda` and implemented `reneymGlef` and `swopGlefz` in `DaylSteyt`.
 - **Builder UI:** Updated `BeldirModyil.kt` with a sub-screen for editing individual hexagon labels and swapping their positions via a simplified drag-and-drop (long-press to start, tap target to swap).
 - **Keypad Sync:** `KepadModyil` now prioritizes custom `glefz` labels if they are provided by the active module.

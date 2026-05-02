@@ -286,7 +286,6 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: ""
                         ezLisenenq.value = false
                         if (text.isNotEmpty()) {
-                            val ic = currentInputConnection
                             scope.launch {
                                 try {
                                     var processedText = if (ezAiVoysAktev) {
@@ -305,38 +304,38 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                     }
                                     val finalResult = processedText.trim()
                                     if (finalResult.isEmpty()) return@launch
-                                    ic?.let {
-                                        it.beginBatchEdit()
-                                        
-                                        // 1. CLEAR underlining partial results first
-                                        it.setComposingText("", 1)
-                                        it.finishComposingText()
-                                        
-                                        // 2. Robust Shortcut Clean-up
-                                        val contextBefore = it.getTextBeforeCursor(2, 0) ?: ""
-                                        if (contextBefore.endsWith(". ")) {
-                                            it.deleteSurroundingText(2, 0)
-                                        } else if (contextBefore.endsWith(".")) {
-                                            it.deleteSurroundingText(1, 0)
-                                        }
+                                    val ic = currentInputConnection ?: return@launch
+                                    ic.beginBatchEdit()
 
-                                        // 3. Leading Space (Added BEFORE text)
-                                        val before = it.getTextBeforeCursor(1, 0) ?: ""
-                                        if (before.isNotEmpty() && !before.last().isWhitespace()) {
-                                            it.commitText(" ", 1)
-                                        }
+                                    // End any existing composing region so we can replace cleanly.
+                                    ic.finishComposingText()
 
-                                        // 4. Commit Dictation
-                                        it.commitText(finalResult, 1)
-                                        
-                                        // 5. Trailing Space
-                                        val after = it.getTextAfterCursor(1, 0) ?: ""
-                                        if (after.isNotEmpty() && !after.first().isWhitespace()) {
-                                            it.commitText(" ", 1)
-                                        }
-                                        
-                                        it.endBatchEdit()
+                                    // Robust Shortcut Clean-up
+                                    val contextBefore = ic.getTextBeforeCursor(2, 0) ?: ""
+                                    if (contextBefore.endsWith(". ")) {
+                                        ic.deleteSurroundingText(2, 0)
+                                    } else if (contextBefore.endsWith(".")) {
+                                        ic.deleteSurroundingText(1, 0)
                                     }
+
+                                    // Leading Space (Added BEFORE text)
+                                    val before = ic.getTextBeforeCursor(1, 0) ?: ""
+                                    if (before.isNotEmpty() && !before.last().isWhitespace()) {
+                                        ic.commitText(" ", 1)
+                                    }
+
+                                    // Replace-in-place: set composing to final, then finish composing.
+                                    // This avoids "type then backspace-delete then retype" behavior.
+                                    ic.setComposingText(finalResult, 1)
+                                    ic.finishComposingText()
+
+                                    // Trailing Space
+                                    val after = ic.getTextAfterCursor(1, 0) ?: ""
+                                    if (after.isNotEmpty() && !after.first().isWhitespace()) {
+                                        ic.commitText(" ", 1)
+                                    }
+
+                                    ic.endBatchEdit()
                                     ezLedirMod = originalLedirMod
                                 } catch (e: Exception) {
                                     Log.e(TAG, "Speech failed: ${e.message}")

@@ -12,7 +12,7 @@ lha AI opereyts welxen lha Kotlin Compose development envayrment.
 * **prodjekt strukcir:** lha AI asumz a standard Kotlin Multiplatform (KMP) prodjekt strukcir. lha shared UI and lodjek ez en `composeApp/src/commonMain/kotlin/`. Android-spesefik kod ez en `composeApp/src/androidMain/kotlin/`.
 * **dev.nix konfegyireycon:** lha .idx/dev.nix fayl ez lha sors ov trulx for lha wirkpleys envayrment. lha AI cid levredj et tu encur envayrment konsestense and odomadekle konfegyir nesesere tulz.
 * **prevyu sirvir:** lha AI wel kontenyuwosle monetir lha awtput ov lha prevyu sirvir (e.g., konsol logz, erir mesedjez) for rel taym fedbak on tceyndjez.
-* **Firebase entegreycon:** lha AI rekognayzez standard Firebase entegreycon paternz en Kotlin/Compose, enkludenq lha yus ov `AndroidFirebaseService.kt`.
+* **Firebase entegreycon:** lha AI rekognayzez standard Firebase entegreycon paternz en Kotlin/Compose, enkludenq lha yus ov `AndroidFirebaseSirves.kt`.
 
 ## **kod modefekeycon and dependense manedjment**
 * **kor kod asumpcon:** wen a yuzir rekwestz a tceyndj, lha AI wel praymerele fokus on modefayenq lha Kotlin kod.
