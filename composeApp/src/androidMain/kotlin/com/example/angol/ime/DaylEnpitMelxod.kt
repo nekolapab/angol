@@ -78,7 +78,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     
     private lateinit var kebordKontrolir: AndroidKeyboardController
     private lateinit var platfOrmSirvesez: AndroidPlatformServices
-    private lateinit var firebaseService: AndroidFirebaseService
+    private lateinit var firebaseSirves: AndroidFirebaseSirves
     private lateinit var voiceService: AndroidVoiceService
     private lateinit var audioManager: AudioManager
     private var originalSystemVol = -1
@@ -177,7 +177,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 }
             )
             platfOrmSirvesez = AndroidPlatformServices(this, scope)
-            firebaseService = AndroidFirebaseService(null)
+            firebaseSirves = AndroidFirebaseSirves(null)
             voiceService = AndroidVoiceService(
                 onStart = { isAi -> 
                     originalLedirMod = ezLedirMod
@@ -214,7 +214,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         
         if (android.content.pm.PackageManager.PERMISSION_GRANTED != 
             androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)) {
-            val intent = Intent(this, PermissionActivity::class.java).apply {
+            val intent = Intent(this, PermisconAktevede::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             startActivity(intent)
@@ -424,7 +424,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         onTogilAngol = { voiceService.togilAngolMod(it) }, 
                         onStartAiVoys = { voiceService.startListening(isAiMode = true) },
                         ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ },
-                        firebaseService = firebaseService,
+                        firebaseSirves = firebaseSirves,
                         isApp = false
                     )
                 }

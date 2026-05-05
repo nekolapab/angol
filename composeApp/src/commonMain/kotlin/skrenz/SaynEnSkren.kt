@@ -9,10 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import sirvesez.FirebaseService
+import sirvesez.FirebaseSirves
 
 @Composable
-fun SaynEnSkren(firebaseService: FirebaseService, onBypass: () -> Unit) {
+fun SaynEnSkren(firebaseSirves: FirebaseSirves, onBypass: () -> Unit) {
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
 
@@ -36,7 +36,7 @@ fun SaynEnSkren(firebaseService: FirebaseService, onBypass: () -> Unit) {
                 Button(onClick = {
                     scope.launch {
                         isLoading = true
-                        firebaseService.signInWithGitHub()
+                        firebaseSirves.signInWithGitHub()
                         isLoading = false
                     }
                 }) {

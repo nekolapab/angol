@@ -37,30 +37,30 @@ fun DaylSkrenEntry(
     onTogilAngol: (Boolean) -> Unit = {},
     onStartAiVoys: () -> Unit = {},
     ignoreSelectionUpdate: () -> Unit = {},
-    firebaseService: sirvesez.FirebaseService? = null,
+    firebaseSirves: sirvesez.FirebaseSirves? = null,
     isApp: Boolean = false
 ) {
-    val userState = firebaseService?.authStateChanges?.collectAsState(initial = firebaseService.currentUser)
+    val userState = firebaseSirves?.authStateChanges?.collectAsState(initial = firebaseSirves.currentUser)
     val user = userState?.value
     var currentScreen by remember { mutableStateOf("main") }
     var isGuestMode by remember { mutableStateOf(false) }
 
     if (isApp) {
-        if (user == null && !isGuestMode && firebaseService != null) {
-            SaynEnSkren(firebaseService, onBypass = { isGuestMode = true })
+        if (user == null && !isGuestMode && firebaseSirves != null) {
+            SaynEnSkren(firebaseSirves, onBypass = { isGuestMode = true })
         } else {
             when (currentScreen) {
                 "main" -> DaylSkren(
                     keyboardController, platformServices, voiceService,
                     isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
-                    firebaseService, isApp = true
+                    firebaseSirves, isApp = true
                 )
-                "home" -> if (firebaseService != null) AfdirLogenSkren(firebaseService, onContinue = { currentScreen = "main" }) else DaylSkren(
+                "home" -> if (firebaseSirves != null) AfdirLogenSkren(firebaseSirves, onContinue = { currentScreen = "main" }) else DaylSkren(
                     keyboardController, platformServices, voiceService,
                     isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
-                    firebaseService, isApp = true
+                    firebaseSirves, isApp = true
                 )
             }
         }
@@ -69,7 +69,7 @@ fun DaylSkrenEntry(
             keyboardController, platformServices, voiceService,
             isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
             ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
-            firebaseService, isApp = false
+            firebaseSirves, isApp = false
         )
     }
 }
@@ -88,7 +88,7 @@ fun DaylSkren(
     onTogilAngol: (Boolean) -> Unit,
     onStartAiVoys: () -> Unit,
     ignoreSelectionUpdate: () -> Unit,
-    firebaseService: sirvesez.FirebaseService? = null,
+    firebaseSirves: sirvesez.FirebaseSirves? = null,
     isApp: Boolean = true,
     onGoToHome: (() -> Unit)? = null
 ) {
@@ -96,20 +96,20 @@ fun DaylSkren(
     val scope = rememberCoroutineScope()
     
     // Auth and Layout Sync
-    val userState = firebaseService?.authStateChanges?.collectAsState(initial = firebaseService.currentUser)
+    val userState = firebaseSirves?.authStateChanges?.collectAsState(initial = firebaseSirves.currentUser)
     val user = userState?.value
 
     val saveLayout = {
-        if (user != null && firebaseService != null) {
+        if (user != null && firebaseSirves != null) {
             scope.launch {
-                firebaseService.saveModuleLayout(daylSteyt.modyilz)
+                firebaseSirves.saveModuleLayout(daylSteyt.modyilz)
             }
         }
     }
     
     LaunchedEffect(user) {
-        if (user != null && firebaseService != null) {
-            firebaseService.watchModuleLayout().collectLatest { remoteModules ->
+        if (user != null && firebaseSirves != null) {
+            firebaseSirves.watchModuleLayout().collectLatest { remoteModules ->
                 if (remoteModules.isNotEmpty()) {
                     daylSteyt.updateModules(remoteModules)
                 }

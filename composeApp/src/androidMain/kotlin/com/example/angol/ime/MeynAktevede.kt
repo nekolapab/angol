@@ -35,7 +35,7 @@ class MeynAktevede : ComponentActivity() {
                 keyboardController = keyboardController,
                 platformServices = platformServices,
                 voiceService = voiceService,
-                firebaseService = null,
+                firebaseSirves = null,
                 isApp = true
             )
         }

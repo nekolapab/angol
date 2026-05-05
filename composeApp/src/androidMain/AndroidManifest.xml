@@ -41,7 +41,7 @@
         </activity>
 
         <activity
-            android:name="com.example.angol.ime.PermissionActivity"
+            android:name="com.example.angol.ime.PermisconAktevede"
             android:label="permission"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true" />

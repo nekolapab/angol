@@ -10,12 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import sirvesez.FirebaseService
+import sirvesez.FirebaseSirves
 
 @Composable
-fun AfdirLogenSkren(firebaseService: FirebaseService, onContinue: () -> Unit) {
+fun AfdirLogenSkren(firebaseSirves: FirebaseSirves, onContinue: () -> Unit) {
     val scope = rememberCoroutineScope()
-    val user = firebaseService.currentUser
+    val user = firebaseSirves.currentUser
 
     Scaffold(
         topBar = {
@@ -24,7 +24,7 @@ fun AfdirLogenSkren(firebaseService: FirebaseService, onContinue: () -> Unit) {
                 actions = {
                     IconButton(onClick = {
                         scope.launch {
-                            firebaseService.signOut()
+                            firebaseSirves.signOut()
                         }
                     }) {
                         Icon(Icons.Default.Logout, contentDescription = "Sign Out")
