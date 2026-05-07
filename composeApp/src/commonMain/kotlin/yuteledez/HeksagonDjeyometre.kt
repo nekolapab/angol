@@ -39,37 +39,123 @@ class HeksagonDjeyometre(
     }
 
     /**
-     * Returns the list of axial coordinates for the inner ring of hexagons.
+     * Returns the list of axial coordinates for a specific ring.
+     * Ring 0 is the center. Ring 1 has 6 hexes, Ring 2 has 12, etc.
      */
-    fun getEnirRenqKowordenats(): List<AksyalKowordenat> {
-        return listOf(
-            AksyalKowordenat(q = 1, r = -1),
-            AksyalKowordenat(q = 1, r = 0),
-            AksyalKowordenat(q = 0, r = 1),
-            AksyalKowordenat(q = -1, r = 1),
-            AksyalKowordenat(q = -1, r = 0),
-            AksyalKowordenat(q = 0, r = -1)
+    fun getKowordenatsForRenq(renqIndeks: Int): List<AksyalKowordenat> {
+        if (renqIndeks == 0) return listOf(AksyalKowordenat(0, 0))
+        
+        val kowordenats = mutableListOf<AksyalKowordenat>()
+        // Start at the top-right corner of the ring
+        var q = renqIndeks
+        var r = -renqIndeks
+        
+        // 6 directions for pointy-top axial coordinates
+        val directions = listOf(
+            AksyalKowordenat(0, 1),   // Down-right
+            AksyalKowordenat(-1, 1),  // Down
+            AksyalKowordenat(-1, 0),  // Down-left
+            AksyalKowordenat(0, -1),  // Up-left
+            AksyalKowordenat(1, -1),  // Up
+            AksyalKowordenat(1, 0)    // Up-right
         )
+        
+        for (dir in directions) {
+            for (step in 0 until renqIndeks) {
+                kowordenats.add(AksyalKowordenat(q, r))
+                q += dir.q
+                r += dir.r
+            }
+        }
+        return kowordenats
     }
 
     /**
-     * Returns the list of axial coordinates for the outer ring of hexagons.
-     * Note: The original Dart code had 12 coordinates here.
+     * Returns the list of axial coordinates for the inner ring of hexagons.
      */
-    fun getAwdirRenqKowordenats(): List<AksyalKowordenat> {
-        return listOf(
-            AksyalKowordenat(q = 2, r = -2),
-            AksyalKowordenat(q = 2, r = -1),
-            AksyalKowordenat(q = 2, r = 0),
-            AksyalKowordenat(q = 1, r = 1),
-            AksyalKowordenat(q = 0, r = 2),
-            AksyalKowordenat(q = -1, r = 2),
-            AksyalKowordenat(q = -2, r = 2),
-            AksyalKowordenat(q = -2, r = 1),
-            AksyalKowordenat(q = -2, r = 0),
-            AksyalKowordenat(q = -1, r = -1),
-            AksyalKowordenat(q = 0, r = -2),
-            AksyalKowordenat(q = 1, r = -2)
+    fun getEnirRenqKowordenats(): List<AksyalKowordenat> = getKowordenatsForRenq(1)
+
+    /**
+     * Returns the list of axial coordinates for the outer ring of hexagons.
+     */
+    fun getAwdirRenqKowordenats(): List<AksyalKowordenat> = getKowordenatsForRenq(2)
+
+    /**
+     * Converts a grid index back to axial coordinates (q, r).
+     * Index 0 is center. Ring 1 starts at index 1.
+     */
+    fun indeksTuAksyal(indeks: Int): AksyalKowordenat {
+        if (indeks <= 0) return AksyalKowordenat(0, 0)
+        
+        var currentIdx = 1
+        var ring = 1
+        while (true) {
+            val count = ring * 6
+            if (currentIdx + count > indeks) {
+                // It's in this ring
+                val stepInRing = indeks - currentIdx
+                val side = stepInRing / ring
+                val posInSide = stepInRing % ring
+                
+                // Start at top-right corner of the ring
+                var q = ring
+                var r = -ring
+                
+                val directions = listOf(
+                    AksyalKowordenat(0, 1), AksyalKowordenat(-1, 1), AksyalKowordenat(-1, 0),
+                    AksyalKowordenat(0, -1), AksyalKowordenat(1, -1), AksyalKowordenat(1, 0)
+                )
+                
+                // Move to the correct side
+                for (s in 0 until side) {
+                    q += directions[s].q * ring
+                    r += directions[s].r * ring
+                }
+                // Move within the side
+                q += directions[side].q * posInSide
+                r += directions[side].r * posInSide
+                
+                return AksyalKowordenat(q, r)
+            }
+            currentIdx += count
+            ring++
+            if (ring > 20) break // Safety break
+        }
+        return AksyalKowordenat(0, 0) // Fallback to center
+    }
+
+    /**
+     * Returns the grid index for a given axial coordinate.
+     * Index 0 is center.
+     */
+    fun aksyalTuIndeks(q: Int, r: Int): Int {
+        if (q == 0 && r == 0) return 0
+        
+        val ring = maxOf(kotlin.math.abs(q), maxOf(kotlin.math.abs(r), kotlin.math.abs(-q - r)))
+        var startIdx = 1
+        for (i in 1 until ring) {
+            startIdx += i * 6
+        }
+        
+        val coordsInRing = getKowordenatsForRenq(ring)
+        val indexInRing = coordsInRing.indexOfFirst { it.q == q && it.r == r }
+        
+        return if (indexInRing != -1) startIdx + indexInRing else -1
+    }
+
+    /**
+     * Returns the indices of the 6 neighbors of a given index.
+     */
+    fun getNeybirIndesiz(indeks: Int): List<Int> {
+        val axial = indeksTuAksyal(indeks)
+        val neighbors = listOf(
+            AksyalKowordenat(axial.q + 1, axial.r - 1),
+            AksyalKowordenat(axial.q + 1, axial.r),
+            AksyalKowordenat(axial.q, axial.r + 1),
+            AksyalKowordenat(axial.q - 1, axial.r + 1),
+            AksyalKowordenat(axial.q - 1, axial.r),
+            AksyalKowordenat(axial.q, axial.r - 1)
         )
+        return neighbors.map { aksyalTuIndeks(it.q, it.r) }
     }
 }

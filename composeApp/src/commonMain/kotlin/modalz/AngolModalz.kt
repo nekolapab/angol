@@ -26,7 +26,8 @@ data class ModyilDeyda(
     val kulor: Color,
     val pozecon: Int,
     val ezAktiv: Boolean = false,
-    val glefz: List<String> = emptyList()
+    val glefz: List<String> = emptyList(),
+    val glefKulorz: List<Long> = emptyList()
 ) {
     fun copyWith(
         id: String? = null,
@@ -34,14 +35,16 @@ data class ModyilDeyda(
         kulor: Color? = null,
         pozecon: Int? = null,
         ezAktiv: Boolean? = null,
-        glefz: List<String>? = null
+        glefz: List<String>? = null,
+        glefKulorz: List<Long>? = null
     ): ModyilDeyda = ModyilDeyda(
         id = id ?: this.id,
         neym = neym ?: this.neym,
         kulor = kulor ?: this.kulor,
         pozecon = pozecon ?: this.pozecon,
         ezAktiv = ezAktiv ?: this.ezAktiv,
-        glefz = glefz ?: this.glefz
+        glefz = glefz ?: this.glefz,
+        glefKulorz = glefKulorz ?: this.glefKulorz
     )
 
     /**
@@ -50,10 +53,11 @@ data class ModyilDeyda(
     fun toJson(): Map<String, Any> = mapOf(
         "id" to id,
         "neym" to neym,
-        "kulor" to kulor.toArgb(), // Serialize color as an ARGB Int
+        "kulor" to kulor.toArgb().toLong(), // Serialize color as a Long to be safe
         "pozecon" to pozecon,
         "ezAktiv" to ezAktiv,
-        "glefz" to glefz
+        "glefz" to glefz,
+        "glefKulorz" to glefKulorz
     )
 
     companion object {
@@ -61,19 +65,19 @@ data class ModyilDeyda(
          * Creates a ModyilDeyda object from a JSON-like map.
          */
         fun fromJson(json: Map<String, Any>): ModyilDeyda {
-            // Safely handle the color value, which might be an Int or Long from JSON parsing.
             val colorValue = when (val color = json["kulor"]) {
                 is Number -> color.toLong()
-                else -> 0xFF000000 // Default to black or handle error appropriately
+                else -> 0xFF000000
             }
 
             return ModyilDeyda(
                 id = json["id"] as? String ?: "",
                 neym = json["neym"] as? String ?: "",
-                kulor = Color(colorValue),
+                kulor = Color(colorValue.toULong()),
                 pozecon = json["pozecon"] as? Int ?: 0,
                 ezAktiv = json["ezAktiv"] as? Boolean ?: false,
-                glefz = (json["glefz"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                glefz = (json["glefz"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                glefKulorz = (json["glefKulorz"] as? List<*>)?.mapNotNull { (it as? Number)?.toLong() } ?: emptyList()
             )
         }
     }

@@ -28,8 +28,8 @@ fun DaylSkrenEntry(
     keyboardController: modyilz.KeyboardController?,
     platformServices: modyilz.PlatformServices,
     voiceService: modyilz.VoiceService,
-    isLetterMode: Boolean = true,
-    isPunctuationMode: Boolean = false,
+    ezLeterMod: Boolean = true,
+    ezPunkcuweyconMod: Boolean = false,
     ezUpsayddawn: Boolean = false,
     onTogilMod: () -> Unit = {},
     onSetPunkcuweyconMod: (Boolean) -> Unit = {},
@@ -42,23 +42,23 @@ fun DaylSkrenEntry(
 ) {
     val userState = firebaseSirves?.authStateChanges?.collectAsState(initial = firebaseSirves.currentUser)
     val user = userState?.value
-    var currentScreen by remember { mutableStateOf("main") }
-    var isGuestMode by remember { mutableStateOf(false) }
+    var kurentSkren by remember { mutableStateOf("main") }
+    var ezGestMod by remember { mutableStateOf(false) }
 
     if (isApp) {
-        if (user == null && !isGuestMode && firebaseSirves != null) {
-            SaynEnSkren(firebaseSirves, onBypass = { isGuestMode = true })
+        if (user == null && !ezGestMod && firebaseSirves != null) {
+            SaynEnSkren(firebaseSirves, onBypass = { ezGestMod = true })
         } else {
-            when (currentScreen) {
+            when (kurentSkren) {
                 "main" -> DaylSkren(
                     keyboardController, platformServices, voiceService,
-                    isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
+                    ezLeterMod, ezPunkcuweyconMod, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
                     firebaseSirves, isApp = true
                 )
-                "home" -> if (firebaseSirves != null) AfdirLogenSkren(firebaseSirves, onContinue = { currentScreen = "main" }) else DaylSkren(
+                "home" -> if (firebaseSirves != null) AfdirLogenSkren(firebaseSirves, onContinue = { kurentSkren = "main" }) else DaylSkren(
                     keyboardController, platformServices, voiceService,
-                    isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
+                    ezLeterMod, ezPunkcuweyconMod, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
                     firebaseSirves, isApp = true
                 )
@@ -67,7 +67,7 @@ fun DaylSkrenEntry(
     } else {
         DaylSkren(
             keyboardController, platformServices, voiceService,
-            isLetterMode, isPunctuationMode, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
+            ezLeterMod, ezPunkcuweyconMod, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
             ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
             firebaseSirves, isApp = false
         )
@@ -79,8 +79,8 @@ fun DaylSkren(
     keyboardController: modyilz.KeyboardController?,
     platformServices: modyilz.PlatformServices,
     voiceService: modyilz.VoiceService,
-    isLetterMode: Boolean,
-    isPunctuationMode: Boolean,
+    ezLeterMod: Boolean,
+    ezPunkcuweyconMod: Boolean,
     ezUpsayddawn: Boolean,
     onTogilMod: () -> Unit,
     onSetPunkcuweyconMod: (Boolean) -> Unit,
@@ -182,8 +182,8 @@ fun DaylSkren(
                 keyboardController = keyboardController,
                 platformServices = platformServices,
                 voiceService = voiceService,
-                isLetterMode = isLetterMode,
-                isPunctuationMode = isPunctuationMode,
+                ezLeterMod = ezLeterMod,
+                ezPunkcuweyconMod = ezPunkcuweyconMod,
                 ezUpsayddawn = ezUpsayddawn,
                 onTogilMod = onTogilMod,
                 onSetPunkcuweyconMod = onSetPunkcuweyconMod,
@@ -235,8 +235,8 @@ fun ModuleContent(
     keyboardController: modyilz.KeyboardController?,
     platformServices: modyilz.PlatformServices,
     voiceService: modyilz.VoiceService,
-    isLetterMode: Boolean,
-    isPunctuationMode: Boolean,
+    ezLeterMod: Boolean,
+    ezPunkcuweyconMod: Boolean,
     ezUpsayddawn: Boolean,
     onTogilMod: () -> Unit,
     onSetPunkcuweyconMod: (Boolean) -> Unit,
@@ -255,8 +255,8 @@ fun ModuleContent(
             keyboardController = keyboardController,
             platformServices = platformServices,
             voiceService = voiceService,
-            isLetterMode = isLetterMode,
-            isPunctuationMode = isPunctuationMode,
+            ezLeterMod = ezLeterMod,
+            ezPunkcuweyconMod = ezPunkcuweyconMod,
             ezUpsayddawn = ezUpsayddawn,
             onTogilMod = onTogilMod,
             onSetPunkcuweyconMod = onSetPunkcuweyconMod,
@@ -279,12 +279,14 @@ fun ModuleContent(
             geometry = geometry,
             modyilz = daylSteyt.modyilz,
             onToggleModule = { index ->
-                // UI is 0-based; state is 1-based.
-                daylSteyt.togilModyil(index + 1)
+                if (index == 0) {
+                    daylSteyt.togilModyil(1)
+                } else {
+                    daylSteyt.togilModyil(index + 1)
+                }
                 onSaveLayout()
             },
-            onSwapModules = { from, to ->
-                // UI is 0-based; state is 1-based.
+            onMoveModule = { from, to ->
                 daylSteyt.swopModyilz(from + 1, to + 1)
                 onSaveLayout()
             },

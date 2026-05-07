@@ -13,9 +13,10 @@ fun MainViewController(
     platformServices: PlatformServices,
     voiceService: VoiceService
 ): UIViewController = ComposeUIViewController {
-    App(
+    skrenz.DaylSkrenEntry(
         keyboardController = keyboardController,
         platformServices = platformServices,
-        voiceService = voiceService
+        voiceService = voiceService,
+        isApp = true
     )
 }

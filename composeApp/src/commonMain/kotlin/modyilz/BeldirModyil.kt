@@ -13,8 +13,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import modalz.ModyilDeyda
+import modalz.KepadKonfeg
 import steyt.DaylSteyt
 import wedjets.GredItem
+import wedjets.CopyDragPolicy
 import wedjets.HeksagonGred
 import yuteledez.HeksagonDjeyometre
 import modalz.HeksagonPozecon
@@ -31,15 +33,15 @@ fun BeldirModyil(
     if (selectedModuleId != null) {
         val mod = daylSteyt.modyilz.find { it.id == selectedModuleId }
         if (mod != null) {
-            GlefzEditSkren(
+            GlefsEdetSkren(
                 mod = mod,
                 onBack = { selectedModuleId = null },
                 onReneymGlef = { index, label ->
                     daylSteyt.reneymGlef(mod.id, index, label)
                     onAction()
                 },
-                onSwopGlefz = { from, to ->
-                    daylSteyt.swopGlefz(mod.id, from, to)
+                onMuvGlef = { from, to ->
+                    daylSteyt.muvGlef(mod.id, from, to)
                     onAction()
                 },
                 onCopyToEmpty = { from, to ->
@@ -83,7 +85,7 @@ fun BeldirModyil(
                 index = mod.pozecon - 1,
                 label = mod.neym,
                 color = mod.kulor,
-                isFolder = true,
+                isFolder = false,
                 deyda = mod
             )
         }
@@ -108,8 +110,9 @@ fun BeldirModyil(
                     items = gredItems,
                     centerLabel = daylModule.neym,
                     centerColor = daylModule.kulor,
-                    onSwap = { from, to ->
-                        daylSteyt.swopModyilz(from + 1, to + 1)
+                    copyDragPolicy = CopyDragPolicy.TwoStepArmed,
+                    onMove = { from, to ->
+                        daylSteyt.muvModyil(from + 1, to + 1)
                         onAction()
                     },
                     onCopyToEmpty = { from, to ->
@@ -122,7 +125,7 @@ fun BeldirModyil(
                     },
                     onDropOnFolder = { _, _ -> },
                     onTap = { index ->
-                        if (index == 18) { // Center
+                        if (index == 0) { // Center
                             onClose()
                         } else {
                             val clickedMod = daylSteyt.modyilz.find { it.pozecon == index + 1 }
@@ -135,7 +138,7 @@ fun BeldirModyil(
             }
             
             Text(
-                "Lonq-pres: vaybreyt, den dreq tu swop, kope tu empt, o besayd. Seym spot: tap tu edet neym; lonq-pres agen (vaybreyt) den dreq tu kope tu empt.",
+                "Dreq tu kope. Tap tu edet/arm muv. Lonq-pres agen den dreq tu skwez/muv. Center → gow bak.",
                 color = Color.Gray,
                 modifier = Modifier.padding(bottom = 8.dp).align(Alignment.CenterHorizontally)
             )
@@ -144,11 +147,11 @@ fun BeldirModyil(
 }
 
 @Composable
-fun GlefzEditSkren(
+fun GlefsEdetSkren(
     mod: ModyilDeyda,
     onBack: () -> Unit,
     onReneymGlef: (Int, String) -> Unit,
-    onSwopGlefz: (Int, Int) -> Unit,
+    onMuvGlef: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
     onMoveToParent: (Int) -> Unit,
     onReneymMod: (String) -> Unit
@@ -172,12 +175,21 @@ fun GlefzEditSkren(
         }
 
         val gredItems = mod.glefz.mapIndexed { index, label ->
+            if (index == 0 || label.isEmpty()) return@mapIndexed null
+            val ringIndex = index - 1
+            val color = when {
+                ringIndex < 6 -> KepadKonfeg.innerRingColors.getOrNull(ringIndex) ?: mod.kulor
+                ringIndex < 18 -> KepadKonfeg.rainbowColors.getOrNull(ringIndex - 6) ?: mod.kulor
+                else -> mod.kulor
+            }
             GredItem(
                 index = index,
                 label = label,
-                color = mod.kulor
+                color = color
             )
-        }
+        }.filterNotNull()
+
+        val centerLabel = mod.glefz.getOrNull(0) ?: " "
 
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
@@ -210,16 +222,16 @@ fun GlefzEditSkren(
                 HeksagonGred(
                     geometry = geometry,
                     items = gredItems,
-                    centerLabel = "Hub", // Center moves to parent Hub
+                    centerLabel = centerLabel,
                     centerColor = Color.DarkGray,
-                    onSwap = onSwopGlefz,
+                    copyDragPolicy = CopyDragPolicy.TwoStepArmed,
+                    onMove = onMuvGlef,
                     onCopyToEmpty = onCopyToEmpty,
                     onMoveToCenter = onMoveToParent,
-                    onDropOnFolder = { from, to -> /* Handle folder drop if needed */ },
+                    onDropOnFolder = { from, to -> },
                     onTap = { index ->
-                        if (index == 18) { // Center
-                            onBack()
-                        } else {
+                        if (index == 0) onBack()
+                        else {
                             editingGlefIndex = index
                             newGlefLabel = mod.glefz.getOrNull(index) ?: ""
                         }
@@ -248,7 +260,7 @@ fun GlefzEditSkren(
                 }
             } else {
                 Text(
-                    "Lonq-pres: vaybreyt, den dreq. Center → Hub. Empt → kope. Seym spot: tap glef; lonq-pres agen → kope dreq tu empt.",
+                    "Dreq tu kope. Tap tu edet/arm muv. Lonq-pres agen den dreq tu skwez/muv. Center → gow bak.",
                     color = Color.Gray,
                     modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)
                 )

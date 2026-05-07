@@ -60,8 +60,8 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private val ezLisenenq = mutableStateOf(false)
     private val ezSpoken = mutableStateOf(false)
     private val angolSpelenqModSteyt = mutableIntStateOf(2)
-    private var ezLedirMod by mutableStateOf(true)
-    private var ezPunctceyconMod by mutableStateOf(false)
+    private var ezLeterMod by mutableStateOf(true)
+    private var ezPunkcuweyconMod by mutableStateOf(false)
     private var angolSpelenqMod by angolSpelenqModSteyt
     private var ezAiVoysAktev by mutableStateOf(false)
     private var ezSentirButonPresd by mutableStateOf(false)
@@ -70,7 +70,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private var orientationListener: android.view.OrientationEventListener? = null
     
     private var isProcessingResults = false
-    private var originalLedirMod = true
+    private var originalLeterMod = true
     private var ignoreSelectionUpdateCount = 0
     private var isClosing = false
 
@@ -180,7 +180,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             firebaseSirves = AndroidFirebaseSirves(null)
             voiceService = AndroidVoiceService(
                 onStart = { isAi -> 
-                    originalLedirMod = ezLedirMod
+                    originalLeterMod = ezLeterMod
                     ezAiVoysAktev = isAi
                     ezSentirButonPresd = true
                     ezSpoken.value = false
@@ -192,9 +192,14 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 },
                 onTogilAngol = { isLong -> 
                     if (isLong) {
-                        angolSpelenqMod = 1
+                        angolSpelenqMod = 1 // Angol 2 (AI)
                     } else {
-                        angolSpelenqMod = if (angolSpelenqMod == 0) 2 else 0
+                        // Cycle: 0 (of) -> 2 (Angol 1) -> 1 (Angol 2) -> 0
+                        angolSpelenqMod = when (angolSpelenqMod) {
+                            0 -> 2
+                            2 -> 1
+                            else -> 0
+                        }
                     }
                 },
                 isListening = ezLisenenq,
@@ -336,7 +341,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                     }
 
                                     ic.endBatchEdit()
-                                    ezLedirMod = originalLedirMod
+                                    ezLeterMod = originalLeterMod
                                 } catch (e: Exception) {
                                     Log.e(TAG, "Speech failed: ${e.message}")
                                 } finally {
@@ -415,11 +420,11 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         keyboardController = kebordKontrolir,
                         platformServices = platfOrmSirvesez,
                         voiceService = voiceService,
-                        isLetterMode = ezLedirMod,
-                        isPunctuationMode = ezPunctceyconMod,
+                        ezLeterMod = ezLeterMod,
+                        ezPunkcuweyconMod = ezPunkcuweyconMod,
                         ezUpsayddawn = ezUpsayddawn,
-                        onTogilMod = { ezLedirMod = !ezLedirMod },
-                        onSetPunkcuweyconMod = { ezPunctceyconMod = it },
+                        onTogilMod = { ezLeterMod = !ezLeterMod },
+                        onSetPunkcuweyconMod = { ezPunkcuweyconMod = it },
                         ezAngolMod = angolSpelenqMod > 0,
                         onTogilAngol = { voiceService.togilAngolMod(it) }, 
                         onStartAiVoys = { voiceService.startListening(isAiMode = true) },
