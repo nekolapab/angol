@@ -59,7 +59,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     
     private val ezLisenenq = mutableStateOf(false)
     private val ezSpoken = mutableStateOf(false)
-    private val angolSpelenqModSteyt = mutableIntStateOf(2)
+    private val angolSpelenqModSteyt = mutableIntStateOf(0)
     private var ezLeterMod by mutableStateOf(true)
     private var ezPunkcuweyconMod by mutableStateOf(false)
     private var angolSpelenqMod by angolSpelenqModSteyt
@@ -191,16 +191,9 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                     stopVoysEnpit() 
                 },
                 onTogilAngol = { isLong -> 
-                    if (isLong) {
-                        angolSpelenqMod = 1 // Angol 2 (AI)
-                    } else {
-                        // Cycle: 0 (of) -> 2 (Angol 1) -> 1 (Angol 2) -> 0
-                        angolSpelenqMod = when (angolSpelenqMod) {
-                            0 -> 2
-                            2 -> 1
-                            else -> 0
-                        }
-                    }
+                    // Bi-state: toggle between Off (0) and Black (1)
+                    angolSpelenqMod = if (angolSpelenqMod == 0) 1 else 0
+                    Log.e(TAG, "Angol Toggle: new mod = $angolSpelenqMod")
                 },
                 isListening = ezLisenenq,
                 hasSpoken = ezSpoken,
@@ -293,54 +286,31 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         if (text.isNotEmpty()) {
                             scope.launch {
                                 try {
+                                    val ic = currentInputConnection ?: return@launch
+                                    
                                     var processedText = if (ezAiVoysAktev) {
                                         android.widget.Toast.makeText(this@DaylEnpitMelxod, "AI conversion...", android.widget.Toast.LENGTH_SHORT).show()
                                         val model = Firebase.ai.generativeModel(modelName = "gemini-3.1-flash", generationConfig = generationConfig { }, safetySettings = emptyList(), requestOptions = RequestOptions())
-                                        val promptMode = if (angolSpelenqMod == 1) "Angol 1" else "Angol 2"
+                                        // Mode 1: final is Angol 2 (standard vowels)
+                                        val promptMode = if (angolSpelenqMod == 1) "Angol (Phonetic spelling with standard vowels a,e,i,u,o)" else "Standard English"
                                         val prompt = "Output only the phonetic transcription in Angol. No intro, no extra punctuation. Mode: $promptMode. Text: $text"
                                         val response = withContext(Dispatchers.IO) { model.generateContent(content { text(prompt) }) }
                                         response.text?.trim() ?: text
                                     } else {
                                         when (angolSpelenqMod) {
-                                            1 -> AngolSpelenqMelxod.convertToAngolSpelling(text, mode = 1)
-                                            2 -> AngolSpelenqMelxod.convertToAngolSpelling(text, mode = 2)
-                                            else -> text
+                                            1 -> AngolSpelenqMelxod.convertToAngolSpelling(text, mode = 1) // FINAL: Angol 2 (standard vowels)
+                                            else -> text // OFF Mode: final is Standard English
                                         }
                                     }
                                     val finalResult = processedText.trim()
+                                    Log.e(TAG, "Final Results: mod=$angolSpelenqMod, text='$text', final='$finalResult'")
                                     if (finalResult.isEmpty()) return@launch
-                                    val ic = currentInputConnection ?: return@launch
+                                    
                                     ic.beginBatchEdit()
-
-                                    // End any existing composing region so we can replace cleanly.
-                                    ic.finishComposingText()
-
-                                    // Robust Shortcut Clean-up
-                                    val contextBefore = ic.getTextBeforeCursor(2, 0) ?: ""
-                                    if (contextBefore.endsWith(". ")) {
-                                        ic.deleteSurroundingText(2, 0)
-                                    } else if (contextBefore.endsWith(".")) {
-                                        ic.deleteSurroundingText(1, 0)
-                                    }
-
-                                    // Leading Space (Added BEFORE text)
-                                    val before = ic.getTextBeforeCursor(1, 0) ?: ""
-                                    if (before.isNotEmpty() && !before.last().isWhitespace()) {
-                                        ic.commitText(" ", 1)
-                                    }
-
-                                    // Replace-in-place: set composing to final, then finish composing.
-                                    // This avoids "type then backspace-delete then retype" behavior.
                                     ic.setComposingText(finalResult, 1)
                                     ic.finishComposingText()
-
-                                    // Trailing Space
-                                    val after = ic.getTextAfterCursor(1, 0) ?: ""
-                                    if (after.isNotEmpty() && !after.first().isWhitespace()) {
-                                        ic.commitText(" ", 1)
-                                    }
-
                                     ic.endBatchEdit()
+                                    
                                     ezLeterMod = originalLeterMod
                                 } catch (e: Exception) {
                                     Log.e(TAG, "Speech failed: ${e.message}")
@@ -367,8 +337,12 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         val text = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: ""
                         if (text.isNotEmpty()) {
                             currentInputConnection?.let {
-                                val targetMode = if (angolSpelenqMod in 1..2) angolSpelenqMod else 2
-                                it.setComposingText(AngolSpelenqMelxod.convertToAngolSpelling(text, mode = targetMode), 1)
+                                // If Angol is BLACK (1), PREVIEW in Angol 1 (mode 2 - numbers)
+                                // If Angol is OFF (0), PREVIEW in Angol 2 (mode 1 - standard vowels)
+                                val previewMode = if (angolSpelenqMod == 1) 2 else 1
+                                val previewText = AngolSpelenqMelxod.convertToAngolSpelling(text, mode = previewMode)
+                                Log.e(TAG, "Partial Results: mod=$angolSpelenqMod, pMode=$previewMode, text='$text', preview='$previewText'")
+                                it.setComposingText(previewText, 1)
                             }
                         }
                     }

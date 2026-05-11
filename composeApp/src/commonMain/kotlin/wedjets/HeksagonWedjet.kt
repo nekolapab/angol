@@ -70,19 +70,14 @@ fun HeksagonWedjet(
     val hexHeight = size * (2f / sqrt(3f))
     val contrastColor = if (isMomentarilyPressed || isPressed) backgroundColor else textColor
     
-    // Dynamic font scaling based on label length
-    val baseFontSize = fontSize ?: (size.value / 4f)
-    val lengthFactor = when {
-        label.length <= 3 -> 14f / 12f
-        label.length <= 4 -> 13f / 12f
-        label.length <= 5 -> 12f / 12f
-        label.length <= 6 -> 11f / 12f
-        label.length <= 7 -> 10f / 12f
-        label.length <= 8 -> 9f / 12f
-        else -> 8f / 12f
-    }
-    val rawFontSize = baseFontSize * lengthFactor
-    val finalFontSize = (rawFontSize / density.fontScale).sp
+    // Aggressive font scaling to fill the hexagon edge-to-edge
+    // Formula derived from hexagon geometry: fontSize < (2 * width) / (length * charWidthFactor + sqrt(3))
+    val totalLength = label.length + (secondaryLabel?.length ?: 0) + (if (secondaryLabel != null) 0.5f else 0f)
+    val safeLength = totalLength.coerceAtLeast(0.8f)
+    
+    val autoFontSize = (size.value * 2.1f) / (safeLength * 0.52f + 1.732f)
+    val finalRawFontSize = fontSize ?: autoFontSize.coerceAtMost(size.value * 0.75f)
+    val finalFontSize = (finalRawFontSize / density.fontScale).sp
 
     HeksagonTutcboks(
         rotationAngle = rotationAngle,

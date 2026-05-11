@@ -37,29 +37,33 @@ fun AngolTogilWedjet(
                 .width((geometry.heksWidlx * 2.1).dp)
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onTap = { onTogilAngol(false) },
-                        onLongPress = { onTogilAngol(true) }
+                        onTap = { onTogilAngol(false) }
                     )
                 },
             contentAlignment = Alignment.Center
         ) {
             val centerBg = if (isListening) Color.Red else if (isLetterMode) Color.White else Color.Black
             
+            // Mode 0: Off (1/12 alpha)
+            // Mode 1: Grey (Angol 1 enecol, Angol 2 faynol) -> 12/12 alpha (user wants it "grey" but visible)
+            // Mode 2: Black (Angol 1 enecol, Angol 1 faynol) -> 12/12 alpha
             val alpha = when (currentAngolMode) {
-                2 -> 1.0f        // 12/12 (Angol 1)
-                1 -> 4f / 12f    // 4/12 (Angol 2)
-                else -> 1f / 12f // 1/12 (Of)
+                0 -> 1f / 12f
+                else -> 1.0f
             }
             
             val textColor = when (centerBg) {
-                Color.Red -> Color.Cyan   // Contrast on Red hex
-                Color.White -> Color.Black // Contrast on White hex
-                else -> if (currentAngolMode == 2) Color.Yellow else Color.White
+                Color.Red -> Color.Cyan
+                Color.White -> Color.Black
+                else -> {
+                    // Mode 2 is "Black" mode, use darker color or Yellow for visibility
+                    if (currentAngolMode == 2) Color.Yellow else Color.White
+                }
             }
 
             androidx.compose.material.Text(
                 text = "angol",
-                color = textColor.copy(alpha = alpha),
+                color = if (currentAngolMode == 1 && centerBg == Color.Black) Color.LightGray else textColor.copy(alpha = alpha),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 style = TextStyle(

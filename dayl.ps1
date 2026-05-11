@@ -12,4 +12,7 @@ if ($devaysez.Count -eq 0) {
 foreach ($dev in $devaysez) {
     Write-Host "enstolenq on $dev..." -ForegroundColor Yellow
     adb -s $dev install -r composeApp/build/outputs/apk/debug/composeApp-debug.apk
+    
+    Write-Host "lontchenq ap on $dev..." -ForegroundColor Yellow
+    adb -s $dev shell am start -n io.angol.dayl/com.example.angol.ime.MeynAktevede
 }

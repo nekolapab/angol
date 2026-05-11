@@ -7,7 +7,7 @@ package yuteledez
 object AngolSpelenqMelxod {
 
     fun convertToAngolSpelling(text: String, mode: Int = 1): String {
-        if (text.isBlank()) return text
+        if (text.isBlank() || mode == 0) return text
         
         val regex = Regex("(\\s+|[^a-zA-Z\\s]+)")
         val tokens = mutableListOf<String>()
@@ -25,8 +25,10 @@ object AngolSpelenqMelxod {
 
         return tokens.joinToString("") { token ->
             if (token.any { it.isLetter() }) {
-                var result = transformToPureSound(token.lowercase())
-                if (mode == 2) result = collapseToAngol2(result)
+                val phonetic = transformToPureSound(token.lowercase())
+                // mode 1: Angol 2 (standard vowels a, e, i, u, o)
+                // mode 2: Angol 1 (numbered vowels 1-9, 0, A, O)
+                val result = if (mode == 1) collapseToAngol2(phonetic) else phonetic
                 capitalize(token, result)
             } else {
                 token
@@ -36,12 +38,19 @@ object AngolSpelenqMelxod {
 
     private fun collapseToAngol2(phonetic: String): String {
         var res = phonetic
-        // Map 36-char symbols back to base vowels
-        res = res.replace(Regex("[12]"), "a")
-        res = res.replace(Regex("[35]"), "e")
-        res = res.replace(Regex("[467]"), "i")
-        res = res.replace(Regex("[89]"), "u")
-        res = res.replace(Regex("[0AO]"), "o")
+        // Angol 2 uses standard English vowels (a, e, i, u, o) instead of numbers
+        res = res.replace("1", "a")
+        res = res.replace("2", "a")
+        res = res.replace("3", "e")
+        res = res.replace("5", "e")
+        res = res.replace("4", "i")
+        res = res.replace("6", "i")
+        res = res.replace("7", "i")
+        res = res.replace("8", "u")
+        res = res.replace("9", "u")
+        res = res.replace("0", "o")
+        res = res.replace("A", "o")
+        res = res.replace("O", "o")
         return res
     }
 

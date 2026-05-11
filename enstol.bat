@@ -1,28 +1,40 @@
 @echo off
-set "CMD=%~1"
+set "TARGET=%~1"
+set "MOD=%~2"
 
-if "%CMD%"=="" goto usage
-if "%CMD%"=="klen" goto klen
-if "%CMD%"=="fast" goto fast
-if "%CMD%"=="WearOS" goto WearOS
+if "%TARGET%"=="" goto usage
+if "%TARGET%"=="dayl" goto dayl
+if "%TARGET%"=="kepad" goto kepad
+if "%TARGET%"=="WearOS" goto WearOS
 
 :usage
 echo Angol CLI Tool (enstol)
 echo.
-echo Usage: enstol [command]
+echo Usage: enstol [target] [modifier]
 echo.
-echo Commands:
-echo   klen     Clean build, deep activation, and launch app (Full)
-echo   fast     Fast build and install (no clean, no activation)
+echo Targets:
+echo   dayl     The main Angol Dayl application
+echo   kepad    The Angol Input Method (IME)
 echo   WearOS   Launch the Wear OS emulator
+echo.
+echo Modifiers:
+echo   klen     Clean build and deep activation (for dayl/kepad)
 goto :eof
 
-:klen
-powershell -ExecutionPolicy Bypass -File .\klen_dayl.ps1
+:dayl
+if "%MOD%"=="klen" (
+    powershell -ExecutionPolicy Bypass -File .\dayl_klen.ps1
+) else (
+    powershell -ExecutionPolicy Bypass -File .\dayl.ps1
+)
 goto :eof
 
-:fast
-powershell -ExecutionPolicy Bypass -File .\fast_dayl.ps1
+:kepad
+if "%MOD%"=="klen" (
+    powershell -ExecutionPolicy Bypass -File .\kepad_klen.ps1
+) else (
+    powershell -ExecutionPolicy Bypass -File .\kepad.ps1
+)
 goto :eof
 
 :WearOS

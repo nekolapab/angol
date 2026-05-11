@@ -81,6 +81,11 @@ class HeksagonDjeyometre(
     fun getAwdirRenqKowordenats(): List<AksyalKowordenat> = getKowordenatsForRenq(2)
 
     /**
+     * Returns the list of axial coordinates for the third ring of hexagons.
+     */
+    fun getLxirdRenqKowordenats(): List<AksyalKowordenat> = getKowordenatsForRenq(3)
+
+    /**
      * Converts a grid index back to axial coordinates (q, r).
      * Index 0 is center. Ring 1 starts at index 1.
      */

@@ -119,7 +119,7 @@ fun DaylSkren(
     
     LaunchedEffect(isApp) {
         if (!isApp) {
-            daylSteyt.togilModyil(1) // Toggle keypad (id="keypad", pozecon=1)
+            daylSteyt.activateModyil("keypad")
         }
     }
 
@@ -129,16 +129,21 @@ fun DaylSkren(
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
+        // Hub and Keypad scaling: 2 rings for Mobile, 1 ring for WearOS
+        val fitRings = if (yuteledez.isWearOS) 1.0 else 2.0
+        val fitWidth = (fitRings * 2.0 + 1.0) * sqrt(3.0)
+        val fitHeight = (fitRings * 2.0 + 2.0) * 2.0 // Radii height
+
         val hexSize = minOf(
-            screenWidth.value / (5.0 * sqrt(3.0)),
-            screenHeight.value / 10.0 // Safer 10-radii height
+            (screenWidth.value * 0.99) / fitWidth,
+            (screenHeight.value * 0.99) / fitHeight
         ).dp
 
         val geometry = remember(hexSize, screenWidth, screenHeight, isApp) {
             val hexWidth = hexSize.value * sqrt(3.0)
             val isLandscape = screenWidth > screenHeight
             val sentirX = if (!isApp && isLandscape) {
-                -screenWidth.value / 2.0 + 2.6666 * hexWidth
+                -screenWidth.value / 2.0 + (fitRings + 0.5) * hexWidth
             } else {
                 0.0
             }
@@ -150,7 +155,7 @@ fun DaylSkren(
             )
         }
 
-        // Limit the height of the IME container to fit the keyboard perfectly (8 radii tall)
+        // Limit the height of the IME container to fit the keyboard perfectly
         val contentModifier = if (isApp) {
             Modifier.fillMaxSize().background(
                 Brush.radialGradient(
@@ -161,14 +166,8 @@ fun DaylSkren(
                 )
             )
         } else {
-            Modifier.fillMaxWidth().height(hexSize * 8.0f)
+            Modifier.fillMaxWidth().height(hexSize * fitHeight.toFloat())
                 .align(Alignment.BottomCenter)
-                .background(
-                    Brush.verticalGradient(
-                        0.0f to Color.Black.copy(alpha = 0.7f),
-                        1.0f to Color.Black
-                    )
-                )
         }
 
         // Absolute centering/bottom alignment for the Hub/Keypad
@@ -265,9 +264,10 @@ fun ModuleContent(
             onStartAiVoys = onStartAiVoys,
             ignoreSelectionUpdate = ignoreSelectionUpdate,
             geometryOverride = geometry,
-            glefzOverride = activeMod.glefz
+            glefzOverride = activeMod.glefz,
+            kulorzOverride = activeMod.glefKulorz
         )
-        "beldir" -> modyilz.BeldirModyil(
+        "beld" -> modyilz.BeldModyil(
             daylSteyt = daylSteyt,
             onClose = { 
                 daylSteyt.togilModyil(activeMod.pozecon)
@@ -301,7 +301,8 @@ fun ModuleContent(
                 onSaveLayout()
             },
             stackWidth = screenWidth,
-            stackHeight = screenHeight
+            stackHeight = screenHeight,
+            allowSwap = false
         )
     }
 }

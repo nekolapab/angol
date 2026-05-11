@@ -43,7 +43,8 @@ fun KepadModyil(
     onStartAiVoys: () -> Unit,
     ignoreSelectionUpdate: () -> Unit,
     geometryOverride: HeksagonDjeyometre? = null,
-    glefzOverride: List<String>? = null
+    glefzOverride: List<String>? = null,
+    kulorzOverride: List<Long>? = null
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -66,6 +67,18 @@ fun KepadModyil(
     val enecalY = remember { mutableStateOf(0f) }
     val lonqPresStartOfset = remember { mutableStateOf<androidx.compose.ui.geometry.Offset?>(null) }
     var ezSentirHeksPresd by remember { mutableStateOf(false) }
+
+    fun getKulor(index: Int): Color {
+        if (kulorzOverride != null && index < kulorzOverride.size) {
+            return Color(kulorzOverride[index].toInt())
+        }
+        return when {
+            index == 0 -> Color.White
+            index in 1..6 -> KepadKonfeg.innerRingColors[index - 1]
+            index in 7..18 -> KepadKonfeg.rainbowColors[index - 7]
+            else -> Color.DarkGray
+        }
+    }
 
     fun handilKePres(char: String, isLongPress: Boolean, primaryChar: String?) {
         if (char == "TRANSLATE") {
@@ -229,14 +242,7 @@ fun KepadModyil(
         Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
             val hexWidthDp = geometry.heksWidlx.dp
             val currentLabels = KepadLodjek.getCurrentOlLeybelz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefzOverride)
-            val centerLabel = currentLabels.getOrNull(0) ?: ""
-            val displayInnerLabels = currentLabels.subList(1, 7)
-            val displayOuterLabels = currentLabels.subList(7, 19)
-            val outerLongPressLabels = if (kurentEzLeterMod && djestcirStartidOnVowalIndeks.value == null) {
-                val raw = KepadKonfeg.outerLongPress
-                if (ezKapetalayzd) raw.map { it.uppercase() } else raw
-            } else emptyList()
-
+            
             Box(
                 modifier = Modifier.fillMaxSize()
                     .pointerInput(allHexPositions, ezUpsayddawn) {
@@ -425,44 +431,33 @@ fun KepadModyil(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                EnirRenqWedjet(geometry = geometry, stackWidth = maxWidthDp, stackHeight = gridHeightDp) {
-                    displayInnerLabels.forEachIndexed { index, label ->
-                        val lpLabel = if (kurentEzLeterMod) "" else KepadKonfeg.innerLongPressNumber.getOrNull(index) ?: ""
-                        HeksagonWedjet(
-                            label = label, 
-                            secondaryLabel = if (lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null, 
-                            backgroundColor = KepadKonfeg.innerRingColors[index], 
-                            textColor = KepadKonfeg.getComplementaryColor(KepadKonfeg.innerRingColors[index]), 
-                            size = hexWidthDp, 
-                            fontSize = (geometry.heksWidlx * 1.0f).toFloat(), 
-                            rotationAngle = geometry.roteyconAngol.toFloat(),
-                            isPressed = huvirdHeksIndeks.value == (index + 1)
-                        )
-                    }
-                }
-                AwdirRenqWedjet(
-                    geometry = geometry, 
-                    onHexKeyPress = { _, _, _ -> }, 
-                    tapLabels = displayOuterLabels, 
-                    longPressLabels = outerLongPressLabels, 
-                    initialLetterMode = kurentEzLeterMod, 
-                    stackWidth = maxWidthDp, 
-                    stackHeight = gridHeightDp, 
-                    pressedIndex = if (huvirdHeksIndeks.value != null && huvirdHeksIndeks.value!! in 7..18) huvirdHeksIndeks.value!! - 7 else null, 
-                    handleGestures = false, 
-                    isPopup = djestcirStartidOnVowalIndeks.value != null
-                )
-                
-                Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
+                // Render ol heksagonz based on allHexPositions
+                allHexPositions.forEachIndexed { index, pos ->
+                    val label = currentLabels.getOrNull(index) ?: ""
+                    val isInner = index in 1..6
+                    val startedVowelIndex = djestcirStartidOnVowalIndeks.value
+                    
+                    val lpLabel = if (isInner) {
+                        val configIdx = index - 1
+                        if (kurentEzLeterMod) "" else KepadKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
+                    } else if (index in 7..18) {
+                        val configIdx = index - 7
+                        if (kurentEzLeterMod && startedVowelIndex == null) KepadKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
+                        else KepadKonfeg.outerLongPressNumber.getOrNull(configIdx) ?: ""
+                    } else ""
+
+                    val hexColor = getKulor(index)
+                    
                     HeksagonWedjet(
-                        label = centerLabel, 
-                        backgroundColor = if (voiceService.isListening.value) Color.Red else if (kurentEzLeterMod) Color.White else Color.Black, 
-                        textColor = if (voiceService.isListening.value) Color.White else if (kurentEzLeterMod) Color.Black else Color.White, 
-                        size = hexWidthDp, 
-                        fontSize = (geometry.heksWidlx * 0.5).toFloat(),
+                        label = label,
+                        secondaryLabel = if (lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null,
+                        backgroundColor = if (index == 0 && voiceService.isListening.value) Color.Red else hexColor,
+                        textColor = if (index == 0 && voiceService.isListening.value) Color.White else KepadKonfeg.getComplementaryColor(hexColor),
+                        size = hexWidthDp,
+                        fontSize = (geometry.heksWidlx * 1.0f).toFloat(),
                         rotationAngle = geometry.roteyconAngol.toFloat(),
-                        isPressed = huvirdHeksIndeks.value == 0,
-                        modifier = Modifier.offset(x = geometry.sentir.x.dp, y = geometry.sentir.y.dp)
+                        isPressed = huvirdHeksIndeks.value == index,
+                        modifier = Modifier.offset(x = pos.x.dp, y = pos.y.dp)
                     )
                 }
 

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.toArgb
 import modalz.ModyilDeyda
 import modalz.KepadKonfeg
 import steyt.DaylSteyt
@@ -23,7 +24,7 @@ import modalz.HeksagonPozecon
 import kotlin.math.sqrt
 
 @Composable
-fun BeldirModyil(
+fun BeldModyil(
     daylSteyt: DaylSteyt,
     onClose: () -> Unit,
     onAction: () -> Unit = {}
@@ -69,7 +70,18 @@ fun BeldirModyil(
     ) {
         val screenWidth = maxWidth
         val screenHeight = maxHeight
-        val hexSize = minOf(screenWidth.value / (5.0 * sqrt(3.0)), screenHeight.value / 10.0).dp
+        
+        // Use exact cluster geometry for fitting:
+        // On WearOS, fit at least 1 ring (3 hexes wide, 4 radii tall)
+        // On Mobile, fit at least 2 rings (5 hexes wide, 8 radii tall)
+        val fitRings = if (yuteledez.isWearOS) 1.0 else 2.0
+        val fitWidth = (fitRings * 2.0 + 1.0) * sqrt(3.0)
+        val fitHeight = (fitRings * 2.0 + 2.0) * 2.0 // Radii height
+
+        val hexSize = minOf(
+            (screenWidth.value * 0.98) / fitWidth,
+            (screenHeight.value * 0.98) / 8.0 // Keep 2-ring height as standard limit
+        ).dp
         
         val geometry = remember(hexSize) {
             HeksagonDjeyometre(
@@ -79,13 +91,13 @@ fun BeldirModyil(
             )
         }
 
-        val daylModule = daylSteyt.modyilz.find { it.id == "dayl" } ?: daylSteyt.modyilz.first()
-        val gredItems = daylSteyt.modyilz.filter { it.id != "dayl" }.map { mod ->
+        val daylModule = daylSteyt.modyilz.find { it.type == "hub" } ?: daylSteyt.modyilz.first()
+        val gredItems = daylSteyt.modyilz.filter { it.type != "hub" }.map { mod ->
             GredItem(
                 index = mod.pozecon - 1,
                 label = mod.neym,
                 color = mod.kulor,
-                isFolder = false,
+                isFolder = mod.type == "keypad",
                 deyda = mod
             )
         }
@@ -97,7 +109,7 @@ fun BeldirModyil(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "beldir modyil",
+                    text = "beld modyil",
                     color = Color.White,
                     fontSize = 24.sp,
                     style = MaterialTheme.typography.h5
@@ -111,8 +123,9 @@ fun BeldirModyil(
                     centerLabel = daylModule.neym,
                     centerColor = daylModule.kulor,
                     copyDragPolicy = CopyDragPolicy.TwoStepArmed,
+                    allowSwap = false,
                     onMove = { from, to ->
-                        daylSteyt.muvModyil(from + 1, to + 1)
+                        daylSteyt.swopModyilz(from + 1, to + 1)
                         onAction()
                     },
                     onCopyToEmpty = { from, to ->
@@ -164,24 +177,63 @@ fun GlefsEdetSkren(
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         val screenWidth = maxWidth
         val screenHeight = maxHeight
-        val hexSize = minOf(screenWidth.value / (5.0 * sqrt(3.0)), screenHeight.value / 10.0).dp
         
-        val geometry = remember(hexSize) {
+        val activeIndices = remember(mod.glefz) {
+            val indices = mod.glefz.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }.toMutableSet()
+            indices.add(0)
+            indices.toList().sorted()
+        }
+
+        val hexSize = remember(activeIndices, screenWidth, screenHeight) {
+            val tempGeo = HeksagonDjeyometre(heksSayz = 1.0, sentir = HeksagonPozecon(0.0, 0.0))
+            val positions = activeIndices.map { idx ->
+                val axial = tempGeo.indeksTuAksyal(idx)
+                tempGeo.aksyalTuPeksel(axial.q, axial.r)
+            }
+            
+            val unitHexWidth = sqrt(3.0)
+            val unitHexHeight = 2.0
+            
+            val minX = positions.minOf { it.x }
+            val maxX = positions.maxOf { it.x }
+            val minY = positions.minOf { it.y }
+            val maxY = positions.maxOf { it.y }
+            
+            // On WearOS, we want to ensure we fit at least a 1-ring cluster area
+            // On Mobile, at least a 2-ring cluster area.
+            val minFitRings = if (yuteledez.isWearOS) 1.0 else 2.0
+            val minFitWidth = (minFitRings * 2.0 + 1.0) * unitHexWidth
+            val minFitHeight = (minFitRings * 2.0 + 2.0) * 1.5 // 1.5 radii per ring-height
+
+            val contentWidth = maxOf(maxX - minX + unitHexWidth, minFitWidth)
+            val contentHeight = maxOf(maxY - minY + unitHexHeight, minFitHeight)
+            
+            val sizeW = (screenWidth.value * 0.98) / contentWidth
+            val sizeH = (screenHeight.value * 0.98) / contentHeight
+            minOf(sizeW, sizeH).coerceAtLeast(10.0).dp
+        }
+
+        val geometry = remember(hexSize, activeIndices) {
+            val tempGeo = HeksagonDjeyometre(heksSayz = 1.0, sentir = HeksagonPozecon(0.0, 0.0))
+            val positions = activeIndices.map { idx ->
+                val axial = tempGeo.indeksTuAksyal(idx)
+                tempGeo.aksyalTuPeksel(axial.q, axial.r)
+            }
+            val unitCenterX = (positions.minOf { it.x } + positions.maxOf { it.x }) / 2.0
+            val unitCenterY = (positions.minOf { it.y } + positions.maxOf { it.y }) / 2.0
             HeksagonDjeyometre(
                 heksSayz = hexSize.value.toDouble(),
-                sentir = HeksagonPozecon(0.0, 0.0),
+                sentir = HeksagonPozecon(-unitCenterX * hexSize.value, -unitCenterY * hexSize.value),
                 ezLeterMod = true
             )
         }
 
         val gredItems = mod.glefz.mapIndexed { index, label ->
             if (index == 0 || label.isEmpty()) return@mapIndexed null
-            val ringIndex = index - 1
-            val color = when {
-                ringIndex < 6 -> KepadKonfeg.innerRingColors.getOrNull(ringIndex) ?: mod.kulor
-                ringIndex < 18 -> KepadKonfeg.rainbowColors.getOrNull(ringIndex - 6) ?: mod.kulor
-                else -> mod.kulor
-            }
+
+            val colorLong = mod.glefKulorz.getOrNull(index) ?: mod.kulor.toArgb().toLong()
+            val color = Color(colorLong.toInt())
+            
             GredItem(
                 index = index,
                 label = label,
@@ -190,7 +242,6 @@ fun GlefsEdetSkren(
         }.filterNotNull()
 
         val centerLabel = mod.glefz.getOrNull(0) ?: " "
-
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -212,7 +263,7 @@ fun GlefsEdetSkren(
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { isEditingModNeym = true }) {
-                        Text(text = "beldir: ${mod.neym}", color = Color.White, fontSize = 20.sp)
+                        Text(text = "beld: ${mod.neym}", color = Color.White, fontSize = 20.sp)
                         Icon(Icons.Default.Edit, "Rename", tint = Color.Cyan, modifier = Modifier.size(16.dp).padding(start = 4.dp))
                     }
                 }
@@ -225,6 +276,7 @@ fun GlefsEdetSkren(
                     centerLabel = centerLabel,
                     centerColor = Color.DarkGray,
                     copyDragPolicy = CopyDragPolicy.TwoStepArmed,
+                    allowSwap = false,
                     onMove = onMuvGlef,
                     onCopyToEmpty = onCopyToEmpty,
                     onMoveToCenter = onMoveToParent,

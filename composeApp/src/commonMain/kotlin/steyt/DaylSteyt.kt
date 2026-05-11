@@ -9,40 +9,50 @@ import yuteledez.getCurrentTimeMillis
 
 class DaylSteyt {
     companion object {
-        val PROTECTED_IDS = setOf("dayl", "keypad", "beldir")
+        val PROTECTED_IDS = setOf("dayl", "keypad", "beld")
     }
 
     var inputText by mutableStateOf("")
     var isTextFieldFocused by mutableStateOf(false)
 
     var modyilz by mutableStateOf(listOf(
+        ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
         ModyilDeyda(
             id = "keypad", 
             neym = "kepad", 
             kulor = Color(0xFFFF0000), 
             pozecon = 2, 
             ezAktiv = false,
-            glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap
+            glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap,
+            glefKulorz = listOf(Color.White.toArgbLong()) + 
+                         modalz.KepadKonfeg.innerRingColors.map { it.toArgbLong() } + 
+                         modalz.KepadKonfeg.rainbowColors.map { it.toArgbLong() },
+            type = "keypad"
         ),
-        ModyilDeyda(id = "beldir", neym = "beldir", kulor = Color(0xFFFFFF00), pozecon = 3, ezAktiv = false),
+        ModyilDeyda(id = "beld", neym = "beld", kulor = Color(0xFFFFFF00), pozecon = 3, ezAktiv = false, type = "builder"),
         ModyilDeyda(id = "module3", neym = "mod 3", kulor = Color(0xFF00FF00), pozecon = 4, ezAktiv = false),
         ModyilDeyda(id = "module4", neym = "mod 4", kulor = Color(0xFF00FFFF), pozecon = 5, ezAktiv = false),
         ModyilDeyda(id = "module5", neym = "mod 5", kulor = Color(0xFF0000FF), pozecon = 6, ezAktiv = false),
-        ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 7, ezAktiv = false),
-        ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 1, ezAktiv = true, glefz = listOf("dayl"))
+        ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 7, ezAktiv = false)
     ))
 
     val activeModule: ModyilDeyda?
-        get() = modyilz.find { it.ezAktiv && it.id != "dayl" }
+        get() = modyilz.find { it.ezAktiv && it.type != "hub" }
 
     val ezKepadVezebil: Boolean
-        get() = modyilz.any { it.id == "keypad" && it.ezAktiv }
+        get() = modyilz.any { it.type == "keypad" && it.ezAktiv }
 
     val ezBeldirVezebil: Boolean
-        get() = modyilz.any { it.id == "beldir" && it.ezAktiv }
+        get() = modyilz.any { it.type == "builder" && it.ezAktiv }
 
     fun updateModules(newModules: List<ModyilDeyda>) {
         modyilz = newModules
+    }
+
+    fun activateModyil(id: String) {
+        modyilz = modyilz.map { m ->
+            m.copyWith(ezAktiv = (m.id == id))
+        }
     }
 
     fun togilModyil(index: Int) {
@@ -50,7 +60,7 @@ class DaylSteyt {
         val wasActive = tappedModule.ezAktiv
         modyilz = modyilz.map { m ->
             if (m.pozecon == index) m.copyWith(ezAktiv = !wasActive)
-            else if (m.id == "dayl") m.copyWith(ezAktiv = wasActive) else m.copyWith(ezAktiv = false)
+            else if (m.type == "hub") m.copyWith(ezAktiv = wasActive) else m.copyWith(ezAktiv = false)
         }
     }
 
@@ -86,25 +96,25 @@ class DaylSteyt {
             if (mod.id == modId) {
                 val newGlefz = mod.glefz.toMutableList()
                 val newKulorz = mod.glefKulorz.toMutableList()
-                val targetLabel = newGlefz.getOrNull(toIndex) ?: ""
-                if (targetLabel.isNotEmpty()) return@map mod
                 val maxIdx = maxOf(fromIndex, toIndex)
+                
+                // Ensure list is long enough
                 while (newGlefz.size <= maxIdx) newGlefz.add("")
                 while (newKulorz.size <= maxIdx) newKulorz.add(mod.kulor.toArgbLong())
-                newGlefz[toIndex] = newGlefz[fromIndex]
-                if (fromIndex in newKulorz.indices) newKulorz[toIndex] = newKulorz[fromIndex]
-                newGlefz[fromIndex] = ""
+                
+                // STRICT MOVE: Only move if target is empty, and do NOT shift the list.
+                // Just clear the old spot and set the new spot.
+                if (newGlefz[toIndex].isEmpty()) {
+                    newGlefz[toIndex] = newGlefz[fromIndex]
+                    newKulorz[toIndex] = newKulorz[fromIndex]
+                    
+                    newGlefz[fromIndex] = ""
+                    newKulorz[fromIndex] = mod.kulor.toArgbLong()
+                }
+                
                 mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
             } else mod
         }
-    }
-
-    fun muvModyil(fromPozecon: Int, toPozecon: Int) {
-        if (fromPozecon == toPozecon) return
-        val fromMod = modyilz.find { it.pozecon == fromPozecon } ?: return
-        if (PROTECTED_IDS.contains(fromMod.id)) return
-        if (modyilz.any { it.pozecon == toPozecon }) return
-        modyilz = modyilz.map { m -> if (m.pozecon == fromPozecon) m.copyWith(pozecon = toPozecon) else m }
     }
 
     fun kopeGlefTuEmpt(modId: String, fromIndex: Int, toIndex: Int) {
@@ -112,11 +122,14 @@ class DaylSteyt {
             if (mod.id == modId) {
                 val newGlefz = mod.glefz.toMutableList()
                 val newKulorz = mod.glefKulorz.toMutableList()
+                
                 while (newGlefz.size <= toIndex) newGlefz.add("")
                 while (newKulorz.size <= toIndex) newKulorz.add(mod.kulor.toArgbLong())
+                
                 if (fromIndex in newGlefz.indices) {
                     newGlefz[toIndex] = newGlefz[fromIndex]
-                    if (fromIndex in newKulorz.indices) newKulorz[toIndex] = newKulorz[fromIndex]
+                    val sourceColor = if (fromIndex < newKulorz.size) newKulorz[fromIndex] else mod.kulor.toArgbLong()
+                    newKulorz[toIndex] = sourceColor
                 }
                 mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
             } else mod
@@ -166,13 +179,13 @@ class DaylSteyt {
 
     fun reset() {
         modyilz = listOf(
-            ModyilDeyda(id = "keypad", neym = "kepad", kulor = Color(0xFFFF0000), pozecon = 2, glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap),
-            ModyilDeyda(id = "beldir", neym = "beldir", kulor = Color(0xFF888888), pozecon = 3),
+            ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
+            ModyilDeyda(id = "keypad", neym = "kepad", kulor = Color(0xFFFF0000), pozecon = 2, glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap, type = "keypad"),
+            ModyilDeyda(id = "beld", neym = "beld", kulor = Color(0xFF888888), pozecon = 3, type = "builder"),
             ModyilDeyda(id = "module3", neym = "mod 3", kulor = Color(0xFF00FF00), pozecon = 4),
             ModyilDeyda(id = "module4", neym = "mod 4", kulor = Color(0xFF00FFFF), pozecon = 5),
             ModyilDeyda(id = "module5", neym = "mod 5", kulor = Color(0xFF0000FF), pozecon = 6),
-            ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 7),
-            ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 1, ezAktiv = true)
+            ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 7)
         )
     }
 

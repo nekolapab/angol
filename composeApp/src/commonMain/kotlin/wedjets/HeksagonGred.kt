@@ -52,7 +52,8 @@ fun HeksagonGred(
     centerLabel: String = "",
     centerColor: Color = Color.Black,
     onTap: (Int) -> Unit = {},
-    copyDragPolicy: CopyDragPolicy = CopyDragPolicy.TwoStepArmed
+    copyDragPolicy: CopyDragPolicy = CopyDragPolicy.TwoStepArmed,
+    allowSwap: Boolean = true
 ) {
     val haptic = LocalHapticFeedback.current
     val density = LocalDensity.current
@@ -97,10 +98,13 @@ fun HeksagonGred(
                     if (toIdx == 0) onMoveToCenter(fromIdx)
                     else {
                         val targetItem = items.firstOrNull { it.index == toIdx }
-                        if (targetItem != null && targetItem.label.isNotEmpty()) {
+                        val isTargetOccupied = targetItem != null && targetItem.label.isNotEmpty()
+                        if (isTargetOccupied) {
                             if (targetItem.isFolder) onDropOnFolder(fromIdx, toIdx)
-                            else onMove(fromIdx, toIdx)
-                        } else onMove(fromIdx, toIdx)
+                            else if (allowSwap) onMove(fromIdx, toIdx)
+                        } else {
+                            onMove(fromIdx, toIdx)
+                        }
                     }
                 } else {
                     if (toIdx != 0) {
@@ -258,16 +262,4 @@ private fun getHexIndexFromPosition(offsetX: Float, offsetY: Float, w: Float, h:
         if ((dx + sqrt3Val * dy) <= (sqrt3Val * hexSizePx)) return closestIndex
     }
     return null
-}
-
-private fun getInsertIndexFromPosition(offsetX: Float, offsetY: Float, w: Float, h: Float, allHexPositionsPx: List<HeksagonPozecon>, hexSizePx: Float): Int? {
-    val localX = offsetX - w / 2f; val localY = offsetY - h / 2f
-    val distFromCenter = sqrt(localX.pow(2) + localY.pow(2))
-    if (distFromCenter < hexSizePx) return 0
-    var closestIndex: Int? = null; var minDistSq = Double.MAX_VALUE
-    for (i in allHexPositionsPx.indices) {
-        val hexPos = allHexPositionsPx[i]; val distSq = (localX - hexPos.x).toDouble().pow(2) + (localY - hexPos.y).toDouble().pow(2)
-        if (distSq < minDistSq) { minDistSq = distSq; closestIndex = i }
-    }
-    return closestIndex
 }

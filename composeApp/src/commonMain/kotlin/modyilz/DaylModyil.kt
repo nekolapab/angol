@@ -24,7 +24,8 @@ fun DaylModyil(
     onCopyToEmpty: (Int, Int) -> Unit,
     onMoveToCenter: (Int) -> Unit,
     stackWidth: Dp,
-    stackHeight: Dp
+    stackHeight: Dp,
+    allowSwap: Boolean = true
 ) {
     val daylModule = modyilz.find { it.id == "dayl" } ?: modyilz.first()
     val gredItems = modyilz.filter { it.id != "dayl" }.map { mod ->
@@ -48,7 +49,8 @@ fun DaylModyil(
             onMoveToCenter = onMoveToCenter,
             onDropOnFolder = { from, to -> },
             modifier = Modifier.fillMaxSize(),
-            onTap = onToggleModule
+            onTap = onToggleModule,
+            allowSwap = allowSwap
         )
     }
 }

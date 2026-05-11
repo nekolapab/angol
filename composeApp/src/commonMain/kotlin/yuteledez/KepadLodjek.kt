@@ -62,30 +62,38 @@ object KepadLodjek {
         isCapitalized: Boolean,
         glefzOverride: List<String>?
     ): List<String> {
-        if (glefzOverride != null && glefzOverride.isNotEmpty() && vowelIndex == null && isLetterMode && !isPunctuationMode) {
-            return if (isCapitalized) glefzOverride.map { it.uppercase() } else glefzOverride
-        }
-
-        val center = if (isLetterMode) " " else "."
-        val inner = when {
-            vowelIndex == 18 -> KepadKonfeg.innerPunctuationMode
-            isPunctuationMode -> KepadKonfeg.innerPunctuationMode
-            isLetterMode -> KepadKonfeg.innerLetterMode
-            else -> KepadKonfeg.innerNumberMode
-        }
-        val outer = if (vowelIndex != null && vowelIndex in 1..5 && isLetterMode) {
-            // Adjust vowelIndex check to 1..5 since Ring 1 starts at index 1
-            when (vowelIndex) {
-                1 -> listOf("2") + List(10) { "" } + listOf("1")
-                2 -> listOf("") + listOf("3", "4", "5") + List(8) { "" }
-                3 -> List(4) { "" } + listOf("6", "7") + List(6) { "" }
-                4 -> List(6) { "" } + listOf("8", "9") + List(4) { "" }
-                5 -> List(8) { "" } + listOf("0", "A", "O") + listOf("")
-                else -> KepadKonfeg.outerTap
+        val baseLabels = if (glefzOverride != null && glefzOverride.isNotEmpty() && vowelIndex == null && isLetterMode && !isPunctuationMode) {
+            if (isCapitalized) glefzOverride.map { it.uppercase() } else glefzOverride
+        } else {
+            val center = if (isLetterMode) " " else "."
+            val inner = when {
+                vowelIndex == 18 -> KepadKonfeg.innerPunctuationMode
+                isPunctuationMode -> KepadKonfeg.innerPunctuationMode
+                isLetterMode -> KepadKonfeg.innerLetterMode
+                else -> KepadKonfeg.innerNumberMode
             }
-        } else if (isLetterMode) KepadKonfeg.outerTap else KepadKonfeg.outerTapNumber
+            val outer = if (vowelIndex != null && vowelIndex in 1..5 && isLetterMode) {
+                // Adjust vowelIndex check to 1..5 since Ring 1 starts at index 1
+                when (vowelIndex) {
+                    1 -> listOf("2") + List(10) { "" } + listOf("1")
+                    2 -> listOf("") + listOf("3", "4", "5") + List(8) { "" }
+                    3 -> List(4) { "" } + listOf("6", "7") + List(6) { "" }
+                    4 -> List(6) { "" } + listOf("8", "9") + List(4) { "" }
+                    5 -> List(8) { "" } + listOf("0", "A", "O") + listOf("")
+                    else -> KepadKonfeg.outerTap
+                }
+            } else if (isLetterMode) KepadKonfeg.outerTap else KepadKonfeg.outerTapNumber
+            
+            val labels = listOf(center) + inner + outer
+            if (isCapitalized) labels.map { it.uppercase() } else labels
+        }
         
-        val labels = listOf(center) + inner + outer
-        return if (isCapitalized) labels.map { it.uppercase() } else labels
+        // Ensure we return exactly 19 labels for 2 rings (1 + 6 + 12 = 19)
+        val finalLabels = baseLabels.toMutableList()
+        if (finalLabels.size > 19) {
+             return finalLabels.subList(0, 19)
+        }
+        while (finalLabels.size < 19) finalLabels.add("")
+        return finalLabels
     }
 }
