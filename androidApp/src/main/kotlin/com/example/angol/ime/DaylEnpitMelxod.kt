@@ -84,23 +84,30 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private var originalSystemVol = -1
     private var originalNotificationVol = -1
     private var originalMusicVol = -1
+    private var originalRingVol = -1
+    private var isVolumeDipped = false
 
     private fun dipVolume() {
+        if (isVolumeDipped) return
         try {
             originalSystemVol = audioManager.getStreamVolume(AudioManager.STREAM_SYSTEM)
             originalNotificationVol = audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)
             originalMusicVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+            originalRingVol = audioManager.getStreamVolume(AudioManager.STREAM_RING)
             
             // Lower to near-zero
             audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, 0, 0)
             audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0)
             audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
+            audioManager.setStreamVolume(AudioManager.STREAM_RING, 0, 0)
+            isVolumeDipped = true
         } catch (e: Exception) {
             Log.e(TAG, "dipVolume failed: ${e.message}")
         }
     }
 
     private fun restoreVolume() {
+        if (!isVolumeDipped) return
         try {
             if (originalSystemVol != -1) {
                 audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, originalSystemVol, 0)
@@ -111,6 +118,10 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             if (originalMusicVol != -1) {
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVol, 0)
             }
+            if (originalRingVol != -1) {
+                audioManager.setStreamVolume(AudioManager.STREAM_RING, originalRingVol, 0)
+            }
+            isVolumeDipped = false
         } catch (e: Exception) {
             Log.e(TAG, "restoreVolume failed: ${e.message}")
         }
@@ -212,7 +223,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         
         if (android.content.pm.PackageManager.PERMISSION_GRANTED != 
             androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)) {
-            val intent = Intent(this, PermisconAktevede::class.java).apply {
+            val intent = Intent(this, PirmeconAktevede::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             startActivity(intent)

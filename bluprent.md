@@ -9,16 +9,18 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 
 ### **Prodjekt Strukcir (Pure Clean KMP):**
 - `composeApp/src/commonMain/kotlin/`: Shared UI and logic.
-    - `modyilz/`: Main app components (App.kt, KepadModyil.kt, DaylModyil.kt).
-    - `skrenz/`: Screen definitions (DaylSkren.kt, SaynEnSkren.kt, AfdirLogenSkren.kt).
-    - `steyt/`: State management (DaylSteyt.kt).
-    - `modalz/`: Data models and config (AngolModalz.kt, KepadKonfeg.kt).
-    - `sirvesez/`: Shared interfaces (FirebaseSirves.kt).
+    - `modyilz/`: Main app components.
+    - `skrenz/`: Screen definitions.
+    - `steyt/`: State management.
+    - `modalz/`: Data models and config.
+    - `sirvesez/`: Shared interfaces.
     - `wedjets/`: Reusable Compose widgets.
-    - `yuteledez/`: Utilities (HeksagonDjeyometre.kt, AngolSpelenqMelxod.kt).
-- `sirvesez/`: Shared interfaces (FirebaseSirves.kt).
-- `com.example.angol.ime/`: DaylEnpitMelxod.kt, MeynAktevede.kt, AndroidFirebaseSirves.kt, AndroidBredj.kt, PermisconAktevede.kt.
-- `io.angol.dayl/`: TranzleytAngol.kt
+    - `yuteledez/`: Utilities.
+- `composeApp/src/androidMain/kotlin/`: Platform-specific `actual` implementations.
+- `androidApp/src/main/kotlin/`: Android application entry points.
+    - `com.example.angol.ime/`: IME Service and Activities.
+    - `io.angol.dayl/`: Process Text activity.
+- `androidApp/src/main/res`: Android resources (moved from composeApp).
 
 ### Build & Deploy:
 - **Klen Build:** Always use `./gradlew clean` to ensure no remnants.
@@ -38,22 +40,12 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 - **Long-press again (Vibrate):** If on the same spot as a previous drag/tap, start a copy-drag to empty slots.
 - **Center Navigation:** Tap the center hexagon (**dayl** or **Hub**) to go back or close the builder.
 - [x] **TTS (Text-to-Speech):** Fully migrated to Kotlin (`AndroidPlatformServices`).
-- [x] **Versions Updeyt:** Kotlin 2.3.+, Compose 1.10.+, AGP 9.1+, CompileSdk 36.
+- [x] **Versions Updeyt:** Kotlin 2.1.10, Compose 1.7.3, AGP 9.1.0-alpha01, CompileSdk 36.
 
-### Recent Changes:
-- **Beld Rename:** Renamed 'beldir' module to 'beld'. Updated all UI labels and internal IDs.
-- **Multi-Layout Support:** Added `type` property to modules. Users can now create and switch between multiple keypad layouts from the hub.
-- **Platform-Aware Scaling:** Refactored Hub and Keypad scaling to fit tight to the screen walls. Mobile shows at least 2 rings, while WearOS shows 1 less (1 ring minimum).
-- **Dynamic Fit:** The glyph editor now uses content-aware scaling to ensure all active hexagons fit on screen without clipping, regardless of where they are added.
-- **Fix Text Contrast & Fitting:** Improved `HeksagonWedjet.kt` to automatically calculate high-contrast text (Black/White) based on the background luminance. Added aggressive text scaling to ensure labels fit perfectly within hexagons.
-- **Restore Rainbow Colors:** Restored the full 12-color rainbow in `KepadKonfeg.kt` to resolve the "half black and white" issue in the outer ring.
-- **Refactor Hexagon Colors:** Replaced the color-inversion logic in `HeksagonWedjet.kt` with a more stable background-dimming effect for pressed states. 
-- **Fix Text Doubling:** Resolved an issue where voice input would double text by ensuring final results surgically replace the composing preview.
-- **Script Refactor:** Renamed installation scripts to match the CLI command names: `dayl.ps1`, `kepad.ps1`, `dayl_klen.ps1`, and `kepad_klen.ps1`.
-- **Angol Modes Refactor:**
-    - **Of (0):** Dimmed label. Angol 2 preview → Standard English output.
-    - **Black (1):** Visible label. Angol 1 preview (numbers) → Angol 2 output (standard vowels).
-    - **Interaction:** Simple tap toggles between states.
+- `com.example.angol.ime/`: IME Service and Activities (DaylEnpitMelxod.kt, PirmeconAktevede.kt).
+- **Volume Restoration Fix:** Implemented `isVolumeDipped` flag in `DaylEnpitMelxod.kt` to ensure original volume levels (System, Notification, Music, Ring) are captured once and reliably restored.
+- **Pirmecon Rename:** Renamed `PermisconAktevede.kt` to `PirmeconAktevede.kt` for more consistent Angol spelling.
+- **Multi-Module Refactor:** Split the project into `:composeApp` (KMP library) and `:androidApp` (Android application) to support AGP 9.0+ and resolve plugin compatibility warnings.
 
 ## **spetc tu tekst**
 **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`.

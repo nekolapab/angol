@@ -145,8 +145,11 @@ class DaylSteyt {
             if (mod.id == modId) {
                 val newGlefz = mod.glefz.toMutableList()
                 val newKulorz = mod.glefKulorz.toMutableList()
-                newGlefz.removeAt(glefIndex)
-                if (glefIndex in newKulorz.indices) newKulorz.removeAt(glefIndex)
+                
+                // FIXED: Clear the spot instead of removing it to avoid shifting
+                newGlefz[glefIndex] = ""
+                if (glefIndex in newKulorz.indices) newKulorz[glefIndex] = mod.kulor.toArgbLong()
+                
                 mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
             } else mod
         }
@@ -181,7 +184,7 @@ class DaylSteyt {
         modyilz = listOf(
             ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
             ModyilDeyda(id = "keypad", neym = "kepad", kulor = Color(0xFFFF0000), pozecon = 2, glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap, type = "keypad"),
-            ModyilDeyda(id = "beld", neym = "beld", kulor = Color(0xFF888888), pozecon = 3, type = "builder"),
+            ModyilDeyda(id = "beld", neym = "beld", kulor = Color(0xFFFFFF00), pozecon = 3, type = "builder"),
             ModyilDeyda(id = "module3", neym = "mod 3", kulor = Color(0xFF00FF00), pozecon = 4),
             ModyilDeyda(id = "module4", neym = "mod 4", kulor = Color(0xFF00FFFF), pozecon = 5),
             ModyilDeyda(id = "module5", neym = "mod 5", kulor = Color(0xFF0000FF), pozecon = 6),

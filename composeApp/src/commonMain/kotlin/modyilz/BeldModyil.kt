@@ -151,7 +151,7 @@ fun BeldModyil(
             }
             
             Text(
-                "Dreq tu kope. Tap tu edet/arm muv. Lonq-pres agen den dreq tu skwez/muv. Center → gow bak.",
+                "draq tu muv. tap tu edet. lonq pres agen tu kope. sentir → go bak.",
                 color = Color.Gray,
                 modifier = Modifier.padding(bottom = 8.dp).align(Alignment.CenterHorizontally)
             )
@@ -312,9 +312,9 @@ fun GlefsEdetSkren(
                 }
             } else {
                 Text(
-                    "Dreq tu kope. Tap tu edet/arm muv. Lonq-pres agen den dreq tu skwez/muv. Center → gow bak.",
+                    "draq tu muv. tap tu edet. lonq pres agen tu kope. sentir → go bak.",
                     color = Color.Gray,
-                    modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)
+                    modifier = Modifier.padding(bottom = 8.dp).align(Alignment.CenterHorizontally)
                 )
             }
         }
