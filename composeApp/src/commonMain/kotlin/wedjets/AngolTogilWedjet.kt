@@ -70,7 +70,7 @@ fun AngolTogilWedjet(
                     shadow = Shadow(
                         color = if (centerBg == Color.White) Color.White.copy(alpha = 0.5f) else Color.Black,
                         offset = Offset(1f, 1f),
-                        blurRadius = 2f
+                        blurRadius = 0.7f
                     )
                 )
             )

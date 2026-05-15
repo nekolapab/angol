@@ -4,7 +4,40 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    
+    <!-- Center Hexagon: Black (Dayl/Hub) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,20 L84,37.32 L84,70.68 L54,88 L24,70.68 L24,37.32 Z" />
+        android:fillColor="#000000"
+        android:pathData="M54,40 L66.1,47 L66.1,61 L54,68 L41.9,61 L41.9,47 Z" />
+    
+    <!-- Top-Left: Magenta (Mod 6) - (Was Red) -->
+    <path
+        android:fillColor="#FF00FF"
+        android:pathData="M41.9,19 L54,26 L54,40 L41.9,47 L29.8,40 L29.8,26 Z" />
+    
+    <!-- Top-Right: Red (Keypad) - (Was Yellow) -->
+    <path
+        android:fillColor="#FF0000"
+        android:pathData="M66.1,19 L78.2,26 L78.2,40 L66.1,47 L54,40 L54,26 Z" />
+    
+    <!-- Right: Yellow (Beld) - (Was Green) -->
+    <path
+        android:fillColor="#FFFF00"
+        android:pathData="M78.2,40 L90.3,47 L90.3,61 L78.2,68 L66.1,61 L66.1,47 Z" />
+    
+    <!-- Bottom-Right: Green (Mod 3) - (Was Cyan) -->
+    <path
+        android:fillColor="#00FF00"
+        android:pathData="M66.1,61 L78.2,68 L78.2,82 L66.1,89 L54,82 L54,68 Z" />
+    
+    <!-- Bottom-Left: Cyan (Mod 4) - (Was Blue) -->
+    <path
+        android:fillColor="#00FFFF"
+        android:pathData="M41.9,61 L54,68 L54,82 L41.9,89 L29.8,82 L29.8,68 Z" />
+    
+    <!-- Left: Blue (Mod 5) - (Was Magenta) -->
+    <path
+        android:fillColor="#0000FF"
+        android:pathData="M29.8,40 L41.9,47 L41.9,61 L29.8,68 L17.7,61 L17.7,47 Z" />
+
 </vector>

@@ -35,17 +35,20 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 - [x] **Auth & Hub:** Login (GitHub) and Home screens ported to Kotlin Compose.
 - [x] **Cloud Sync:** Module layouts synchronized with Firebase Firestore via `FirebaseSirves`.
 - [x] **Beld Modyil (Builder):** Transitioned from a list-based UI to a hexagon ring layout.
-- **Tap:** Rename a module or individual glyph.
-- **Long-press (Vibrate):** Start drag-and-drop to swap positions or move to center for deletion.
-- **Long-press again (Vibrate):** If on the same spot as a previous drag/tap, start a copy-drag to empty slots.
-- **Center Navigation:** Tap the center hexagon (**dayl** or **Hub**) to go back or close the builder.
 - [x] **TTS (Text-to-Speech):** Fully migrated to Kotlin (`AndroidPlatformServices`).
-- [x] **Versions Updeyt:** Kotlin 2.1.10, Compose 1.7.3, AGP 9.1.0-alpha01, CompileSdk 36.
+- [x] **Ultimate Versions:** Kotlin 2.3.21, Compose 1.10.3, AGP 9.2.0, CompileSdk 37.
 
-- `com.example.angol.ime/`: IME Service and Activities (DaylEnpitMelxod.kt, PirmeconAktevede.kt).
-- **Volume Restoration Fix:** Implemented `isVolumeDipped` flag in `DaylEnpitMelxod.kt` to ensure original volume levels (System, Notification, Music, Ring) are captured once and reliably restored.
-- **Pirmecon Rename:** Renamed `PermisconAktevede.kt` to `PirmeconAktevede.kt` for more consistent Angol spelling.
-- **Multi-Module Refactor:** Split the project into `:composeApp` (KMP library) and `:androidApp` (Android application) to support AGP 9.0+ and resolve plugin compatibility warnings.
+### Architecture (AGP 9.2+):
+- **`:composeApp` (Shared Library):** Uses `com.android.kotlin.multiplatform.library`. Mandatory for AGP 9.0+ KMP modules. Uses a single-variant architecture.
+- **`:androidApp` (App Entry):** Uses `com.android.application`. Leverages AGP's built-in Kotlin support.
+
+### Recent Changes:
+- **App Icon Restoration:** Fixed the "all white" icon issue by redesigning `ic_launcher_foreground.xml` with six distinct colored segments (Red, Yellow, Green, Cyan, Blue, Magenta) to restore the hexagonal logo.
+- **AGP 9.2 Migration:** Fully migrated to `com.android.kotlin.multiplatform.library` and removed legacy Gradle flags. Disabled Jetifier.
+- **Ultimate Versions Upgrade:** Updated to Kotlin 2.3.21, Compose 1.10.3, and CompileSdk 37.
+- **Multi-Module Refactor:** Split the project into `:composeApp` and `:androidApp`.
+- **Volume Restoration Fix:** Implemented `isVolumeDipped` safety flag.
+- **Pirmecon Rename:** Renamed `PermisconAktevede.kt` to `PirmeconAktevede.kt`.
 
 ## **spetc tu tekst**
 **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`.
@@ -53,7 +56,7 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 **Text-to-Speech (TTS):** implemented native Kotlin.
 
 ## **angol 36-karaktir fonetik lodjek**
-The system uses a 1:1 mapping between **36 sounds** and **36 characters**.
+The system uses a 1:1 mapping between **3 Sound** and **36 characters**.
 
 ### **konsonantz (24)**
 - b, d, f, g, h, j, k, l, m, n, p, r, s, t, v, w, y, z.

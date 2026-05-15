@@ -62,8 +62,20 @@ object KepadLodjek {
         isCapitalized: Boolean,
         glefzOverride: List<String>?
     ): List<String> {
-        val baseLabels = if (glefzOverride != null && glefzOverride.isNotEmpty() && vowelIndex == null && isLetterMode && !isPunctuationMode) {
-            if (isCapitalized) glefzOverride.map { it.uppercase() } else glefzOverride
+        val baseLabels = if (glefzOverride != null && glefzOverride.isNotEmpty() && isLetterMode && !isPunctuationMode) {
+            // Use custom labels if provided, but still allow vowel expansion logic if it's the default keypad or matches the pattern
+            if (vowelIndex != null && vowelIndex in 1..5) {
+                when (vowelIndex) {
+                    1 -> listOf("2") + List(10) { "" } + listOf("1")
+                    2 -> listOf("") + listOf("3", "4", "5") + List(8) { "" }
+                    3 -> List(4) { "" } + listOf("6", "7") + List(6) { "" }
+                    4 -> List(6) { "" } + listOf("8", "9") + List(4) { "" }
+                    5 -> List(8) { "" } + listOf("0", "A", "O") + listOf("")
+                    else -> if (isCapitalized) glefzOverride.map { it.uppercase() } else glefzOverride
+                }
+            } else {
+                if (isCapitalized) glefzOverride.map { it.uppercase() } else glefzOverride
+            }
         } else {
             val center = if (isLetterMode) " " else "."
             val inner = when {
@@ -88,12 +100,14 @@ object KepadLodjek {
             if (isCapitalized) labels.map { it.uppercase() } else labels
         }
         
-        // Ensure we return exactly 19 labels for 2 rings (1 + 6 + 12 = 19)
+        // Ensure we return enough labels for up to 3 rings (1 + 6 + 12 + 18 = 37)
         val finalLabels = baseLabels.toMutableList()
-        if (finalLabels.size > 19) {
-             return finalLabels.subList(0, 19)
+        val targetSize = if (finalLabels.size > 19) 37 else 19
+        
+        if (finalLabels.size > targetSize) {
+             return finalLabels.subList(0, targetSize)
         }
-        while (finalLabels.size < 19) finalLabels.add("")
+        while (finalLabels.size < targetSize) finalLabels.add("")
         return finalLabels
     }
 }

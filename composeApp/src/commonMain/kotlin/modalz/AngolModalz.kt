@@ -2,34 +2,31 @@ package modalz
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import kotlinx.serialization.Serializable
 
 /**
  * Represents a position in pixel space.
  */
+@Serializable
 data class HeksagonPozecon(val x: Double, val y: Double)
 
 /**
- * Represents a coordinate in the axial coordinate system for hexagons.
+ * Represents the data for a hexagonal module in the Hub or a key in the keypad.
  */
-data class AksyalKowordenat(val q: Int, val r: Int)
-
-/**
- * Holds data for a module.
- *
- * Note: For robust JSON serialization in a production application,
- * it is recommended to use a library like `kotlinx.serialization`
- * with a custom serializer for the Color class.
- */
+@Serializable
 data class ModyilDeyda(
     val id: String,
     val neym: String,
-    val kulor: Color,
+    val kulorLong: Long = Color.Gray.toArgb().toLong(),
     val pozecon: Int,
     val ezAktiv: Boolean = false,
     val glefz: List<String> = emptyList(),
     val glefKulorz: List<Long> = emptyList(),
     val type: String = "app"
 ) {
+    val kulor: Color
+        get() = Color(kulorLong.toInt())
+
     fun copyWith(
         id: String? = null,
         neym: String? = null,
@@ -39,46 +36,39 @@ data class ModyilDeyda(
         glefz: List<String>? = null,
         glefKulorz: List<Long>? = null,
         type: String? = null
-    ): ModyilDeyda = ModyilDeyda(
-        id = id ?: this.id,
-        neym = neym ?: this.neym,
-        kulor = kulor ?: this.kulor,
-        pozecon = pozecon ?: this.pozecon,
-        ezAktiv = ezAktiv ?: this.ezAktiv,
-        glefz = glefz ?: this.glefz,
-        glefKulorz = glefKulorz ?: this.glefKulorz,
-        type = type ?: this.type
-    )
+    ): ModyilDeyda {
+        return ModyilDeyda(
+            id = id ?: this.id,
+            neym = neym ?: this.neym,
+            kulorLong = kulor?.toArgb()?.toLong() ?: this.kulorLong,
+            pozecon = pozecon ?: this.pozecon,
+            ezAktiv = ezAktiv ?: this.ezAktiv,
+            glefz = glefz ?: this.glefz,
+            glefKulorz = glefKulorz ?: this.glefKulorz,
+            type = type ?: this.type
+        )
+    }
 
-    /**
-     * Converts the object to a JSON-like map.
-     */
-    fun toJson(): Map<String, Any> = mapOf(
-        "id" to id,
-        "neym" to neym,
-        "kulor" to kulor.toArgb().toLong(), // Serialize color as a Long to be safe
-        "pozecon" to pozecon,
-        "ezAktiv" to ezAktiv,
-        "glefz" to glefz,
-        "glefKulorz" to glefKulorz,
-        "type" to type
-    )
+    fun toJson(): Map<String, Any> {
+        return mapOf(
+            "id" to id,
+            "neym" to neym,
+            "kulor" to kulorLong,
+            "pozecon" to pozecon,
+            "ezAktiv" to ezAktiv,
+            "glefz" to glefz,
+            "glefKulorz" to glefKulorz,
+            "type" to type
+        )
+    }
 
     companion object {
-        /**
-         * Creates a ModyilDeyda object from a JSON-like map.
-         */
         fun fromJson(json: Map<String, Any>): ModyilDeyda {
-            val colorValue = when (val color = json["kulor"]) {
-                is Number -> color.toLong()
-                else -> 0xFF000000
-            }
-
             return ModyilDeyda(
                 id = json["id"] as? String ?: "",
                 neym = json["neym"] as? String ?: "",
-                kulor = Color(colorValue.toInt()),
-                pozecon = json["pozecon"] as? Int ?: 0,
+                kulorLong = (json["kulor"] as? Number)?.toLong() ?: 0L,
+                pozecon = (json["pozecon"] as? Number)?.toInt() ?: 0,
                 ezAktiv = json["ezAktiv"] as? Boolean ?: false,
                 glefz = (json["glefz"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                 glefKulorz = (json["glefKulorz"] as? List<*>)?.mapNotNull { (it as? Number)?.toLong() } ?: emptyList(),
@@ -87,3 +77,9 @@ data class ModyilDeyda(
         }
     }
 }
+
+/**
+ * Represents axial coordinates (q, r) in a pointy-top hexagonal grid.
+ */
+@Serializable
+data class AksyalKowordenat(val q: Int, val r: Int)

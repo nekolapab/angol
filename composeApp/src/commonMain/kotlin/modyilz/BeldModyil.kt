@@ -149,12 +149,6 @@ fun BeldModyil(
                     }
                 )
             }
-            
-            Text(
-                "draq tu muv. tap tu edet. lonq pres agen tu kope. sentir → go bak.",
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 8.dp).align(Alignment.CenterHorizontally)
-            )
         }
     }
 }
@@ -310,12 +304,6 @@ fun GlefsEdetSkren(
                         IconButton(onClick = { editingGlefIndex = null }) { Text("X", color = Color.Red) }
                     }
                 }
-            } else {
-                Text(
-                    "draq tu muv. tap tu edet. lonq pres agen tu kope. sentir → go bak.",
-                    color = Color.Gray,
-                    modifier = Modifier.padding(bottom = 8.dp).align(Alignment.CenterHorizontally)
-                )
             }
         }
     }

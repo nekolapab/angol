@@ -80,6 +80,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private lateinit var platfOrmSirvesez: AndroidPlatformServices
     private lateinit var firebaseSirves: AndroidFirebaseSirves
     private lateinit var voiceService: AndroidVoiceService
+    private val daylSteyt = steyt.DaylSteyt()
     private lateinit var audioManager: AudioManager
     private var originalSystemVol = -1
     private var originalNotificationVol = -1
@@ -188,7 +189,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 }
             )
             platfOrmSirvesez = AndroidPlatformServices(this, scope)
-            firebaseSirves = AndroidFirebaseSirves(null)
+            firebaseSirves = AndroidFirebaseSirves(this)
             voiceService = AndroidVoiceService(
                 onStart = { isAi -> 
                     originalLeterMod = ezLeterMod
@@ -415,7 +416,8 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                         onStartAiVoys = { voiceService.startListening(isAiMode = true) },
                         ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ },
                         firebaseSirves = firebaseSirves,
-                        isApp = false
+                        isApp = false,
+                        daylSteyt = daylSteyt
                     )
                 }
             }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import modalz.ModyilDeyda
 import yuteledez.getCurrentTimeMillis
 
@@ -16,11 +17,11 @@ class DaylSteyt {
     var isTextFieldFocused by mutableStateOf(false)
 
     var modyilz by mutableStateOf(listOf(
-        ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
+        ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
         ModyilDeyda(
             id = "keypad", 
             neym = "kepad", 
-            kulor = Color(0xFFFF0000), 
+            kulorLong = Color(0xFFFF0000).toArgb().toLong(), 
             pozecon = 2, 
             ezAktiv = false,
             glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap,
@@ -29,11 +30,11 @@ class DaylSteyt {
                          modalz.KepadKonfeg.rainbowColors.map { it.toArgbLong() },
             type = "keypad"
         ),
-        ModyilDeyda(id = "beld", neym = "beld", kulor = Color(0xFFFFFF00), pozecon = 3, ezAktiv = false, type = "builder"),
-        ModyilDeyda(id = "module3", neym = "mod 3", kulor = Color(0xFF00FF00), pozecon = 4, ezAktiv = false),
-        ModyilDeyda(id = "module4", neym = "mod 4", kulor = Color(0xFF00FFFF), pozecon = 5, ezAktiv = false),
-        ModyilDeyda(id = "module5", neym = "mod 5", kulor = Color(0xFF0000FF), pozecon = 6, ezAktiv = false),
-        ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 7, ezAktiv = false)
+        ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "beld"),
+        ModyilDeyda(id = "module3", neym = "mod 3", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, ezAktiv = false),
+        ModyilDeyda(id = "module4", neym = "mod 4", kulorLong = Color(0xFF00FFFF).toArgb().toLong(), pozecon = 5, ezAktiv = false),
+        ModyilDeyda(id = "module5", neym = "mod 5", kulorLong = Color(0xFF0000FF).toArgb().toLong(), pozecon = 6, ezAktiv = false),
+        ModyilDeyda(id = "module6", neym = "mod 6", kulorLong = Color(0xFFFF00FF).toArgb().toLong(), pozecon = 7, ezAktiv = false)
     ))
 
     val activeModule: ModyilDeyda?
@@ -43,7 +44,7 @@ class DaylSteyt {
         get() = modyilz.any { it.type == "keypad" && it.ezAktiv }
 
     val ezBeldirVezebil: Boolean
-        get() = modyilz.any { it.type == "builder" && it.ezAktiv }
+        get() = modyilz.any { it.type == "beld" && it.ezAktiv }
 
     fun updateModules(newModules: List<ModyilDeyda>) {
         modyilz = newModules
@@ -100,7 +101,7 @@ class DaylSteyt {
                 
                 // Ensure list is long enough
                 while (newGlefz.size <= maxIdx) newGlefz.add("")
-                while (newKulorz.size <= maxIdx) newKulorz.add(mod.kulor.toArgbLong())
+                while (newKulorz.size <= maxIdx) newKulorz.add(0xFF333333) // Neutral Dark Gray
                 
                 // STRICT MOVE: Only move if target is empty, and do NOT shift the list.
                 // Just clear the old spot and set the new spot.
@@ -109,7 +110,7 @@ class DaylSteyt {
                     newKulorz[toIndex] = newKulorz[fromIndex]
                     
                     newGlefz[fromIndex] = ""
-                    newKulorz[fromIndex] = mod.kulor.toArgbLong()
+                    newKulorz[fromIndex] = 0xFF333333 // Neutral Dark Gray (Not module color)
                 }
                 
                 mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
@@ -148,14 +149,14 @@ class DaylSteyt {
                 
                 // FIXED: Clear the spot instead of removing it to avoid shifting
                 newGlefz[glefIndex] = ""
-                if (glefIndex in newKulorz.indices) newKulorz[glefIndex] = mod.kulor.toArgbLong()
+                if (glefIndex in newKulorz.indices) newKulorz[glefIndex] = mod.kulorLong
                 
                 mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
             } else mod
         }
         val newId = "mod_${modyilz.size + 1}_${getCurrentTimeMillis()}"
         val newPozecon = (modyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
-        modyilz = modyilz + ModyilDeyda(id = newId, neym = glefLabel, kulor = sourceMod.kulor, pozecon = newPozecon, glefz = listOf(glefLabel))
+        modyilz = modyilz + ModyilDeyda(id = newId, neym = glefLabel, kulorLong = sourceMod.kulorLong, pozecon = newPozecon, glefz = listOf(glefLabel))
     }
 
     fun swopModyilz(fromPozecon: Int, toPozecon: Int) {
@@ -182,13 +183,13 @@ class DaylSteyt {
 
     fun reset() {
         modyilz = listOf(
-            ModyilDeyda(id = "dayl", neym = "dayl", kulor = Color(0xFF000000), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
-            ModyilDeyda(id = "keypad", neym = "kepad", kulor = Color(0xFFFF0000), pozecon = 2, glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap, type = "keypad"),
-            ModyilDeyda(id = "beld", neym = "beld", kulor = Color(0xFFFFFF00), pozecon = 3, type = "builder"),
-            ModyilDeyda(id = "module3", neym = "mod 3", kulor = Color(0xFF00FF00), pozecon = 4),
-            ModyilDeyda(id = "module4", neym = "mod 4", kulor = Color(0xFF00FFFF), pozecon = 5),
-            ModyilDeyda(id = "module5", neym = "mod 5", kulor = Color(0xFF0000FF), pozecon = 6),
-            ModyilDeyda(id = "module6", neym = "mod 6", kulor = Color(0xFFFF00FF), pozecon = 7)
+            ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
+            ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap, type = "keypad"),
+            ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, type = "beld"),
+            ModyilDeyda(id = "module3", neym = "mod 3", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4),
+            ModyilDeyda(id = "module4", neym = "mod 4", kulorLong = Color(0xFF00FFFF).toArgb().toLong(), pozecon = 5),
+            ModyilDeyda(id = "module5", neym = "mod 5", kulorLong = Color(0xFF0000FF).toArgb().toLong(), pozecon = 6),
+            ModyilDeyda(id = "module6", neym = "mod 6", kulorLong = Color(0xFFFF00FF).toArgb().toLong(), pozecon = 7)
         )
     }
 

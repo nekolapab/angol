@@ -1,5 +1,6 @@
 package com.example.angol.ime
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,8 +10,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import skrenz.DaylSkrenEntry
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import steyt.DaylSteyt
+
+class DaylViewModel : ViewModel() {
+    val daylSteyt = DaylSteyt()
+}
+
 class MeynAktevede : ComponentActivity() {
     private val scope = CoroutineScope(Dispatchers.Main)
+    private lateinit var firebaseSirves: AndroidFirebaseSirves
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,13 +40,17 @@ class MeynAktevede : ComponentActivity() {
             angolSpelenqMod = mutableIntStateOf(0)
         )
 
+        val firebaseSirves = AndroidFirebaseSirves(this)
+
         setContent {
+            val viewModel: DaylViewModel = viewModel()
             DaylSkrenEntry(
                 keyboardController = keyboardController,
                 platformServices = platformServices,
                 voiceService = voiceService,
-                firebaseSirves = null,
-                isApp = true
+                firebaseSirves = firebaseSirves,
+                isApp = true,
+                daylSteyt = viewModel.daylSteyt
             )
         }
     }

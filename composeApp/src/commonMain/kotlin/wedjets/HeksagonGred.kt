@@ -133,7 +133,7 @@ fun HeksagonGred(
                         onTap = null, onLongPress = null,
                         modifier = if (isHovered) {
                             Modifier.drawBehind {
-                                val glowRadius = size.maxDimension * 1.5f
+                                val glowRadius = size.maxDimension * 0.5f
                                 drawCircle(
                                     brush = Brush.radialGradient(
                                         colors = listOf(Color.White.copy(alpha = 1f/12f), Color.Transparent),
@@ -155,7 +155,7 @@ fun HeksagonGred(
                             val fingerYDp = with(density) { (dragOffset.y - hPx / 2f).toDp() }
                             Modifier.offset(x = fingerXDp - pos.x.dp, y = fingerYDp - pos.y.dp)
                                 .drawBehind {
-                                    val glowRadius = size.maxDimension * 1.5f
+                                    val glowRadius = size.maxDimension * 0.5f
                                     drawCircle(
                                         brush = Brush.radialGradient(
                                             colors = listOf(item.color.copy(alpha = 1f/12f), Color.Transparent),
@@ -167,7 +167,7 @@ fun HeksagonGred(
                                 }
                         } else if (isHovered) {
                             Modifier.drawBehind {
-                                val glowRadius = size.maxDimension * 1.2f
+                                val glowRadius = size.maxDimension * 0.4f
                                 drawCircle(
                                     brush = Brush.radialGradient(
                                         colors = listOf(Color.White.copy(alpha = 1f/12f), Color.Transparent),
@@ -196,7 +196,7 @@ fun HeksagonGred(
                 size = hexWidthDp, fontSize = (geometry.heksWidlx * 0.5).toFloat(), onTap = null, onLongPress = null,
                 modifier = Modifier.align(Alignment.TopStart).offset(x = xDp - (hexWidthDp / 2), y = yDp - ((hexWidthDp * (2f / kotlin.math.sqrt(3f))) / 2))
                     .drawBehind {
-                        val glowRadius = size.maxDimension * 1.5f
+                        val glowRadius = size.maxDimension * 0.5f
                         drawCircle(
                             brush = Brush.radialGradient(
                                 colors = listOf(Color.Yellow.copy(alpha = 4f/12f), Color.Transparent),

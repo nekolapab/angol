@@ -149,7 +149,7 @@ class HeksagonDjeyometre(
     }
 
     /**
-     * Returns the indices of the 6 neighbors of a given index.
+     * Returns the list of 6 neighbors of a given index.
      */
     fun getNeybirIndesiz(indeks: Int): List<Int> {
         val axial = indeksTuAksyal(indeks)
@@ -162,5 +162,39 @@ class HeksagonDjeyometre(
             AksyalKowordenat(axial.q, axial.r - 1)
         )
         return neighbors.map { aksyalTuIndeks(it.q, it.r) }
+    }
+
+    companion object {
+        fun kalkyuleytHeksSayz(
+            activeIndices: List<Int>,
+            screenWidth: Double,
+            screenHeight: Double,
+            isWearOS: Boolean
+        ): Double {
+            val tempGeo = HeksagonDjeyometre(heksSayz = 1.0, sentir = modalz.HeksagonPozecon(0.0, 0.0))
+            val positions = activeIndices.map { idx ->
+                val axial = tempGeo.indeksTuAksyal(idx)
+                tempGeo.aksyalTuPeksel(axial.q, axial.r)
+            }
+            
+            val unitHexWidth = kotlin.math.sqrt(3.0)
+            val unitHexHeight = 2.0
+            
+            val minX = if (positions.isEmpty()) 0.0 else positions.minOf { it.x }
+            val maxX = if (positions.isEmpty()) 0.0 else positions.maxOf { it.x }
+            val minY = if (positions.isEmpty()) 0.0 else positions.minOf { it.y }
+            val maxY = if (positions.isEmpty()) 0.0 else positions.maxOf { it.y }
+            
+            val minFitRings = if (isWearOS) 1.0 else 2.0
+            val minFitWidth = (minFitRings * 2.0 + 1.0) * unitHexWidth
+            val minFitHeight = minFitRings * 3.0 + 2.0 
+
+            val contentWidth = maxOf(maxX - minX + unitHexWidth, minFitWidth)
+            val contentHeight = maxOf(maxY - minY + unitHexHeight, minFitHeight)
+            
+            val sizeW = screenWidth / contentWidth
+            val sizeH = (screenHeight * 0.99) / contentHeight
+            return minOf(sizeW, sizeH).coerceAtLeast(10.0)
+        }
     }
 }
