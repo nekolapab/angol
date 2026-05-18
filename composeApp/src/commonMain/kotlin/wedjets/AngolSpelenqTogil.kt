@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.sp
 import yuteledez.HeksagonDjeyometre
 
 @Composable
-fun AngolTogilWedjet(
+fun AngolSpelenqTogil(
     geometry: HeksagonDjeyometre,
     gridHeightDp: androidx.compose.ui.unit.Dp,
     currentAngolMode: Int,
@@ -24,15 +24,17 @@ fun AngolTogilWedjet(
     isLetterMode: Boolean,
     onTogilAngol: (Boolean) -> Unit
 ) {
+    val centerPos = geometry.aksyalTuPeksel(0, 0)
+    
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(gridHeightDp)
-            .offset(y = (geometry.heksSayz * -8/12).dp),
+            .height(gridHeightDp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
+                .offset(x = centerPos.x.dp, y = (centerPos.y - geometry.heksSayz * 8/12).dp)
                 .height(32.dp)
                 .width((geometry.heksWidlx * 2.1).dp)
                 .pointerInput(Unit) {
@@ -70,7 +72,7 @@ fun AngolTogilWedjet(
                     shadow = Shadow(
                         color = if (centerBg == Color.White) Color.White.copy(alpha = 0.5f) else Color.Black,
                         offset = Offset(1f, 1f),
-                        blurRadius = 0.7f
+                        blurRadius = 1f
                     )
                 )
             )

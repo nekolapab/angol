@@ -27,9 +27,14 @@ import kotlin.math.sqrt
 fun BeldModyil(
     daylSteyt: DaylSteyt,
     onClose: () -> Unit,
-    onAction: () -> Unit = {}
+    onAction: (String) -> Unit = {}
 ) {
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
+    
+    val syncBoth = {
+        onAction("current")
+        onAction("production")
+    }
 
     if (selectedModuleId != null) {
         val mod = daylSteyt.modyilz.find { it.id == selectedModuleId }
@@ -39,23 +44,23 @@ fun BeldModyil(
                 onBack = { selectedModuleId = null },
                 onReneymGlef = { index, label ->
                     daylSteyt.reneymGlef(mod.id, index, label)
-                    onAction()
+                    syncBoth()
                 },
                 onMuvGlef = { from, to ->
                     daylSteyt.muvGlef(mod.id, from, to)
-                    onAction()
+                    syncBoth()
                 },
                 onCopyToEmpty = { from, to ->
                     daylSteyt.kopeGlefTuEmpt(mod.id, from, to)
-                    onAction()
+                    syncBoth()
                 },
                 onMoveToParent = { from ->
                     daylSteyt.muvGlefTuHub(mod.id, from)
-                    onAction()
+                    syncBoth()
                 },
                 onReneymMod = { newNeym ->
                     daylSteyt.reneymModyil(mod.id, newNeym)
-                    onAction()
+                    syncBoth()
                 }
             )
             return
@@ -126,15 +131,15 @@ fun BeldModyil(
                     allowSwap = false,
                     onMove = { from, to ->
                         daylSteyt.swopModyilz(from + 1, to + 1)
-                        onAction()
+                        syncBoth()
                     },
                     onCopyToEmpty = { from, to ->
                         daylSteyt.kopeModyilTuEmpt(from + 1, to + 1)
-                        onAction()
+                        syncBoth()
                     },
                     onMoveToCenter = { from ->
                         daylSteyt.muvModyilTuParent(from + 1)
-                        onAction()
+                        syncBoth()
                     },
                     onDropOnFolder = { _, _ -> },
                     onTap = { index ->
@@ -146,7 +151,8 @@ fun BeldModyil(
                                 selectedModuleId = clickedMod.id
                             }
                         }
-                    }
+                    },
+                    fontSizeFactor = 0.458f
                 )
             }
         }
@@ -281,7 +287,8 @@ fun GlefsEdetSkren(
                             editingGlefIndex = index
                             newGlefLabel = mod.glefz.getOrNull(index) ?: ""
                         }
-                    }
+                    },
+                    fontSizeFactor = 1.0f
                 )
             }
             

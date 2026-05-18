@@ -47,6 +47,26 @@ fun SaynEnSkren(firebaseSirves: FirebaseSirves, onBypass: () -> Unit) {
                 ) {
                     Text("Sign in with GitHub")
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        scope.launch {
+                            isLoading = true
+                            errorMessage = null
+                            val result = firebaseSirves.signInWithGoogle()
+                            if (result.isFailure) {
+                                errorMessage = result.exceptionOrNull()?.message ?: "Login failed"
+                            }
+                            isLoading = false
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(0.7f),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4285F4), contentColor = Color.White)
+                ) {
+                    Text("Sign in with Google")
+                }
                 
                 if (errorMessage != null) {
                     Spacer(modifier = Modifier.height(16.dp))

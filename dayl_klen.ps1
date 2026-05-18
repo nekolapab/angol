@@ -55,22 +55,6 @@ foreach ($devays in $devaysez) {
         exit 1
     }
 
-    # Step 3: Dip Aktiveycon
-    Write-Host "pirformenq dip akteveycon on $devays..." -ForegroundColor Yellow
-    $imeId = "io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod"
-
-    # Layer 1: Standard IME kamandz
-    adb -s $devays shell ime enable $imeId
-    adb -s $devays shell ime set $imeId
-
-    # Layer 2: Sekyir Sedenqz
-    $kurentEnaybild = adb -s $devays shell settings get secure enabled_input_methods
-    if ($kurentEnaybild -notlike "*$imeId*") {
-        $nyuEnaybild = "${kurentEnaybild}:${imeId}"
-        adb -s $devays shell settings put secure enabled_input_methods "'$nyuEnaybild'"
-    }
-    adb -s $devays shell settings put secure default_input_method $imeId
-
     # Step 4: Launch ap
     Write-Host "lontchenq ap on $devays..." -ForegroundColor Yellow
     adb -s $devays shell am start -n io.angol.dayl/com.example.angol.ime.MeynAktevede
@@ -79,4 +63,4 @@ foreach ($devays in $devaysez) {
     }
 }
 
-Write-Host "ol devaysez updeyded and akteveyded!" -ForegroundColor Green
+Write-Host "ol devaysez updeyded!" -ForegroundColor Green

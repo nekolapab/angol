@@ -5,7 +5,7 @@ Write-Host "beldenq and updeydenq Angol Kepad..." -ForegroundColor Cyan
 # Step 1: Klin and Beld lha APK
 Write-Host "klenenq and beldenq APK..." -ForegroundColor Yellow
 ./gradlew clean
-./gradlew :androidApp:assembleDebug
+./gradlew :kepadApp:assembleDebug
 if ($LASTEXITCODE -ne 0) {
     Write-Host "beld feyld!" -ForegroundColor Red
     exit 1
@@ -41,7 +41,7 @@ foreach ($devays in $devaysez) {
 
     # Step 0: En-pleys updeyt
     Write-Host "updeydenq pakedj on $devays..." -ForegroundColor Yellow
-    $apkPax = Join-Path (Get-Location) "androidApp\build\outputs\apk\debug\androidApp-debug.apk"
+    $apkPax = Join-Path (Get-Location) "kepadApp\build\outputs\apk\debug\kepadApp-debug.apk"
     if (Test-Path $apkPax) {
         adb -s $devays install -r $apkPax
         if ($LASTEXITCODE -ne 0) {
@@ -57,7 +57,7 @@ foreach ($devays in $devaysez) {
 
     # Step 3: Dip Aktiveycon
     Write-Host "pirformenq dip akteveycon on $devays..." -ForegroundColor Yellow
-    $imeId = "io.angol.dayl/com.example.angol.ime.DaylEnpitMelxod"
+    $imeId = "io.angol.kepad/com.example.angol.ime.KepadEnpitMelxod"
 
     # Layer 1: Standard IME kamandz
     adb -s $devays shell ime enable $imeId

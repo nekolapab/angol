@@ -20,7 +20,7 @@ fun AfdirLogenSkren(firebaseSirves: FirebaseSirves, onContinue: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Home Page") },
+                title = { Text("angol dayl") },
                 actions = {
                     IconButton(onClick = {
                         scope.launch {
@@ -38,8 +38,12 @@ fun AfdirLogenSkren(firebaseSirves: FirebaseSirves, onContinue: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Welcome, ${user?.displayName ?: user?.email ?: "User"}!", style = MaterialTheme.typography.h5)
-            Spacer(modifier = Modifier.height(16.dp))
+            Text("Welcome, ${user?.displayName ?: "User"}!", style = MaterialTheme.typography.h5)
+            if (user?.email != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("ID: ${user.email}", style = MaterialTheme.typography.body2, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f))
+            }
+            Spacer(modifier = Modifier.height(24.dp))
             Button(onClick = onContinue) {
                 Text("Go to Keypad")
             }

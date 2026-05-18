@@ -13,10 +13,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.geometry.Offset
-import modyilz.DaylModyil
+import modyilz.DaylModal
 import modyilz.KepadModyil
 import steyt.DaylSteyt
 import yuteledez.HeksagonDjeyometre
+import yuteledez.GredDimenzconz
 import modalz.HeksagonPozecon
 import kotlin.math.sqrt
 
@@ -55,7 +56,8 @@ fun DaylSkrenEntry(
                     keyboardController, platformServices, voiceService,
                     ezLeterMod, ezPunkcuweyconMod, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
-                    firebaseSirves, isApp = true, daylSteyt = daylSteyt
+                    firebaseSirves, isApp = true, daylSteyt = daylSteyt,
+                    onGoToHome = { kurentSkren = "home" }
                 )
                 "home" -> if (firebaseSirves != null) AfdirLogenSkren(firebaseSirves, onContinue = { kurentSkren = "main" }) else DaylSkren(
                     keyboardController, platformServices, voiceService,
@@ -95,23 +97,23 @@ fun DaylSkren(
     daylSteyt: DaylSteyt = remember { DaylSteyt() }
 ) {
     val scope = rememberCoroutineScope()
-    // ... rest of the function using daylSteyt
     
     // Auth and Layout Sync
     val userState = firebaseSirves?.authStateChanges?.collectAsState(initial = firebaseSirves.currentUser)
     val user = userState?.value
+    var kurentEnv by remember { mutableStateOf("current") }
 
-    val saveLayout = {
+    val saveLayout: (String) -> Unit = { env ->
         if (firebaseSirves != null) {
             scope.launch {
-                firebaseSirves.saveModuleLayout(daylSteyt.modyilz)
+                firebaseSirves.saveModuleLayout(daylSteyt.modyilz, env)
             }
         }
     }
     
-    LaunchedEffect(firebaseSirves, isApp, user) {
+    LaunchedEffect(firebaseSirves, isApp, user, kurentEnv) {
         val fs = firebaseSirves ?: return@LaunchedEffect
-        fs.watchModuleLayout().collectLatest { remoteModules ->
+        fs.watchModuleLayout(kurentEnv).collectLatest { remoteModules ->
             if (remoteModules.isNotEmpty()) {
                 daylSteyt.updateModules(remoteModules)
                 if (!isApp) {
@@ -144,34 +146,34 @@ fun DaylSkren(
             indices.toList().sorted()
         }
 
-        val hexSize = remember(activeIndices, screenWidth, screenHeight) {
-            HeksagonDjeyometre.kalkyuleytHeksSayz(
+        val gredDimz = remember(activeIndices, screenWidth, screenHeight) {
+            HeksagonDjeyometre.kalkyuleytGredDimenzconz(
                 activeIndices = activeIndices,
                 screenWidth = screenWidth.value.toDouble(),
                 screenHeight = screenHeight.value.toDouble(),
                 isWearOS = yuteledez.isWearOS
-            ).dp
-        }
-
-        val geometry = remember(hexSize, screenWidth, screenHeight, isApp) {
-            val hexWidth = hexSize.value * sqrt(3.0)
-            val isLandscape = screenWidth > screenHeight
-            val sentirX = if (!isApp && isLandscape) {
-                -screenWidth.value / 2.0 + (if (yuteledez.isWearOS) 1.5 else 2.5) * hexWidth
-            } else {
-                0.0
-            }
-
-            HeksagonDjeyometre(
-                heksSayz = hexSize.value.toDouble(),
-                sentir = HeksagonPozecon(sentirX, 0.0),
-                ezLeterMod = true
             )
         }
 
-        val maxActiveIndex = activeIndices.maxOrNull() ?: 0
-        val fitRings = if (maxActiveIndex > 18) 3.0 else 2.0
-        val fitHeight = fitRings * 3.0 + 2.0 // Correct height in radii
+        val hexSize = gredDimz.heksSayz.dp
+
+        val geometry = remember(gredDimz, isApp, activeIndices) {
+            val hexWidth = gredDimz.heksSayz * sqrt(3.0)
+            val isLandscape = screenWidth > screenHeight
+            
+            // For App/Hub, we center it. For IME in landscape, we might shift it.
+            val baseSentirX = if (!isApp && isLandscape) {
+                -screenWidth.value / 2.0 + (if (yuteledez.isWearOS) 1.5 else 0.5) * hexWidth
+            } else {
+                -gredDimz.unitCenterX * gredDimz.heksSayz
+            }
+
+            HeksagonDjeyometre(
+                heksSayz = gredDimz.heksSayz,
+                sentir = HeksagonPozecon(baseSentirX, -gredDimz.unitCenterY * gredDimz.heksSayz - (gredDimz.heksSayz * 2.0 / 12.0)),
+                ezLeterMod = true
+            )
+        }
 
         // Limit the height of the IME container to fit the keyboard perfectly
         val contentModifier = if (isApp) {
@@ -184,7 +186,8 @@ fun DaylSkren(
                 )
             )
         } else {
-            Modifier.fillMaxWidth().height(hexSize * fitHeight.toFloat())
+            // Precise height with no extra margins
+            Modifier.fillMaxWidth().height(gredDimz.height.dp)
                 .align(Alignment.BottomCenter)
         }
 
@@ -210,7 +213,8 @@ fun DaylSkren(
                 ignoreSelectionUpdate = ignoreSelectionUpdate,
                 onSaveLayout = saveLayout,
                 screenWidth = screenWidth,
-                screenHeight = if (isApp) screenHeight else hexSize * fitHeight.toFloat(),
+                screenHeight = if (isApp) screenHeight else gredDimz.height.dp,
+                contentWidth = if (isApp) screenWidth else gredDimz.width.dp,
                 isApp = isApp
             )
         }
@@ -260,9 +264,10 @@ fun ModuleContent(
     onTogilAngol: (Boolean) -> Unit,
     onStartAiVoys: () -> Unit,
     ignoreSelectionUpdate: () -> Unit,
-    onSaveLayout: () -> Unit,
+    onSaveLayout: (String) -> Unit,
     screenWidth: androidx.compose.ui.unit.Dp,
     screenHeight: androidx.compose.ui.unit.Dp,
+    contentWidth: androidx.compose.ui.unit.Dp = screenWidth,
     isApp: Boolean
 ) {
     val activeMod = daylSteyt.activeModule
@@ -287,23 +292,24 @@ fun ModuleContent(
                 onClose = { 
                     if (isApp) {
                         daylSteyt.togilModyil(mod.pozecon)
-                        onSaveLayout()
+                        onSaveLayout("current")
                     }
                 },
                 geometryOverride = geometry,
                 glefzOverride = mod.glefz,
-                kulorzOverride = mod.glefKulorz
+                kulorzOverride = mod.glefKulorz,
+                contentWidthDp = contentWidth
             )
         }
         currentType == "beld" || currentType == "builder" -> modyilz.BeldModyil(
             daylSteyt = daylSteyt,
             onClose = { 
                 daylSteyt.togilModyil(activeMod!!.pozecon)
-                onSaveLayout()
+                onSaveLayout("current")
             },
             onAction = onSaveLayout
         )
-        else -> DaylModyil(
+        else -> DaylModal(
             geometry = geometry,
             modyilz = daylSteyt.modyilz,
             onToggleModule = { index ->
@@ -312,21 +318,21 @@ fun ModuleContent(
                 } else {
                     daylSteyt.togilModyil(index + 1)
                 }
-                onSaveLayout()
+                onSaveLayout("current")
             },
             onMoveModule = { from, to ->
                 daylSteyt.swopModyilz(from + 1, to + 1)
-                onSaveLayout()
+                onSaveLayout("current")
             },
             onCopyToEmpty = { from, to ->
                 // UI is 0-based; state is 1-based.
                 daylSteyt.kopeModyilTuEmpt(from + 1, to + 1)
-                onSaveLayout()
+                onSaveLayout("current")
             },
             onMoveToCenter = { from ->
                 // UI is 0-based; state is 1-based.
                 daylSteyt.muvModyilTuParent(from + 1)
-                onSaveLayout()
+                onSaveLayout("current")
             },
             stackWidth = screenWidth,
             stackHeight = screenHeight,

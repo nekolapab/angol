@@ -16,7 +16,7 @@ import wedjets.HeksagonGred
 import wedjets.GredItem
 
 @Composable
-fun DaylModyil(
+fun DaylModal(
     geometry: HeksagonDjeyometre,
     modyilz: List<ModyilDeyda>,
     onToggleModule: (Int) -> Unit,
@@ -50,7 +50,8 @@ fun DaylModyil(
             onDropOnFolder = { from, to -> },
             modifier = Modifier.fillMaxSize(),
             onTap = onToggleModule,
-            allowSwap = allowSwap
+            allowSwap = allowSwap,
+            fontSizeFactor = 0.458f
         )
     }
 }

@@ -55,19 +55,5 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true" />
 
-        <service
-            android:name="com.example.angol.ime.DaylEnpitMelxod"
-            android:label="@string/ime_name"
-            android:permission="android.permission.BIND_INPUT_METHOD"
-            android:exported="true"
-            android:foregroundServiceType="microphone">
-            <intent-filter>
-                <action android:name="android.view.InputMethod" />
-            </intent-filter>
-            <meta-data
-                android:name="android.view.im"
-                android:resource="@xml/melxod" />
-        </service>
-
     </application>
 </manifest>

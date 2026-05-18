@@ -1,8 +1,17 @@
 ## *prodjekt*
-angol ez lha sestom and dayl ez lha ap ov a sentir heksagon and 2 or 3 sirawndenq heksagon renqz. ets first modyil ez kepad kustom enput melxod en KotlinCompose. 
+**angol dayl** ez lha core modal ap experience. 
 
-*first enstrukcon*
-yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du not reneym KotlinCompose standard konvencon freymwirk klasez and faylz lhat koz problemz (sutc az  ChangeNotifier  StatelessWidget, Material, Widget, BuildContext, ...).
+### **Core Hierarchy & Terminology:**
+- **angol (lha kor):** lha shared logic, state (`DaylSteyt`), and routing foundation. et ez lha central gatekeeper and "router" lhat remains separate from lha apps. et represents lha "system" itself.
+- **dayl (lha hub ap):** A "Modal" application (a collection ov modules and widgets) built on top ov lha 'angol' core. et functions az lha primary user hub and layout builder.
+- **kepad (lha IME ap):** A specialized application and module lhat leverages lha 'angol' core tu provide lha custom input method functionality.
+- **Relationship:** Apps are separate but rekwayr 'angol'. Modules can be installed tu 'angol' welxawt 'dayl'.
+
+### **Functional Logic:**
+- **App Separation:** 'dayl' and 'kepad' are separate Android applications (`io.angol.dayl` and `io.angol.kepad`) tu ensure system-level IME registration and clean project structure.
+- **Broadcast Sync (lha Bredj):** Since 'dayl' and 'kepad' have isolated storage and auth contexts, lhey communicate via a secure Android Broadcast (`io.angol.ACTION_UPDATE_LAYOUT`). Changes made en lha builder (dayl) are broadcast tu lha keyboard (kepad) for real-time synchronization.
+- **Multi-Environment Sync:** Supports `current` and `production` Firestore paths. lha builder updates both odomadekle tu ensure lha production environment ez always current.
+- **Local Persistence:** Every cloud sync ez backed by environment-specific local files (`layout_current.json`, `layout_production.json`) tu prevent data inconsistency.
 
 ## **angol dayl ap development prodokol**
 **KotlinCompose Multiplatform (KMP) ez 100% and ol Flutter kod deleded.**
@@ -43,11 +52,12 @@ yuz angol spelenq and updeyt refrensez globale for etc neym tceynj. eksept du no
 - **`:androidApp` (App Entry):** Uses `com.android.application`. Leverages AGP's built-in Kotlin support.
 
 ### Recent Changes:
-- **App Icon Restoration:** Fixed the "all white" icon issue by redesigning `ic_launcher_foreground.xml` with six distinct colored segments (Red, Yellow, Green, Cyan, Blue, Magenta) to restore the hexagonal logo.
-- **AGP 9.2 Migration:** Fully migrated to `com.android.kotlin.multiplatform.library` and removed legacy Gradle flags. Disabled Jetifier.
-- **Ultimate Versions Upgrade:** Updated to Kotlin 2.3.21, Compose 1.10.3, and CompileSdk 37.
-- **Multi-Module Refactor:** Split the project into `:composeApp` and `:androidApp`.
-- **Volume Restoration Fix:** Implemented `isVolumeDipped` safety flag.
+- **Module Separation:** Separated the project into `:androidApp` (Dayl Hub) and `:kepadApp` (Kepad IME) to ensure only 'kepad' appears in the Android Input Method selection.
+- **IME Rename:** Renamed `DaylEnpitMelxod` to `KepadEnpitMelxod` and updated package to `io.angol.kepad`.
+- **Glow Intensity Fix:** Boosted glow alpha to `10/12` (83%) and unified radius to `1f`.
+- **Instruction Removal:** Removed builder interaction text.
+- **AGP 9.2 Migration:** Fully migrated to `com.android.kotlin.multiplatform.library`.
+- **App Icon Restoration:** Fixed the "all white" icon issue by redesigning `ic_launcher_foreground.xml` with six distinct colored segments.
 - **Pirmecon Rename:** Renamed `PermisconAktevede.kt` to `PirmeconAktevede.kt`.
 
 ## **spetc tu tekst**

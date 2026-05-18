@@ -47,10 +47,20 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import modyilz.KepadModyil
 import yuteledez.AngolSpelenqMelxod
+import yuteledez.HeksagonDjeyometre
+import modalz.HeksagonPozecon
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import kotlin.math.sqrt
+import kotlinx.serialization.json.Json
 
-private const val TAG = "DaylEnpitMelxod"
+private const val TAG = "KepadEnpitMelxod"
 
-class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -87,6 +97,9 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private var originalMusicVol = -1
     private var originalRingVol = -1
     private var isVolumeDipped = false
+    private var dynamicGridHeightPx = 0
+
+    private var layoutUpdateReceiver: android.content.BroadcastReceiver? = null
 
     private fun dipVolume() {
         if (isVolumeDipped) return
@@ -214,6 +227,38 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
             Firebase.initialize(this)
             initSpeechRecognizer()
+
+            // Broadcast Sync: Listen for layout updates from the Hub/Builder
+            layoutUpdateReceiver = object : android.content.BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    if (intent?.action == AndroidFirebaseSirves.ACTION_UPDATE_LAYOUT) {
+                        val jsonString = intent.getStringExtra(AndroidFirebaseSirves.EXTRA_LAYOUT_JSON)
+                        val env = intent.getStringExtra(AndroidFirebaseSirves.EXTRA_ENVIRONMENT) ?: "current"
+                        
+                        if (jsonString != null && env == "current") {
+                            try {
+                                val jsonParser = Json { 
+                                    ignoreUnknownKeys = true 
+                                }
+                                val updatedModules: List<modalz.ModyilDeyda> = jsonParser.decodeFromString(jsonString)
+                                if (updatedModules.isNotEmpty()) {
+                                    Log.d(TAG, "Received broadcast layout update ($env)")
+                                    daylSteyt.updateModules(updatedModules)
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error parsing broadcast layout", e)
+                            }
+                        }
+                    }
+                }
+            }
+            val filter = android.content.IntentFilter(AndroidFirebaseSirves.ACTION_UPDATE_LAYOUT)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(layoutUpdateReceiver, filter, Context.RECEIVER_EXPORTED)
+            } else {
+                registerReceiver(layoutUpdateReceiver, filter)
+            }
+
         } catch (e: Exception) {
             Log.e(TAG, "onCreate failed: ${e.message}")
         }
@@ -301,7 +346,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                                     val ic = currentInputConnection ?: return@launch
                                     
                                     var processedText = if (ezAiVoysAktev) {
-                                        android.widget.Toast.makeText(this@DaylEnpitMelxod, "AI conversion...", android.widget.Toast.LENGTH_SHORT).show()
+                                        android.widget.Toast.makeText(this@KepadEnpitMelxod, "AI conversion...", android.widget.Toast.LENGTH_SHORT).show()
                                         val model = Firebase.ai.generativeModel(modelName = "gemini-3.1-flash", generationConfig = generationConfig { }, safetySettings = emptyList(), requestOptions = RequestOptions())
                                         // Mode 1: final is Angol 2 (standard vowels)
                                         val promptMode = if (angolSpelenqMod == 1) "Angol (Phonetic spelling with standard vowels a,e,i,u,o)" else "Standard English"
@@ -396,29 +441,72 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         }
         return try {
             ComposeView(this).apply {
-                setViewTreeLifecycleOwner(this@DaylEnpitMelxod)
-                setViewTreeViewModelStoreOwner(this@DaylEnpitMelxod)
-                setViewTreeSavedStateRegistryOwner(this@DaylEnpitMelxod)
+                setViewTreeLifecycleOwner(this@KepadEnpitMelxod)
+                setViewTreeViewModelStoreOwner(this@KepadEnpitMelxod)
+                setViewTreeSavedStateRegistryOwner(this@KepadEnpitMelxod)
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
                 layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 setContent {
-                    skrenz.DaylSkrenEntry(
-                        keyboardController = kebordKontrolir,
-                        platformServices = platfOrmSirvesez,
-                        voiceService = voiceService,
-                        ezLeterMod = ezLeterMod,
-                        ezPunkcuweyconMod = ezPunkcuweyconMod,
-                        ezUpsayddawn = ezUpsayddawn,
-                        onTogilMod = { ezLeterMod = !ezLeterMod },
-                        onSetPunkcuweyconMod = { ezPunkcuweyconMod = it },
-                        ezAngolMod = angolSpelenqMod > 0,
-                        onTogilAngol = { voiceService.togilAngolMod(it) }, 
-                        onStartAiVoys = { voiceService.startListening(isAiMode = true) },
-                        ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ },
-                        firebaseSirves = firebaseSirves,
-                        isApp = false,
-                        daylSteyt = daylSteyt
-                    )
+                    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                        val screenWidth = maxWidth
+                        val screenHeight = maxHeight
+                        
+                        val activeMod = daylSteyt.activeModule ?: daylSteyt.modyilz.find { it.type == "keypad" } ?: return@BoxWithConstraints
+                        val activeIndices = remember(activeMod.glefz) {
+                            val set: MutableSet<Int> = activeMod.glefz.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }.toMutableSet()
+                            set.add(0)
+                            set.toList().sorted()
+                        }
+
+                        val gredDimz = remember(activeIndices, screenWidth, screenHeight) {
+                            HeksagonDjeyometre.kalkyuleytGredDimenzconz(
+                                activeIndices = activeIndices,
+                                screenWidth = screenWidth.value.toDouble(),
+                                screenHeight = screenHeight.value.toDouble(),
+                                isWearOS = yuteledez.isWearOS
+                            )
+                        }
+
+                        LaunchedEffect(gredDimz.height) {
+                            dynamicGridHeightPx = (gredDimz.height * resources.displayMetrics.density).toInt()
+                        }
+
+                        val geometry = remember(gredDimz) {
+                            HeksagonDjeyometre(
+                                heksSayz = gredDimz.heksSayz,
+                                sentir = HeksagonPozecon(-gredDimz.unitCenterX * gredDimz.heksSayz, -gredDimz.unitCenterY * gredDimz.heksSayz),
+                                ezLeterMod = true
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(gredDimz.height.dp)
+                                .align(Alignment.BottomCenter),
+                            contentAlignment = Alignment.BottomCenter
+                        ) {
+                            KepadModyil(
+                                keyboardController = kebordKontrolir,
+                                platformServices = platfOrmSirvesez,
+                                voiceService = voiceService,
+                                ezLeterMod = ezLeterMod,
+                                ezPunkcuweyconMod = ezPunkcuweyconMod,
+                                ezUpsayddawn = ezUpsayddawn,
+                                onTogilMod = { ezLeterMod = !ezLeterMod },
+                                onSetPunkcuweyconMod = { ezPunkcuweyconMod = it },
+                                ezAngolMod = angolSpelenqMod > 0,
+                                onTogilAngol = { voiceService.togilAngolMod(it) }, 
+                                onStartAiVoys = { voiceService.startListening(isAiMode = true) },
+                                ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ },
+                                onClose = {},
+                                geometryOverride = geometry,
+                                glefzOverride = activeMod.glefz,
+                                kulorzOverride = activeMod.glefKulorz,
+                                contentWidthDp = gredDimz.width.dp
+                            )
+                        }
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -453,9 +541,15 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         val totalHeight = inputView.height
         val totalWidth = inputView.width
         if (totalHeight <= 0) return
-        val screenWidth = resources.displayMetrics.widthPixels
-        val hexSizePx = screenWidth / (5.0 * kotlin.math.sqrt(3.0))
-        val clusterHeightPx = (hexSizePx * 7.8).toInt()
+        // Use dynamic height if available, otherwise fallback to 2-ring estimate
+        val clusterHeightPx = if (dynamicGridHeightPx > 0) {
+            dynamicGridHeightPx
+        } else {
+            val screenWidth = resources.displayMetrics.widthPixels
+            val hexSizePx = screenWidth / (5.0 * kotlin.math.sqrt(3.0))
+            (hexSizePx * 8.0).toInt()
+        }
+
         val top = totalHeight - clusterHeightPx
         outInsets.contentTopInsets = top
         outInsets.visibleTopInsets = top
@@ -480,6 +574,7 @@ class DaylEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     override fun onDestroy() {
         super.onDestroy()
+        layoutUpdateReceiver?.let { unregisterReceiver(it) }
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         viewModelStore.clear()
         speechRecognizer?.destroy()

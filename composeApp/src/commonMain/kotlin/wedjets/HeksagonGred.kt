@@ -53,7 +53,8 @@ fun HeksagonGred(
     centerColor: Color = Color.Black,
     onTap: (Int) -> Unit = {},
     copyDragPolicy: CopyDragPolicy = CopyDragPolicy.TwoStepArmed,
-    allowSwap: Boolean = true
+    allowSwap: Boolean = true,
+    fontSizeFactor: Float = 0.5f
 ) {
     val haptic = LocalHapticFeedback.current
     val density = LocalDensity.current
@@ -129,14 +130,14 @@ fun HeksagonGred(
                 if (index == 0 && item == null && centerLabel.isNotEmpty()) {
                     HeksagonWedjet(
                         label = centerLabel, backgroundColor = centerColor,
-                        textColor = KepadKonfeg.getComplementaryColor(centerColor), size = hexWidthDp, fontSize = (geometry.heksWidlx * 0.5).toFloat(),
+                        textColor = KepadKonfeg.getComplementaryColor(centerColor), size = hexWidthDp, fontSize = (geometry.heksWidlx * fontSizeFactor).toFloat(),
                         onTap = null, onLongPress = null,
                         modifier = if (isHovered) {
                             Modifier.drawBehind {
-                                val glowRadius = size.maxDimension * 0.5f
+                                val glowRadius = size.maxDimension * 1f
                                 drawCircle(
                                     brush = Brush.radialGradient(
-                                        colors = listOf(Color.White.copy(alpha = 1f/12f), Color.Transparent),
+                                        colors = listOf(Color.White.copy(alpha = 10f/12f), Color.Transparent),
                                         center = center,
                                         radius = glowRadius
                                     ),
@@ -148,17 +149,17 @@ fun HeksagonGred(
                 } else if (item != null) {
                     HeksagonWedjet(
                         label = item.label, backgroundColor = item.color,
-                        textColor = KepadKonfeg.getComplementaryColor(item.color), size = hexWidthDp, fontSize = (geometry.heksWidlx * 0.5).toFloat(),
+                        textColor = KepadKonfeg.getComplementaryColor(item.color), size = hexWidthDp, fontSize = (geometry.heksWidlx * fontSizeFactor).toFloat(),
                         onTap = null, onLongPress = null,
                         modifier = if (isDragging && !isCopyDragActive) {
                             val fingerXDp = with(density) { (dragOffset.x - wPx / 2f).toDp() }
                             val fingerYDp = with(density) { (dragOffset.y - hPx / 2f).toDp() }
                             Modifier.offset(x = fingerXDp - pos.x.dp, y = fingerYDp - pos.y.dp)
                                 .drawBehind {
-                                    val glowRadius = size.maxDimension * 0.5f
+                                    val glowRadius = size.maxDimension * 1f
                                     drawCircle(
                                         brush = Brush.radialGradient(
-                                            colors = listOf(item.color.copy(alpha = 1f/12f), Color.Transparent),
+                                            colors = listOf(item.color.copy(alpha = 10f/12f), Color.Transparent),
                                             center = center,
                                             radius = glowRadius
                                         ),
@@ -167,10 +168,10 @@ fun HeksagonGred(
                                 }
                         } else if (isHovered) {
                             Modifier.drawBehind {
-                                val glowRadius = size.maxDimension * 0.4f
+                                val glowRadius = size.maxDimension * 1f
                                 drawCircle(
                                     brush = Brush.radialGradient(
-                                        colors = listOf(Color.White.copy(alpha = 1f/12f), Color.Transparent),
+                                        colors = listOf(Color.White.copy(alpha = 10f/12f), Color.Transparent),
                                         center = center,
                                         radius = glowRadius
                                     ),
@@ -182,7 +183,7 @@ fun HeksagonGred(
                 } else if (isHovered && index > 0) {
                     HeksagonWedjet(
                         label = "+", backgroundColor = Color.Gray.copy(alpha = 0.3f), textColor = Color.White, size = hexWidthDp,
-                        fontSize = (geometry.heksWidlx * 0.5).toFloat()
+                        fontSize = (geometry.heksWidlx * fontSizeFactor).toFloat()
                     )
                 }
             }
@@ -193,13 +194,13 @@ fun HeksagonGred(
             val xDp = with(density) { dragOffset.x.toDp() }; val yDp = with(density) { dragOffset.y.toDp() }
             HeksagonWedjet(
                 label = ghostItem.label, backgroundColor = ghostItem.color.copy(alpha = 0.75f), textColor = KepadKonfeg.getComplementaryColor(ghostItem.color),
-                size = hexWidthDp, fontSize = (geometry.heksWidlx * 0.5).toFloat(), onTap = null, onLongPress = null,
+                size = hexWidthDp, fontSize = (geometry.heksWidlx * fontSizeFactor).toFloat(), onTap = null, onLongPress = null,
                 modifier = Modifier.align(Alignment.TopStart).offset(x = xDp - (hexWidthDp / 2), y = yDp - ((hexWidthDp * (2f / kotlin.math.sqrt(3f))) / 2))
                     .drawBehind {
-                        val glowRadius = size.maxDimension * 0.5f
+                        val glowRadius = size.maxDimension * 1f
                         drawCircle(
                             brush = Brush.radialGradient(
-                                colors = listOf(Color.Yellow.copy(alpha = 4f/12f), Color.Transparent),
+                                colors = listOf(Color.Yellow.copy(alpha = 10f/12f), Color.Transparent),
                                 center = center,
                                 radius = glowRadius
                             ),

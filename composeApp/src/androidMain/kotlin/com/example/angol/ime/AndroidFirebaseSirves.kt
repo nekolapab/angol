@@ -24,6 +24,12 @@ import kotlinx.serialization.encodeToString
 class AndroidFirebaseSirves(
     context: Context
 ) : FirebaseSirves {
+    companion object {
+        const val ACTION_UPDATE_LAYOUT = "io.angol.ACTION_UPDATE_LAYOUT"
+        const val EXTRA_LAYOUT_JSON = "layout_json"
+        const val EXTRA_ENVIRONMENT = "environment"
+    }
+
     private val appContext = context.applicationContext
     private val activity: Activity? = context as? Activity
     private val auth = FirebaseAuth.getInstance()
@@ -36,7 +42,7 @@ class AndroidFirebaseSirves(
     }
 
     /** Same path for Activity + IME service process — enables layout sync without cloud. */
-    private val localLayoutFile: File = File(appContext.filesDir, "local_layout.json")
+    private fun getLocalFile(env: String): File = File(appContext.filesDir, "layout_$env.json")
 
     override val currentUser: User?
         get() = auth.currentUser?.toCommonUser()
@@ -63,11 +69,23 @@ class AndroidFirebaseSirves(
         Result.failure(e)
     }
 
+    override suspend fun signInWithGoogle(): Result<Unit> = try {
+        val act = activity ?: throw Exception("Activity is required for Google sign-in")
+        val provider = OAuthProvider.newBuilder("google.com")
+        
+        auth.startActivityForSignInWithProvider(act, provider.build()).await()
+        Log.d("AndroidFirebaseSirves", "Google sign-in successful")
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Log.e("AndroidFirebaseSirves", "Google sign-in error: ${e.message}", e)
+        Result.failure(e)
+    }
+
     override suspend fun signOut() {
         auth.signOut()
     }
 
-    override suspend fun saveModuleLayout(modyilz: List<ModyilDeyda>) {
+    override suspend fun saveModuleLayout(modyilz: List<ModyilDeyda>, environment: String) {
         val user = auth.currentUser
         if (user != null) {
             try {
@@ -78,45 +96,56 @@ class AndroidFirebaseSirves(
                 db.collection("users")
                     .document(user.uid)
                     .collection("layouts")
-                    .document("current")
+                    .document(environment)
                     .set(data)
                     .await()
             } catch (e: Exception) {
-                Log.e("AndroidFirebaseSirves", "Error saving layout to cloud", e)
+                Log.e("AndroidFirebaseSirves", "Error saving layout to cloud ($environment)", e)
             }
         }
 
-        saveLocally(modyilz)
+        val jsonString = json.encodeToString(modyilz)
+        saveLocally(modyilz, environment)
+        
+        // Broadcast to other apps (bridge dayl -> kepad)
+        val intent = Intent(ACTION_UPDATE_LAYOUT).apply {
+            putExtra(EXTRA_LAYOUT_JSON, jsonString)
+            putExtra(EXTRA_ENVIRONMENT, environment)
+        }
+        appContext.sendBroadcast(intent)
     }
 
-    private fun saveLocally(modyilz: List<ModyilDeyda>) {
+    private fun saveLocally(modyilz: List<ModyilDeyda>, environment: String) {
         try {
             val content = json.encodeToString(modyilz)
-            localLayoutFile.writeText(content)
-            Log.d("AndroidFirebaseSirves", "Saved locally to ${localLayoutFile.absolutePath}")
+            val file = getLocalFile(environment)
+            file.writeText(content)
+            Log.d("AndroidFirebaseSirves", "Saved locally to ${file.absolutePath}")
         } catch (e: Exception) {
             Log.e("AndroidFirebaseSirves", "Error saving locally", e)
         }
     }
 
-    override fun watchModuleLayout(): Flow<List<ModyilDeyda>> = callbackFlow {
+    override fun watchModuleLayout(environment: String): Flow<List<ModyilDeyda>> = callbackFlow {
         val user = auth.currentUser
+        Log.d("AndroidFirebaseSirves", "Starting watch for environment: $environment. User logged in: ${user != null}, UID: ${user?.uid}")
 
-        val local = loadLocally()
+        val local = loadLocally(environment)
         if (local.isNotEmpty()) {
             trySend(local)
         }
 
         if (user == null) {
-            var lastMod = if (localLayoutFile.exists()) localLayoutFile.lastModified() else 0L
+            val localFile = getLocalFile(environment)
+            var lastMod = if (localFile.exists()) localFile.lastModified() else 0L
             val job = launch {
                 while (isActive) {
                     delay(800)
-                    if (!localLayoutFile.exists()) continue
-                    val m = localLayoutFile.lastModified()
+                    if (!localFile.exists()) continue
+                    val m = localFile.lastModified()
                     if (m != lastMod) {
                         lastMod = m
-                        val updated = loadLocally()
+                        val updated = loadLocally(environment)
                         if (updated.isNotEmpty()) trySend(updated)
                     }
                 }
@@ -128,32 +157,44 @@ class AndroidFirebaseSirves(
         val registration = db.collection("users")
             .document(user.uid)
             .collection("layouts")
-            .document("current")
+            .document(environment)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    Log.e("AndroidFirebaseSirves", "Error watching layout", error)
+                    Log.e("AndroidFirebaseSirves", "Error watching layout ($environment) for UID: ${user.uid}", error)
                     return@addSnapshotListener
                 }
                 if (snapshot != null && snapshot.exists()) {
+                    Log.d("AndroidFirebaseSirves", "Received cloud update ($environment) for UID: ${user.uid}")
                     @Suppress("UNCHECKED_CAST")
                     val modyilzData = snapshot.get("modyilz") as? List<Map<String, Any>>
                     val modyilz = modyilzData?.map { ModyilDeyda.fromJson(it) } ?: emptyList()
                     if (modyilz.isNotEmpty()) {
                         trySend(modyilz)
-                        saveLocally(modyilz)
+                        saveLocally(modyilz, environment)
+                        
+                        // Broadcast update received from cloud
+                        val intent = Intent(ACTION_UPDATE_LAYOUT).apply {
+                            action = ACTION_UPDATE_LAYOUT
+                            putExtra(EXTRA_LAYOUT_JSON, json.encodeToString(modyilz))
+                            putExtra(EXTRA_ENVIRONMENT, environment)
+                        }
+                        appContext.sendBroadcast(intent)
                     }
+                } else {
+                    Log.d("AndroidFirebaseSirves", "Cloud document ($environment) empty or non-existent for UID: ${user.uid}")
                 }
             }
         awaitClose { registration.remove() }
     }
 
-    private fun loadLocally(): List<ModyilDeyda> {
+    private fun loadLocally(environment: String): List<ModyilDeyda> {
         try {
-            if (!localLayoutFile.exists()) return emptyList()
-            val content = localLayoutFile.readText()
+            val file = getLocalFile(environment)
+            if (!file.exists()) return emptyList()
+            val content = file.readText()
             return if (content.isEmpty()) emptyList() else json.decodeFromString(content)
         } catch (e: Exception) {
-            Log.e("AndroidFirebaseSirves", "Error loading locally", e)
+            Log.e("AndroidFirebaseSirves", "Error loading locally ($environment)", e)
             return emptyList()
         }
     }

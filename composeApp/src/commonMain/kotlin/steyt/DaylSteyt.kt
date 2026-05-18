@@ -17,7 +17,7 @@ class DaylSteyt {
     var isTextFieldFocused by mutableStateOf(false)
 
     var modyilz by mutableStateOf(listOf(
-        ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
+        ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("angol"), type = "hub"),
         ModyilDeyda(
             id = "keypad", 
             neym = "kepad", 
@@ -183,7 +183,7 @@ class DaylSteyt {
 
     fun reset() {
         modyilz = listOf(
-            ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("dayl"), type = "hub"),
+            ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("angol"), type = "hub"),
             ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap, type = "keypad"),
             ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, type = "beld"),
             ModyilDeyda(id = "module3", neym = "mod 3", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4),

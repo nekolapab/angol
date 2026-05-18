@@ -18,7 +18,7 @@ import yuteledez.HeksagonDjeyometre
 import yuteledez.KepadLodjek
 import yuteledez.getCurrentTimeMillis
 import wedjets.HeksagonWedjet
-import wedjets.AngolTogilWedjet
+import wedjets.AngolSpelenqTogil
 import modalz.KepadKonfeg
 import modalz.HeksagonPozecon
 import kotlin.math.pow
@@ -41,7 +41,8 @@ fun KepadModyil(
     onClose: () -> Unit = {},
     geometryOverride: HeksagonDjeyometre? = null,
     glefzOverride: List<String>? = null,
-    kulorzOverride: List<Long>? = null
+    kulorzOverride: List<Long>? = null,
+    contentWidthDp: androidx.compose.ui.unit.Dp? = null
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -173,7 +174,10 @@ fun KepadModyil(
             if (geometryOverride != null) {
                 geometryOverride
             } else {
-                val hexWidth = maxWidthDp.value / 5.0
+                val maxIdx = glefzOverride?.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }?.maxOrNull() ?: 0
+                val rings = if (maxIdx > 36) 4.0 else if (maxIdx > 18) 3.0 else 2.0
+                val hexesAcross = rings * 2.0 + 1.0
+                val hexWidth = maxWidthDp.value / hexesAcross
                 val hexSize = hexWidth / sqrt(3.0)
                 HeksagonDjeyometre(
                     heksSayz = hexSize, 
@@ -505,7 +509,7 @@ fun KepadModyil(
                     )
                 }
 
-                AngolTogilWedjet(
+                AngolSpelenqTogil(
                     geometry = currentGeometry,
                     gridHeightDp = gridHeightDp,
                     currentAngolMode = kurentAngolMod,
