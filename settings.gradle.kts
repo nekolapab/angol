@@ -17,6 +17,6 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp")
-include(":androidApp")
-include(":kepadApp")
+include(":angolKor")
+include(":daylAp")
+include(":kepadAp")
