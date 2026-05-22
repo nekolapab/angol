@@ -303,6 +303,9 @@ fun ModuleContent(
         }
         currentType == "beld" || currentType == "builder" -> modyilz.BeldModyil(
             daylSteyt = daylSteyt,
+            keyboardController = keyboardController,
+            platformServices = platformServices,
+            voiceService = voiceService,
             onClose = { 
                 daylSteyt.togilModyil(activeMod!!.pozecon)
                 onSaveLayout("current")
@@ -322,6 +325,10 @@ fun ModuleContent(
             },
             onMoveModule = { from, to ->
                 daylSteyt.swopModyilz(from + 1, to + 1)
+                onSaveLayout("current")
+            },
+            onDropOnFolder = { from, to ->
+                daylSteyt.muvModyilEntuFoldir(from, to)
                 onSaveLayout("current")
             },
             onCopyToEmpty = { from, to ->

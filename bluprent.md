@@ -23,10 +23,12 @@
 
 ### Key Features Status:
 - [x] **Hexagonal Keypad (IME):** Fully migrated to Kotlin Compose. Supports swipe, long-press, and phonetic conversion.
+- [x] **Hexagonal Grid Widget (Builder):** Supports long-press dragging, swapping, copying, and hover glow effects, with custom pressed states (contrast color tap) synchronized across widgets.
+- [x] **Consistent Keypad Font Size:** The keypad uses a consistent font size based on the largest label length (2 characters), scaled 1/12 larger.
 - [x] **Voice Input:** Integrate conversion and AI (Gemini 3.5) refinement in `DaylEnpitMelxod.kt`.
 - [x] **Auth & Hub:** Login (GitHub) and Home screens port to Kotlin Compose.
 - [x] **Cloud Sync:** Module layouts synchronize with Firebase Firestore via `FirebaseSirves`.
-- [x] **Beld Modyil (Builder):** 
+- [x] **Beld Modyil (Builder):** Supports module editing and custom layouts.
 - [x] **TTS (Text-to-Speech):** (`AndroidPlatformServices`).
 - [x] **Ultimate Versions:** Kotlin 2.3.21, Compose 1.10.3, AGP 9.2.0, CompileSdk 37.
 
@@ -43,7 +45,10 @@
 - **WearOS:** Use `enstol WearOS` tu launch lha emyuleydir.
 
 ### To Do:
-- **Module Separation:** Separate project into `:daylAp` (Dayl Hub) and `:kepadAp` (Kepad IME) to ensure only 'kepad' appears in the Android Input Method selection.
+- [x] **Module Separation:** Separate project into `:daylAp` (Dayl Hub) and `:kepadAp` (Kepad IME) to ensure only 'kepad' appears in the Android Input Method selection.
+- [ ] **Drag-to-Folder Logic:** Drag any module to folder, move inside, and remove from previous. Keep center drag from disappearing on main screen.
+- [ ] **Swap Visuals:** Short press triggers Glow, Long press triggers Contrast Color.
+
 
 ## **spetc tu tekst**
 **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`.

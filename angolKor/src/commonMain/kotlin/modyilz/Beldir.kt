@@ -26,6 +26,9 @@ import kotlin.math.sqrt
 @Composable
 fun BeldModyil(
     daylSteyt: DaylSteyt,
+    keyboardController: KeyboardController?,
+    platformServices: PlatformServices,
+    voiceService: VoiceService,
     onClose: () -> Unit,
     onAction: (String) -> Unit = {}
 ) {
@@ -70,7 +73,7 @@ fun BeldModyil(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 11f / 12f))
+            .background(Color.Black.copy(alpha = 0f / 12f))
     ) {
         val screenWidth = maxWidth
         val screenHeight = maxHeight
@@ -114,8 +117,8 @@ fun BeldModyil(
             ) {
                 Text(
                     text = "beld modyil",
-                    color = Color.White.copy(alpha = 6f / 12f),
-                    style = MaterialTheme.typography.caption
+                    color = Color.White,
+                    fontSize = 32.sp
                 )
             }
 
@@ -139,7 +142,17 @@ fun BeldModyil(
                         daylSteyt.muvModyilTuParent(from + 1)
                         syncBoth()
                     },
-                    onDropOnFolder = { _, _ -> },
+                    onDropOnFolder = { from, to ->
+                        daylSteyt.muvModyilEntuFoldir(from, to)
+                        syncBoth()
+                    },
+                    onDelete = { index ->
+                        val mod = daylSteyt.modyilz.find { it.pozecon == index + 1 }
+                        if (mod != null) {
+                            daylSteyt.deletModyil(mod.id)
+                            syncBoth()
+                        }
+                    },
                     onTap = { index ->
                         if (index == 0) { // Center
                             onClose()
@@ -172,7 +185,7 @@ fun GlefsEdetSkren(
     var isEditingModNeym by remember { mutableStateOf(false) }
     var newModNeym by remember { mutableStateOf(mod.neym) }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0f / 12f))) {
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
@@ -234,32 +247,53 @@ fun GlefsEdetSkren(
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { isEditingModNeym = true }) {
-                        Text(text = "beld: ${mod.neym}", color = Color.White.copy(alpha = 6f / 12f), style = MaterialTheme.typography.caption)
-                        Icon(Icons.Default.Edit, "Rename", tint = Color.Cyan, modifier = Modifier.size(12.dp).padding(start = 4.dp))
+                        Text(text = "beld: ${mod.neym}", color = Color.White, fontSize = 32.sp)
+                        Icon(Icons.Default.Edit, "Rename", tint = Color.Cyan, modifier = Modifier.size(24.dp).padding(start = 8.dp))
                     }
                 }
             }
 
             Box(modifier = Modifier.weight(1f)) {
-                HeksagonGred(
-                    geometry = geometry,
-                    items = gredItems,
-                    centerLabel = centerLabel,
-                    centerColor = Color.DarkGray,
-                    copyDragPolicy = CopyDragPolicy.TwoStepArmed,
-                    allowSwap = false,
+                KepadModyil(
+                    keyboardController = null,
+                    platformServices = object : PlatformServices {
+                        override fun log(tag: String, message: String) {}
+                        override fun toast(message: String) {}
+                        override fun playClickSound() {}
+                        override fun addToCorpus(word: String) {}
+                        override suspend fun getCorpus(): String = ""
+                        override fun openSettings() {}
+                        override fun speak(text: String) {}
+                    },
+                    voiceService = object : VoiceService {
+                        override val isListening: State<Boolean> = mutableStateOf(false)
+                        override val hasSpoken: State<Boolean> = mutableStateOf(false)
+                        override val angolSpelenqMod: State<Int> = mutableStateOf(0)
+                        override fun startListening(isAiMode: Boolean) {}
+                        override fun stopListening() {}
+                        override fun togilAngolMod(isLongPress: Boolean) {}
+                    },
+                    ezLeterMod = true,
+                    ezPunkcuweyconMod = false,
+                    onTogilMod = {},
+                    onSetPunkcuweyconMod = {},
+                    ezAngolMod = false,
+                    onTogilAngol = {},
+                    onStartAiVoys = {},
+                    ignoreSelectionUpdate = {},
+                    onClose = onBack,
+                    geometryOverride = geometry,
+                    glefzOverride = mod.glefz,
+                    kulorzOverride = mod.glefKulorz,
+                    isEditing = true,
                     onMove = onMuvGlef,
                     onCopyToEmpty = onCopyToEmpty,
                     onMoveToCenter = onMoveToParent,
-                    onDropOnFolder = { from, to -> },
-                    onTap = { index ->
-                        if (index == 0) onBack()
-                        else {
-                            editingGlefIndex = index
-                            newGlefLabel = mod.glefz.getOrNull(index) ?: ""
-                        }
+                    onDelete = { index ->
+                        // This uses onReneymGlef with empty string to effectively delete/clear
+                        onReneymGlef(index, "")
                     },
-                    fontSizeFactor = 12f / 12f
+                    onDropOnFolder = { _, _ -> }
                 )
             }
             

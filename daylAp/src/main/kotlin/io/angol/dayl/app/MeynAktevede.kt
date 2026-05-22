@@ -1,4 +1,4 @@
-package com.example.angol.ime
+package io.angol.dayl.app
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,6 +13,7 @@ import skrenz.DaylSkrenEntry
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import steyt.DaylSteyt
+import com.example.angol.ime.*
 
 class DaylViewModel : ViewModel() {
     val daylSteyt = DaylSteyt()

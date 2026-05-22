@@ -18,7 +18,7 @@ import kotlin.math.roundToInt
 /**
  * A layout composable that generates and arranges hexagon widgets in an outer ring.
  *
- * This composable creates its own children (`HeksagonWedjet`) based on the provided
+ * This composable creates its own children (`Heksagon`) based on the provided
  * labels and arranges them in a circle using a custom `Layout`. It observes state
  * from `EnpitSirves` to adjust its appearance.
  *
@@ -37,7 +37,7 @@ fun AwdirRenqWedjet(
     onHover: ((Boolean) -> Unit)? = null,
     stackWidth: Dp,
     stackHeight: Dp,
-    pressedIndex: Int? = null,
+    presdEndeks: Int? = null,
     handleGestures: Boolean = true,
     isPopup: Boolean = false
 ) {
@@ -48,7 +48,7 @@ fun AwdirRenqWedjet(
     Layout(
         modifier = modifier,
         content = {
-            // Generate the HeksagonWedjet children dynamically
+            // Generate the Heksagon children dynamically
             outerCoords.forEachIndexed { index, _ ->
                 if (index < tapLabels.size) {
                     val tapLabel = tapLabels[index]
@@ -59,7 +59,7 @@ fun AwdirRenqWedjet(
 
                     val hexSizeDp = geometry.heksWidlx.dp
 
-                    HeksagonWedjet(
+                    Heksagon(
                         label = tapLabel,
                         secondaryLabel = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
                         backgroundColor = hexColor,
@@ -68,7 +68,7 @@ fun AwdirRenqWedjet(
                         fontSizeFactor = 1.0f, // Perfect fit scale 1.0
                         verticalOffset = 0.dp, // Reset to centered
                         rotationAngle = geometry.roteyconAngol.toFloat(),
-                        isPressed = pressedIndex == index,
+                        ezPresd = presdEndeks == index,
                         onTap = if (handleGestures) { { onHexKeyPress(tapLabel, false, null) } } else null,
                         onLongPress = if (handleGestures && isLetterMode && longPressLabel.isNotEmpty()) {
                             { onHexKeyPress(longPressLabel, true, tapLabel) }

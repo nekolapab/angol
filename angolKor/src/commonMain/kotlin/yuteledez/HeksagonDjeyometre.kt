@@ -128,14 +128,22 @@ class HeksagonDjeyometre(
             val minY = if (positions.isEmpty()) 0.0 else positions.minOf { it.y } - (unitHexHeight / 2.0)
             val maxY = if (positions.isEmpty()) 0.0 else positions.maxOf { it.y } + (unitHexHeight / 2.0)
             
-            val minFitRings = if (isWearOS) 1.0 else 2.0
-            val minFitWidth = (minFitRings * 2.0 + 1.0) * unitHexWidth
-            val minFitHeight = minFitRings * 3.0 + 2.0 
-
-            val contentWidth = maxOf(maxX - minX, minFitWidth)
-            val contentHeight = maxOf(maxY - minY, minFitHeight)
+            // Force symmetry around (0,0) so the center hex is always in the middle
+            val maxAbsX = maxOf(kotlin.math.abs(minX), kotlin.math.abs(maxX))
+            val maxAbsY = maxOf(kotlin.math.abs(minY), kotlin.math.abs(maxY))
             
-            // No margin, touch the edges
+            // Minimum rings to prevent infinite zoom when few items
+            val minFitRings = if (isWearOS) 1.0 else 2.0
+            val minHalfWidth = (minFitRings + 0.5) * unitHexWidth
+            val minHalfHeight = (minFitRings * 1.5 + 1.0)
+            
+            val contentHalfWidth = maxOf(maxAbsX, minHalfWidth)
+            val contentHalfHeight = maxOf(maxAbsY, minHalfHeight)
+
+            val contentWidth = contentHalfWidth * 2.0
+            val contentHeight = contentHalfHeight * 2.0
+            
+            // Tight fit: No margins, use full screen space
             val sizeW = screenWidth / contentWidth
             val sizeH = screenHeight / contentHeight
             val finalHexSize = minOf(sizeW, sizeH).coerceAtLeast(10.0)
@@ -144,8 +152,8 @@ class HeksagonDjeyometre(
                 heksSayz = finalHexSize,
                 width = contentWidth * finalHexSize,
                 height = contentHeight * finalHexSize,
-                unitCenterX = (minX + maxX) / 2.0,
-                unitCenterY = (minY + maxY) / 2.0
+                unitCenterX = 0.0,
+                unitCenterY = 0.0
             )
         }
     }

@@ -27,7 +27,7 @@ fun SentirModWedjet(
 ) {
     val sizeInDp = geometry.heksWidlx.toFloat().dp
 
-    HeksagonWedjet(
+    Heksagon(
         label = label,
         backgroundColor = backgroundColor,
         textColor = textColor,

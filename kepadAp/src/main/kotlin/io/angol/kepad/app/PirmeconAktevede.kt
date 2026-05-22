@@ -1,4 +1,4 @@
-package com.example.angol.ime
+package io.angol.kepad.app
 
 import android.Manifest
 import android.content.pm.PackageManager

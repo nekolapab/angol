@@ -1,4 +1,4 @@
-package com.example.angol.ime
+package io.angol.kepad.app
 
 import android.content.Context
 import android.content.Intent
@@ -57,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlin.math.sqrt
 import kotlinx.serialization.json.Json
+import com.example.angol.ime.*
 
 private const val TAG = "KepadEnpitMelxod"
 
@@ -434,6 +435,12 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     }
 
     override fun onCreateInputView(): View {
+        window?.window?.apply {
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            setDimAmount(0f)
+            clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        }
+
         window?.window?.decorView?.let { decorView ->
             decorView.setViewTreeLifecycleOwner(this)
             decorView.setViewTreeViewModelStoreOwner(this)
@@ -456,6 +463,15 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                                 if (updatedModules.isNotEmpty()) {
                                     Log.d(TAG, "Keyboard loaded initial layout from Firebase/Local")
                                     daylSteyt.updateModules(updatedModules)
+                                    
+                                    // AUTO-ACTIVATE: If nothing is active, find the first keypad module and show it!
+                                    if (daylSteyt.activeModule == null) {
+                                        val firstKepad = updatedModules.find { it.type == "keypad" }
+                                        if (firstKepad != null) {
+                                            Log.d(TAG, "Auto-activating module: ${firstKepad.neym}")
+                                            daylSteyt.activateModyil(firstKepad.id)
+                                        }
+                                    }
                                 }
                             }
                         }

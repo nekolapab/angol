@@ -30,11 +30,7 @@ class DaylSteyt {
                          modalz.KepadKonfeg.rainbowColors.map { it.toArgbLong() },
             type = "keypad"
         ),
-        ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "beld"),
-        ModyilDeyda(id = "module3", neym = "mod 3", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, ezAktiv = false),
-        ModyilDeyda(id = "module4", neym = "mod 4", kulorLong = Color(0xFF00FFFF).toArgb().toLong(), pozecon = 5, ezAktiv = false),
-        ModyilDeyda(id = "module5", neym = "mod 5", kulorLong = Color(0xFF0000FF).toArgb().toLong(), pozecon = 6, ezAktiv = false),
-        ModyilDeyda(id = "module6", neym = "mod 6", kulorLong = Color(0xFFFF00FF).toArgb().toLong(), pozecon = 7, ezAktiv = false)
+        ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "beld")
     ))
 
     val activeModule: ModyilDeyda?
@@ -176,9 +172,51 @@ class DaylSteyt {
     }
 
     fun muvModyilTuParent(index: Int) {
-        val modToMuv = modyilz.find { it.pozecon == index } ?: return
-        if (PROTECTED_IDS.contains(modToMuv.id)) return
-        modyilz = modyilz.filter { it.pozecon != index }
+        // No-op to prevent dragging to center 'angol' from disappearing modules on the Hub screen.
+    }
+
+    fun muvModyilEntuFoldir(sourceIndex: Int, targetIndex: Int) {
+        // UI is 0-based, state is 1-based.
+        val sourceMod = modyilz.find { it.pozecon == sourceIndex + 1 } ?: return
+        val targetMod = modyilz.find { it.pozecon == targetIndex + 1 } ?: return
+        
+        if (targetMod.type != "keypad") return
+        if (PROTECTED_IDS.contains(sourceMod.id)) return
+
+        // 1. Move source identity into target's glefz
+        val newGlefz = targetMod.glefz.toMutableList()
+        val newKulorz = targetMod.glefKulorz.toMutableList()
+        
+        // Ensure the folder has a center label at index 0
+        if (newGlefz.isEmpty()) {
+            newGlefz.add(targetMod.neym)
+            newKulorz.add(targetMod.kulorLong)
+        }
+        
+        // Find the first empty spot starting from index 1
+        var emptyIdx = -1
+        for (i in 1 until newGlefz.size) {
+            if (newGlefz[i].isEmpty()) {
+                emptyIdx = i
+                break
+            }
+        }
+        if (emptyIdx == -1) {
+            emptyIdx = newGlefz.size
+        }
+        
+        while (newGlefz.size <= emptyIdx) newGlefz.add("")
+        while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333)
+        
+        newGlefz[emptyIdx] = sourceMod.neym
+        newKulorz[emptyIdx] = sourceMod.kulorLong
+        
+        // 2. Update target module and remove source from Hub
+        modyilz = modyilz.map { m ->
+            if (m.id == targetMod.id) {
+                m.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
+            } else m
+        }.filter { it.id != sourceMod.id }
     }
 
     fun reset() {

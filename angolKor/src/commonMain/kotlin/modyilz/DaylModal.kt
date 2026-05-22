@@ -11,7 +11,7 @@ import modalz.ModyilDeyda
 import modalz.KepadKonfeg
 import wedjets.SentirModWedjet
 import wedjets.EnirRenqWedjet
-import wedjets.HeksagonWedjet
+import wedjets.Heksagon
 import wedjets.HeksagonGred
 import wedjets.GredItem
 
@@ -23,6 +23,7 @@ fun DaylModal(
     onMoveModule: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
     onMoveToCenter: (Int) -> Unit,
+    onDropOnFolder: (Int, Int) -> Unit,
     stackWidth: Dp,
     stackHeight: Dp,
     allowSwap: Boolean = true
@@ -33,7 +34,7 @@ fun DaylModal(
             index = mod.pozecon - 1,
             label = mod.neym,
             color = mod.kulor,
-            isFolder = true,
+            isFolder = mod.type == "keypad",
             deyda = mod
         )
     }
@@ -47,7 +48,7 @@ fun DaylModal(
             onMove = onMoveModule,
             onCopyToEmpty = onCopyToEmpty,
             onMoveToCenter = onMoveToCenter,
-            onDropOnFolder = { from, to -> },
+            onDropOnFolder = onDropOnFolder,
             modifier = Modifier.fillMaxSize(),
             onTap = onToggleModule,
             allowSwap = allowSwap,

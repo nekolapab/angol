@@ -19,7 +19,7 @@
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
         <activity
-            android:name="com.example.angol.ime.PirmeconAktevede"
+            android:name="io.angol.kepad.app.PirmeconAktevede"
             android:label="permission"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true"
@@ -27,7 +27,7 @@
             android:exported="true" />
 
         <service
-            android:name="com.example.angol.ime.KepadEnpitMelxod"
+            android:name="io.angol.kepad.app.KepadEnpitMelxod"
             android:label="@string/ime_name"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true"

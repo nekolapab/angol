@@ -52,10 +52,11 @@ fun HeksagonGred(
     centerLabel: String = "",
     centerColor: Color = Color.Black,
     onTap: (Int) -> Unit = {},
+    onDelete: (Int) -> Unit = {},
     copyDragPolicy: CopyDragPolicy = CopyDragPolicy.TwoStepArmed,
     allowSwap: Boolean = true,
     fontSizeFactor: Float = 6f / 12f,
-    useConsistentSize: Boolean = false
+    ezKonsestentSayz: Boolean = false
 ) {
     val haptic = LocalHapticFeedback.current
     val density = LocalDensity.current
@@ -64,12 +65,15 @@ fun HeksagonGred(
     var currentHoverIndex by remember { mutableStateOf<Int?>(null) }
     var lastSameSpotIndex by remember { mutableStateOf<Int?>(null) }
     var isCopyDragActive by remember { mutableStateOf(false) }
+    var presdEndeks by remember { mutableStateOf<Int?>(null) }
+    var glowenqEndeks by remember { mutableStateOf<Int?>(null) }
+    var disconnectedArmedIndex by remember { mutableStateOf<Int?>(null) }
 
     val allHexPositions = remember(geometry, items) {
         val maxIndex = items.maxOfOrNull { it.index } ?: 0
         var ringsNeeded = 1
         while (3 * ringsNeeded * (ringsNeeded + 1) < maxIndex) ringsNeeded++
-        val displayRings = maxOf(3, ringsNeeded + 1)
+        val displayRings = ringsNeeded + 1
         val posList = mutableListOf<HeksagonPozecon>()
         posList.add(geometry.sentir)
         for (r in 1..displayRings) {
@@ -89,6 +93,24 @@ fun HeksagonGred(
     }
     val hexSizePx = remember(geometry, density) { with(density) { geometry.heksSayz.dp.toPx() } }
 
+    // BFS: compute which indices are reachable from index 0 via occupied neighbours
+    val konektedIndeksez = remember(items) {
+        val occupiedSet = items.filter { it.label.isNotEmpty() }.map { it.index }.toSet()
+        val visited = mutableSetOf(0)
+        val queue = ArrayDeque<Int>()
+        queue.add(0)
+        while (queue.isNotEmpty()) {
+            val cur = queue.removeFirst()
+            geometry.getNeybirIndesiz(cur).forEach { nb ->
+                if (nb >= 0 && nb in occupiedSet && nb !in visited) {
+                    visited.add(nb)
+                    queue.add(nb)
+                }
+            }
+        }
+        visited
+    }
+
     fun applyDragEnd(fromIdx: Int?, toIdx: Int?, isMoveDrag: Boolean) {
         if (fromIdx != null && toIdx != null) {
             val sameSpot = (toIdx == fromIdx)
@@ -97,16 +119,16 @@ fun HeksagonGred(
             } else {
                 if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = null
                 if (isMoveDrag) {
-                    if (toIdx == 0) onMoveToCenter(fromIdx)
-                    else {
-                        val targetItem = items.firstOrNull { it.index == toIdx }
-                        val isTargetOccupied = targetItem != null && targetItem.label.isNotEmpty()
-                        if (isTargetOccupied) {
-                            if (targetItem.isFolder) onDropOnFolder(fromIdx, toIdx)
-                            else if (allowSwap) onMove(fromIdx, toIdx)
-                        } else {
-                            onMove(fromIdx, toIdx)
-                        }
+                    // Index 0 (Center) is protected, do not allow move/drop there
+                    if (toIdx == 0) return 
+
+                    val targetItem = items.firstOrNull { it.index == toIdx }
+                    val isTargetOccupied = targetItem != null && targetItem.label.isNotEmpty()
+                    if (isTargetOccupied) {
+                        if (targetItem.isFolder) onDropOnFolder(fromIdx, toIdx)
+                        else if (allowSwap) onMove(fromIdx, toIdx)
+                    } else {
+                        onMove(fromIdx, toIdx)
                     }
                 } else {
                     if (toIdx != 0) {
@@ -118,75 +140,72 @@ fun HeksagonGred(
         }
     }
 
+    val isAnyTouchActive = glowenqEndeks != null || draggingIndex != null
+
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val wPx = constraints.maxWidth.toFloat()
         val hPx = constraints.maxHeight.toFloat()
         val hexWidthDp = geometry.heksWidlx.dp
+        
+        val draggedItem = if (draggingIndex != null) items.firstOrNull { it.index == draggingIndex } else null
 
         allHexPositions.forEachIndexed { index, pos ->
             val item = items.firstOrNull { it.index == index }
             val isDragging = draggingIndex == index
             val isHovered = currentHoverIndex == index && draggingIndex != null
+
             Box(modifier = Modifier.align(Alignment.Center).offset(x = pos.x.dp, y = pos.y.dp)) {
                 if (index == 0 && item == null && centerLabel.isNotEmpty()) {
-                    HeksagonWedjet(
+                    Heksagon(
                         label = centerLabel, backgroundColor = centerColor,
                         textColor = KepadKonfeg.getComplementaryColor(centerColor), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
-                        useConsistentSize = useConsistentSize,
+                        ezKonsestentSayz = ezKonsestentSayz,
                         onTap = null, onLongPress = null,
-                        modifier = if (isHovered) {
-                            Modifier.drawBehind {
-                                val glowRadius = size.maxDimension * 1f
-                                drawCircle(
-                                    brush = Brush.radialGradient(
-                                        colors = listOf(Color.White.copy(alpha = 10f/12f), Color.Transparent),
-                                        center = center,
-                                        radius = glowRadius
-                                    ),
-                                    radius = glowRadius
-                                )
-                            }
-                        } else Modifier
+                        // Center glows when ANY touch is active, like keypad
+                        ezGlowenq = isAnyTouchActive || glowenqEndeks == index,
+                        ezPresd = presdEndeks == index
                     )
                 } else if (item != null) {
-                    HeksagonWedjet(
-                        label = item.label, backgroundColor = item.color,
-                        textColor = KepadKonfeg.getComplementaryColor(item.color), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
-                        useConsistentSize = useConsistentSize,
-                        onTap = null, onLongPress = null,
-                        modifier = if (isDragging && !isCopyDragActive) {
-                            val fingerXDp = with(density) { (dragOffset.x - wPx / 2f).toDp() }
-                            val fingerYDp = with(density) { (dragOffset.y - hPx / 2f).toDp() }
-                            Modifier.offset(x = fingerXDp - pos.x.dp, y = fingerYDp - pos.y.dp)
-                                .drawBehind {
-                                    val glowRadius = size.maxDimension * 1f
-                                    drawCircle(
-                                        brush = Brush.radialGradient(
-                                            colors = listOf(item.color.copy(alpha = 10f/12f), Color.Transparent),
-                                            center = center,
-                                            radius = glowRadius
-                                        ),
-                                        radius = glowRadius
-                                    )
-                                }
-                        } else if (isHovered) {
-                            Modifier.drawBehind {
-                                val glowRadius = size.maxDimension * 1f
-                                drawCircle(
-                                    brush = Brush.radialGradient(
-                                        colors = listOf(Color.White.copy(alpha = 10f/12f), Color.Transparent),
-                                        center = center,
-                                        radius = glowRadius
-                                    ),
-                                    radius = glowRadius
-                                )
-                            }
-                        } else Modifier
-                    )
-                } else if (isHovered && index > 0) {
-                    HeksagonWedjet(
-                        label = "+", backgroundColor = Color.Gray.copy(alpha = 4f / 12f), textColor = Color.White, size = hexWidthDp,
-                        fontSizeFactor = fontSizeFactor, useConsistentSize = useConsistentSize
+                    val isMovedFromStart = currentHoverIndex != draggingIndex
+                    
+                    // Unified Contrast logic:
+                    // 1. Copy drag: source stays original color (false).
+                    // 2. Move drag: only contrasts once it starts traveling (isMovedFromStart).
+                    // 3. Disconnected + Armed: Visually disappears (opacity 0)
+                    val isArmed = index == disconnectedArmedIndex
+                    val showContrast = if (isCopyDragActive && isDragging) {
+                        false
+                    } else if (isDragging) {
+                        isMovedFromStart 
+                    } else {
+                        false
+                    }
+
+                    if (!isArmed) {
+                        Heksagon(
+                            label = item.label, backgroundColor = item.color,
+                            textColor = KepadKonfeg.getComplementaryColor(item.color), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
+                            ezKonsestentSayz = ezKonsestentSayz,
+                            onTap = null, onLongPress = null,
+                            ezPresd = showContrast,
+                            ezGlowenq = glowenqEndeks == index,
+                            modifier = if (isDragging && !isCopyDragActive) {
+                                val fingerXDp = with(density) { (dragOffset.x - wPx / 2f).toDp() }
+                                val fingerYDp = with(density) { (dragOffset.y - hPx / 2f).toDp() }
+                                Modifier.offset(x = fingerXDp - pos.x.dp, y = fingerYDp - pos.y.dp)
+                            } else Modifier
+                        )
+                    }
+                } else if (isHovered && index > 0 && draggedItem != null) {
+                    Heksagon(
+                        label = draggedItem.label, 
+                        backgroundColor = draggedItem.color, 
+                        textColor = KepadKonfeg.getComplementaryColor(draggedItem.color), 
+                        size = hexWidthDp,
+                        fontSizeFactor = fontSizeFactor, 
+                        ezKonsestentSayz = ezKonsestentSayz,
+                        ezPresd = false,
+                        ezGlowenq = true
                     )
                 }
             }
@@ -194,58 +213,125 @@ fun HeksagonGred(
 
         val ghostItem = remember(items, draggingIndex) { items.firstOrNull { it.index == draggingIndex } }
         if (isCopyDragActive && ghostItem != null && draggingIndex != null) {
+            val isMovedFromStart = currentHoverIndex != draggingIndex
             val xDp = with(density) { dragOffset.x.toDp() }; val yDp = with(density) { dragOffset.y.toDp() }
-            HeksagonWedjet(
-                label = ghostItem.label, backgroundColor = ghostItem.color.copy(alpha = 9f / 12f), textColor = KepadKonfeg.getComplementaryColor(ghostItem.color),
+            Heksagon(
+                label = ghostItem.label, backgroundColor = ghostItem.color, textColor = KepadKonfeg.getComplementaryColor(ghostItem.color),
                 size = hexWidthDp, fontSizeFactor = fontSizeFactor, onTap = null, onLongPress = null,
+                ezPresd = isMovedFromStart, // Contrast only while traveling
+                ezGlowenq = true,
                 modifier = Modifier.align(Alignment.TopStart).offset(x = xDp - (hexWidthDp / 2), y = yDp - ((hexWidthDp * (2f / kotlin.math.sqrt(3f))) / 2))
-                    .drawBehind {
-                        val glowRadius = size.maxDimension * 1f
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(Color.Yellow.copy(alpha = 10f/12f), Color.Transparent),
-                                center = center,
-                                radius = glowRadius
-                            ),
-                            radius = glowRadius
-                        )
-                    }
             )
         }
 
-        Box(Modifier.fillMaxSize().align(Alignment.Center).pointerInput(geometry, items, lastSameSpotIndex, wPx, hPx, allHexPositionsPx, hexSizePx) {
+        Box(Modifier.fillMaxSize().align(Alignment.Center).pointerInput(geometry, items, lastSameSpotIndex, disconnectedArmedIndex, wPx, hPx, allHexPositionsPx, hexSizePx) {
             val longMs = viewConfiguration.longPressTimeoutMillis
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
                 val start = down.position
-                val upBeforeLongPress = withTimeoutOrNull(longMs) { waitForUpOrCancellation(); true }
-                if (upBeforeLongPress == true) {
-                    val idx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
-                    if (idx != null) { onTap(idx); if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = idx }
-                    return@awaitEachGesture
-                }
-                var idx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
-                if (idx == null || !items.any { it.index == idx && it.label.isNotEmpty() }) {
-                    if (idx == null || !items.any { it.index == idx }) { waitForUpOrCancellation(); return@awaitEachGesture }
-                }
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                val isMoveDrag = when (copyDragPolicy) {
-                    CopyDragPolicy.AlwaysCopy -> false; CopyDragPolicy.NeverCopy -> true; CopyDragPolicy.TwoStepArmed -> (lastSameSpotIndex != idx)
-                }
-                draggingIndex = idx; isCopyDragActive = !isMoveDrag; dragOffset = start; currentHoverIndex = idx
+                val downIdx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
+                glowenqEndeks = downIdx
+                
                 try {
-                    while (true) {
-                        val event = awaitPointerEvent(PointerEventPass.Main); val change = event.changes.find { it.id == down.id } ?: break
-                        if (change.changedToUpIgnoreConsumed()) break
-                        val delta = change.positionChange(); dragOffset = Offset(dragOffset.x + delta.x, dragOffset.y + delta.y)
-                        currentHoverIndex = getHexIndexFromPosition(
-                                    dragOffset.x, dragOffset.y, wPx, hPx, allHexPositionsPx, hexSizePx
-                                )
-                        change.consume()
+                    val upBeforeLongPress = withTimeoutOrNull(longMs) {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.changes.any { it.changedToUpIgnoreConsumed() }) return@withTimeoutOrNull true
+                        }
+                    }
+                    if (upBeforeLongPress == true) {
+                        val idx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
+                        if (idx != null) { 
+                            onTap(idx)
+                            if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = idx 
+                        }
+                        return@awaitEachGesture
+                    }
+
+                    var idx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
+                    // Allow long-press on armed (disappeared) hex position too
+                    val isArmedEmpty = idx != null && disconnectedArmedIndex == idx && !items.any { it.index == idx }.not()
+                    if (idx == null || (!items.any { it.index == idx } && disconnectedArmedIndex != idx)) {
+                        if (idx == null || !items.any { it.index == idx }) {
+                            presdEndeks = null
+                            waitForUpOrCancellation()
+                            return@awaitEachGesture
+                        }
+                    }
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+
+                    // Check if this hex is disconnected from the core
+                    val isDiskonekded = idx != null && idx !in konektedIndeksez && items.any { it.index == idx }
+
+                    // Disconnected + already armed on this exact index → DELETE on second long-press
+                    if (isDiskonekded && disconnectedArmedIndex == idx) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        disconnectedArmedIndex = null
+                        lastSameSpotIndex = null
+                        presdEndeks = null
+                        waitForUpOrCancellation()
+                        onDelete(idx!!)
+                        return@awaitEachGesture
+                    }
+
+                    // Disconnected + not yet armed → ARM it (hex visually disappears)
+                    if (isDiskonekded && disconnectedArmedIndex != idx) {
+                        disconnectedArmedIndex = idx
+                        lastSameSpotIndex = null
+                        // Now wait: if dragged to a new spot → move (save). If released same spot → stays armed.
+                        draggingIndex = idx; isCopyDragActive = false; dragOffset = start; currentHoverIndex = idx
+                        presdEndeks = idx
+                        var hasMuvd = false
+                        try {
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Main)
+                                val change = event.changes.find { it.id == down.id } ?: break
+                                if (change.changedToUpIgnoreConsumed()) break
+                                val delta = change.positionChange()
+                                dragOffset = Offset(dragOffset.x + delta.x, dragOffset.y + delta.y)
+                                val newHover = getHexIndexFromPosition(dragOffset.x, dragOffset.y, wPx, hPx, allHexPositionsPx, hexSizePx)
+                                if (newHover != idx) hasMuvd = true
+                                currentHoverIndex = newHover
+                                presdEndeks = currentHoverIndex
+                                change.consume()
+                            }
+                        } finally {
+                            if (hasMuvd) {
+                                // Moved to a new position → save it (move), clear armed
+                                disconnectedArmedIndex = null
+                                applyDragEnd(draggingIndex, currentHoverIndex, true)
+                            }
+                            // If not moved: stays armed (disappeared) for second LP
+                            draggingIndex = null; currentHoverIndex = null; dragOffset = Offset.Zero; isCopyDragActive = false
+                            presdEndeks = null
+                        }
+                        return@awaitEachGesture
+                    }
+
+                    // Normal connected hex logic
+                    val isMoveDrag = when (copyDragPolicy) {
+                        CopyDragPolicy.AlwaysCopy -> false; CopyDragPolicy.NeverCopy -> true; CopyDragPolicy.TwoStepArmed -> (lastSameSpotIndex != idx)
+                    }
+                    draggingIndex = idx; isCopyDragActive = !isMoveDrag; dragOffset = start; currentHoverIndex = idx
+                    presdEndeks = idx
+                    try {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Main); val change = event.changes.find { it.id == down.id } ?: break
+                            if (change.changedToUpIgnoreConsumed()) break
+                            val delta = change.positionChange(); dragOffset = Offset(dragOffset.x + delta.x, dragOffset.y + delta.y)
+                            currentHoverIndex = getHexIndexFromPosition(
+                                        dragOffset.x, dragOffset.y, wPx, hPx, allHexPositionsPx, hexSizePx
+                                    )
+                            presdEndeks = currentHoverIndex
+                            change.consume()
+                        }
+                    } finally {
+                        applyDragEnd(draggingIndex, currentHoverIndex, isMoveDrag)
+                        draggingIndex = null; currentHoverIndex = null; dragOffset = Offset.Zero; isCopyDragActive = false
+                        presdEndeks = null
                     }
                 } finally {
-                    applyDragEnd(draggingIndex, currentHoverIndex, isMoveDrag)
-                    draggingIndex = null; currentHoverIndex = null; dragOffset = Offset.Zero; isCopyDragActive = false
+                    glowenqEndeks = null
                 }
             }
         })
