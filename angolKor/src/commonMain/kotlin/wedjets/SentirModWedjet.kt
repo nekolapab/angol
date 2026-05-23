@@ -33,7 +33,6 @@ fun SentirModWedjet(
         textColor = textColor,
         size = sizeInDp,
         fontSizeFactor = fontSizeFactor,
-        rotationAngle = geometry.roteyconAngol.toFloat(),
         onTap = onTap,
         onLongPress = onLongPress,
         onPressedChanged = onPressedChanged,

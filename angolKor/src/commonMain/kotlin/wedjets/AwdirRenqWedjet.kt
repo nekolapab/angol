@@ -67,7 +67,6 @@ fun AwdirRenqWedjet(
                         size = hexSizeDp,
                         fontSizeFactor = 1.0f, // Perfect fit scale 1.0
                         verticalOffset = 0.dp, // Reset to centered
-                        rotationAngle = geometry.roteyconAngol.toFloat(),
                         ezPresd = presdEndeks == index,
                         onTap = if (handleGestures) { { onHexKeyPress(tapLabel, false, null) } } else null,
                         onLongPress = if (handleGestures && isLetterMode && longPressLabel.isNotEmpty()) {
