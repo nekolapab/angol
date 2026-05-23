@@ -106,7 +106,8 @@ fun DaylSkren(
     val saveLayout: (String) -> Unit = { env ->
         if (firebaseSirves != null) {
             scope.launch {
-                firebaseSirves.saveModuleLayout(daylSteyt.modyilz, env)
+                val modyilzToSave = if (isApp) daylSteyt.modyilz.filter { it.type != "keypad" } else daylSteyt.modyilz
+                firebaseSirves.saveModuleLayout(modyilzToSave, env)
             }
         }
     }
@@ -115,9 +116,13 @@ fun DaylSkren(
         val fs = firebaseSirves ?: return@LaunchedEffect
         fs.watchModuleLayout(kurentEnv).collectLatest { remoteModules ->
             if (remoteModules.isNotEmpty()) {
-                daylSteyt.updateModules(remoteModules)
-                if (!isApp) {
-                    // Only force activation if nothing is currently active in the synced data
+                if (isApp) {
+                    val defaultKepad = daylSteyt.modyilz.find { it.type == "keypad" }
+                    val remoteNonKepad = remoteModules.filter { it.type != "keypad" }
+                    val merged = if (defaultKepad != null) remoteNonKepad + defaultKepad else remoteNonKepad
+                    daylSteyt.updateModules(merged)
+                } else {
+                    daylSteyt.updateModules(remoteModules)
                     if (daylSteyt.activeModule == null) {
                         daylSteyt.activateModyil("keypad")
                     }

@@ -16,9 +16,7 @@ import steyt.DaylSteyt
 import com.example.angol.ime.*
 
 class DaylViewModel : ViewModel() {
-    val daylSteyt = DaylSteyt().apply {
-        modyilz = modyilz.filter { it.type != "keypad" }
-    }
+    val daylSteyt = DaylSteyt()
 }
 
 class MeynAktevede : ComponentActivity() {
