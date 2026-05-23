@@ -56,10 +56,13 @@ fun KepadModyil(
     
     val kurentEzLeterMod by rememberUpdatedState(ezLeterMod)
     val kurentEzPunkcuweyconMod by rememberUpdatedState(ezPunkcuweyconMod)
+    val kurentOnTogilMod by rememberUpdatedState(onTogilMod)
     val kurentAngolMod by rememberUpdatedState(voiceService.angolSpelenqMod.value)
     
     val kurentWirdBufir = remember { StringBuilder() }
     var dezspleyTekst by remember { mutableStateOf("") }
+    
+    var daylRoteconAngol by remember { mutableStateOf(0f) }
 
     val huvirdHeksIndeks = remember { mutableStateOf<Int?>(null) }
     val kepadLongPresEndeks = remember { mutableStateOf<Int?>(null) }
@@ -222,7 +225,7 @@ fun KepadModyil(
         contentAlignment = Alignment.BottomCenter
     ) {
         val maxWidthDp = maxWidth
-        val currentGeometry = remember(maxWidthDp, geometryOverride, kurentEzLeterMod) {
+        val currentGeometry = remember(maxWidthDp, geometryOverride, daylRoteconAngol, kurentEzLeterMod) {
             if (geometryOverride != null) {
                 geometryOverride
             } else {
@@ -234,7 +237,8 @@ fun KepadModyil(
                 HeksagonDjeyometre(
                     heksSayz = hexSize, 
                     sentir = HeksagonPozecon(x = 0.0, y = 0.0), 
-                    ezLeterMod = kurentEzLeterMod
+                    ezLeterMod = kurentEzLeterMod,
+                    roteyconAngol = daylRoteconAngol.toDouble()
                 )
             }
         }
@@ -300,6 +304,9 @@ fun KepadModyil(
                                 lonqPresStartOfset.value = down.position
                                 ezKapetalayzd = false
                                 ezSentirTranzleytAktev = false
+                                var rotationTriggered = false
+                                var initialAngle: Float? = null
+                                val startDaylAngle = daylRoteconAngol
 
                                 if (downIndex != null) {
                                     huvirdHeksIndeks.value = downIndex
@@ -332,6 +339,25 @@ fun KepadModyil(
                                 while (true) {
                                     val event = awaitPointerEvent()
                                     val changes = event.changes
+                                    val activePointers = changes.filter { it.pressed }
+
+                                    if (activePointers.size == 2) {
+                                        val p1 = activePointers[0].position
+                                        val p2 = activePointers[1].position
+                                        val currentAngle = kotlin.math.atan2(p2.y - p1.y, p2.x - p1.x)
+                                        if (initialAngle == null) {
+                                            initialAngle = currentAngle
+                                        } else {
+                                            var diff = currentAngle - initialAngle!!
+                                            while (diff <= -kotlin.math.PI) diff += (2 * kotlin.math.PI).toFloat()
+                                            while (diff > kotlin.math.PI) diff -= (2 * kotlin.math.PI).toFloat()
+                                            daylRoteconAngol = startDaylAngle + diff
+                                            if (kotlin.math.abs(diff) >= 0.26f && !rotationTriggered) {
+                                                kurentOnTogilMod()
+                                                rotationTriggered = true
+                                            }
+                                        }
+                                    }
 
                                     val change = changes.firstOrNull { it.id == down.id } ?: changes.firstOrNull { it.pressed } ?: break
                                     if (!change.pressed && changes.all { !it.pressed }) break
@@ -423,7 +449,7 @@ fun KepadModyil(
                                 if (gestureStartedIndex == 0) {
                                     ezSentirHeksPresd = false
                                     val duration = getCurrentTimeMillis() - startTime
-                                    if (huvirdHeksIndeks.value == 0) {
+                                    if (huvirdHeksIndeks.value == 0 && !rotationTriggered) {
                                         when {
                                             duration < 510 -> {
                                                 voiceService.stopListening()
@@ -444,6 +470,7 @@ fun KepadModyil(
                                         onClose()
                                     }
                                 }
+                                daylRoteconAngol = 0f
                                 if (kurentEzPunkcuweyconMod) onSetPunkcuweyconMod(false)
                                 huvirdHeksIndeks.value = null
                                 kepadLongPresEndeks.value = null
@@ -496,6 +523,7 @@ fun KepadModyil(
                             size = hexWidthDp,
                             fontSizeFactor = 13f/12f,
                             ezKonsestentSayz = true,
+                            rotationAngle = currentGeometry.roteyconAngol.toFloat(),
                             ezPresd = kepadLongPresEndeks.value == index,
                             ezGlowenq = huvirdHeksIndeks.value == index && kepadLongPresEndeks.value != index,
                             modifier = Modifier.offset(x = pos.x.dp, y = pos.y.dp)
