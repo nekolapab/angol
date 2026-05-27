@@ -1,8 +1,6 @@
-## **Kotlin multiplatform**
-* **not cow kod** yuz lha `replace` tul ensted ov `write_file` tu avoyd lonq awtputs lhat fel 8p lha kontekst.
-* **trunkeyded awtput:** ef a tul awtput ez lonq  despley relevant layn onle.
-* **prodjekt strukcir:** lha shared UI and lodjek ez en `composeApp/src/commonMain/kotlin/` and `composeApp/src/androidMain/kotlin/`.
-* **dev.nix konfegyireycon:** lha .idx/dev.nix fayl ez lha sors ov trulx for lha wirkpleys envayrment. lha AI cid levredj et tu encur envayrment konsestense and odomadekle konfegyir nesesere tulz.
+## **Kotlin Compose Multiplatform**
+* **trunkeyt awtput and dont cow kod** yuz lha `replace` tul ensted ov `write_file` tu avoyd kod despley. and lemet tuwl awtput despley tu wan layn onle.
+* **dev.nix konfegyireycon:** lha .idx/dev.nix fayl ez lha sors ov trulx for lha wirkpleys envayrment. Gemini cid levredj et tu odomadekle konfegyir nesesere tulz encur konsestense.
 * **prevyu sirvir:** lha AI wel kontenyuwosle monetir lha awtput ov lha prevyu sirvir (e.g., konsol logz, erir mesedjez) for rel taym fedbak on tceyndjez.
 * **Firebase entegreycon:** lha AI rekognayzez standard Firebase entegreycon paternz en Kotlin/Compose, enkludenq lha yus ov `AndroidFirebaseSirves.kt`.
 

@@ -47,7 +47,8 @@ fun HeksagonGred(
     onMove: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
     onMoveToCenter: (Int) -> Unit,
-    onDropOnFolder: (Int, Int) -> Unit,
+    onDropOnFoldir: (Int, Int) -> Unit,
+    onReplace: ((Int, Int) -> Unit)? = null,
     modifier: Modifier = Modifier,
     centerLabel: String = "",
     centerColor: Color = Color.Black,
@@ -125,7 +126,7 @@ fun HeksagonGred(
                     val targetItem = items.firstOrNull { it.index == toIdx }
                     val isTargetOccupied = targetItem != null && targetItem.label.isNotEmpty()
                     if (isTargetOccupied) {
-                        if (targetItem.isFolder) onDropOnFolder(fromIdx, toIdx)
+                        if (targetItem.isFolder) onDropOnFoldir(fromIdx, toIdx)
                         else if (allowSwap) onMove(fromIdx, toIdx)
                     } else {
                         onMove(fromIdx, toIdx)

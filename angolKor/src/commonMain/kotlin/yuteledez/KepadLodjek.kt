@@ -62,59 +62,28 @@ object KepadLodjek {
         isCapitalized: Boolean,
         glefzOverride: List<String>?
     ): List<String> {
-        val baseLabels = if (glefzOverride != null) {
-            // Use custom labels if provided
-            if (vowelIndex != null && vowelIndex in 1..5 && isLetterMode && !isPunctuationMode) {
-                val expanded = MutableList(37) { "" }
-                when (vowelIndex) {
-                    1 -> { expanded[18] = "1"; expanded[7] = "2" }
-                    2 -> { expanded[8] = "3"; expanded[9] = "5" }
-                    3 -> { expanded[10] = "4"; expanded[11] = "6"; expanded[12] = "7" }
-                    4 -> { expanded[13] = "0"; expanded[14] = "A"; expanded[15] = "O" }
-                    5 -> { expanded[16] = "8"; expanded[17] = "9" }
-                }
-                return expanded
-            } else {
-                if (isCapitalized) glefzOverride.map { it.uppercase() } else glefzOverride
-            }
+        // 1. Base layout (Override or Default)
+        val baseLabels = if (glefzOverride != null && glefzOverride.isNotEmpty() && isLetterMode && !isPunctuationMode) {
+            glefzOverride
         } else {
             val center = if (isLetterMode) " " else "."
             val inner = when {
-                vowelIndex == 18 -> KepadKonfeg.innerPunctuationMode
                 isPunctuationMode -> KepadKonfeg.innerPunctuationMode
                 isLetterMode -> KepadKonfeg.innerLetterMode
                 else -> KepadKonfeg.innerNumberMode
             }
-            val outer = if (vowelIndex != null && vowelIndex in 1..5 && isLetterMode) {
-                val expanded = MutableList(37) { "" }
-                KepadKonfeg.innerLetterMode.forEachIndexed { i, s -> if (i < 5) expanded[i + 1] = s }
-
-                when (vowelIndex) {
-                    1 -> { expanded[18] = "1"; expanded[7] = "2" }
-                    2 -> { expanded[8] = "3"; expanded[9] = "4"; expanded[10] = "5" }
-                    3 -> { expanded[11] = "6"; expanded[12] = "7" }
-                    4 -> { expanded[13] = "8"; expanded[14] = "9" }
-                    5 -> { expanded[15] = "0"; expanded[16] = "A"; expanded[17] = "O" }
-                }
-                return if (isCapitalized) expanded.map { it.uppercase() } else expanded
-            } else if (isLetterMode) KepadKonfeg.outerTap else KepadKonfeg.outerTapNumber
-            
-            val labels = listOf(center) + inner + outer
-            if (isCapitalized) labels.map { it.uppercase() } else labels
+            val outer = if (isLetterMode) KepadKonfeg.outerTap else KepadKonfeg.outerTapNumber
+            listOf(center) + inner + outer
         }
-        
-        // Ensure index 0 has a center label if using override
+
+        // 2. Padding
         val finalLabels = baseLabels.toMutableList()
-        if (glefzOverride != null && finalLabels.isEmpty()) finalLabels.add(" ")
-        
-        // Dynamic padding: at least 19 (2 rings), or 37 (3 rings) if needed
         val maxIdx = finalLabels.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }.maxOrNull() ?: 0
         val targetSize = if (maxIdx > 18) 37 else 19
         
-        if (finalLabels.size > targetSize) {
-             return finalLabels.subList(0, targetSize)
-        }
         while (finalLabels.size < targetSize) finalLabels.add("")
-        return finalLabels
+        
+        // 3. Capitalization and return
+        return if (isCapitalized) finalLabels.map { it.uppercase() } else finalLabels
     }
 }

@@ -46,8 +46,11 @@
 
 ### To Do:
 - [x] **Module Separation:** Separate project into `:daylAp` (Dayl Hub) and `:kepadAp` (Kepad IME) to ensure only 'kepad' appears in the Android Input Method selection.
-- [ ] **Drag-to-Folder Logic:** Drag any module to folder, move inside, and remove from previous. Keep center drag from disappearing on main screen.
-- [ ] **Swap Visuals:** Short press triggers Glow, Long press triggers Contrast Color.
+- [x] **Drag-to-Folder Logic:** Drag any module to folder, move inside, and remove from previous. Keep center drag from disappearing on main screen.
+- [x] **Swap Visuals:** Short press triggers Glow, Long press triggers Contrast Color.
+- [/] **Beldir Renaming & Isolation:** Rename `"beld"` to `"rebeld"`, `"beld modyil"` to `"beldir"`, and isolate builder layout (`"rebeld"`) from Dayl layout (`"current"`).
+- [/] **Manual Copy Sync:** Support drag-to-center in Beldir to manually copy to Dayl's keypad module, and drag-to-beldir in Dayl to copy module to builder.
+- [/] **Replace Same-Name Files:** Show confirmation dialog when dropping a file/module on another of the same name.
 
 
 ## **spetc tu tekst**

@@ -24,46 +24,51 @@ import modalz.HeksagonPozecon
 import kotlin.math.sqrt
 
 @Composable
-fun BeldModyil(
+fun Beldir(
     daylSteyt: DaylSteyt,
     keyboardController: KeyboardController?,
     platformServices: PlatformServices,
     voiceService: VoiceService,
     onClose: () -> Unit,
-    onAction: (String) -> Unit = {}
+    onAction: (String) -> Unit = {},
+    onDropOnFoldir: (Int, Int) -> Unit = { _, _ -> },
+    onReplace: (Int, Int) -> Unit = { _, _ -> }
 ) {
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
     
-    val syncBoth = {
-        onAction("current")
-        onAction("production")
+    val syncBeldir = {
+        onAction("rebeld")
     }
 
     if (selectedModuleId != null) {
-        val mod = daylSteyt.modyilz.find { it.id == selectedModuleId }
+        val mod = daylSteyt.beldirModyilz.find { it.id == selectedModuleId }
         if (mod != null) {
             GlefsEdetSkren(
                 mod = mod,
                 onBack = { selectedModuleId = null },
                 onReneymGlef = { index, label ->
                     daylSteyt.reneymGlef(mod.id, index, label)
-                    syncBoth()
+                    syncBeldir()
                 },
                 onMuvGlef = { from, to ->
                     daylSteyt.muvGlef(mod.id, from, to)
-                    syncBoth()
+                    syncBeldir()
                 },
                 onCopyToEmpty = { from, to ->
                     daylSteyt.kopeGlefTuEmpt(mod.id, from, to)
-                    syncBoth()
+                    syncBeldir()
                 },
                 onMoveToParent = { from ->
                     daylSteyt.muvGlefTuHub(mod.id, from)
-                    syncBoth()
+                    syncBeldir()
                 },
                 onReneymMod = { newNeym ->
                     daylSteyt.reneymModyil(mod.id, newNeym)
-                    syncBoth()
+                    syncBeldir()
+                },
+                onReplace = { from, to ->
+                    daylSteyt.replaceGlef(mod.id, from, to)
+                    syncBeldir()
                 }
             )
             return
@@ -78,7 +83,7 @@ fun BeldModyil(
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
-        val gredItems = daylSteyt.modyilz.filter { it.type != "hub" }.map { mod ->
+        val gredItems = daylSteyt.beldirModyilz.filter { it.type != "hub" }.map { mod ->
             GredItem(
                 index = mod.pozecon - 1,
                 label = mod.neym,
@@ -107,7 +112,7 @@ fun BeldModyil(
             )
         }
 
-        val daylModule = daylSteyt.modyilz.find { it.type == "hub" } ?: daylSteyt.modyilz.first()
+        val daylModule = daylSteyt.beldirModyilz.find { it.type == "hub" } ?: daylSteyt.beldirModyilz.first()
 
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
@@ -116,7 +121,7 @@ fun BeldModyil(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "beld modyil",
+                    text = "beldir",
                     color = Color.White,
                     fontSize = 32.sp
                 )
@@ -131,37 +136,42 @@ fun BeldModyil(
                     copyDragPolicy = CopyDragPolicy.TwoStepArmed,
                     allowSwap = false,
                     onMove = { from, to ->
-                        daylSteyt.swopModyilz(from + 1, to + 1)
-                        syncBoth()
+                        daylSteyt.swopBeldirModyilz(from + 1, to + 1)
+                        syncBeldir()
                     },
                     onCopyToEmpty = { from, to ->
-                        daylSteyt.kopeModyilTuEmpt(from + 1, to + 1)
-                        syncBoth()
+                        daylSteyt.kopeBeldirModyilTuEmpt(from + 1, to + 1)
+                        syncBeldir()
                     },
                     onMoveToCenter = { from ->
-                        daylSteyt.muvModyilTuParent(from + 1)
-                        syncBoth()
+                        daylSteyt.copyModuleToDaylKeypad(from)
+                        onAction("current")
+                        onAction("production")
                     },
-                    onDropOnFolder = { from, to ->
-                        daylSteyt.muvModyilEntuFoldir(from, to)
-                        syncBoth()
+                    onDropOnFoldir = { from, to ->
+                        daylSteyt.muvBeldirModyilEntuFoldir(from, to)
+                        syncBeldir()
                     },
                     onDelete = { index ->
-                        val mod = daylSteyt.modyilz.find { it.pozecon == index + 1 }
+                        val mod = daylSteyt.beldirModyilz.find { it.pozecon == index + 1 }
                         if (mod != null) {
                             daylSteyt.deletModyil(mod.id)
-                            syncBoth()
+                            syncBeldir()
                         }
                     },
                     onTap = { index ->
                         if (index == 0) { // Center
                             onClose()
                         } else {
-                            val clickedMod = daylSteyt.modyilz.find { it.pozecon == index + 1 }
+                            val clickedMod = daylSteyt.beldirModyilz.find { it.pozecon == index + 1 }
                             if (clickedMod != null) {
                                 selectedModuleId = clickedMod.id
                             }
                         }
+                    },
+                    onReplace = { from, to ->
+                        daylSteyt.replaceBeldirModyil(from + 1, to + 1)
+                        syncBeldir()
                     },
                     fontSizeFactor = 10f / 12f
                 )
@@ -178,7 +188,8 @@ fun GlefsEdetSkren(
     onMuvGlef: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
     onMoveToParent: (Int) -> Unit,
-    onReneymMod: (String) -> Unit
+    onReneymMod: (String) -> Unit,
+    onReplace: (Int, Int) -> Unit
 ) {
     var editingGlefIndex by remember { mutableStateOf<Int?>(null) }
     var newGlefLabel by remember { mutableStateOf("") }
@@ -247,7 +258,7 @@ fun GlefsEdetSkren(
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { isEditingModNeym = true }) {
-                        Text(text = "beld: ${mod.neym}", color = Color.White, fontSize = 32.sp)
+                        Text(text = "beldir: ${mod.neym}", color = Color.White, fontSize = 32.sp)
                         Icon(Icons.Default.Edit, "Rename", tint = Color.Cyan, modifier = Modifier.size(24.dp).padding(start = 8.dp))
                     }
                 }
@@ -293,7 +304,8 @@ fun GlefsEdetSkren(
                         // This uses onReneymGlef with empty string to effectively delete/clear
                         onReneymGlef(index, "")
                     },
-                    onDropOnFolder = { _, _ -> }
+                    onDropOnFoldir = { _, _ -> },
+                    onReplace = onReplace
                 )
             }
             

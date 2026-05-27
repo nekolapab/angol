@@ -23,10 +23,11 @@ fun DaylModal(
     onMoveModule: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
     onMoveToCenter: (Int) -> Unit,
-    onDropOnFolder: (Int, Int) -> Unit,
+    onDropOnFoldir: (Int, Int) -> Unit,
     stackWidth: Dp,
     stackHeight: Dp,
-    allowSwap: Boolean = true
+    allowSwap: Boolean = true,
+    onReplace: ((Int, Int) -> Unit)? = null
 ) {
     val daylModule = modyilz.find { it.id == "dayl" } ?: modyilz.first()
     val gredItems = modyilz.filter { it.id != "dayl" }.map { mod ->
@@ -34,7 +35,7 @@ fun DaylModal(
             index = mod.pozecon - 1,
             label = mod.neym,
             color = mod.kulor,
-            isFolder = mod.type == "keypad",
+            isFolder = mod.type == "keypad" || mod.type == "rebeld",
             deyda = mod
         )
     }
@@ -48,7 +49,8 @@ fun DaylModal(
             onMove = onMoveModule,
             onCopyToEmpty = onCopyToEmpty,
             onMoveToCenter = onMoveToCenter,
-            onDropOnFolder = onDropOnFolder,
+            onDropOnFoldir = onDropOnFoldir,
+            onReplace = onReplace,
             modifier = Modifier.fillMaxSize(),
             onTap = onToggleModule,
             allowSwap = allowSwap,

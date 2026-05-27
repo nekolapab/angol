@@ -48,8 +48,9 @@ fun KepadModyil(
     onMove: (Int, Int) -> Unit = { _, _ -> },
     onCopyToEmpty: (Int, Int) -> Unit = { _, _ -> },
     onMoveToCenter: (Int) -> Unit = { _ -> },
-    onDropOnFolder: (Int, Int) -> Unit = { _, _ -> },
-    onDelete: (Int) -> Unit = { _ -> }
+    onDropOnFoldir: (Int, Int) -> Unit = { _, _ -> },
+    onDelete: (Int) -> Unit = { _ -> },
+    onReplace: ((Int, Int) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -276,7 +277,8 @@ fun KepadModyil(
                 onMove = onMove,
                 onCopyToEmpty = onCopyToEmpty,
                 onMoveToCenter = onMoveToCenter,
-                onDropOnFolder = onDropOnFolder,
+                onDropOnFoldir = onDropOnFoldir,
+                onReplace = onReplace,
                 onDelete = onDelete,
                 onTap = { index -> if (index == 0) onClose() },
                 fontSizeFactor = 13f/12f

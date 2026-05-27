@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.geometry.Offset
 import modyilz.DaylModal
 import modyilz.KepadModyil
+import modyilz.Beldir
 import steyt.DaylSteyt
 import yuteledez.HeksagonDjeyometre
 import yuteledez.GredDimenzconz
@@ -101,23 +102,21 @@ fun DaylSkren(
     // Auth and Layout Sync
     val userState = firebaseSirves?.authStateChanges?.collectAsState(initial = firebaseSirves.currentUser)
     val user = userState?.value
-    var kurentEnv by remember { mutableStateOf("current") }
 
     val saveLayout: (String) -> Unit = { env ->
         if (firebaseSirves != null) {
             scope.launch {
-                firebaseSirves.saveModuleLayout(daylSteyt.modyilz, env)
+                firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current")
             }
         }
     }
     
-    LaunchedEffect(firebaseSirves, isApp, user, kurentEnv) {
+    LaunchedEffect(firebaseSirves, isApp, user) {
         val fs = firebaseSirves ?: return@LaunchedEffect
-        fs.watchModuleLayout(kurentEnv).collectLatest { remoteModules ->
+        fs.watchModuleLayout("current").collectLatest { remoteModules ->
             if (remoteModules.isNotEmpty()) {
                 daylSteyt.updateModules(remoteModules)
                 if (!isApp) {
-                    // Only force activation if nothing is currently active in the synced data
                     if (daylSteyt.activeModule == null) {
                         daylSteyt.activateModyil("keypad")
                     }
@@ -155,27 +154,25 @@ fun DaylSkren(
             )
         }
 
-        val hexSize = gredDimz.heksSayz.dp
-
         val geometry = remember(gredDimz, isApp, activeIndices) {
             val hexWidth = gredDimz.heksSayz * sqrt(3.0)
             val isLandscape = screenWidth > screenHeight
             
-            // For App/Hub, we center it. For IME in landscape, we might shift it.
-            val baseSentirX = if (!isApp && isLandscape) {
+            val isHub = activeMod == null || activeMod.type == "hub"
+            val baseSentirX = if (isHub) 0.0 else if (!isApp && isLandscape) {
                 -screenWidth.value / 2.0 + (if (yuteledez.isWearOS) 1.5 else 0.5) * hexWidth
             } else {
                 -gredDimz.unitCenterX * gredDimz.heksSayz
             }
+            val baseSentirY = if (isHub) 0.0 else -gredDimz.unitCenterY * gredDimz.heksSayz - (gredDimz.heksSayz * 2.0 / 12.0)
 
             HeksagonDjeyometre(
                 heksSayz = gredDimz.heksSayz,
-                sentir = HeksagonPozecon(baseSentirX, -gredDimz.unitCenterY * gredDimz.heksSayz - (gredDimz.heksSayz * 2.0 / 12.0)),
+                sentir = HeksagonPozecon(baseSentirX, baseSentirY),
                 ezLeterMod = true
             )
         }
 
-        // Limit the height of the IME container to fit the keyboard perfectly
         val contentModifier = if (isApp) {
             Modifier.fillMaxSize().background(
                 Brush.radialGradient(
@@ -186,12 +183,9 @@ fun DaylSkren(
                 )
             )
         } else {
-            // Precise height with no extra margins
-            Modifier.fillMaxWidth().height(gredDimz.height.dp)
-                .align(Alignment.BottomCenter)
+            Modifier.fillMaxWidth().height(gredDimz.height.dp).align(Alignment.BottomCenter)
         }
 
-        // Absolute centering/bottom alignment for the Hub/Keypad
         Box(
             modifier = contentModifier, 
             contentAlignment = if (isApp) Alignment.Center else Alignment.BottomCenter
@@ -219,7 +213,6 @@ fun DaylSkren(
             )
         }
         
-        // Settings and Account icons at the bottom
         if (!daylSteyt.ezKepadVezebil && isApp) {
             Row(
                 modifier = Modifier
@@ -228,20 +221,10 @@ fun DaylSkren(
                 horizontalArrangement = Arrangement.spacedBy(32.dp)
             ) {
                 IconButton(onClick = { platformServices.openSettings() }) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = Color.White.copy(alpha = 6f / 12f),
-                        modifier = Modifier.size(32.dp)
-                    )
+                    Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(32.dp))
                 }
                 IconButton(onClick = { onGoToHome?.invoke() }) {
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = "Account",
-                        tint = Color.White.copy(alpha = 6f / 12f),
-                        modifier = Modifier.size(32.dp)
-                    )
+                    Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Account", tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(32.dp))
                 }
             }
         }
@@ -298,10 +281,22 @@ fun ModuleContent(
                 geometryOverride = geometry,
                 glefzOverride = mod.glefz,
                 kulorzOverride = mod.glefKulorz,
-                contentWidthDp = contentWidth
+                contentWidthDp = contentWidth,
+                onMove = { from, to ->
+                    daylSteyt.muvGlef(mod.id, from, to)
+                    onSaveLayout("current")
+                },
+                onDropOnFoldir = { from, to ->
+                    daylSteyt.muvModyilEntuFoldir(from, to)
+                    onSaveLayout("current")
+                },
+                onReplace = { from, to ->
+                    daylSteyt.replaceGlef(mod.id, from, to)
+                    onSaveLayout("current")
+                }
             )
         }
-        currentType == "beld" || currentType == "builder" -> modyilz.BeldModyil(
+        currentType == "beld" || currentType == "builder" || currentType == "rebeld" -> modyilz.Beldir(
             daylSteyt = daylSteyt,
             keyboardController = keyboardController,
             platformServices = platformServices,
@@ -310,40 +305,47 @@ fun ModuleContent(
                 daylSteyt.togilModyil(activeMod!!.pozecon)
                 onSaveLayout("current")
             },
-            onAction = onSaveLayout
+            onAction = onSaveLayout,
+            onDropOnFoldir = { from, to ->
+                daylSteyt.muvBeldirModyilEntuFoldir(from, to)
+                onSaveLayout("current")
+            },
+            onReplace = { from, to ->
+                daylSteyt.replaceBeldirModyil(from, to)
+                onSaveLayout("current")
+            }
         )
         else -> DaylModal(
             geometry = geometry,
             modyilz = daylSteyt.modyilz,
             onToggleModule = { index ->
-                if (index == 0) {
-                    daylSteyt.togilModyil(1)
-                } else {
-                    daylSteyt.togilModyil(index + 1)
-                }
+                if (index == 0) daylSteyt.togilModyil(1)
+                else daylSteyt.togilModyil(index + 1)
                 onSaveLayout("current")
             },
             onMoveModule = { from, to ->
                 daylSteyt.swopModyilz(from + 1, to + 1)
                 onSaveLayout("current")
             },
-            onDropOnFolder = { from, to ->
+            onDropOnFoldir = { from, to ->
                 daylSteyt.muvModyilEntuFoldir(from, to)
                 onSaveLayout("current")
             },
             onCopyToEmpty = { from, to ->
-                // UI is 0-based; state is 1-based.
                 daylSteyt.kopeModyilTuEmpt(from + 1, to + 1)
                 onSaveLayout("current")
             },
             onMoveToCenter = { from ->
-                // UI is 0-based; state is 1-based.
                 daylSteyt.muvModyilTuParent(from + 1)
                 onSaveLayout("current")
             },
             stackWidth = screenWidth,
             stackHeight = screenHeight,
-            allowSwap = false
+            allowSwap = false,
+            onReplace = { from, to ->
+                daylSteyt.replaceModyil(from + 1, to + 1)
+                onSaveLayout("current")
+            }
         )
     }
 }
