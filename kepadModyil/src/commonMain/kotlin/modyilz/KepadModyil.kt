@@ -20,7 +20,7 @@ import yuteledez.getCurrentTimeMillis
 import wedjets.Heksagon
 import wedjets.AngolSpelenqTogil
 import wedjets.GredItem
-import modalz.KepadKonfeg
+import modalz.HeksagonKonfeg
 import modalz.HeksagonPozecon
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -39,7 +39,7 @@ fun KepadModyil(
     onTogilAngol: (Boolean) -> Unit,
     onStartAiVoys: () -> Unit,
     ignoreSelectionUpdate: () -> Unit,
-    onClose: () -> Unit = {},
+    onClose: (() -> Unit)? = null,
     geometryOverride: HeksagonDjeyometre? = null,
     glefzOverride: List<String>? = null,
     kulorzOverride: List<Long>? = null,
@@ -82,8 +82,8 @@ fun KepadModyil(
         }
         return when {
             index == 0 -> Color.White
-            index in 1..6 -> KepadKonfeg.innerRingColors[index - 1]
-            index in 7..18 -> KepadKonfeg.rainbowColors[index - 7]
+            index in 1..6 -> HeksagonKonfeg.innerRingColors[index - 1]
+            index in 7..18 -> HeksagonKonfeg.rainbowColors[index - 7]
             else -> Color.Transparent
         }
     }
@@ -202,12 +202,12 @@ fun KepadModyil(
             
             val lpLabelRaw = if (isInner) {
                 val configIdx = actualIdx - 1
-                if (kurentEzLeterMod) KepadKonfeg.innerLetterMode.map { if (it == "⌫") "⌫" else "" }.getOrNull(configIdx) ?: ""
-                else KepadKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
+                if (kurentEzLeterMod) HeksagonKonfeg.innerLetterMode.map { if (it == "⌫") "⌫" else "" }.getOrNull(configIdx) ?: ""
+                else HeksagonKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
             } else {
                 val configIdx = actualIdx - 7
-                if (kurentEzLeterMod && startedVowelIndex == null) KepadKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
-                else KepadKonfeg.outerLongPressNumber.getOrNull(configIdx) ?: ""
+                if (kurentEzLeterMod && startedVowelIndex == null) HeksagonKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
+                else HeksagonKonfeg.outerLongPressNumber.getOrNull(configIdx) ?: ""
             }
             if (lpLabelRaw.isEmpty()) return@launch
             val lpLabel = if (ezKapetalayzd && lpLabelRaw != "⌫") lpLabelRaw.uppercase() else lpLabelRaw
@@ -280,7 +280,7 @@ fun KepadModyil(
                 onDropOnFoldir = onDropOnFoldir,
                 onReplace = onReplace,
                 onDelete = onDelete,
-                onTap = { index -> if (index == 0) onClose() },
+                onTap = { index -> if (index == 0) onClose?.invoke() },
                 fontSizeFactor = 13f/12f
             )
         } else {
@@ -452,24 +452,23 @@ fun KepadModyil(
                                     ezSentirHeksPresd = false
                                     val duration = getCurrentTimeMillis() - startTime
                                     if (huvirdHeksIndeks.value == 0 && !rotationTriggered) {
-                                        when {
-                                            duration < 510 -> {
-                                                voiceService.stopListening()
-                                                val centerChar = if (kurentEzLeterMod) " " else "."
-                                                handilKePres(centerChar, false, null)
-                                            }
-                                            duration in 510..1999 -> {
-                                                handilKePres(" ", false, null)
-                                            }
-                                            else -> {
-                                                keyboardController?.performSubmitAction()
+                                        if (onClose != null && duration < 510) {
+                                            onClose()
+                                        } else {
+                                            when {
+                                                duration < 510 -> {
+                                                    voiceService.stopListening()
+                                                    val centerChar = if (kurentEzLeterMod) " " else "."
+                                                    handilKePres(centerChar, false, null)
+                                                }
+                                                duration in 510..1999 -> {
+                                                    handilKePres(" ", false, null)
+                                                }
+                                                else -> {
+                                                    keyboardController?.performSubmitAction()
+                                                }
                                             }
                                         }
-                                    }
-                                } else if (gestureStartedIndex == null) {
-                                    val duration = getCurrentTimeMillis() - startTime
-                                    if (huvirdHeksIndeks.value == null && duration < 300) {
-                                        onClose()
                                     }
                                 }
                                 daylRoteconAngol = 0f
@@ -505,12 +504,12 @@ fun KepadModyil(
                         val lpLabel = when {
                             isInner -> {
                                 val configIdx = index - 1
-                                if (kurentEzLeterMod) "" else KepadKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
+                                if (kurentEzLeterMod) "" else HeksagonKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
                             }
                             index in 7..18 -> {
                                 val configIdx = index - 7
-                                if (kurentEzLeterMod && startedVowelIndex == null) KepadKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
-                                else KepadKonfeg.outerLongPressNumber.getOrNull(configIdx) ?: ""
+                                if (kurentEzLeterMod && startedVowelIndex == null) HeksagonKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
+                                else HeksagonKonfeg.outerLongPressNumber.getOrNull(configIdx) ?: ""
                             }
                             else -> ""
                         }
@@ -521,7 +520,7 @@ fun KepadModyil(
                             label = label,
                             secondaryLabel = if (label.isNotEmpty() && lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null,
                             backgroundColor = if (index == 0 && voiceService.isListening.value) Color.Red else hexColor,
-                            textColor = if (index == 0 && voiceService.isListening.value) Color.White else KepadKonfeg.getComplementaryColor(hexColor),
+                            textColor = if (index == 0 && voiceService.isListening.value) Color.White else HeksagonKonfeg.getComplementaryColor(hexColor),
                             size = hexWidthDp,
                             fontSizeFactor = 13f/12f,
                             ezKonsestentSayz = true,
@@ -543,5 +542,5 @@ fun KepadModyil(
                 }
             }
         }
-        }
-        }
+    }
+}

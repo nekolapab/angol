@@ -1,4 +1,5 @@
 ### *prodjekt angol dayl** KotlinCompose Multiplatform
+
 - **angol (lha kor):** lha shared logic, state (`DaylSteyt`), and routing foundation. et ez lha central gatekeeper and "router" lhat remains separate from lha apps. et represents lha "system" itself.
 - **dayl (lha hub ap):** A "Modal" application (a collection ov modules and widgets) built on top ov lha 'angol' core. et functions az lha primary user hub and layout builder.
 - **kepad (lha IME ap):** A specialized application and module lhat leverages lha 'angol' core tu provide lha custom input method functionality.
@@ -21,17 +22,6 @@
     - `io.angol.dayl/`: Process Text activity.
 - `daylAp/src/main/res`: Android resources (moved from angolKor).
 
-### Key Features Status:
-- [x] **Hexagonal Keypad (IME):** Fully migrated to Kotlin Compose. Supports swipe, long-press, and phonetic conversion.
-- [x] **Hexagonal Grid Widget (Builder):** Supports long-press dragging, swapping, copying, and hover glow effects, with custom pressed states (contrast color tap) synchronized across widgets.
-- [x] **Consistent Keypad Font Size:** The keypad uses a consistent font size based on the largest label length (2 characters), scaled 1/12 larger.
-- [x] **Voice Input:** Integrate conversion and AI (Gemini 3.5) refinement in `DaylEnpitMelxod.kt`.
-- [x] **Auth & Hub:** Login (GitHub) and Home screens port to Kotlin Compose.
-- [x] **Cloud Sync:** Module layouts synchronize with Firebase Firestore via `FirebaseSirves`.
-- [x] **Beld Modyil (Builder):** Supports module editing and custom layouts.
-- [x] **TTS (Text-to-Speech):** (`AndroidPlatformServices`).
-- [x] **Ultimate Versions:** Kotlin 2.3.21, Compose 1.10.3, AGP 9.2.0, CompileSdk 37.
-
 ### **Functional Logic:**
 - **App Separation:** 'dayl' and 'kepad' are separate Android applications (`io.angol.dayl` and `io.angol.kepad`) tu ensure system-level IME registration and clean project structure.
 - **Broadcast Sync (lha Bredj):** Since 'dayl' and 'kepad' have isolated storage and auth contexts, lhey communicate via a secure Android Broadcast (`io.angol.ACTION_UPDATE_LAYOUT`). Changes made en lha builder (dayl) are broadcast tu lha keyboard (kepad) for real-time synchronization.
@@ -44,14 +34,13 @@
 - **Instal Kepad:** Use `enstol kepad klen` (clean build + deep activation) or `enstol kepad` (fast update).
 - **WearOS:** Use `enstol WearOS` tu launch lha emyuleydir.
 
-### To Do:
+### To Do: (wut cid be)
 - [x] **Module Separation:** Separate project into `:daylAp` (Dayl Hub) and `:kepadAp` (Kepad IME) to ensure only 'kepad' appears in the Android Input Method selection.
 - [x] **Drag-to-Folder Logic:** Drag any module to folder, move inside, and remove from previous. Keep center drag from disappearing on main screen.
 - [x] **Swap Visuals:** Short press triggers Glow, Long press triggers Contrast Color.
 - [/] **Beldir Renaming & Isolation:** Rename `"beld"` to `"rebeld"`, `"beld modyil"` to `"beldir"`, and isolate builder layout (`"rebeld"`) from Dayl layout (`"current"`).
 - [/] **Manual Copy Sync:** Support drag-to-center in Beldir to manually copy to Dayl's keypad module, and drag-to-beldir in Dayl to copy module to builder.
 - [/] **Replace Same-Name Files:** Show confirmation dialog when dropping a file/module on another of the same name.
-
 
 ## **spetc tu tekst**
 **Output Field Interaction:** Touching the output field can be monitored by the IME via `onUpdateSelection`.
@@ -67,3 +56,15 @@ The system uses a 1:1 mapping between **3 Sound** and **36 characters**.
 
 ## **vokalz (12)**
 - **1:** /ɑ/, **2:** /æ/, **3:** /ɛ/, **4:** /ɪ/, **5:** /i/, **6:** /ɝ/, **7:** /ʊ/, **8:** /ʌ/, **9:** /u/, **0:** /oʊ/, **A:** /o/, **O:** /ɔ/.
+
+### Key Features Status: (wut ez. not wut wuz remuvd or tceynjd -we dont ned tu now lha past)
+- [x] **Hexagonal Keypad (IME):** Fully migrated to Kotlin Compose. Supports swipe, long-press, and phonetic conversion.
+- [x] **Consistent Navigation:** All modules (DaylModal, Beld, Kepad) use the center hexagon tap to navigate "up" (back to Hub) when used within the Dayl app. The Kepad module's outer space tap for closing has been removed. In the IME app, the Kepad center remains a Space key.
+- [x] **Hexagonal Grid Widget (Builder):** Supports long-press dragging, swapping, copying, and hover glow effects, with custom pressed states (contrast color tap) synchronized across widgets.
+- [x] **Consistent Keypad Font Size:** The keypad uses a consistent font size based on the largest label length (2 characters), scaled 1/12 larger.
+- [x] **Voice Input:** Integrate conversion and AI (Gemini 3.5) refinement in `DaylEnpitMelxod.kt`.
+- [x] **Auth & Hub:** Login (GitHub) and Home screens port to Kotlin Compose.
+- [x] **Cloud Sync:** Module layouts synchronize with Firebase Firestore via `FirebaseSirves`.
+- [x] **Beld Modyil (Builder):** Supports module editing and custom layouts.
+- [x] **TTS (Text-to-Speech):** (`AndroidPlatformServices`).
+- [x] **Ultimate Versions:** Kotlin 2.3.21, Compose 1.10.3, AGP 9.2.0, CompileSdk 37.

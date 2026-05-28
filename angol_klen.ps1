@@ -43,7 +43,7 @@ foreach ($dev in $devaysez) {
     Write-Host "enstolenq and akteyveydenq Kepad on $dev..." -ForegroundColor Yellow
     adb -s $dev install -r kepadAp/build/outputs/apk/debug/kepadAp-debug.apk
     
-    $imeId = "io.angol.kepad/com.example.angol.ime.KepadEnpitMelxod"
+    $imeId = "io.angol.kepad/.app.KepadEnpitMelxod"
     adb -s $dev shell ime enable $imeId
     adb -s $dev shell ime set $imeId
     
@@ -57,7 +57,7 @@ foreach ($dev in $devaysez) {
 
     # Step 5: Launch Dayl
     Write-Host "lontchenq Dayl on $dev..." -ForegroundColor Yellow
-    adb -s $dev shell am start -n io.angol.dayl/com.example.angol.ime.MeynAktevede
+    adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
 }
 
 Write-Host "Angol sestem ez frec and aktev!" -ForegroundColor Green

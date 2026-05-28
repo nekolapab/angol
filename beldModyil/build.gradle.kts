@@ -1,0 +1,33 @@
+plugins {
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
+}
+
+kotlin {
+    androidTarget()
+    
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":angolKor"))
+            implementation(project(":kepadModyil"))
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material)
+            implementation(libs.compose.material.icons.extended)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
+            implementation(libs.kotlinx.coroutines.core)
+        }
+    }
+}
+
+android {
+    namespace = "io.angol.beldir.modyil"
+    compileSdk = 35
+    defaultConfig {
+        minSdk = 26
+    }
+}

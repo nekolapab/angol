@@ -1,57 +1,44 @@
 package io.angol.dayl.app
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import yuteledez.DaylSteyt
 import skrenz.DaylSkrenEntry
-
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import steyt.DaylSteyt
-import com.example.angol.ime.*
-
-class DaylViewModel : ViewModel() {
-    val daylSteyt = DaylSteyt()
-}
+import com.example.angol.ime.AndroidPlatformServices
+import com.example.angol.ime.AndroidFirebaseSirves
+import com.example.angol.ime.AndroidVoiceService
+import com.example.angol.ime.AndroidKeyboardController
+import kotlinx.coroutines.MainScope
 
 class MeynAktevede : ComponentActivity() {
-    private val scope = CoroutineScope(Dispatchers.Main)
-    private lateinit var firebaseSirves: AndroidFirebaseSirves
+    private val daylSteyt = DaylSteyt()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        val keyboardController = AndroidKeyboardController(
-            getIc = { null },
-            onSmartEnter = {},
-            onForcedSubmit = {}
-        )
-        val platformServices = AndroidPlatformServices(this, scope)
-        val voiceService = AndroidVoiceService(
-            onStart = { },
-            onStop = { },
-            onTogilAngol = { },
-            isListening = mutableStateOf(false),
-            hasSpoken = mutableStateOf(false),
-            angolSpelenqMod = mutableIntStateOf(0)
-        )
-
+        val lifecycleScope = MainScope()
+        val platformServices = AndroidPlatformServices(this, lifecycleScope)
         val firebaseSirves = AndroidFirebaseSirves(this)
+        val voiceService = AndroidVoiceService(
+            { _: Boolean -> }, 
+            { }, 
+            { _: Boolean -> }, 
+            mutableStateOf(false), 
+            mutableStateOf(false), 
+            mutableStateOf(0)
+        )
+        val keyboardController = AndroidKeyboardController({ null }, { }, { })
 
         setContent {
-            val viewModel: DaylViewModel = viewModel()
             DaylSkrenEntry(
                 keyboardController = keyboardController,
                 platformServices = platformServices,
                 voiceService = voiceService,
                 firebaseSirves = firebaseSirves,
                 isApp = true,
-                daylSteyt = viewModel.daylSteyt
+                daylSteyt = daylSteyt
             )
         }
     }

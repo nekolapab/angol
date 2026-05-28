@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.withTimeoutOrNull
 import modalz.HeksagonPozecon
-import modalz.KepadKonfeg
+import modalz.HeksagonKonfeg
 import yuteledez.HeksagonDjeyometre
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -119,10 +119,11 @@ fun HeksagonGred(
                 if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = fromIdx
             } else {
                 if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = null
+                if (toIdx == 0) {
+                    onMoveToCenter(fromIdx)
+                    return
+                }
                 if (isMoveDrag) {
-                    // Index 0 (Center) is protected, do not allow move/drop there
-                    if (toIdx == 0) return 
-
                     val targetItem = items.firstOrNull { it.index == toIdx }
                     val isTargetOccupied = targetItem != null && targetItem.label.isNotEmpty()
                     if (isTargetOccupied) {
@@ -159,7 +160,7 @@ fun HeksagonGred(
                 if (index == 0 && item == null && centerLabel.isNotEmpty()) {
                     Heksagon(
                         label = centerLabel, backgroundColor = centerColor,
-                        textColor = KepadKonfeg.getComplementaryColor(centerColor), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
+                        textColor = HeksagonKonfeg.getComplementaryColor(centerColor), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
                         ezKonsestentSayz = ezKonsestentSayz,
                         onTap = null, onLongPress = null,
                         // Center glows when ANY touch is active, like keypad
@@ -185,7 +186,7 @@ fun HeksagonGred(
                     if (!isArmed) {
                         Heksagon(
                             label = item.label, backgroundColor = item.color,
-                            textColor = KepadKonfeg.getComplementaryColor(item.color), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
+                            textColor = HeksagonKonfeg.getComplementaryColor(item.color), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
                             ezKonsestentSayz = ezKonsestentSayz,
                             onTap = null, onLongPress = null,
                             ezPresd = showContrast,
@@ -201,7 +202,7 @@ fun HeksagonGred(
                     Heksagon(
                         label = draggedItem.label, 
                         backgroundColor = draggedItem.color, 
-                        textColor = KepadKonfeg.getComplementaryColor(draggedItem.color), 
+                        textColor = HeksagonKonfeg.getComplementaryColor(draggedItem.color), 
                         size = hexWidthDp,
                         fontSizeFactor = fontSizeFactor, 
                         ezKonsestentSayz = ezKonsestentSayz,
@@ -217,7 +218,7 @@ fun HeksagonGred(
             val isMovedFromStart = currentHoverIndex != draggingIndex
             val xDp = with(density) { dragOffset.x.toDp() }; val yDp = with(density) { dragOffset.y.toDp() }
             Heksagon(
-                label = ghostItem.label, backgroundColor = ghostItem.color, textColor = KepadKonfeg.getComplementaryColor(ghostItem.color),
+                label = ghostItem.label, backgroundColor = ghostItem.color, textColor = HeksagonKonfeg.getComplementaryColor(ghostItem.color),
                 size = hexWidthDp, fontSizeFactor = fontSizeFactor, onTap = null, onLongPress = null,
                 ezPresd = isMovedFromStart, // Contrast only while traveling
                 ezGlowenq = true,
@@ -225,7 +226,7 @@ fun HeksagonGred(
             )
         }
 
-        Box(Modifier.fillMaxSize().align(Alignment.Center).pointerInput(geometry, items, lastSameSpotIndex, disconnectedArmedIndex, wPx, hPx, allHexPositionsPx, hexSizePx) {
+        Box(Modifier.fillMaxSize().align(Alignment.Center).pointerInput(geometry, items, lastSameSpotIndex, disconnectedArmedIndex, wPx, hPx, allHexPositionsPx, hexSizePx, centerLabel) {
             val longMs = viewConfiguration.longPressTimeoutMillis
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
@@ -233,6 +234,12 @@ fun HeksagonGred(
                 val downIdx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
                 glowenqEndeks = downIdx
                 
+                val isCenterOccupied = downIdx == 0 && centerLabel.isNotEmpty()
+                if (downIdx == null || (!isCenterOccupied && !items.any { it.index == downIdx } && disconnectedArmedIndex != downIdx)) {
+                    return@awaitEachGesture
+                }
+                presdEndeks = downIdx
+
                 try {
                     val upBeforeLongPress = withTimeoutOrNull(longMs) {
                         while (true) {

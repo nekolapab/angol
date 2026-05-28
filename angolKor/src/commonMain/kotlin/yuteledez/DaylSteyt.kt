@@ -1,4 +1,4 @@
-package steyt
+package yuteledez
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,13 +24,13 @@ class DaylSteyt {
             kulorLong = Color(0xFFFF0000).toArgb().toLong(), 
             pozecon = 2, 
             ezAktiv = false,
-            glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap,
+            glefz = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap,
             glefKulorz = listOf(Color.White.toArgbLong()) + 
-                         modalz.KepadKonfeg.innerRingColors.map { it.toArgbLong() } + 
-                         modalz.KepadKonfeg.rainbowColors.map { it.toArgbLong() },
+                         modalz.HeksagonKonfeg.innerRingColors.map { it.toArgbLong() } + 
+                         modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() },
             type = "keypad"
         ),
-        ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "rebeld")
+        ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "beld"),
     ))
 
     var beldirModyilz by mutableStateOf(listOf(
@@ -41,13 +41,13 @@ class DaylSteyt {
             kulorLong = Color(0xFFFF0000).toArgb().toLong(), 
             pozecon = 2, 
             ezAktiv = false,
-            glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap,
+            glefz = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap,
             glefKulorz = listOf(Color.White.toArgbLong()) + 
-                         modalz.KepadKonfeg.innerRingColors.map { it.toArgbLong() } + 
-                         modalz.KepadKonfeg.rainbowColors.map { it.toArgbLong() },
+                         modalz.HeksagonKonfeg.innerRingColors.map { it.toArgbLong() } + 
+                         modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() },
             type = "keypad"
         ),
-        ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "rebeld")
+        ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "beld"),
     ))
 
     val activeModule: ModyilDeyda?
@@ -385,7 +385,7 @@ class DaylSteyt {
     fun reset() {
         modyilz = listOf(
             ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("angol"), type = "hub"),
-            ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, glefz = listOf(" ") + modalz.KepadKonfeg.innerLetterMode + modalz.KepadKonfeg.outerTap, type = "keypad"),
+            ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, glefz = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"),
             ModyilDeyda(id = "rebeld", neym = "beldir", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, type = "rebeld")
         )
     }

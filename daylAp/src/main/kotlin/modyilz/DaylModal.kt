@@ -6,14 +6,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import yuteledez.DaylSteyt
 import yuteledez.HeksagonDjeyometre
 import modalz.ModyilDeyda
-import modalz.KepadKonfeg
-import wedjets.SentirModWedjet
-import wedjets.EnirRenqWedjet
+import modalz.HeksagonKonfeg
 import wedjets.Heksagon
 import wedjets.HeksagonGred
 import wedjets.GredItem
+import wedjets.CopyDragPolicy
 
 @Composable
 fun DaylModal(

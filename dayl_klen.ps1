@@ -57,7 +57,7 @@ foreach ($devays in $devaysez) {
 
     # Step 4: Launch ap
     Write-Host "lontchenq ap on $devays..." -ForegroundColor Yellow
-    adb -s $devays shell am start -n io.angol.dayl/com.example.angol.ime.MeynAktevede
+    adb -s $devays shell am start -n io.angol.dayl/.app.MeynAktevede
     if ($LASTEXITCODE -ne 0) {
         Write-Host "lontc feyld on $devays!" -ForegroundColor Red
     }

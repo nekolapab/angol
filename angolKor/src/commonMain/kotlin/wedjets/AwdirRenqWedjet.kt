@@ -10,7 +10,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import modalz.KepadKonfeg
+import modalz.HeksagonKonfeg
 import sirvesez.EnpitSirves
 import yuteledez.HeksagonDjeyometre
 import kotlin.math.roundToInt
@@ -53,9 +53,9 @@ fun AwdirRenqWedjet(
                 if (index < tapLabels.size) {
                     val tapLabel = tapLabels[index]
                     val longPressLabel = longPressLabels.getOrNull(index) ?: ""
-                    val hexColor = KepadKonfeg.rainbowColors[index]
+                    val hexColor = HeksagonKonfeg.rainbowColors[index]
                     
-                    val textColor = KepadKonfeg.getComplementaryColor(hexColor)
+                    val textColor = HeksagonKonfeg.getComplementaryColor(hexColor)
 
                     val hexSizeDp = geometry.heksWidlx.dp
 

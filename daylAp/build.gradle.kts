@@ -3,43 +3,52 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.googleServices)
+    alias(libs.plugins.kotlinSerialization)
 }
 
-val localProps = Properties().apply {
-    val f = rootProject.file("local.properties")
-    if (f.exists()) f.inputStream().use { load(it) }
+val localProperties = Properties()
+val localPropertiesFile = rootProject.projectDir.resolve("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
 }
-val githubOAuthClientId: String =
-    (localProps.getProperty("GITHUB_OAUTH_CLIENT_ID") ?: "").trim()
+
+val githubOAuthClientId = localProperties.getProperty("GITHUB_OAUTH_CLIENT_ID", "")
 
 android {
-    namespace = "io.angol.dayl.app"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    namespace = "io.angol.dayl"
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "io.angol.dayl"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 3
-        versionName = ".3"
-        manifestPlaceholders["appAuthRedirectScheme"] = "io.angol.dayl"
+        minSdk = 26
+        targetSdk = 35
+        versionCode = 10
+        versionName = "1.0"
+        
         buildConfigField("String", "GITHUB_OAUTH_CLIENT_ID", "\"${githubOAuthClientId.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+        manifestPlaceholders["appAuthRedirectScheme"] = "io.angol.dayl"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
+
     buildTypes {
-        getByName("release") {
+        release {
             isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
     buildFeatures {
         compose = true
@@ -47,29 +56,21 @@ android {
     }
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
-    }
-}
-
 dependencies {
     implementation(project(":angolKor"))
-    implementation(libs.androidx.appcompat)
+    implementation(project(":kepadModyil"))
+    implementation(project(":beldModyil"))
+    
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.okio)
-    
-    // Compose
-    implementation(libs.compose.ui)
-    implementation(libs.compose.foundation)
-    implementation(libs.compose.material3)
     implementation(libs.compose.runtime)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.components.resources)
     
-    // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.ai)
     implementation(libs.firebase.auth)

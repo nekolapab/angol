@@ -14,17 +14,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.toArgb
 import modalz.ModyilDeyda
-import modalz.KepadKonfeg
-import steyt.DaylSteyt
+import modalz.HeksagonKonfeg
+import yuteledez.DaylSteyt
+import yuteledez.KepadLodjek
 import wedjets.GredItem
 import wedjets.CopyDragPolicy
 import wedjets.HeksagonGred
 import yuteledez.HeksagonDjeyometre
 import modalz.HeksagonPozecon
+import modyilz.PlatformServices
+import modyilz.VoiceService
+import modyilz.KeyboardController
 import kotlin.math.sqrt
 
 @Composable
-fun Beldir(
+fun Beld(
     daylSteyt: DaylSteyt,
     keyboardController: KeyboardController?,
     platformServices: PlatformServices,
@@ -37,7 +41,7 @@ fun Beldir(
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
     
     val syncBeldir = {
-        onAction("rebeld")
+        onAction("beld")
     }
 
     if (selectedModuleId != null) {
@@ -121,7 +125,7 @@ fun Beldir(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "beldir",
+                    text = "beld",
                     color = Color.White,
                     fontSize = 32.sp
                 )
@@ -223,19 +227,6 @@ fun GlefsEdetSkren(
             )
         }
 
-        val gredItems = mod.glefz.mapIndexed { index, label ->
-            if (index == 0 || label.isEmpty()) return@mapIndexed null
-
-            val colorLong = mod.glefKulorz.getOrNull(index) ?: mod.kulor.toArgb().toLong()
-            val color = Color(colorLong.toInt())
-            
-            GredItem(
-                index = index,
-                label = label,
-                color = color
-            )
-        }.filterNotNull()
-
         val centerLabel = mod.glefz.getOrNull(0) ?: " "
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
@@ -258,54 +249,42 @@ fun GlefsEdetSkren(
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { isEditingModNeym = true }) {
-                        Text(text = "beldir: ${mod.neym}", color = Color.White, fontSize = 32.sp)
+                        Text(text = "beld: ${mod.neym}", color = Color.White, fontSize = 32.sp)
                         Icon(Icons.Default.Edit, "Rename", tint = Color.Cyan, modifier = Modifier.size(24.dp).padding(start = 8.dp))
                     }
                 }
             }
 
             Box(modifier = Modifier.weight(1f)) {
-                KepadModyil(
-                    keyboardController = null,
-                    platformServices = object : PlatformServices {
-                        override fun log(tag: String, message: String) {}
-                        override fun toast(message: String) {}
-                        override fun playClickSound() {}
-                        override fun addToCorpus(word: String) {}
-                        override suspend fun getCorpus(): String = ""
-                        override fun openSettings() {}
-                        override fun speak(text: String) {}
-                    },
-                    voiceService = object : VoiceService {
-                        override val isListening: State<Boolean> = mutableStateOf(false)
-                        override val hasSpoken: State<Boolean> = mutableStateOf(false)
-                        override val angolSpelenqMod: State<Int> = mutableStateOf(0)
-                        override fun startListening(isAiMode: Boolean) {}
-                        override fun stopListening() {}
-                        override fun togilAngolMod(isLongPress: Boolean) {}
-                    },
-                    ezLeterMod = true,
-                    ezPunkcuweyconMod = false,
-                    onTogilMod = {},
-                    onSetPunkcuweyconMod = {},
-                    ezAngolMod = false,
-                    onTogilAngol = {},
-                    onStartAiVoys = {},
-                    ignoreSelectionUpdate = {},
-                    onClose = onBack,
-                    geometryOverride = geometry,
-                    glefzOverride = mod.glefz,
-                    kulorzOverride = mod.glefKulorz,
-                    isEditing = true,
+                val currentLabels = KepadLodjek.getCurrentOlLeybelz(null, true, false, false, mod.glefz)
+                val itemsForGred = currentLabels.mapIndexed { index, label ->
+                    if (index == 0 || label.isEmpty()) return@mapIndexed null
+                    val colorLong = mod.glefKulorz.getOrNull(index) ?: mod.kulor.toArgb().toLong()
+                    GredItem(
+                        index = index,
+                        label = label,
+                        color = Color(colorLong.toInt())
+                    )
+                }.filterNotNull()
+
+                HeksagonGred(
+                    geometry = geometry,
+                    items = itemsForGred,
+                    centerLabel = currentLabels.getOrNull(0) ?: " ",
+                    centerColor = mod.kulor,
                     onMove = onMuvGlef,
                     onCopyToEmpty = onCopyToEmpty,
                     onMoveToCenter = onMoveToParent,
-                    onDelete = { index ->
-                        // This uses onReneymGlef with empty string to effectively delete/clear
-                        onReneymGlef(index, "")
-                    },
                     onDropOnFoldir = { _, _ -> },
-                    onReplace = onReplace
+                    onReplace = onReplace,
+                    onTap = { index ->
+                        if (index == 0) onBack()
+                        else {
+                            editingGlefIndex = index
+                            newGlefLabel = currentLabels.getOrNull(index) ?: ""
+                        }
+                    },
+                    fontSizeFactor = 13f/12f
                 )
             }
             

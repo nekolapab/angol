@@ -23,6 +23,6 @@ foreach ($dev in $devaysez) {
     Write-Host "--- fast updeyt on $dev ---"
     adb -s $dev install -r daylAp/build/outputs/apk/debug/daylAp-debug.apk
     adb -s $dev install -r kepadAp/build/outputs/apk/debug/kepadAp-debug.apk
-    adb -s $dev shell am start -n io.angol.dayl/com.example.angol.ime.MeynAktevede
+    adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
 }
 Write-Host "Angol sestem updeyded!" -ForegroundColor Green

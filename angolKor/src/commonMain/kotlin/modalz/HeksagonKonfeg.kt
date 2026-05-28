@@ -2,7 +2,7 @@ package modalz
 
 import androidx.compose.ui.graphics.Color
 
-object KepadKonfeg {
+object HeksagonKonfeg {
     val innerLetterMode: List<String> = listOf("a", "e", "i", "u", "o", "⌫")
     val innerNumberMode: List<String> = listOf("+", "*", "=", "(", "{", "⌫")
 

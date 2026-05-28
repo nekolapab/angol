@@ -1,7 +1,7 @@
 package yuteledez
 
 import modalz.HeksagonPozecon
-import modalz.KepadKonfeg
+import modalz.HeksagonKonfeg
 import kotlin.math.pow
 
 object KepadLodjek {
@@ -68,11 +68,11 @@ object KepadLodjek {
         } else {
             val center = if (isLetterMode) " " else "."
             val inner = when {
-                isPunctuationMode -> KepadKonfeg.innerPunctuationMode
-                isLetterMode -> KepadKonfeg.innerLetterMode
-                else -> KepadKonfeg.innerNumberMode
+                isPunctuationMode -> HeksagonKonfeg.innerPunctuationMode
+                isLetterMode -> HeksagonKonfeg.innerLetterMode
+                else -> HeksagonKonfeg.innerNumberMode
             }
-            val outer = if (isLetterMode) KepadKonfeg.outerTap else KepadKonfeg.outerTapNumber
+            val outer = if (isLetterMode) HeksagonKonfeg.outerTap else HeksagonKonfeg.outerTapNumber
             listOf(center) + inner + outer
         }
 

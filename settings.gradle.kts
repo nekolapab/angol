@@ -20,3 +20,5 @@ dependencyResolutionManagement {
 include(":angolKor")
 include(":daylAp")
 include(":kepadAp")
+include(":kepadModyil")
+include(":beldModyil")

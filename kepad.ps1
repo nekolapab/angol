@@ -28,3 +28,4 @@ foreach ($dev in $devaysez) {
     Write-Host "enstolenq kepad on $dev..." -ForegroundColor Yellow
     adb -s $dev install -r kepadAp/build/outputs/apk/debug/kepadAp-debug.apk
 }
+

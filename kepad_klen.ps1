@@ -57,7 +57,7 @@ foreach ($devays in $devaysez) {
 
     # Step 3: Dip Aktiveycon
     Write-Host "pirformenq dip akteveycon on $devays..." -ForegroundColor Yellow
-    $imeId = "io.angol.kepad/com.example.angol.ime.KepadEnpitMelxod"
+    $imeId = "io.angol.kepad/.app.KepadEnpitMelxod"
 
     # Layer 1: Standard IME kamandz
     adb -s $devays shell ime enable $imeId

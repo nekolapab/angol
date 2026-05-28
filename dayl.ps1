@@ -29,5 +29,6 @@ foreach ($dev in $devaysez) {
     adb -s $dev install -r daylAp/build/outputs/apk/debug/daylAp-debug.apk
     
     Write-Host "lontchenq ap on $dev..." -ForegroundColor Yellow
-    adb -s $dev shell am start -n io.angol.dayl/io.angol.dayl.app.MeynAktevede
+    adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
 }
+

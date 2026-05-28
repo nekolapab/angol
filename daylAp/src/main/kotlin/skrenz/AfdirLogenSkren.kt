@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import sirvesez.FirebaseSirves
+import yuteledez.DaylSteyt
 
 @Composable
 fun AfdirLogenSkren(firebaseSirves: FirebaseSirves, onContinue: () -> Unit) {

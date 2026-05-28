@@ -46,6 +46,9 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import modyilz.KepadModyil
+import modyilz.KeyboardController
+import modyilz.PlatformServices
+import modyilz.VoiceService
 import yuteledez.AngolSpelenqMelxod
 import yuteledez.HeksagonDjeyometre
 import modalz.HeksagonPozecon
@@ -91,7 +94,7 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     private lateinit var platfOrmSirvesez: AndroidPlatformServices
     private lateinit var firebaseSirves: AndroidFirebaseSirves
     private lateinit var voiceService: AndroidVoiceService
-    private val daylSteyt = steyt.DaylSteyt()
+    private val daylSteyt = yuteledez.DaylSteyt()
     private lateinit var audioManager: AudioManager
     private var originalSystemVol = -1
     private var originalNotificationVol = -1
@@ -524,7 +527,6 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                                 onTogilAngol = { voiceService.togilAngolMod(it) }, 
                                 onStartAiVoys = { voiceService.startListening(isAiMode = true) },
                                 ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ },
-                                onClose = {},
                                 geometryOverride = geometry,
                                 glefzOverride = activeMod.glefz,
                                 kulorzOverride = activeMod.glefKulorz,
@@ -605,3 +607,4 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         speechRecognizer?.destroy()
     }
 }
+
