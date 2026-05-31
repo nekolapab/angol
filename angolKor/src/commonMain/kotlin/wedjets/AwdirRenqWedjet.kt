@@ -72,8 +72,7 @@ fun AwdirRenqWedjet(
                         onTap = if (handleGestures) { { onHexKeyPress(tapLabel, false, null) } } else null,
                         onLongPress = if (handleGestures && isLetterMode && longPressLabel.isNotEmpty()) {
                             { onHexKeyPress(longPressLabel, true, tapLabel) }
-                        } else null,
-                        onHover = onHover
+                        } else null
                     )
                 }
             }

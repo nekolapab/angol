@@ -1,13 +1,17 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinAndroidMultiplatform)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
-    androidTarget()
+    android {
+        namespace = "io.angol.kor"
+        compileSdk = 35
+        minSdk = 24
+    }
     
     sourceSets {
         commonMain.dependencies {
@@ -19,18 +23,12 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
         }
-        androidMain.dependencies {
-            implementation("com.google.firebase:firebase-auth:23.1.0")
-            implementation("com.google.firebase:firebase-firestore:25.1.1")
-            implementation("com.google.android.gms:play-services-tasks:18.1.0")
+        val androidMain by getting {
+            dependencies {
+                implementation("com.google.firebase:firebase-auth:23.1.0")
+                implementation("com.google.firebase:firebase-firestore:25.1.1")
+                implementation("com.google.android.gms:play-services-tasks:18.1.0")
+            }
         }
-    }
-}
-
-android {
-    namespace = "io.angol.kor"
-    compileSdk = 35
-    defaultConfig {
-        minSdk = 24
     }
 }

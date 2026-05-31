@@ -6,7 +6,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import yuteledez.DaylSteyt
+import steyt.DaylSteyt
 import yuteledez.HeksagonDjeyometre
 import modalz.ModyilDeyda
 import modalz.HeksagonKonfeg
@@ -35,7 +35,7 @@ fun DaylModal(
             index = mod.pozecon - 1,
             label = mod.neym,
             color = mod.kulor,
-            isFolder = mod.type == "keypad" || mod.type == "rebeld",
+            isFolder = mod.type == "keypad" || mod.type == "beld",
             deyda = mod
         )
     }

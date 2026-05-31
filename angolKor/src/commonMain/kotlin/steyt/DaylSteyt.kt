@@ -1,4 +1,4 @@
-package yuteledez
+package steyt
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +30,11 @@ class DaylSteyt {
                          modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() },
             type = "keypad"
         ),
-        ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "beld"),
+        ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "rebeld"),
+        ModyilDeyda(id = "module3", neym = "mod 3", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, ezAktiv = false),
+        ModyilDeyda(id = "module4", neym = "mod 4", kulorLong = Color(0xFF00FFFF).toArgb().toLong(), pozecon = 5, ezAktiv = false),
+        ModyilDeyda(id = "module5", neym = "mod 5", kulorLong = Color(0xFF0000FF).toArgb().toLong(), pozecon = 6, ezAktiv = false),
+        ModyilDeyda(id = "module6", neym = "mod 6", kulorLong = Color(0xFFFF00FF).toArgb().toLong(), pozecon = 7, ezAktiv = false),
     ))
 
     var beldirModyilz by mutableStateOf(listOf(
@@ -47,7 +51,11 @@ class DaylSteyt {
                          modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() },
             type = "keypad"
         ),
-        ModyilDeyda(id = "beld", neym = "beld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "beld"),
+        ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, ezAktiv = false, type = "rebeld"),
+        ModyilDeyda(id = "module3", neym = "mod 3", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, ezAktiv = false),
+        ModyilDeyda(id = "module4", neym = "mod 4", kulorLong = Color(0xFF00FFFF).toArgb().toLong(), pozecon = 5, ezAktiv = false),
+        ModyilDeyda(id = "module5", neym = "mod 5", kulorLong = Color(0xFF0000FF).toArgb().toLong(), pozecon = 6, ezAktiv = false),
+        ModyilDeyda(id = "module6", neym = "mod 6", kulorLong = Color(0xFFFF00FF).toArgb().toLong(), pozecon = 7, ezAktiv = false),
     ))
 
     val activeModule: ModyilDeyda?
@@ -386,7 +394,10 @@ class DaylSteyt {
         modyilz = listOf(
             ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("angol"), type = "hub"),
             ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, glefz = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"),
-            ModyilDeyda(id = "rebeld", neym = "beldir", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, type = "rebeld")
+            ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, type = "rebeld"),
+            ModyilDeyda(id = "mod4", neym = "mod4", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, ezAktiv = false),
+            ModyilDeyda(id = "mod5", neym = "mod5", kulorLong = Color(0xFF0000FF).toArgb().toLong(), pozecon = 5, ezAktiv = false),
+            ModyilDeyda(id = "mod6", neym = "mod6", kulorLong = Color(0xFFFF00FF).toArgb().toLong(), pozecon = 6, ezAktiv = false)
         )
     }
 

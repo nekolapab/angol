@@ -1,13 +1,17 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinAndroidMultiplatform)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
-    androidTarget()
+    android {
+        namespace = "io.angol.kepad.modyil"
+        compileSdk = 35
+        minSdk = 26
+    }
     
     sourceSets {
         commonMain.dependencies {
@@ -19,13 +23,5 @@ kotlin {
             implementation("org.jetbrains.compose.components:components-resources:1.7.0")
             implementation(libs.kotlinx.coroutines.core)
         }
-    }
-}
-
-android {
-    namespace = "io.angol.kepad.modyil"
-    compileSdk = 35
-    defaultConfig {
-        minSdk = 26
     }
 }

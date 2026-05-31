@@ -32,17 +32,17 @@ object HeksagonKonfeg {
     // 12 rainbow colors for outer ring
     // 12 colors for outer ring: Black/White at specified indices, rainbow elsewhere
     val rainbowColors: List<Color> = listOf(
-        Color.White,       // 0: Red -> White
+        Color(0xFFFF0000), // 0: Red
         Color(0xFFFF8000), // 1: Orange
-        Color.White,       // 2: Yellow -> White
+        Color(0xFFFFFF00), // 2: Yellow
         Color(0xFF80FF00), // 3: Chartreuse
-        Color.White,       // 4: Green -> White
+        Color(0xFF00FF00), // 4: Green
         Color(0xFF00FF80), // 5: Turquoise (6 o'clock)
-        Color.White,       // 6: Aqua -> White
+        Color(0xFF00FFFF), // 6: Aqua
         Color(0xFF0080FF), // 7: Azure
-        Color.White,       // 8: Blue -> White
+        Color(0xFF0000FF), // 8: Blue
         Color(0xFF8000FF), // 9: Purple
-        Color.White,       // 10: Fuchsia -> White
+        Color(0xFFFF00FF), // 10: Fuchsia
         Color(0xFF800000)  // 11: Maroon (12 o'clock)
     )
 

@@ -37,7 +37,6 @@ fun SentirModWedjet(
         onTap = onTap,
         onLongPress = onLongPress,
         onPressedChanged = onPressedChanged,
-        onHover = onHover,
         child = child
     )
 }

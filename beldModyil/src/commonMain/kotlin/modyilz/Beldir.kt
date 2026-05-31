@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.toArgb
 import modalz.ModyilDeyda
 import modalz.HeksagonKonfeg
-import yuteledez.DaylSteyt
+import steyt.DaylSteyt
 import yuteledez.KepadLodjek
 import wedjets.GredItem
 import wedjets.CopyDragPolicy
@@ -28,7 +28,7 @@ import modyilz.KeyboardController
 import kotlin.math.sqrt
 
 @Composable
-fun Beld(
+fun Beldir(
     daylSteyt: DaylSteyt,
     keyboardController: KeyboardController?,
     platformServices: PlatformServices,
@@ -41,7 +41,7 @@ fun Beld(
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
     
     val syncBeldir = {
-        onAction("beld")
+        onAction("current")
     }
 
     if (selectedModuleId != null) {
@@ -125,7 +125,7 @@ fun Beld(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "beld",
+                    text = "rebeld",
                     color = Color.White,
                     fontSize = 32.sp
                 )
@@ -138,7 +138,7 @@ fun Beld(
                     centerLabel = daylModule.neym,
                     centerColor = daylModule.kulor,
                     copyDragPolicy = CopyDragPolicy.TwoStepArmed,
-                    allowSwap = false,
+                    allowSwap = true,
                     onMove = { from, to ->
                         daylSteyt.swopBeldirModyilz(from + 1, to + 1)
                         syncBeldir()
@@ -150,7 +150,6 @@ fun Beld(
                     onMoveToCenter = { from ->
                         daylSteyt.copyModuleToDaylKeypad(from)
                         onAction("current")
-                        onAction("production")
                     },
                     onDropOnFoldir = { from, to ->
                         daylSteyt.muvBeldirModyilEntuFoldir(from, to)
@@ -168,7 +167,7 @@ fun Beld(
                             onClose()
                         } else {
                             val clickedMod = daylSteyt.beldirModyilz.find { it.pozecon == index + 1 }
-                            if (clickedMod != null) {
+                            if (clickedMod != null && clickedMod.id != "dayl" && clickedMod.id != "rebeld") {
                                 selectedModuleId = clickedMod.id
                             }
                         }

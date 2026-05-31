@@ -1,5 +1,8 @@
 package wedjets
 
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -59,6 +62,9 @@ fun HeksagonGred(
     fontSizeFactor: Float = 6f / 12f,
     ezKonsestentSayz: Boolean = false
 ) {
+    var pendingReplaceFrom by remember { mutableStateOf<Int?>(null) }
+    var pendingReplaceTo by remember { mutableStateOf<Int?>(null) }
+    var showReplaceDialog by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
     val density = LocalDensity.current
     var draggingIndex by remember { mutableStateOf<Int?>(null) }
@@ -123,12 +129,29 @@ fun HeksagonGred(
                     onMoveToCenter(fromIdx)
                     return
                 }
+
+                val draggedItem = items.firstOrNull { it.index == fromIdx }
+                val targetItem = items.firstOrNull { it.index == toIdx }
+                
+                // Simplified Replace check: same label? Ask.
+                if (draggedItem != null && targetItem != null && 
+                    draggedItem.label.isNotEmpty() && targetItem.label.isNotEmpty() && 
+                    !targetItem.isFolder && draggedItem.label == targetItem.label
+                ) {
+                    if (onReplace != null) {
+                        pendingReplaceFrom = fromIdx
+                        pendingReplaceTo = toIdx
+                        showReplaceDialog = true
+                        return
+                    }
+                }
+
                 if (isMoveDrag) {
-                    val targetItem = items.firstOrNull { it.index == toIdx }
-                    val isTargetOccupied = targetItem != null && targetItem.label.isNotEmpty()
-                    if (isTargetOccupied) {
-                        if (targetItem.isFolder) onDropOnFoldir(fromIdx, toIdx)
-                        else if (allowSwap) onMove(fromIdx, toIdx)
+                    // Merging into folders works even if label is empty (folders can be empty)
+                    if (targetItem?.isFolder == true) {
+                        onDropOnFoldir(fromIdx, toIdx)
+                    } else if (targetItem != null && targetItem.label.isNotEmpty()) {
+                        if (allowSwap) onMove(fromIdx, toIdx)
                     } else {
                         onMove(fromIdx, toIdx)
                     }
@@ -223,6 +246,25 @@ fun HeksagonGred(
                 ezPresd = isMovedFromStart, // Contrast only while traveling
                 ezGlowenq = true,
                 modifier = Modifier.align(Alignment.TopStart).offset(x = xDp - (hexWidthDp / 2), y = yDp - ((hexWidthDp * (2f / kotlin.math.sqrt(3f))) / 2))
+            )
+        }
+
+        if (showReplaceDialog) {
+            AlertDialog(
+                onDismissRequest = { showReplaceDialog = false },
+                title = { Text("Replace?") },
+                text = { Text("A file/module with the same name already exists. Do you want to replace it?") },
+                confirmButton = {
+                    Button(onClick = {
+                        val from = pendingReplaceFrom
+                        val to = pendingReplaceTo
+                        if (from != null && to != null) onReplace?.invoke(from, to)
+                        showReplaceDialog = false
+                    }) { Text("Yes") }
+                },
+                dismissButton = {
+                    Button(onClick = { showReplaceDialog = false }) { Text("No") }
+                }
             )
         }
 

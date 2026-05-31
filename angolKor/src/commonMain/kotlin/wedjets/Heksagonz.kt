@@ -17,15 +17,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
@@ -37,6 +32,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -44,10 +41,6 @@ import kotlin.math.sqrt
 
 /**
  * A custom shape that clips its content into a hexagon.
- * This is the Compose equivalent of the custom RenderObject used for hit-testing in the original Flutter code.
- * By clipping the shape, both the visual representation and the touch input area are constrained to the hexagon.
- *
- * @param rotationAngle The angle in radians to rotate the hexagon.
  */
 class HeksagonCeyp(private val rotationAngle: Float) : Shape {
     override fun createOutline(
@@ -64,48 +57,19 @@ class HeksagonCeyp(private val rotationAngle: Float) : Shape {
         val path = Path()
         val centerX = size.width / 2f
         val centerY = size.height / 2f
-
-        // The original RenderObject subtracted a small fixed value to create a "safe zone".
-        // We'll use a small percentage of the height for better scaling.
         val radius = (size.height / 2f)
 
         for (i in 0..5) {
-            // Angle for pointy-top hexagons (-30 degrees offset), converted to radians.
             val angleRad = (i * 60f - 30f) * (PI.toFloat() / 180f) + rotation
-
             val x = centerX + radius * cos(angleRad)
             val y = centerY + radius * sin(angleRad)
-
-            if (i == 0) {
-                path.moveTo(x, y)
-            } else {
-                path.lineTo(x, y)
-            }
+            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
         }
         path.close()
         return path
     }
-
-    // Two shapes with the same rotation are considered equal.
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is HeksagonCeyp) return false
-        return rotationAngle == other.rotationAngle
-    }
-
-    override fun hashCode(): Int {
-        return rotationAngle.hashCode()
-    }
 }
 
-/**
- * A composable that provides a hexagonal touch area for its child.
- * It uses a custom Shape to clip the bounds for both drawing and touch input.
- *
- * @param modifier The modifier to be applied to the layout.
- * @param rotationAngle The angle in radians to rotate the hexagonal clip shape.
- * @param content The content to be displayed inside the hexagonal area.
- */
 @Composable
 fun HeksagonTutcboks(
     modifier: Modifier = Modifier,
@@ -120,7 +84,7 @@ fun HeksagonTutcboks(
 }
 
 /**
- * A hexagonal widget (key) with touch listeners and visual states.
+ * A hexagonal widget with unified glow and contrast logic.
  */
 @Composable
 fun Heksagon(
@@ -132,10 +96,8 @@ fun Heksagon(
     size: Dp,
     ezPresd: Boolean = false,
     ezGlowenq: Boolean = false,
-    isHovering: Boolean = false,
     onTap: (() -> Unit)? = null,
     onLongPress: (() -> Unit)? = null,
-    onHover: ((Boolean) -> Unit)? = null,
     onPressedChanged: ((Boolean) -> Unit)? = null,
     rotationAngle: Float = 0f,
     fontSizeFactor: Float? = null,
@@ -154,19 +116,40 @@ fun Heksagon(
     }
 
     val hexHeight = size * (2f / sqrt(3f))
-    // Selective contrast: only flip colors during long-press/drag (ezPresd)
-    val contrastColor = if (ezPresd) backgroundColor else textColor
+    val isActivelyGlowing = ezMomenteralePresd || ezGlowenq || ezPresd
     
-    // Aggressive font scaling... (rest unchanged)
-    val totalLength = if (ezKonsestentSayz) 2f else (label.length + (secondaryLabel?.length ?: 0) + (if (secondaryLabel != null) 6f/12f else 0f))
-    val safeLength = totalLength.coerceAtLeast(10f/12f)
-    
-    val autoFontSize = (size.value * 25f/12f) / (safeLength * 6f/12f + 21f/12f)
-    val finalRawFontSize = (autoFontSize * (fontSizeFactor ?: 12f/12f)).coerceAtMost(size.value * 12f/12f)
+    // Unified Contrast: Flip colors during ezPresd (Move-drag traveling or Ghost drag traveling)
+    val finalBgColor = if (ezPresd) textColor else backgroundColor
+    val finalTextColor = if (ezPresd) backgroundColor else textColor
+
+    // Aggressive font scaling
+    val totalLength = if (ezKonsestentSayz) 2f else (label.length + (secondaryLabel?.length ?: 0) + (if (secondaryLabel != null) 0.5f else 0f))
+    val safeLength = totalLength.coerceAtLeast(0.8f)
+    val autoFontSize = (size.value * 2f) / (safeLength * 0.5f + 1.75f)
+    val finalRawFontSize = (autoFontSize * (fontSizeFactor ?: 1f)).coerceAtMost(size.value * 1f)
     val finalFontSize = (finalRawFontSize / density.fontScale).sp
 
+    // Glow config: 8/12 radius, 12/12 intensity (alpha 1.0)
+    val glowRadiusFactor = 8f / 12f
+    val glowAlpha = 1.0f
+
     Box(
-        modifier = modifier.size(width = size, height = hexHeight),
+        modifier = modifier
+            .size(width = size, height = hexHeight)
+            .drawBehind {
+                if (isActivelyGlowing) {
+                    val glowColor = if (ezPresd) backgroundColor else (if (backgroundColor == Color.Black) Color.White else backgroundColor)
+                    val radius = size.toPx() * glowRadiusFactor
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(glowColor.copy(alpha = glowAlpha), Color.Transparent),
+                            center = center,
+                            radius = radius
+                        ),
+                        radius = radius
+                    )
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         HeksagonTutcboks(
@@ -175,8 +158,8 @@ fun Heksagon(
         ) {
             val inputModifier = if (onTap != null || onLongPress != null || onPressedChanged != null) {
                 Modifier.pointerInput(onTap, onLongPress, onPressedChanged) {
-                    detektTapDjestcirz(
-                        onPres = {
+                    detectTapGestures(
+                        onPress = {
                             ezMomenteralePresd = true
                             onPressedChanged?.invoke(true)
                             try {
@@ -195,41 +178,15 @@ fun Heksagon(
             }
 
             Box(
-                modifier = Modifier.fillMaxSize().then(inputModifier),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        val path = createVisualPath(this.size, rotationAngle)
+                        drawPath(path, finalBgColor)
+                    }
+                    .then(inputModifier),
                 contentAlignment = Alignment.Center
             ) {
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .drawWithCache {
-                            val path = createVisualPath(this.size, rotationAngle)
-                            onDrawBehind {
-                                // Background: Original when static, Contrast when moving
-                                val displayColor = if (ezPresd) textColor else backgroundColor
-                                
-                                val fillPaint = androidx.compose.ui.graphics.Paint().apply {
-                                    color = displayColor
-                                    style = androidx.compose.ui.graphics.PaintingStyle.Fill
-                                }
-                                drawContext.canvas.drawPath(path, fillPaint)
-
-                                // Glow: Standardized size, drawn ON TOP of background
-                                if (ezMomenteralePresd || ezGlowenq || ezPresd) {
-                                    val glowColor = if (ezPresd) backgroundColor else (if (backgroundColor == Color.Black) Color.White else backgroundColor)
-                                    val glowRadius = this.size.maxDimension * (6f / 12f) // Fill the hex to the corners
-                                    drawCircle(
-                                        brush = androidx.compose.ui.graphics.Brush.radialGradient(
-                                            colors = listOf<Color>(glowColor.copy(alpha = 9f / 12f), Color.Transparent),
-                                            center = center,
-                                            radius = glowRadius
-                                        ),
-                                        radius = glowRadius
-                                    )
-                                }
-                            }
-                        }
-                )
-
                 Box(
                     modifier = Modifier.rotate(-rotationAngle * (180f / PI.toFloat())).offset(y = verticalOffset),
                     contentAlignment = Alignment.Center
@@ -238,14 +195,14 @@ fun Heksagon(
                         child()
                     } else if (secondaryLabel != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = label, color = contrastColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
+                            Text(text = label, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = secondaryLabel, color = contrastColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
+                            Text(text = secondaryLabel, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                         }
                     } else {
                         Text(
                             text = label, 
-                            color = contrastColor, 
+                            color = finalTextColor, 
                             fontSize = finalFontSize, 
                             fontWeight = FontWeight.Bold, 
                             textAlign = TextAlign.Center, 
@@ -264,7 +221,6 @@ private fun createVisualPath(size: Size, rotation: Float): Path {
     val centerX = size.width / 2f
     val centerY = size.height / 2f
     val radius = size.height / 2f
-
     for (i in 0..5) {
         val angleRad = (i * 60f - 30f) * (PI.toFloat() / 180f) + rotation
         val x = centerX + radius * cos(angleRad)
@@ -274,15 +230,3 @@ private fun createVisualPath(size: Size, rotation: Float): Path {
     path.close()
     return path
 }
-
-suspend fun androidx.compose.ui.input.pointer.PointerInputScope.detektTapDjestcirz(
-    onPres: suspend androidx.compose.foundation.gestures.PressGestureScope.(androidx.compose.ui.geometry.Offset) -> Unit = {},
-    onLongPress: ((androidx.compose.ui.geometry.Offset) -> Unit)? = null,
-    onDoubleTap: ((androidx.compose.ui.geometry.Offset) -> Unit)? = null,
-    onTap: ((androidx.compose.ui.geometry.Offset) -> Unit)? = null
-) = detectTapGestures(
-    onPress = onPres,
-    onLongPress = onLongPress,
-    onDoubleTap = onDoubleTap,
-    onTap = onTap
-)

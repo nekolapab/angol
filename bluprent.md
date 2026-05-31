@@ -1,11 +1,20 @@
-### *prodjekt angol dayl** KotlinCompose Multiplatform
-
-- **angol (lha kor):** lha shared logic, state (`DaylSteyt`), and routing foundation. et ez lha central gatekeeper and "router" lhat remains separate from lha apps. et represents lha "system" itself.
-- **dayl (lha hub ap):** A "Modal" application (a collection ov modules and widgets) built on top ov lha 'angol' core. et functions az lha primary user hub and layout builder.
-- **kepad (lha IME ap):** A specialized application and module lhat leverages lha 'angol' core tu provide lha custom input method functionality.
-- **Relationship:** Apps are separate but rekwayr 'angol'. Modules can be installed tu 'angol' welxawt 'dayl'.
-
+### *prodjekt angol* Kotlin Multiplatform onle
 ### Architecture (AGP 9.2+):
+**angol modyil** kor rawdir reprezents lha sestom etself cerd lodjek  steyt (`DaylSteyt`)  enkrepcon. modyilz rekwayr lhes fawndeycon geytkepir tu entsol or unenstol welxawt 'angol dayl ap'.
+
+**dayl modyil** drag an drop fayl sestom program yusir entirfeys entirakcon.
+  **dayl wedjet** hub kolekcon ov modyil wedjets belt arawnd angol modyil and funkconz az praymere leyawt lhat adz or remuvz adonz sutc az kepad wedjet and beld aden lxru dayl modyil tu angol modyil tu alxorayz.
+
+**angol dayl ap** angol modyil + dayl modyil + dayl wedjet.
+ 
+ **kepad modyil** 
+ **kepad wedjet** yuzir tu angol modyil UI entirakcon.
+ **kepad ekstencon** enpit melxod = angol modyil + kepad modyil + kepad wedjet -but not dayl wedjet.
+ 
+ **beld wedjet**
+ **beld aden** dayl modyil + beld wedjet.
+
+*reneym and refaktor*: AngolKor AngolModyil | DaylAp AngolDaylAp and DaylWedjet | cid DaylSteyt be AngolSteyt ? |
 - **`:angolKor` (Shared Library):** Use `com.android.kotlin.multiplatform.library`. Mandatory for AGP 9+ KMP modules. Use a single variant architecture.
 - **`:daylAp` (App Entry):** Use `com.android.application`. Leverage AGP's built in Kotlin support.
 - `angolKor/src/commonMain/kotlin/`: Shared UI and logic.
@@ -24,7 +33,7 @@
 
 ### **Functional Logic:**
 - **App Separation:** 'dayl' and 'kepad' are separate Android applications (`io.angol.dayl` and `io.angol.kepad`) tu ensure system-level IME registration and clean project structure.
-- **Broadcast Sync (lha Bredj):** Since 'dayl' and 'kepad' have isolated storage and auth contexts, lhey communicate via a secure Android Broadcast (`io.angol.ACTION_UPDATE_LAYOUT`). Changes made en lha builder (dayl) are broadcast tu lha keyboard (kepad) for real-time synchronization.
+- **Broadcast Sync (lha bredj):** Since 'dayl' and 'kepad' have isolated storage and auth contexts, lhey communicate via a secure Android Broadcast (`io.angol.ACTION_UPDATE_LAYOUT`). Changes made en lha builder (dayl) are broadcast tu lha keyboard (kepad) for real-time synchronization.
 - **Multi-Environment Sync:** Supports `current` and `production` Firestore paths. lha builder updates both odomadekle tu ensure lha production environment ez always current.
 - **Local Persistence:** Every cloud sync ez backed by environment-specific local files (`layout_current.json`, `layout_production.json`) tu prevent data inconsistency.
 

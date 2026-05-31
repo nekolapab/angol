@@ -45,13 +45,15 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import steyt.DaylSteyt
+import modalz.ModyilDeyda
+import modalz.HeksagonPozecon
+import yuteledez.HeksagonDjeyometre
 import modyilz.KepadModyil
 import modyilz.KeyboardController
 import modyilz.PlatformServices
 import modyilz.VoiceService
 import yuteledez.AngolSpelenqMelxod
-import yuteledez.HeksagonDjeyometre
-import modalz.HeksagonPozecon
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
@@ -94,56 +96,12 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     private lateinit var platfOrmSirvesez: AndroidPlatformServices
     private lateinit var firebaseSirves: AndroidFirebaseSirves
     private lateinit var voiceService: AndroidVoiceService
-    private val daylSteyt = yuteledez.DaylSteyt()
+    private val daylSteyt = DaylSteyt()
     private lateinit var audioManager: AudioManager
     private var originalSystemVol = -1
-    private var originalNotificationVol = -1
-    private var originalMusicVol = -1
-    private var originalRingVol = -1
-    private var isVolumeDipped = false
     private var dynamicGridHeightPx = 0
 
     private var layoutUpdateReceiver: android.content.BroadcastReceiver? = null
-
-    private fun dipVolume() {
-        if (isVolumeDipped) return
-        try {
-            originalSystemVol = audioManager.getStreamVolume(AudioManager.STREAM_SYSTEM)
-            originalNotificationVol = audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)
-            originalMusicVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-            originalRingVol = audioManager.getStreamVolume(AudioManager.STREAM_RING)
-            
-            // Lower to near-zero
-            audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, 0, 0)
-            audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0)
-            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
-            audioManager.setStreamVolume(AudioManager.STREAM_RING, 0, 0)
-            isVolumeDipped = true
-        } catch (e: Exception) {
-            Log.e(TAG, "dipVolume failed: ${e.message}")
-        }
-    }
-
-    private fun restoreVolume() {
-        if (!isVolumeDipped) return
-        try {
-            if (originalSystemVol != -1) {
-                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, originalSystemVol, 0)
-            }
-            if (originalNotificationVol != -1) {
-                audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, originalNotificationVol, 0)
-            }
-            if (originalMusicVol != -1) {
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVol, 0)
-            }
-            if (originalRingVol != -1) {
-                audioManager.setStreamVolume(AudioManager.STREAM_RING, originalRingVol, 0)
-            }
-            isVolumeDipped = false
-        } catch (e: Exception) {
-            Log.e(TAG, "restoreVolume failed: ${e.message}")
-        }
-    }
 
     override val lifecycle: Lifecycle get() = lifecycleRegistry
     override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
@@ -244,7 +202,7 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                                 val jsonParser = Json { 
                                     ignoreUnknownKeys = true 
                                 }
-                                val updatedModules: List<modalz.ModyilDeyda> = jsonParser.decodeFromString(jsonString)
+                                val updatedModules: List<ModyilDeyda> = jsonParser.decodeFromString(jsonString)
                                 if (updatedModules.isNotEmpty()) {
                                     Log.d(TAG, "Received broadcast layout update ($env)")
                                     daylSteyt.updateModules(updatedModules)
@@ -257,33 +215,32 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                 }
             }
             val filter = android.content.IntentFilter(AndroidFirebaseSirves.ACTION_UPDATE_LAYOUT)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                registerReceiver(layoutUpdateReceiver, filter, Context.RECEIVER_EXPORTED)
-            } else {
-                registerReceiver(layoutUpdateReceiver, filter)
-            }
+            androidx.core.content.ContextCompat.registerReceiver(
+                this,
+                layoutUpdateReceiver,
+                filter,
+                androidx.core.content.ContextCompat.RECEIVER_EXPORTED
+            )
 
         } catch (e: Exception) {
             Log.e(TAG, "onCreate failed: ${e.message}")
         }
     }
+private fun startVoysEnpit() {
+    if (ezLisenenq.value && !ezVoysSutdawnRekwested) return
 
-    private fun startVoysEnpit() {
-        if (ezLisenenq.value && !ezVoysSutdawnRekwested) return
-        
-        if (android.content.pm.PackageManager.PERMISSION_GRANTED != 
-            androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)) {
-            val intent = Intent(this, PirmeconAktevede::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(intent)
-            return
+    if (android.content.pm.PackageManager.PERMISSION_GRANTED != 
+        androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)) {
+        val intent = Intent(this, PirmeconAktevede::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+        startActivity(intent)
+        return
+    }
 
-        ezVoysSutdawnRekwested = false
-        dipVolume()
+    ezVoysSutdawnRekwested = false
 
-        if (speechRecognizer == null) {
+    if (speechRecognizer == null) {
             initSpeechRecognizer()
         }
 
@@ -306,7 +263,6 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                         // Restore volume AFTER start-up beep is definitely over
                         scope.launch {
                             delay(200)
-                            restoreVolume()
                         }
                     }
                     override fun onRmsChanged(rmsdB: Float) {
@@ -327,7 +283,6 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     override fun onError(error: Int) {
                         Log.e(TAG, "Speech recognizer error: $error")
                         ezLisenenq.value = false
-                        restoreVolume()
 
                         if (!ezVoysSutdawnRekwested && (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT || error == SpeechRecognizer.ERROR_NO_MATCH)) {
                             scope.launch {
@@ -425,7 +380,6 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
 
     private fun stopVoysEnpit() {
         ezVoysSutdawnRekwested = true
-        dipVolume()
         
         speechRecognizer?.stopListening()
         ezLisenenq.value = false
@@ -433,7 +387,6 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         // Restore volume after a longer delay to fully cover shutdown beeps
         scope.launch {
             delay(1000)
-            restoreVolume()
         }
     }
 
@@ -481,7 +434,7 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
 
                         val activeMod = daylSteyt.activeModule ?: daylSteyt.modyilz.find { it.type == "keypad" } ?: return@BoxWithConstraints
                         val activeIndices = remember(activeMod.glefz) {
-                            val set: MutableSet<Int> = activeMod.glefz.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }.toMutableSet()
+                            val set: MutableSet<Int> = activeMod.glefz.mapIndexedNotNull { i: Int, s: String -> if (s.isNotEmpty()) i else null }.toMutableSet()
                             set.add(0)
                             set.toList().sorted()
                         }
@@ -607,4 +560,3 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         speechRecognizer?.destroy()
     }
 }
-

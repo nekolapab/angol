@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import modyilz.DaylModal
 import modyilz.KepadModyil
-import modyilz.Beld
-import yuteledez.DaylSteyt
+import modyilz.Beldir
+import steyt.DaylSteyt
 import modyilz.PlatformServices
 import modyilz.VoiceService
 import modyilz.KeyboardController
@@ -29,9 +29,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun DaylSkrenEntry(
-    keyboardController: KeyboardController?,
-    platformServices: PlatformServices,
-    voiceService: VoiceService,
+    keyboardController: modyilz.KeyboardController?,
+    platformServices: modyilz.PlatformServices,
+    voiceService: modyilz.VoiceService,
     ezLeterMod: Boolean = true,
     ezPunkcuweyconMod: Boolean = false,
     ezUpsayddawn: Boolean = false,
@@ -82,9 +82,9 @@ fun DaylSkrenEntry(
 
 @Composable
 fun DaylSkren(
-    keyboardController: KeyboardController?,
-    platformServices: PlatformServices,
-    voiceService: VoiceService,
+    keyboardController: modyilz.KeyboardController?,
+    platformServices: modyilz.PlatformServices,
+    voiceService: modyilz.VoiceService,
     ezLeterMod: Boolean,
     ezPunkcuweyconMod: Boolean,
     ezUpsayddawn: Boolean,
@@ -100,7 +100,8 @@ fun DaylSkren(
     daylSteyt: DaylSteyt = remember { DaylSteyt() }
 ) {
     val scope = rememberCoroutineScope()
-    
+    val userState = firebaseSirves?.authStateChanges?.collectAsState(initial = firebaseSirves.currentUser)
+
     val saveLayout: (String) -> Unit = { env ->
         if (firebaseSirves != null) {
             scope.launch {
@@ -218,9 +219,9 @@ fun DaylSkren(
 fun ModuleContent(
     daylSteyt: DaylSteyt,
     geometry: HeksagonDjeyometre,
-    keyboardController: KeyboardController?,
-    platformServices: PlatformServices,
-    voiceService: VoiceService,
+    keyboardController: modyilz.KeyboardController?,
+    platformServices: modyilz.PlatformServices,
+    voiceService: modyilz.VoiceService,
     ezLeterMod: Boolean,
     ezPunkcuweyconMod: Boolean,
     ezUpsayddawn: Boolean,
@@ -265,21 +266,21 @@ fun ModuleContent(
                 glefzOverride = mod.glefz,
                 kulorzOverride = mod.glefKulorz,
                 contentWidthDp = contentWidth,
-                onMove = { from: Int, to: Int ->
+                onMove = { from, to ->
                     daylSteyt.muvGlef(mod.id, from, to)
                     onSaveLayout("current")
                 },
-                onDropOnFoldir = { from: Int, to: Int ->
+                onDropOnFoldir = { from, to ->
                     daylSteyt.muvModyilEntuFoldir(from, to)
                     onSaveLayout("current")
                 },
-                onReplace = { from: Int, to: Int ->
+                onReplace = { from, to ->
                     daylSteyt.replaceGlef(mod.id, from, to)
                     onSaveLayout("current")
                 }
             )
         }
-        currentType == "beld" || currentType == "builder" -> modyilz.Beld(
+        currentType == "beld" || currentType == "builder" || currentType == "rebeld" -> Beldir(
             daylSteyt = daylSteyt,
             keyboardController = keyboardController,
             platformServices = platformServices,
@@ -289,11 +290,11 @@ fun ModuleContent(
                 onSaveLayout("current")
             },
             onAction = onSaveLayout,
-            onDropOnFoldir = { from: Int, to: Int ->
+            onDropOnFoldir = { from, to ->
                 daylSteyt.muvBeldirModyilEntuFoldir(from, to)
                 onSaveLayout("current")
             },
-            onReplace = { from: Int, to: Int ->
+            onReplace = { from, to ->
                 daylSteyt.replaceBeldirModyil(from, to)
                 onSaveLayout("current")
             }
@@ -310,7 +311,7 @@ fun ModuleContent(
                 daylSteyt.swopModyilz(from + 1, to + 1)
                 onSaveLayout("current")
             },
-            onDropOnFoldir = { from: Int, to: Int ->
+            onDropOnFoldir = { from, to ->
                 daylSteyt.muvModyilEntuFoldir(from, to)
                 onSaveLayout("current")
             },
@@ -325,7 +326,7 @@ fun ModuleContent(
             stackWidth = screenWidth,
             stackHeight = screenHeight,
             allowSwap = false,
-            onReplace = { from: Int, to: Int ->
+            onReplace = { from, to ->
                 daylSteyt.replaceModyil(from + 1, to + 1)
                 onSaveLayout("current")
             }

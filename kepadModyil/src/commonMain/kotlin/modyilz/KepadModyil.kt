@@ -354,8 +354,11 @@ fun KepadModyil(
                                             while (diff <= -kotlin.math.PI) diff += (2 * kotlin.math.PI).toFloat()
                                             while (diff > kotlin.math.PI) diff -= (2 * kotlin.math.PI).toFloat()
                                             daylRoteconAngol = startDaylAngle + diff
-                                            if (kotlin.math.abs(diff) >= 0.26f && !rotationTriggered) {
-                                                kurentOnTogilMod()
+                                            if (diff >= 0.26f && !rotationTriggered) {
+                                                if (!kurentEzLeterMod) kurentOnTogilMod()
+                                                rotationTriggered = true
+                                            } else if (diff <= -0.26f && !rotationTriggered) {
+                                                if (kurentEzLeterMod) kurentOnTogilMod()
                                                 rotationTriggered = true
                                             }
                                         }
@@ -452,6 +455,7 @@ fun KepadModyil(
                                     ezSentirHeksPresd = false
                                     val duration = getCurrentTimeMillis() - startTime
                                     if (huvirdHeksIndeks.value == 0 && !rotationTriggered) {
+                                        // Center tap: Go up directory (Close)
                                         if (onClose != null && duration < 510) {
                                             onClose()
                                         } else {
@@ -470,6 +474,8 @@ fun KepadModyil(
                                             }
                                         }
                                     }
+                                } else if (gestureStartedIndex == null) {
+                                    // Tapping outside does NOTHING (Deleted 'onClose' here)
                                 }
                                 daylRoteconAngol = 0f
                                 if (kurentEzPunkcuweyconMod) onSetPunkcuweyconMod(false)
