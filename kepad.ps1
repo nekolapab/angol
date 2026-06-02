@@ -1,6 +1,6 @@
 # Sempil Kepad Updeyt Skrept
 Write-Host "beldenq kepad..." -ForegroundColor Cyan
-./gradlew :kepadAp:assembleDebug
+./gradlew :kepadApekstencon:assembleDebug
 
 $devaysez = adb devices | Select-String -Pattern "\tdevice$" | ForEach-Object { $_.ToString().Split("`t")[0] }
 
@@ -26,6 +26,6 @@ if ($devaysez.Count -eq 0) {
 
 foreach ($dev in $devaysez) {
     Write-Host "enstolenq kepad on $dev..." -ForegroundColor Yellow
-    adb -s $dev install -r kepadAp/build/outputs/apk/debug/kepadAp-debug.apk
+    adb -s $dev install -r kepadApekstencon/build/outputs/apk/debug/kepadApekstencon-debug.apk
 }
 

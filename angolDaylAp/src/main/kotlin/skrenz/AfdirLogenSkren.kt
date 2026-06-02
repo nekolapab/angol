@@ -1,0 +1,52 @@
+package skrenz
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import sirvesez.FirebaseSirves
+
+@Composable
+fun AfdirLogenSkren(firebaseSirves: FirebaseSirves, onContinue: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    val user = firebaseSirves.currentUser
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("angol dayl") },
+                actions = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            firebaseSirves.signOut()
+                        }
+                    }) {
+                        Icon(Icons.Default.Logout, contentDescription = "Sign Out")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Welcome, ${user?.displayName ?: "User"}!", style = MaterialTheme.typography.h5)
+            if (user?.email != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("ID: ${user.email}", style = MaterialTheme.typography.body2, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f))
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(onClick = onContinue) {
+                Text("Go to Keypad")
+            }
+        }
+    }
+}

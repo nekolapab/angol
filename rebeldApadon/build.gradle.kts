@@ -8,7 +8,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "io.angol.kepad.modyil"
+        namespace = "io.angol.rebeld.apadon"
         compileSdk = 35
         minSdk = 26
     }
@@ -16,11 +16,13 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":angolModyil"))
-            implementation("org.jetbrains.compose.runtime:runtime:1.7.0")
-            implementation("org.jetbrains.compose.foundation:foundation:1.7.0")
-            implementation("org.jetbrains.compose.material:material:1.7.0")
-            implementation("org.jetbrains.compose.ui:ui:1.7.0")
-            implementation("org.jetbrains.compose.components:components-resources:1.7.0")
+            implementation(project(":kepadModyil"))
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material)
+            implementation(libs.compose.material.icons.extended)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
             implementation(libs.kotlinx.coroutines.core)
         }
     }

@@ -17,8 +17,8 @@ dependencyResolutionManagement {
     }
 }
 
-include(":angolKor")
-include(":daylAp")
-include(":kepadAp")
+include(":angolModyil")
+include(":angolDaylAp")
+include(":kepadApekstencon")
 include(":kepadModyil")
-include(":beldModyil")
+include(":rebeldApadon")

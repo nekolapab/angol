@@ -18,7 +18,7 @@ import yuteledez.HeksagonDjeyometre
 import yuteledez.KepadLodjek
 import yuteledez.getCurrentTimeMillis
 import wedjets.Heksagon
-import wedjets.AngolSpelenqTogil
+import wedjets.AngolSpelenqTogilWedjet
 import wedjets.GredItem
 import modalz.HeksagonKonfeg
 import modalz.HeksagonPozecon
@@ -537,7 +537,7 @@ fun KepadModyil(
                         )
                     }
 
-                    AngolSpelenqTogil(
+                    AngolSpelenqTogilWedjet(
                         geometry = currentGeometry,
                         gridHeightDp = gridHeightDp,
                         currentAngolMode = kurentAngolMod,
