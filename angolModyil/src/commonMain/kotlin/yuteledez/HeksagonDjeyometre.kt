@@ -155,10 +155,13 @@ class HeksagonDjeyometre(
 
             val minFitRings = if (isWearOS) 1.0 else 2.0
             val minHalfWidth = (minFitRings + 0.5) * unitHexWidth
-            val minHalfHeight = minFitRings * 1.5 + 1.0
+            // Use 3.5 (Total 7.0) for 2 rings
+            val minHalfHeight = minFitRings * 1.5 + 0.5
 
             val contentHalfWidth = maxOf(maxAbsX, minHalfWidth)
-            val contentHalfHeight = maxOf(maxAbsY, minHalfHeight)
+            // Tighten: Use 0.75 unit padding instead of 1.0 to make hexes ~10-15% larger
+            val actualMaxAbsY = if (positions.isEmpty()) 0.0 else positions.maxOf { abs(it.y) } + 0.75
+            val contentHalfHeight = maxOf(actualMaxAbsY, minHalfHeight)
 
             val contentWidth = contentHalfWidth * 2.0
             val contentHeight = contentHalfHeight * 2.0

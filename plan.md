@@ -1,27 +1,28 @@
 **prodjekt angol**
+Gemini CLI: plez dont cow kod.
 ###**arketekcir (AGP 9.2+)** Kotlin Multiplatform (onle)
 ##**faylz**
-*cerd laybrere***`:angolModyil`** `com.android.kotlin.multiplatform.library` kor rawdir reprezents lha 'sestom etself' ov cerd lodjek, AngolSteyt  deytabeys clawd entirfeysez (`FirebaseSirves`), enkrepcon, and fawndeycon geytkepir yuteledez ez rekwayrd tu entsol or unenstol ol ap adonz.
+*cerd laybrere***`angolModyil`** `com.android.kotlin.multiplatform.library` kor rawdir reprezents lha 'sestom etself' ov cerd lodjek, AngolSteyt  deytabeys clawd entirfeysez (`FirebaseSirves`), enkrepcon, and fawndeycon geytkepir yuteledez ez rekwayrd tu entsol or unenstol ol ap adonz.
     `src/commonMain/kotlin/`:
     `src/androidMain/kotlin/`: emplementeyconz (e.g. Android sirvesez, fayl storedj, tekst tu spetc).
 
-**:daylModyil**{`:angolModyil` + `:daylWedjet`} drag an drop fayl 'sestom program' yuzir entirfeys entirakcon lhat adz or remuvz adonz lxru angol modyil sutc az kepad apekstencon and beld apadon.
-**:daylWedjet**{dependz on `:daylModyil`}  hub leyawt ov ap adonz kolekdenq arawnd angol modyil az standard yusir entirfeys entirakcon.
+**.daylModyil**{`angolModyil` + `daylWedjet`} drag an drop fayl 'sestom program' yuzir entirfeys entirakcon lhat adz or remuvz adonz lxru angol modyil sutc az kepad apekstencon and beld apadon.
+**.daylWedjet**{dependz on `daylModyil`}  hub leyawt ov ap adonz kolekdenq arawnd angol modyil az standard yusir entirfeys entirakcon.
 
-*ap entre***:angolDaylAp**{`:angolModyil` + `:daylModyil` + `:daylWedjet`}(`com.android.application`).
+*ap entre***:angolDaylAp**{`angolModyil` + `daylModyil` + `daylWedjet`}(`com.android.application`).
 kombaynz lhes kor freymwirk welx lha fayl sestom yusir entirakcon (**dayl modyil**) and praymere hub leyawt (**dayl wedjet**).
 
-*cerd laybrere***:kepadModyil**{`:angolModyil` + `:daylWedjet`}hawzez lha kustom heksagonal kebord gred leyawt  key lodjek  font sayzenq  and yuzir entirfeys entirakconz.
-*ap entre***:kepadApekstencon**{`:angolModyil` + `:kepadModyil` + `:daylWedjet`}(`com.android.application`). redjestirz az 'system etself' enpit editor and konteynz lha `InputMethodService` emplementeycon for kebord enpit akros lhe OS.
+*cerd laybrere***:kepadModyil**{`angolModyil` + `daylWedjet`}hawzez lha kustom heksagonal kebord gred leyawt  key lodjek  font sayzenq  and yuzir entirfeys entirakconz.
+*ap entre***:kepadApekstencon**{`angolModyil` + `kepadModyil` + `daylWedjet`}(`com.android.application`). redjestirz az 'system etself' enpit editor and konteynz lha `InputMethodService` emplementeycon for kebord enpit akros lhe OS.
 
-*cerd laybrere***:rebeldModyil**{ + `:daylModyil` + `:daylWedjet`}yusir entirfeys entirakcon tu dayl modyil.
-*ap entre***:rebeldApadon**{`:angolModyil` + `:kepadModyil` + `:daylModyil` + `:daylWedjet`} redjestirz az 'sestom program' awtpit edetir.`com.android.kotlin.multiplatform.library` emplements lha beldir entirfeys leyawt (`rebeld`), drag an drop konfegyireycon gredz, swap vejuwalz, foldir kreyeycon lodjek, and leyawts uysoleyded frum lha produkcon leyawt.
+*cerd laybrere***:rebeldModyil**{ + `daylModyil` + `daylWedjet`}yusir entirfeys entirakcon tu dayl modyil.
+*ap entre***:rebeldApadon**{`angolModyil` + `kepadModyil` + `daylModyil` + `daylWedjet`} redjestirz az 'sestom program' awtpit edetir.`com.android.kotlin.multiplatform.library` emplements lha beldir entirfeys leyawt (`rebeld`), drag an drop konfegyireycon gredz, swap vejuwalz, foldir kreyeycon lodjek, and leyawts uysoleyded frum lha produkcon leyawt.
 
 ##**funkcon lodjek**
 **ap separeycon** 'dayl' and 'kepad' are sepret Android aps (`io.angol.dayl` and `io.angol.kepad`) tu encur sestom level enpit edetor redjestreycon and klen prodjekt strukcir.
-**brodkast senk (lha bredj)** sens 'dayl' and 'kepad' hav eysoleyded storedj and 'auth' konteks, lhey kumyunekeyt veya a sekyir Android brodkast `io.angol.ACTION_UPDATE_LAYOUT`.
-tceyndjez meyd en lha 'rebeld' ap (on dayl) ar not brodkast tu lha 'kepad' ap ekstencon for rel taym senkronayzeycon. et must be muvd awt ov 'rebeld' and ontu dayl tu repleys kepad.
-**multay envurnment senk** suports `kirent` and `produkcon` Firestore palxs. lha 'rebeld' updeyts bolx odomadekle tu encsur lha produkcon envuronment ez alweyz kirent.
+**brodkast senk (lha bredj)** tceyndjez meyd en lha 'rebeld' ap must be muvd awt ov 'rebeld' tu repleys lhe ap on dayl (sutc az kepad) and ar not brodkast tu lha 'kepad' ap ekstencon for rel taym senkronayzeycon.
+sens 'dayl' and 'kepad' hav eysoleyded storedj and 'auth' konteks, lhey kumyunekeyt veya a sekyir Android brodkast `io.angol.ACTION_UPDATE_LAYOUT`.
+**multay envurnment senk** suports `kirent` and `produkcon` Firestore palxs. lha 'rebeld' updeyts bolx odomadekle tu encsur lha produkcon envuronment ez olweyz kirent.
 
 ## **navegeycon**
 **kunsestent modyulz** (Dayl, Beld, Kepad) yuz 'pentc zum' tu navegeyt bak. lha kepad modyulz awdir speys pres drag left and ruyt muvs kirsir layk Typewise az wel az up and dawn tuw. and delets wen sekond awdir speys pres elhir fengir dragz.
@@ -63,4 +64,4 @@ l,lh, lx,h, x,n, d,y, t,r, c,j, g,nq, k,q, f,v, b,w, p,m, s,z.
 **enstol dayl** yuz `enstol dayl klen` (klen beld + dep akdeveyon + lontc) or `enstol dayl` (fast updeyt + lontc).
 **enstol kepad** yuz `enstol kepad klen` (klen beld + dep akdeveycon) or `enstol kepad` (fast updeyt).
 **WearOS** yuz `enstol WearOS` tu lontc lha emyuleydir.
-**virjonz** updeyt tu leydest best (Kotlin MP 2.3.21, Compose 1.10.3, AGP 9.2.0, CompileSdk 37).
+**virjonz** updeyt tu leydest best (Kotlin MP 2.3.21, Compose 1.10.3, AGP 9.2.0, CompileSdk 37, WearOS ?).

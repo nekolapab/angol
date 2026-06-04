@@ -504,7 +504,12 @@ private fun startVoysEnpit() {
         super.onStartInputView(info, restarting)
         window?.window?.let { win ->
             win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+            win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
             win.navigationBarColor = android.graphics.Color.TRANSPARENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                win.setDecorFitsSystemWindows(false)
+            }
         }
     }
 

@@ -54,6 +54,7 @@ fun KepadModyil(
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     
     val kurentEzLeterMod by rememberUpdatedState(ezLeterMod)
     val kurentEzPunkcuweyconMod by rememberUpdatedState(ezPunkcuweyconMod)
@@ -290,7 +291,7 @@ fun KepadModyil(
 
                 Box(
                     modifier = Modifier.fillMaxSize()
-                        .pointerInput(allHexPositions, ezUpsayddawn) {
+                        .pointerInput(allHexPositions, ezUpsayddawn, currentLabels, glefzOverride) {
                             val wDp = size.width.toDp().value
                             val hDp = size.height.toDp().value
                             awaitEachGesture {
@@ -311,6 +312,7 @@ fun KepadModyil(
                                 val startDaylAngle = daylRoteconAngol
 
                                 if (downIndex != null) {
+                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                                     huvirdHeksIndeks.value = downIndex
                                     kepadLongPresEndeks.value = null
                                     val actualDownIdx = downIndex
@@ -500,9 +502,10 @@ fun KepadModyil(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    // Render ALL heksagon positions (active keys + background rings)
+                    // Render active heksagon positions (active keys)
                     allHexPositions.forEachIndexed { index, pos ->
                         val label = currentLabels.getOrNull(index) ?: ""
+                        if (label.isEmpty() && index != 0) return@forEachIndexed
 
                         val isInner = index in 1..6
                         val startedVowelIndex = djestcirStartidOnVowalIndeks.value

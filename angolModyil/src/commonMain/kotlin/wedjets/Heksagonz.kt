@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.clipPath
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -77,7 +78,7 @@ fun HeksagonTutcboks(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier.clip(HeksagonCeyp(rotationAngle))
+        modifier = modifier
     ) {
         content()
     }
@@ -106,6 +107,7 @@ fun Heksagon(
     child: @Composable (() -> Unit)? = null
 ) {
     val density = LocalDensity.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     var ezMomenteralePresd by remember { mutableStateOf(false) }
     
     androidx.compose.runtime.DisposableEffect(Unit) {
@@ -129,27 +131,13 @@ fun Heksagon(
     val finalRawFontSize = (autoFontSize * (fontSizeFactor ?: 1f)).coerceAtMost(size.value * 1f)
     val finalFontSize = (finalRawFontSize / density.fontScale).sp
 
-    // Glow config: 8/12 radius, 12/12 intensity (alpha 1.0)
-    val glowRadiusFactor = 8f / 12f
+    // Glow config: 12/12 radius, 12/12 intensity (alpha 1.0)
+    val glowRadiusFactor = 12f / 12f
     val glowAlpha = 1.0f
 
     Box(
         modifier = modifier
-            .size(width = size, height = hexHeight)
-            .drawBehind {
-                if (isActivelyGlowing) {
-                    val glowColor = if (ezPresd) backgroundColor else (if (backgroundColor == Color.Black) Color.White else backgroundColor)
-                    val radius = size.toPx() * glowRadiusFactor
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(glowColor.copy(alpha = glowAlpha), Color.Transparent),
-                            center = center,
-                            radius = radius
-                        ),
-                        radius = radius
-                    )
-                }
-            },
+            .size(width = size, height = hexHeight),
         contentAlignment = Alignment.Center
     ) {
         HeksagonTutcboks(
@@ -160,6 +148,7 @@ fun Heksagon(
                 Modifier.pointerInput(onTap, onLongPress, onPressedChanged) {
                     detectTapGestures(
                         onPress = {
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                             ezMomenteralePresd = true
                             onPressedChanged?.invoke(true)
                             try {
@@ -182,7 +171,47 @@ fun Heksagon(
                     .fillMaxSize()
                     .drawBehind {
                         val path = createVisualPath(this.size, rotationAngle)
-                        drawPath(path, finalBgColor)
+                        // 1. Base Fill: Only draw if not transparent
+                        if (finalBgColor.alpha > 0.01f) {
+                            drawPath(path, finalBgColor)
+                            // Fill + Stroke of same color removes the anti-aliasing border artifact
+                            drawPath(
+                                path = path,
+                                color = finalBgColor,
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5f)
+                            )
+                        }
+                       
+                        // 2. Beautiful Glow: High intensity, Massive diameter (200% / 24/12)
+                        if (isActivelyGlowing) {
+                            val activeGlowColor = finalBgColor
+                            
+                            // Attribute A: Core Intensity (Inner 50%) - 100% opacity (12/12)
+                            // Clipped to the hexagon path to remove circular artifacts at the points
+                            val coreRadius = this.size.maxDimension / 2f
+                            clipPath(path) {
+                                drawCircle(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(activeGlowColor.copy(alpha = 1.0f), activeGlowColor.copy(alpha = 0.66f)),
+                                        center = center,
+                                        radius = coreRadius
+                                    ),
+                                    radius = coreRadius
+                                )
+                            }
+                            
+                            // Attribute B: Expansion Aura (24/12 scale = 200% bigger) - 8/12 intensity
+                            // Unclipped to maintain the massive bleeding ora diameter
+                            val glowRadius = this.size.maxDimension 
+                            drawCircle(
+                                brush = Brush.radialGradient(
+                                    colors = listOf(activeGlowColor.copy(alpha = 0.66f), Color.Transparent),
+                                    center = center,
+                                    radius = glowRadius
+                                ),
+                                radius = glowRadius
+                            )
+                        }
                     }
                     .then(inputModifier),
                 contentAlignment = Alignment.Center

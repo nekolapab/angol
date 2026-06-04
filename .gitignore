@@ -50,10 +50,7 @@ app.*.map.json
 
 # Gradle related
 **/.gradle/
-**/gradle-wrapper.jar
 **/captures/
-**/gradlew
-**/gradlew.bat
 **/local.properties
 **/GeneratedPluginRegistrant.java
 **/.cxx/

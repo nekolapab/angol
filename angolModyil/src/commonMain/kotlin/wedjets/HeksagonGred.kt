@@ -80,7 +80,8 @@ fun HeksagonGred(
         val maxIndex = items.maxOfOrNull { it.index } ?: 0
         var ringsNeeded = 1
         while (3 * ringsNeeded * (ringsNeeded + 1) < maxIndex) ringsNeeded++
-        val displayRings = ringsNeeded + 1
+        // Default to 3 rings minimum for editor space
+        val displayRings = maxOf(3, ringsNeeded)
         val posList = mutableListOf<HeksagonPozecon>()
         posList.add(geometry.sentir)
         for (r in 1..displayRings) {
@@ -133,7 +134,6 @@ fun HeksagonGred(
                 val draggedItem = items.firstOrNull { it.index == fromIdx }
                 val targetItem = items.firstOrNull { it.index == toIdx }
                 
-                // Simplified Replace check: same label? Ask.
                 if (draggedItem != null && targetItem != null && 
                     draggedItem.label.isNotEmpty() && targetItem.label.isNotEmpty() && 
                     !targetItem.isFolder && draggedItem.label == targetItem.label
@@ -147,7 +147,6 @@ fun HeksagonGred(
                 }
 
                 if (isMoveDrag) {
-                    // Merging into folders works even if label is empty (folders can be empty)
                     if (targetItem?.isFolder == true) {
                         onDropOnFoldir(fromIdx, toIdx)
                     } else if (targetItem != null && targetItem.label.isNotEmpty()) {
@@ -157,7 +156,6 @@ fun HeksagonGred(
                     }
                 } else {
                     if (toIdx != 0) {
-                        val targetItem = items.firstOrNull { it.index == toIdx }
                         if (targetItem == null || targetItem.label.isEmpty()) onCopyToEmpty(fromIdx, toIdx)
                     }
                 }
@@ -186,22 +184,15 @@ fun HeksagonGred(
                         textColor = HeksagonKonfeg.getComplementaryColor(centerColor), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
                         ezKonsestentSayz = ezKonsestentSayz,
                         onTap = null, onLongPress = null,
-                        // Center glows when ANY touch is active, like keypad
                         ezGlowenq = isAnyTouchActive || glowenqEndeks == index,
                         ezPresd = presdEndeks == index
                     )
                 } else if (item != null) {
-                    val isMovedFromStart = currentHoverIndex != draggingIndex
-                    
-                    // Unified Contrast logic:
-                    // 1. Copy drag: source stays original color (false).
-                    // 2. Move drag: only contrasts once it starts traveling (isMovedFromStart).
-                    // 3. Disconnected + Armed: Visually disappears (opacity 0)
                     val isArmed = index == disconnectedArmedIndex
                     val showContrast = if (isCopyDragActive && isDragging) {
-                        false
+                        false // Original item stays normal while copying
                     } else if (isDragging) {
-                        isMovedFromStart 
+                        true // Flip immediately for move
                     } else {
                         false
                     }
@@ -238,12 +229,11 @@ fun HeksagonGred(
 
         val ghostItem = remember(items, draggingIndex) { items.firstOrNull { it.index == draggingIndex } }
         if (isCopyDragActive && ghostItem != null && draggingIndex != null) {
-            val isMovedFromStart = currentHoverIndex != draggingIndex
             val xDp = with(density) { dragOffset.x.toDp() }; val yDp = with(density) { dragOffset.y.toDp() }
             Heksagon(
                 label = ghostItem.label, backgroundColor = ghostItem.color, textColor = HeksagonKonfeg.getComplementaryColor(ghostItem.color),
                 size = hexWidthDp, fontSizeFactor = fontSizeFactor, onTap = null, onLongPress = null,
-                ezPresd = isMovedFromStart, // Contrast only while traveling
+                ezPresd = true, // Flip immediately for copy ghost
                 ezGlowenq = true,
                 modifier = Modifier.align(Alignment.TopStart).offset(x = xDp - (hexWidthDp / 2), y = yDp - ((hexWidthDp * (2f / kotlin.math.sqrt(3f))) / 2))
             )
@@ -268,18 +258,23 @@ fun HeksagonGred(
             )
         }
 
-        Box(Modifier.fillMaxSize().align(Alignment.Center).pointerInput(geometry, items, lastSameSpotIndex, disconnectedArmedIndex, wPx, hPx, allHexPositionsPx, hexSizePx, centerLabel) {
+        Box(Modifier.fillMaxSize().align(Alignment.Center).pointerInput(geometry, allHexPositionsPx, items, konektedIndeksez, lastSameSpotIndex, disconnectedArmedIndex) {
             val longMs = viewConfiguration.longPressTimeoutMillis
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
                 val start = down.position
                 val downIdx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
-                glowenqEndeks = downIdx
+                
+                if (downIdx == null) return@awaitEachGesture
                 
                 val isCenterOccupied = downIdx == 0 && centerLabel.isNotEmpty()
-                if (downIdx == null || (!isCenterOccupied && !items.any { it.index == downIdx } && disconnectedArmedIndex != downIdx)) {
+                val isItemAtIdx = items.any { it.index == downIdx && it.label.isNotEmpty() }
+                
+                if (!isCenterOccupied && !isItemAtIdx && disconnectedArmedIndex != downIdx) {
                     return@awaitEachGesture
                 }
+
+                glowenqEndeks = downIdx
                 presdEndeks = downIdx
 
                 try {
@@ -290,47 +285,30 @@ fun HeksagonGred(
                         }
                     }
                     if (upBeforeLongPress == true) {
-                        val idx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
-                        if (idx != null) { 
-                            onTap(idx)
-                            if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = idx 
-                        }
+                        onTap(downIdx)
+                        if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = downIdx
                         return@awaitEachGesture
                     }
 
-                    var idx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
-                    // Allow long-press on armed (disappeared) hex position too
-                    val isArmedEmpty = idx != null && disconnectedArmedIndex == idx && !items.any { it.index == idx }.not()
-                    if (idx == null || (!items.any { it.index == idx } && disconnectedArmedIndex != idx)) {
-                        if (idx == null || !items.any { it.index == idx }) {
-                            presdEndeks = null
-                            waitForUpOrCancellation()
-                            return@awaitEachGesture
-                        }
-                    }
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
 
-                    // Check if this hex is disconnected from the core
-                    val isDiskonekded = idx != null && idx !in konektedIndeksez && items.any { it.index == idx }
+                    val isDiskonekded = downIdx != 0 && downIdx !in konektedIndeksez && isItemAtIdx
 
-                    // Disconnected + already armed on this exact index → DELETE on second long-press
-                    if (isDiskonekded && disconnectedArmedIndex == idx) {
+                    if (isDiskonekded && disconnectedArmedIndex == downIdx) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         disconnectedArmedIndex = null
                         lastSameSpotIndex = null
                         presdEndeks = null
                         waitForUpOrCancellation()
-                        onDelete(idx!!)
+                        onDelete(downIdx)
                         return@awaitEachGesture
                     }
 
-                    // Disconnected + not yet armed → ARM it (hex visually disappears)
-                    if (isDiskonekded && disconnectedArmedIndex != idx) {
-                        disconnectedArmedIndex = idx
+                    if (isDiskonekded && disconnectedArmedIndex != downIdx) {
+                        disconnectedArmedIndex = downIdx
                         lastSameSpotIndex = null
-                        // Now wait: if dragged to a new spot → move (save). If released same spot → stays armed.
-                        draggingIndex = idx; isCopyDragActive = false; dragOffset = start; currentHoverIndex = idx
-                        presdEndeks = idx
+                        draggingIndex = downIdx; isCopyDragActive = false; dragOffset = start; currentHoverIndex = downIdx
+                        presdEndeks = downIdx
                         var hasMuvd = false
                         try {
                             while (true) {
@@ -340,30 +318,27 @@ fun HeksagonGred(
                                 val delta = change.positionChange()
                                 dragOffset = Offset(dragOffset.x + delta.x, dragOffset.y + delta.y)
                                 val newHover = getHexIndexFromPosition(dragOffset.x, dragOffset.y, wPx, hPx, allHexPositionsPx, hexSizePx)
-                                if (newHover != idx) hasMuvd = true
+                                if (newHover != downIdx) hasMuvd = true
                                 currentHoverIndex = newHover
                                 presdEndeks = currentHoverIndex
                                 change.consume()
                             }
                         } finally {
                             if (hasMuvd) {
-                                // Moved to a new position → save it (move), clear armed
                                 disconnectedArmedIndex = null
                                 applyDragEnd(draggingIndex, currentHoverIndex, true)
                             }
-                            // If not moved: stays armed (disappeared) for second LP
                             draggingIndex = null; currentHoverIndex = null; dragOffset = Offset.Zero; isCopyDragActive = false
                             presdEndeks = null
                         }
                         return@awaitEachGesture
                     }
 
-                    // Normal connected hex logic
                     val isMoveDrag = when (copyDragPolicy) {
-                        CopyDragPolicy.AlwaysCopy -> false; CopyDragPolicy.NeverCopy -> true; CopyDragPolicy.TwoStepArmed -> (lastSameSpotIndex != idx)
+                        CopyDragPolicy.AlwaysCopy -> false; CopyDragPolicy.NeverCopy -> true; CopyDragPolicy.TwoStepArmed -> (lastSameSpotIndex != downIdx)
                     }
-                    draggingIndex = idx; isCopyDragActive = !isMoveDrag; dragOffset = start; currentHoverIndex = idx
-                    presdEndeks = idx
+                    draggingIndex = downIdx; isCopyDragActive = !isMoveDrag; dragOffset = start; currentHoverIndex = downIdx
+                    presdEndeks = downIdx
                     try {
                         while (true) {
                             val event = awaitPointerEvent(PointerEventPass.Main); val change = event.changes.find { it.id == down.id } ?: break
@@ -382,6 +357,7 @@ fun HeksagonGred(
                     }
                 } finally {
                     glowenqEndeks = null
+                    presdEndeks = null
                 }
             }
         })
