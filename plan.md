@@ -1,5 +1,5 @@
+Gemini CLI: plez do not despley kod.
 **prodjekt angol**
-Gemini CLI: plez dont cow kod.
 ###**arketekcir (AGP 9.2+)** Kotlin Multiplatform (onle)
 ##**faylz**
 *cerd laybrere***`angolModyil`** `com.android.kotlin.multiplatform.library` kor rawdir reprezents lha 'sestom etself' ov cerd lodjek, AngolSteyt  deytabeys clawd entirfeysez (`FirebaseSirves`), enkrepcon, and fawndeycon geytkepir yuteledez ez rekwayrd tu entsol or unenstol ol ap adonz.

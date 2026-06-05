@@ -460,10 +460,14 @@ private fun startVoysEnpit() {
                             )
                         }
 
+                        val hexHeightDp = (gredDimz.heksSayz * 2.0).dp
+                        val shiftUpDp = hexHeightDp * 1.1f
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(gredDimz.height.dp)
+                                .height(gredDimz.height.dp + shiftUpDp)
+                                .offset(y = -shiftUpDp)
                                 .align(Alignment.BottomCenter),
                             contentAlignment = Alignment.BottomCenter
                         ) {
@@ -534,8 +538,14 @@ private fun startVoysEnpit() {
             val hexSizePx = screenWidth / (5.0 * kotlin.math.sqrt(3.0))
             (hexSizePx * 8.0).toInt()
         }
+        
+        // Correct diameter height for insets
+        val hexHeightPx = (clusterHeightPx / 6.0) * 2.0 
+        val shiftUpPx = (hexHeightPx * 1.1).toInt()
+        // Expand touchable region to cover the full height plus shift and a safety margin for the oversized tips
+        val adjustedHeightPx = clusterHeightPx + shiftUpPx + hexHeightPx.toInt()
 
-        val top = totalHeight - clusterHeightPx
+        val top = totalHeight - adjustedHeightPx
         outInsets.contentTopInsets = top
         outInsets.visibleTopInsets = top
         outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_REGION

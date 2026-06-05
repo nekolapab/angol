@@ -80,8 +80,8 @@ fun HeksagonGred(
         val maxIndex = items.maxOfOrNull { it.index } ?: 0
         var ringsNeeded = 1
         while (3 * ringsNeeded * (ringsNeeded + 1) < maxIndex) ringsNeeded++
-        // Default to 3 rings minimum for editor space
-        val displayRings = maxOf(3, ringsNeeded)
+        // Default to 2 rings minimum for matching keypad scale
+        val displayRings = maxOf(2, ringsNeeded)
         val posList = mutableListOf<HeksagonPozecon>()
         posList.add(geometry.sentir)
         for (r in 1..displayRings) {
