@@ -29,11 +29,11 @@ class MeynAktevede : ComponentActivity() {
             mutableStateOf(false), 
             mutableStateOf(0)
         )
-        val keyboardController = AndroidKeyboardController({ null }, { }, { })
+        val kebordKontrolir = AndroidKeyboardController({ null }, { }, { })
 
         setContent {
             DaylSkrenEntry(
-                keyboardController = keyboardController,
+                kebordKontrolir = kebordKontrolir,
                 platformServices = platformServices,
                 voiceService = voiceService,
                 firebaseSirves = firebaseSirves,

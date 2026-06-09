@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun DaylSkrenEntry(
-    keyboardController: modyilz.KeyboardController?,
+    kebordKontrolir: modyilz.KeyboardController?,
     platformServices: modyilz.PlatformServices,
     voiceService: modyilz.VoiceService,
     ezLeterMod: Boolean = true,
@@ -56,14 +56,14 @@ fun DaylSkrenEntry(
         } else {
             when (kurentSkren) {
                 "main" -> DaylSkren(
-                    keyboardController, platformServices, voiceService,
+                    kebordKontrolir, platformServices, voiceService,
                     ezLeterMod, ezPunkcuweyconMod, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
                     firebaseSirves, isApp = true, daylSteyt = daylSteyt,
                     onGoToHome = { kurentSkren = "home" }
                 )
                 "home" -> if (firebaseSirves != null) AfdirLogenSkren(firebaseSirves, onContinue = { kurentSkren = "main" }) else DaylSkren(
-                    keyboardController, platformServices, voiceService,
+                    kebordKontrolir, platformServices, voiceService,
                     ezLeterMod, ezPunkcuweyconMod, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
                     ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
                     firebaseSirves, isApp = true, daylSteyt = daylSteyt
@@ -72,7 +72,7 @@ fun DaylSkrenEntry(
         }
     } else {
         DaylSkren(
-            keyboardController, platformServices, voiceService,
+            kebordKontrolir, platformServices, voiceService,
             ezLeterMod, ezPunkcuweyconMod, ezUpsayddawn, onTogilMod, onSetPunkcuweyconMod,
             ezAngolMod, onTogilAngol, onStartAiVoys, ignoreSelectionUpdate,
             firebaseSirves, isApp = false, daylSteyt = daylSteyt
@@ -82,7 +82,7 @@ fun DaylSkrenEntry(
 
 @Composable
 fun DaylSkren(
-    keyboardController: modyilz.KeyboardController?,
+    kebordKontrolir: modyilz.KeyboardController?,
     platformServices: modyilz.PlatformServices,
     voiceService: modyilz.VoiceService,
     ezLeterMod: Boolean,
@@ -105,7 +105,11 @@ fun DaylSkren(
     val saveLayout: (String) -> Unit = { env ->
         if (firebaseSirves != null) {
             scope.launch {
-                firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current")
+                if (env == "rebeld_state") {
+                    firebaseSirves.saveModuleLayout(daylSteyt.beldirModyilz, env)
+                } else {
+                    firebaseSirves.saveModuleLayout(daylSteyt.modyilz, env)
+                }
             }
         }
     }
@@ -113,6 +117,22 @@ fun DaylSkren(
     LaunchedEffect(isApp) {
         if (!isApp && daylSteyt.activeModule == null) {
             daylSteyt.activateModyil("keypad")
+        }
+        if (isApp && firebaseSirves != null) {
+            scope.launch {
+                firebaseSirves.watchModuleLayout("current").collect { updatedModules ->
+                    if (updatedModules.isNotEmpty()) {
+                        daylSteyt.updateModules(updatedModules)
+                    }
+                }
+            }
+            scope.launch {
+                firebaseSirves.watchModuleLayout("rebeld_state").collect { updatedModules ->
+                    if (updatedModules.isNotEmpty()) {
+                        daylSteyt.updateBeldirModules(updatedModules)
+                    }
+                }
+            }
         }
     }
 
@@ -177,7 +197,7 @@ fun DaylSkren(
             ModuleContent(
                 daylSteyt = daylSteyt,
                 geometry = geometry,
-                keyboardController = keyboardController,
+                kebordKontrolir = kebordKontrolir,
                 platformServices = platformServices,
                 voiceService = voiceService,
                 ezLeterMod = ezLeterMod,
@@ -219,7 +239,7 @@ fun DaylSkren(
 fun ModuleContent(
     daylSteyt: AngolSteyt,
     geometry: HeksagonDjeyometre,
-    keyboardController: modyilz.KeyboardController?,
+    kebordKontrolir: modyilz.KeyboardController?,
     platformServices: modyilz.PlatformServices,
     voiceService: modyilz.VoiceService,
     ezLeterMod: Boolean,
@@ -244,7 +264,7 @@ fun ModuleContent(
         currentType == "keypad" -> {
             val mod = activeMod ?: daylSteyt.modyilz.find { it.type == "keypad" } ?: return
             KepadModyil(
-                keyboardController = keyboardController,
+                kebordKontrolir = kebordKontrolir,
                 platformServices = platformServices,
                 voiceService = voiceService,
                 ezLeterMod = ezLeterMod,
@@ -266,23 +286,29 @@ fun ModuleContent(
                 glefzOverride = mod.glefz,
                 kulorzOverride = mod.glefKulorz,
                 contentWidthDp = contentWidth,
+                isEditing = true,
                 onMove = { from, to ->
+                    if (daylSteyt.createBackupIfNeeded()) onSaveLayout("rebeld_state")
                     daylSteyt.muvGlef(mod.id, from, to)
                     onSaveLayout("current")
                 },
                 onDropOnFoldir = { from, to ->
+                    if (daylSteyt.createBackupIfNeeded()) onSaveLayout("rebeld_state")
                     daylSteyt.muvModyilEntuFoldir(from, to)
                     onSaveLayout("current")
                 },
                 onReplace = { from, to ->
+                    if (daylSteyt.createBackupIfNeeded()) onSaveLayout("rebeld_state")
                     daylSteyt.replaceGlef(mod.id, from, to)
                     onSaveLayout("current")
-                }
+                },
+                glowOnHover = false,
+                hideDisconnected = true
             )
         }
         currentType == "beld" || currentType == "builder" || currentType == "rebeld" -> Rebeld(
             daylSteyt = daylSteyt,
-            keyboardController = keyboardController,
+            kebordKontrolir = kebordKontrolir,
             platformServices = platformServices,
             voiceService = voiceService,
             onClose = { 

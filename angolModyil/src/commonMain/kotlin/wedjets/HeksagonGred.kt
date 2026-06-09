@@ -60,7 +60,9 @@ fun HeksagonGred(
     copyDragPolicy: CopyDragPolicy = CopyDragPolicy.TwoStepArmed,
     allowSwap: Boolean = true,
     fontSizeFactor: Float = 6f / 12f,
-    ezKonsestentSayz: Boolean = false
+    ezKonsestentSayz: Boolean = false,
+    glowOnHover: Boolean = true,
+    hideDisconnected: Boolean = false
 ) {
     var pendingReplaceFrom by remember { mutableStateOf<Int?>(null) }
     var pendingReplaceTo by remember { mutableStateOf<Int?>(null) }
@@ -99,10 +101,30 @@ fun HeksagonGred(
             )
         }
     }
+    
+    val expandedHexPositionsPx = remember(geometry, density, items) {
+        val maxIndex = items.maxOfOrNull { it.index } ?: 0
+        var ringsNeeded = 1
+        while (3 * ringsNeeded * (ringsNeeded + 1) < maxIndex) ringsNeeded++
+        val displayRings = maxOf(2, ringsNeeded) + 1 // phantom ring for hit testing
+        val posList = mutableListOf<HeksagonPozecon>()
+        posList.add(geometry.sentir)
+        for (r in 1..displayRings) {
+            val coords = geometry.getKowordenatsForRenq(r)
+            posList.addAll(coords.map { geometry.aksyalTuPeksel(it.q, it.r) })
+        }
+        posList.map { pos ->
+            HeksagonPozecon(
+                x = with(density) { pos.x.dp.toPx().toDouble() },
+                y = with(density) { pos.y.dp.toPx().toDouble() }
+            )
+        }
+    }
+    
     val hexSizePx = remember(geometry, density) { with(density) { geometry.heksSayz.dp.toPx() } }
 
     // BFS: compute which indices are reachable from index 0 via occupied neighbours
-    val konektedIndeksez = remember(items) {
+    val konekdedEndeksez = remember(items) {
         val occupiedSet = items.filter { it.label.isNotEmpty() }.map { it.index }.toSet()
         val visited = mutableSetOf(0)
         val queue = ArrayDeque<Int>()
@@ -120,7 +142,15 @@ fun HeksagonGred(
     }
 
     fun applyDragEnd(fromIdx: Int?, toIdx: Int?, isMoveDrag: Boolean) {
-        if (fromIdx != null && toIdx != null) {
+        if (fromIdx != null) {
+            if (toIdx == null) {
+                if (isMoveDrag) {
+                    onMove(fromIdx, -1)
+                } else {
+                    onCopyToEmpty(fromIdx, -1)
+                }
+                return
+            }
             val sameSpot = (toIdx == fromIdx)
             if (sameSpot) {
                 if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = fromIdx
@@ -187,7 +217,7 @@ fun HeksagonGred(
                         ezGlowenq = isAnyTouchActive || glowenqEndeks == index,
                         ezPresd = presdEndeks == index
                     )
-                } else if (item != null) {
+                } else if (item != null && (!hideDisconnected || index == 0 || index in konekdedEndeksez)) {
                     val isArmed = index == disconnectedArmedIndex
                     val showContrast = if (isCopyDragActive && isDragging) {
                         false // Original item stays normal while copying
@@ -203,8 +233,8 @@ fun HeksagonGred(
                             textColor = HeksagonKonfeg.getComplementaryColor(item.color), size = hexWidthDp, fontSizeFactor = fontSizeFactor,
                             ezKonsestentSayz = ezKonsestentSayz,
                             onTap = null, onLongPress = null,
-                            ezPresd = showContrast,
-                            ezGlowenq = glowenqEndeks == index,
+                            ezPresd = showContrast || (glowOnHover && isHovered && !isDragging),
+                            ezGlowenq = glowenqEndeks == index || (glowOnHover && isHovered && !isDragging),
                             modifier = if (isDragging && !isCopyDragActive) {
                                 val fingerXDp = with(density) { (dragOffset.x - wPx / 2f).toDp() }
                                 val fingerYDp = with(density) { (dragOffset.y - hPx / 2f).toDp() }
@@ -258,12 +288,12 @@ fun HeksagonGred(
             )
         }
 
-        Box(Modifier.fillMaxSize().align(Alignment.Center).pointerInput(geometry, allHexPositionsPx, items, konektedIndeksez, lastSameSpotIndex, disconnectedArmedIndex) {
+        Box(Modifier.fillMaxSize().align(Alignment.Center).pointerInput(geometry, expandedHexPositionsPx, items, konekdedEndeksez, lastSameSpotIndex, disconnectedArmedIndex) {
             val longMs = viewConfiguration.longPressTimeoutMillis
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
                 val start = down.position
-                val downIdx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, allHexPositionsPx, hexSizePx)
+                val downIdx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, expandedHexPositionsPx, hexSizePx)
                 
                 if (downIdx == null) return@awaitEachGesture
                 
@@ -292,7 +322,7 @@ fun HeksagonGred(
 
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
 
-                    val isDiskonekded = downIdx != 0 && downIdx !in konektedIndeksez && isItemAtIdx
+                    val isDiskonekded = downIdx != 0 && downIdx !in konekdedEndeksez && isItemAtIdx
 
                     if (isDiskonekded && disconnectedArmedIndex == downIdx) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -317,7 +347,7 @@ fun HeksagonGred(
                                 if (change.changedToUpIgnoreConsumed()) break
                                 val delta = change.positionChange()
                                 dragOffset = Offset(dragOffset.x + delta.x, dragOffset.y + delta.y)
-                                val newHover = getHexIndexFromPosition(dragOffset.x, dragOffset.y, wPx, hPx, allHexPositionsPx, hexSizePx)
+                                val newHover = getHexIndexFromPosition(dragOffset.x, dragOffset.y, wPx, hPx, expandedHexPositionsPx, hexSizePx)
                                 if (newHover != downIdx) hasMuvd = true
                                 currentHoverIndex = newHover
                                 presdEndeks = currentHoverIndex
@@ -345,7 +375,7 @@ fun HeksagonGred(
                             if (change.changedToUpIgnoreConsumed()) break
                             val delta = change.positionChange(); dragOffset = Offset(dragOffset.x + delta.x, dragOffset.y + delta.y)
                             currentHoverIndex = getHexIndexFromPosition(
-                                        dragOffset.x, dragOffset.y, wPx, hPx, allHexPositionsPx, hexSizePx
+                                        dragOffset.x, dragOffset.y, wPx, hPx, expandedHexPositionsPx, hexSizePx
                                     )
                             presdEndeks = currentHoverIndex
                             change.consume()

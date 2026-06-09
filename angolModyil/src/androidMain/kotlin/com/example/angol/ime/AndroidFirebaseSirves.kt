@@ -65,8 +65,9 @@ class AndroidFirebaseSirves(
         Log.d("AndroidFirebaseSirves", "GitHub sign-in successful")
         Result.success(Unit)
     } catch (e: Exception) {
-        Log.e("AndroidFirebaseSirves", "GitHub sign-in error: ${e.message}", e)
-        Result.failure(e)
+        val firebaseError = (e as? com.google.firebase.auth.FirebaseAuthException)?.errorCode ?: "UNKNOWN"
+        Log.e("AndroidFirebaseSirves", "GitHub sign-in error [$firebaseError]: ${e.message}", e)
+        Result.failure(Exception("[$firebaseError] ${e.message}"))
     }
 
     override suspend fun signInWithGoogle(): Result<Unit> = try {
@@ -77,8 +78,19 @@ class AndroidFirebaseSirves(
         Log.d("AndroidFirebaseSirves", "Google sign-in successful")
         Result.success(Unit)
     } catch (e: Exception) {
-        Log.e("AndroidFirebaseSirves", "Google sign-in error: ${e.message}", e)
-        Result.failure(e)
+        val firebaseError = (e as? com.google.firebase.auth.FirebaseAuthException)?.errorCode ?: "UNKNOWN"
+        Log.e("AndroidFirebaseSirves", "Google sign-in error [$firebaseError]: ${e.message}", e)
+        Result.failure(Exception("[$firebaseError] ${e.message}"))
+    }
+
+    override suspend fun signInAnonymously(): Result<Unit> = try {
+        auth.signInAnonymously().await()
+        Log.d("AndroidFirebaseSirves", "Anonymous sign-in successful")
+        Result.success(Unit)
+    } catch (e: Exception) {
+        val firebaseError = (e as? com.google.firebase.auth.FirebaseAuthException)?.errorCode ?: "UNKNOWN"
+        Log.e("AndroidFirebaseSirves", "Anonymous sign-in error [$firebaseError]: ${e.message}", e)
+        Result.failure(Exception("[$firebaseError] ${e.message}"))
     }
 
     override suspend fun signOut() {

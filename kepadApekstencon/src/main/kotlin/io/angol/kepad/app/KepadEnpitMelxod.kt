@@ -444,7 +444,8 @@ private fun startVoysEnpit() {
                                 activeIndices = activeIndices,
                                 screenWidth = screenWidth.value.toDouble(),
                                 screenHeight = screenHeight.value.toDouble(),
-                                isWearOS = yuteledez.isWearOS
+                                isWearOS = yuteledez.isWearOS,
+                                ezHub = false
                             )
                         }
 
@@ -461,7 +462,7 @@ private fun startVoysEnpit() {
                         }
 
                         val hexHeightDp = (gredDimz.heksSayz * 2.0).dp
-                        val shiftUpDp = hexHeightDp * 1.1f
+                        val shiftUpDp = hexHeightDp * 0f
 
                         Box(
                             modifier = Modifier
@@ -472,7 +473,7 @@ private fun startVoysEnpit() {
                             contentAlignment = Alignment.BottomCenter
                         ) {
                             KepadModyil(
-                                keyboardController = kebordKontrolir,
+                                kebordKontrolir = kebordKontrolir,
                                 platformServices = platfOrmSirvesez,
                                 voiceService = voiceService,
                                 ezLeterMod = ezLeterMod,
@@ -506,6 +507,18 @@ private fun startVoysEnpit() {
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         isClosing = false
         super.onStartInputView(info, restarting)
+
+        val inputClass = info?.inputType?.and(android.text.InputType.TYPE_MASK_CLASS)
+        val isNumberField = inputClass == android.text.InputType.TYPE_CLASS_NUMBER ||
+                            inputClass == android.text.InputType.TYPE_CLASS_PHONE
+        if (isNumberField) {
+            ezLeterMod = false
+            ezPunkcuweyconMod = false
+        } else {
+            ezLeterMod = true
+            ezPunkcuweyconMod = false
+        }
+
         window?.window?.let { win ->
             win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
@@ -530,26 +543,23 @@ private fun startVoysEnpit() {
         val totalHeight = inputView.height
         val totalWidth = inputView.width
         if (totalHeight <= 0) return
-        // Use dynamic height if available, otherwise fallback to 2-ring estimate
+        // Use dynamic height if available, otherwise fallback to massive scale floor
         val clusterHeightPx = if (dynamicGridHeightPx > 0) {
             dynamicGridHeightPx
         } else {
             val screenWidth = resources.displayMetrics.widthPixels
-            val hexSizePx = screenWidth / (5.0 * kotlin.math.sqrt(3.0))
-            (hexSizePx * 8.0).toInt()
+            val hexSizePx = screenWidth / (2.0 * 2.6 + 1.0) / kotlin.math.sqrt(3.0)
+            (hexSizePx * 6.0).toInt()
         }
         
-        // Correct diameter height for insets
-        val hexHeightPx = (clusterHeightPx / 6.0) * 2.0 
-        val shiftUpPx = (hexHeightPx * 1.1).toInt()
-        // Expand touchable region to cover the full height plus shift and a safety margin for the oversized tips
-        val adjustedHeightPx = clusterHeightPx + shiftUpPx + hexHeightPx.toInt()
+        val adjustedHeightPx = clusterHeightPx
 
         val top = totalHeight - adjustedHeightPx
         outInsets.contentTopInsets = top
         outInsets.visibleTopInsets = top
         outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
         outInsets.touchableRegion.setEmpty()
+        // Expand touch region to full screen width/height to ensure 100% responsiveness
         outInsets.touchableRegion.union(android.graphics.Rect(0, top, totalWidth, totalHeight))
     }
 

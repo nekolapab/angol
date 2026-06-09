@@ -30,7 +30,7 @@ import kotlin.math.sqrt
 @Composable
 fun Rebeld(
     daylSteyt: AngolSteyt,
-    keyboardController: KeyboardController?,
+    kebordKontrolir: KeyboardController?,
     platformServices: PlatformServices,
     voiceService: VoiceService,
     onClose: () -> Unit,
@@ -39,9 +39,10 @@ fun Rebeld(
     onReplace: (Int, Int) -> Unit = { _, _ -> }
 ) {
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
+    var moduleToReplace by remember { mutableStateOf<Int?>(null) }
     
     val syncRebeld = {
-        onAction("current")
+        onAction("rebeld_state")
     }
 
     if (selectedModuleId != null) {
@@ -140,7 +141,12 @@ fun Rebeld(
                     copyDragPolicy = CopyDragPolicy.TwoStepArmed,
                     allowSwap = true,
                     onMove = { from, to ->
-                        daylSteyt.swopBeldirModyilz(from + 1, to + 1)
+                        if (to == -1) {
+                            // Dropped outside grid: send to sidelines (disconnected, not deleted)
+                            daylSteyt.muvBeldModyilAwdirSpeys(from + 1)
+                        } else {
+                            daylSteyt.swopBeldirModyilz(from + 1, to + 1)
+                        }
                         syncRebeld()
                     },
                     onCopyToEmpty = { from, to ->
@@ -148,8 +154,7 @@ fun Rebeld(
                         syncRebeld()
                     },
                     onMoveToCenter = { from ->
-                        daylSteyt.copyModuleToDaylKeypad(from)
-                        onAction("current")
+                        moduleToReplace = from
                     },
                     onDropOnFoldir = { from, to ->
                         daylSteyt.muvBeldirModyilEntuFoldir(from, to)
@@ -179,6 +184,29 @@ fun Rebeld(
                     fontSizeFactor = 10f / 12f
                 )
             }
+        }
+
+        if (moduleToReplace != null) {
+            AlertDialog(
+                onDismissRequest = { moduleToReplace = null },
+                title = { Text("repleys and send tu rebeld?", color = Color.White) },
+                text = { Text("lhes wel repleys lha aktev kepad.", color = Color.LightGray) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        daylSteyt.copyModuleToDaylKeypad(moduleToReplace!!)
+                        onAction("current")
+                        moduleToReplace = null
+                    }) {
+                        Text("Replace", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { moduleToReplace = null }) {
+                        Text("Cancel", color = Color.White)
+                    }
+                },
+                backgroundColor = Color.DarkGray
+            )
         }
     }
 }

@@ -11,26 +11,52 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import sirvesez.FirebaseSirves
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun SaynEnSkren(firebaseSirves: FirebaseSirves, onBypass: () -> Unit) {
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val scrollState = rememberScrollState()
 
+    // Using a Box with contentAlignment = Alignment.Center to ensure perfect centering
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState),
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .wrapContentHeight() // Wrap height to let the Box center the whole cluster
+                .padding(horizontal = 16.dp, vertical = 24.dp)
         ) {
             Text("Angol", style = MaterialTheme.typography.h4)
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(8.dp)) // Tighter spacing to center
             
             if (isLoading) {
                 CircularProgressIndicator()
             } else {
+                // SQUASHED and CENTERED layout
+                // 1. kontenyu az gest (Immediate Bypass)
+                Button(
+                    onClick = { 
+                        scope.launch {
+                            onBypass()
+                            firebaseSirves.signInAnonymously()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(0.9f).height(36.dp)
+                ) {
+                    Text("kontenyu az gest")
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // 2. GitHub
                 Button(
                     onClick = {
                         scope.launch {
@@ -43,13 +69,14 @@ fun SaynEnSkren(firebaseSirves: FirebaseSirves, onBypass: () -> Unit) {
                             isLoading = false
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(0.7f)
+                    modifier = Modifier.fillMaxWidth(0.9f).height(36.dp)
                 ) {
                     Text("Sign in with GitHub")
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
+                // 3. Google
                 Button(
                     onClick = {
                         scope.launch {
@@ -62,26 +89,20 @@ fun SaynEnSkren(firebaseSirves: FirebaseSirves, onBypass: () -> Unit) {
                             isLoading = false
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(0.7f),
+                    modifier = Modifier.fillMaxWidth(0.9f).height(36.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4285F4), contentColor = Color.White)
                 ) {
                     Text("Sign in with Google")
                 }
                 
                 if (errorMessage != null) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = errorMessage!!,
                         color = Color.Red,
                         style = MaterialTheme.typography.caption,
-                        modifier = Modifier.padding(horizontal = 32.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                TextButton(onClick = { onBypass() }) {
-                    Text("Continue as Guest", color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f))
                 }
             }
         }

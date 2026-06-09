@@ -8,6 +8,7 @@ interface FirebaseSirves {
     val authStateChanges: Flow<User?>
     suspend fun signInWithGitHub(): Result<Unit>
     suspend fun signInWithGoogle(): Result<Unit>
+    suspend fun signInAnonymously(): Result<Unit>
     suspend fun signOut()
     suspend fun saveModuleLayout(modyilz: List<ModyilDeyda>, environment: String = "current")
     fun watchModuleLayout(environment: String = "current"): Flow<List<ModyilDeyda>>

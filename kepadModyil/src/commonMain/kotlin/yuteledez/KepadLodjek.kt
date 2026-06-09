@@ -76,12 +76,10 @@ object KepadLodjek {
             listOf(center) + inner + outer
         }
 
-        // 2. Padding
+        // 2. Minimal Padding: only pad to the actual maximum occupied index
         val finalLabels = baseLabels.toMutableList()
         val maxIdx = finalLabels.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }.maxOrNull() ?: 0
-        val targetSize = if (maxIdx > 18) 37 else 19
-        
-        while (finalLabels.size < targetSize) finalLabels.add("")
+        while (finalLabels.size <= maxIdx) finalLabels.add("")
         
         // 3. Capitalization and return
         return if (isCapitalized) finalLabels.map { it.uppercase() } else finalLabels

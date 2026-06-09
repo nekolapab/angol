@@ -9,12 +9,12 @@ import platform.UIKit.UIViewController
  * must be provided from the iOS native side or implemented in iosMain.
  */
 fun MainViewController(
-    keyboardController: KeyboardController,
+    kebordKontrolir: KeyboardController,
     platformServices: PlatformServices,
     voiceService: VoiceService
 ): UIViewController = ComposeUIViewController {
     skrenz.DaylSkrenEntry(
-        keyboardController = keyboardController,
+        kebordKontrolir = kebordKontrolir,
         platformServices = platformServices,
         voiceService = voiceService,
         isApp = true

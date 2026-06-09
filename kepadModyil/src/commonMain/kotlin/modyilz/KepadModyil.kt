@@ -27,7 +27,7 @@ import kotlin.math.sqrt
 
 @Composable
 fun KepadModyil(
-    keyboardController: KeyboardController?,
+    kebordKontrolir: KeyboardController?,
     platformServices: PlatformServices,
     voiceService: VoiceService,
     ezLeterMod: Boolean,
@@ -50,7 +50,9 @@ fun KepadModyil(
     onMoveToCenter: (Int) -> Unit = { _ -> },
     onDropOnFoldir: (Int, Int) -> Unit = { _, _ -> },
     onDelete: (Int) -> Unit = { _ -> },
-    onReplace: ((Int, Int) -> Unit)? = null
+    onReplace: ((Int, Int) -> Unit)? = null,
+    glowOnHover: Boolean = true,
+    hideDisconnected: Boolean = false
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -95,7 +97,7 @@ fun KepadModyil(
             return
         }
 
-        val controller = keyboardController ?: return
+        val controller = kebordKontrolir ?: return
 
         if (char == "\n") {
             if (isLongPress && primaryChar != null) {
@@ -189,7 +191,7 @@ fun KepadModyil(
                 delay(1500)
                 if (huvirdHeksIndeks.value != 0) return@launch
                 if (kurentEzLeterMod) {
-                    keyboardController?.finishComposingText()
+                    kebordKontrolir?.finishComposingText()
                     handilKePres("⌫", false, null)
                 }
                 return@launch
@@ -246,13 +248,19 @@ fun KepadModyil(
         }
 
         val allHexPositions = remember(currentGeometry, glefzOverride) {
-            val maxIdx = glefzOverride?.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }?.maxOrNull() ?: 0
-            val rings = if (maxIdx > 36) 4 else if (maxIdx > 18) 3 else 2
-            val totalHexCount = 3 * rings * (rings + 1) + 1
-            (0 until totalHexCount).map { idx ->
+            val currentLabels = KepadLodjek.getCurrentOlLeybelz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, false, glefzOverride)
+            val activeIndices = currentLabels.mapIndexedNotNull { i, s -> if (s.isNotEmpty() || i == 0) i else null }
+            val maxIdx = activeIndices.maxOrNull() ?: 0
+            
+            // To ensure hit-testing only finds active hexes, we only map the active indices
+            // We use a List where phantoms are represented by a far-away position
+            val totalHexCount = maxIdx + 1
+            val positions = MutableList(totalHexCount) { HeksagonPozecon(99999.0, 99999.0) }
+            activeIndices.forEach { idx ->
                 val axial = currentGeometry.indeksTuAksyal(idx)
-                currentGeometry.aksyalTuPeksel(axial.q, axial.r)
+                positions[idx] = currentGeometry.aksyalTuPeksel(axial.q, axial.r)
             }
+            positions
         }
 
         val gridHeightDp = maxHeight
@@ -282,7 +290,9 @@ fun KepadModyil(
                 onReplace = onReplace,
                 onDelete = onDelete,
                 onTap = { index -> if (index == 0) onClose?.invoke() },
-                fontSizeFactor = 13f/12f
+                fontSizeFactor = 13f/12f,
+                glowOnHover = glowOnHover,
+                hideDisconnected = hideDisconnected
             )
         } else {
             Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
@@ -351,10 +361,26 @@ fun KepadModyil(
                                     val event = awaitPointerEvent()
                                     val changes = event.changes
                                     val activePointers = changes.filter { it.pressed }
-                                    
-                                    // Handle rotation logic even if no hex is touched (multi-touch gesture)
+
                                     if (activePointers.size == 2) {
-                                        // ... rotation logic remains ...
+                                        val p1 = activePointers[0].position
+                                        val p2 = activePointers[1].position
+                                        val currentAngle = kotlin.math.atan2(p2.y - p1.y, p2.x - p1.x)
+                                        if (initialAngle == null) {
+                                            initialAngle = currentAngle
+                                        } else {
+                                            var diff = currentAngle - initialAngle!!
+                                            while (diff <= -kotlin.math.PI) diff += (2 * kotlin.math.PI).toFloat()
+                                            while (diff > kotlin.math.PI) diff -= (2 * kotlin.math.PI).toFloat()
+                                            daylRoteconAngol = startDaylAngle + diff
+                                            if (diff >= 0.26f && !rotationTriggered) {
+                                                if (!kurentEzLeterMod) kurentOnTogilMod()
+                                                rotationTriggered = true
+                                            } else if (diff <= -0.26f && !rotationTriggered) {
+                                                if (kurentEzLeterMod) kurentOnTogilMod()
+                                                rotationTriggered = true
+                                            }
+                                        }
                                     }
 
                                     val change = changes.firstOrNull { it.id == down.id } ?: changes.firstOrNull { it.pressed } ?: break
@@ -468,7 +494,7 @@ fun KepadModyil(
                                                     handilKePres(" ", false, null)
                                                 }
                                                 else -> {
-                                                    keyboardController?.performSubmitAction()
+                                                    kebordKontrolir?.performSubmitAction()
                                                 }
                                             }
                                         }
