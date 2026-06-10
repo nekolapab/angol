@@ -1,5 +1,9 @@
 **prodjekt angol**
-###**arketekcir**`Kotlin Multiplatform`onle (AGP 9.2+)
+###**golz**
+**klawd senk**modyul leyawts senkronayz welx Firebase Firestore veya `FirebaseSirves`.
+**olxentekeycon**GitHub logen
+
+###**arketekcir**`Kotlin Multiplatform`onle updeyt tu best Kotlin MP (2.3.21), Compose (1.10.3), AGP (9.2.0), CompileSdk (37), WearOS (6).
 **angolModjul**enkludz`angolWedjet`*cerd laybrere*(`com.android.kotlin.multiplatform.library`) kor rawdir reprezents lha fawndeycon geytkepir 'sestom etself' ov cerd lodjek, sekyir tranzakconz, enkrepcon, AngolSteyt, deydabeys clawd entirakconz (`FirebaseSirves`), paslok, and yuteledez rekwayrd tu entsol-unenstol ol ap adenz.  kopeleft alon open sors.
     `src/commonMain/kotlin/`:
     `src/androidMain/kotlin/`: emplementeyconz (Android sirvesez, fayl storedj, tekst tu spetc).
@@ -18,6 +22,10 @@
 **beldWedjet**cerd for rebeld and beldir +- mirdj rebeld and beldir atrebyuts.
 **beldirModyil**ensayd rebeldModyil, tulz meyk ceyps sutc az glefs.
 
+Modjil = Modjul and/or Modyil
+Modjul = Modyil + Wedjet ensayd
+Modyil = Modyil alon or yuzez anolhir Wedjet
+
  // | kalkyu(spredcet) | eyay eydjents [fon] | klok | kumpas | elekt  | yecuw wirdz | tcekirz | kemekal | myuzek | lxirmostat
 
 ##**funkcon lodjek**
@@ -33,37 +41,22 @@
 **drag tu foldir lodjek**drag ene modyul  tu foldir, muv ensayd, and remuv frum prevyus. kep sentir drag frum desaperenq on meyn skren.
 **manyuwl kope**suport drag tu sentir en 'rebeld' tu manyuwle kope tu 'dayl'z kepad modyul, and konvirsle drag tu rebeld frum dayl tu kope tu rebeld.
 **beld modyul**suports edetenq heksagonz and aps: pozecons leyawt, tutc funkcon, kulor, glow, kontrast kulor, leybil...
-**spetc tu tekst voys enpit**emplement neydev (?Gemini 3.5) konvirjon refaynment en `DaylEnpitMelxod.kt`.
-**tekst tu spetc**(`AndroidPlatformSirvesez`).
 **swop vejuwalz**pres tregirz glow, lonq pres tregirz kontrast kulor.
-**repleys seym neym faylz**cow konfirmeycon dayalog wen dropenq a fayl/foldir modyul on anulhir ov lha seym neym.
+**repleys seym neym faylz**cow konfirmeycon dayalog wen dropenq a fayl/foldir modjil on anulhir ov lha seym neym.
 
-##**spetc tu tekst**
-**kebord tranzleycon**lhe 'angol' togil at sentir tregirz AI voys.
-?**awtpit feld entirakcon**tutcenq lhe awtpit feld kan be monetird bay lhe enpit editor veya `onUpdeytSelekcon`.
+##**kebord spetc tu tekst and tekst tu spetc**(`AndroidPlatformSirvesez`).
+**voys enpit**emplement neydev (?Gemini 3.5) konvirjon refaynment en `DaylEnpitMelxod.kt`.
+**tranzleycon**lhe 'angol' togil at sentir tregirz AI voys.
+?**awtpit feld entirakcon**tutcenq lhe awtpit feld ez monetird bay lhe enpit edetir veya `onUpdeytSelekcon`.
 **angol spelenq lodjek**`36 sawndz` map 1:1 tu:
-**12 vowalz**
-**1** /ɑ/, **2** /æ/, **3** /ɛ/, **4** /ɪ/, **5** /i/, **6** /ɝ/, **7** /ʊ/, **8** /ʌ/, **9** /u/, **0** /oʊ/, **A** /o/, **O** /ɔ/.
-**24 konsonants**
-l,lh, lx,h, x,n, d,y, t,r, c,j, g,nq, k,q, f,v, b,w, p,m, s,z.
-**c** 'sh', **tc** 'ch', **lx** 'thin', **lh** 'the', **nq** 'ng', **q** [ɣ], **x** [x].
+*12 vowalz* **1** /ɑ/, **2** /æ/, **3** /ɛ/, **4** /ɪ/, **5** /i/, **6** /ɝ/, **7** /ʊ/, **8** /ʌ/, **9** /u/, **0** /oʊ/, **A** /o/, **O** /ɔ/.
+*24 konsonants* l,lh, lx,h, x,n, d,y, t,r, c,j, g,nq, k,q, f,v, b,w, p,m, s,z. c(sh), tc(ch), lx(thin), lh(the), nq(ng), q([ɣ]), x([x]).
+*enir renq numbir popup* 1 2 3 4 5 6 7 8 9 0 A O wen yu pres lha sentir heks lhe enir renq popsup punkcuweycon ensted ov vawolz. yu swuyp lha glef yu want.
+*sentir heksagon punkcuwecon popup*  ? ! , ; ' wen yu pres ene ov lha 5 vawolz on lhe enir renq lha sekond renq pops up 2 or 3 korespondenq numbirz tu lhat vawol tu swuyp. 
 
-###**beld an deploy**
-##**edireyt**
-**kumper etc rekwest tuw plan for kler lhen presuys and klen plan befor refakdir.**
-  1. **erir detekt and remede odomadekle**monetir erirz kontenyuwosle and rezolv (sentaks, tuyp mesmatcez, nul seyfde, or lentenq vayoleycunz).
-  2. **lent/format**or `gradlew format`(ef konfegyird).
-  3. **dependens tcek**run `./gradlew beld` tu manadj dependensez.
-  4. **kod djenereycon**run 'beld_runir' odomadekle.
-  5. **kompayl & anelayz**monetir `./gradlew analayz` and kompayleycon erirz and eksepsconz.
-  6. **test eksekyucon**monetir IDE dayagnosteks and run relevant tests.
-  7. **prevyu sirvir tcek**obzirv lha prevyu sirvir kontenyuwosle and tirmenal awtput (konsol logz, erir mesedjez) for vezyual rel taym fedbak and runtaym erirz.
-  8. **remedeyeyt and report**odomeyt feks and report tu lha yuzir onle ef erir kanot rezolv odomadekle.
-
-**klawd senk**modyul leyawts senkronayz welx Firebase Firestore veya `FirebaseSirves`.
-**auth & hub**logen(GitHub) and hom skrenz port tu Kotlin Compose.
-**klen beld**olweyz yuz `./gradlew klen` to encuwr no remnants.
-**enstol dayl**yuz `enstol dayl kler` (klen beld + dep akdeveycon + lontc) or `enstol dayl` (fast updeyt + lontc).
-**enstol kepad**yuz `enstol kepad kler` (klen beld + dep akdeveycon) or `enstol kepad` (fast updeyt).
-**WearOS**yuz `enstol WearOS` tu lontc lha emyuleydir.
-**virjonz**updeyt tu best (Kotlin MP 2.3.21, Compose 1.10.3, AGP 9.2.0, CompileSdk 37, WearOS 6).
+###**eyay eydjent wirkflow**
+**planenq ruwl**befor meykenq segnefekant tceynjez, kumper etc rekwest tuw ###**golz** and befor refakdorenq, kumper etc rekwest tuw ###**arketekcir** for kler lhen akyirat plan.
+1.**odo feks erorz**kontenyuwosle detekt and odomadekle feks sentaks, tuyp mesmatcez, nul seyfde, lint vayoleycunz.
+2.**beld an analayz**run `./gradlew beld` and `./gradlew analayz` regyulerle.
+3.**run tests**afdir kod tceynjez, run tests.
+4.**run taym monetir prevyuw**wotc Compose prevyuw and tirmenal logz for runtaym ecuwz.

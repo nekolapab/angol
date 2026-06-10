@@ -5,7 +5,7 @@ Write-Host "beldenq and updeydenq lha howl Angol sestem..." -ForegroundColor Cya
 # Step 1: Klin and Beld ol APKs
 Write-Host "klenenq and beldenq APKs..." -ForegroundColor Yellow
 ./gradlew clean
-./gradlew :angolDaylAp:assembleDebug :kepadApekstencon:assembleDebug
+./gradlew :angolDaylAp:assembleDebug :angolKepadAp:assembleDebug
 if ($LASTEXITCODE -ne 0) {
     Write-Host "beld feyld!" -ForegroundColor Red
     exit 1
@@ -41,7 +41,7 @@ foreach ($dev in $devaysez) {
 
     # Step 4: Install and Activate Kepad
     Write-Host "enstolenq and akteyveydenq Kepad on $dev..." -ForegroundColor Yellow
-    adb -s $dev install -r kepadApekstencon/build/outputs/apk/debug/kepadApekstencon-debug.apk
+    adb -s $dev install -r angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk
     
     $imeId = "io.angol.kepad/.app.KepadEnpitMelxod"
     adb -s $dev shell ime enable $imeId

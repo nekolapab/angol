@@ -58,7 +58,7 @@ android {
 dependencies {
     implementation(project(":angolModyil"))
     implementation(project(":kepadModyil"))
-    implementation(project(":rebeldApadon"))
+    implementation(project(":angolRebeldAp"))
     
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

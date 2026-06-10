@@ -17,14 +17,14 @@ class AngolSteyt {
     var isTextFieldFocused by mutableStateOf(false)
 
     var modyilz by mutableStateOf(listOf(
-        ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("angol"), type = "hub"),
+        ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefs = listOf("angol"), type = "hub"),
         ModyilDeyda(
             id = "keypad", 
             neym = "kepad", 
             kulorLong = Color(0xFFFF0000).toArgb().toLong(), 
             pozecon = 2, 
             ezAktiv = false,
-            glefz = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap,
+            glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap,
             glefKulorz = listOf(Color.White.toArgbLong()) + 
                          modalz.HeksagonKonfeg.innerRingColors.map { it.toArgbLong() } + 
                          modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() },
@@ -37,9 +37,11 @@ class AngolSteyt {
         ModyilDeyda(id = "module6", neym = "mod 6", kulorLong = Color(0xFFFF00FF).toArgb().toLong(), pozecon = 7, ezAktiv = false),
     ))
 
-    var beldirModyilz by mutableStateOf(listOf(
-        ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("angol"), type = "hub")
+    var rebeldModyilz by mutableStateOf(listOf(
+        ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefs = listOf("angol"), type = "hub")
     ))
+
+
 
     val activeModule: ModyilDeyda?
         get() = modyilz.find { it.ezAktiv && it.type != "hub" }
@@ -47,15 +49,15 @@ class AngolSteyt {
     val ezKepadVezebil: Boolean
         get() = modyilz.any { it.type == "keypad" && it.ezAktiv }
 
-    val ezBeldirVezebil: Boolean
+    val ezRebeldVezebil: Boolean
         get() = modyilz.any { it.type == "rebeld" && it.ezAktiv }
 
     fun updateModules(newModules: List<ModyilDeyda>) {
         modyilz = newModules
     }
 
-    fun updateBeldirModules(newModules: List<ModyilDeyda>) {
-        beldirModyilz = newModules
+    fun updateRebeldModules(newModules: List<ModyilDeyda>) {
+        rebeldModyilz = newModules
     }
 
     fun activateModyil(id: String) {
@@ -74,11 +76,11 @@ class AngolSteyt {
     }
 
     fun kopeModyil(id: String) {
-        if (beldirModyilz.any { it.id == id }) {
-            val modToCopy = beldirModyilz.find { it.id == id } ?: return
-            val newId = "mod_${beldirModyilz.size + 1}_${getCurrentTimeMillis()}"
-            val newPozecon = (beldirModyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
-            beldirModyilz = beldirModyilz + modToCopy.copyWith(id = newId, pozecon = newPozecon, ezAktiv = false)
+        if (rebeldModyilz.any { it.id == id }) {
+            val modToCopy = rebeldModyilz.find { it.id == id } ?: return
+            val newId = "mod_${rebeldModyilz.size + 1}_${getCurrentTimeMillis()}"
+            val newPozecon = (rebeldModyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
+            rebeldModyilz = rebeldModyilz + modToCopy.copyWith(id = newId, pozecon = newPozecon, ezAktiv = false)
         } else {
             val modToCopy = modyilz.find { it.id == id } ?: return
             val newId = "mod_${modyilz.size + 1}_${getCurrentTimeMillis()}"
@@ -89,8 +91,8 @@ class AngolSteyt {
 
     fun deletModyil(id: String) {
         if (PROTECTED_IDS.contains(id)) return
-        if (beldirModyilz.any { it.id == id }) {
-            beldirModyilz = beldirModyilz.filter { it.id != id }
+        if (rebeldModyilz.any { it.id == id }) {
+            rebeldModyilz = rebeldModyilz.filter { it.id != id }
         } else {
             modyilz = modyilz.filter { it.id != id }
         }
@@ -98,7 +100,7 @@ class AngolSteyt {
 
     private fun convertAutoBackupToManual(modId: String) {
         if (modId == "auto_backup") {
-            beldirModyilz = beldirModyilz.map { mod ->
+            rebeldModyilz = rebeldModyilz.map { mod ->
                 if (mod.id == "auto_backup") {
                     mod.copyWith(id = "backup_${getCurrentTimeMillis()}", neym = "Backup ${getCurrentTimeMillis() % 1000}")
                 } else mod
@@ -108,8 +110,8 @@ class AngolSteyt {
 
     fun reneymModyil(id: String, newNeym: String) {
         convertAutoBackupToManual(id)
-        if (beldirModyilz.any { it.id == id }) {
-            beldirModyilz = beldirModyilz.map { if (it.id == id) it.copyWith(neym = newNeym) else it }
+        if (rebeldModyilz.any { it.id == id }) {
+            rebeldModyilz = rebeldModyilz.map { if (it.id == id) it.copyWith(neym = newNeym) else it }
         } else {
             modyilz = modyilz.map { if (it.id == id) it.copyWith(neym = newNeym) else it }
         }
@@ -117,22 +119,22 @@ class AngolSteyt {
 
     fun reneymGlef(modId: String, index: Int, newLabel: String) {
         convertAutoBackupToManual(modId)
-        if (beldirModyilz.any { it.id == modId }) {
-            beldirModyilz = beldirModyilz.map { mod ->
+        if (rebeldModyilz.any { it.id == modId }) {
+            rebeldModyilz = rebeldModyilz.map { mod ->
                 if (mod.id == modId) {
-                    val newGlefz = mod.glefz.toMutableList()
-                    while (newGlefz.size <= index) newGlefz.add("")
-                    newGlefz[index] = newLabel
-                    mod.copyWith(glefz = newGlefz)
+                    val newGlefs = mod.glefs.toMutableList()
+                    while (newGlefs.size <= index) newGlefs.add("")
+                    newGlefs[index] = newLabel
+                    mod.copyWith(glefs = newGlefs)
                 } else mod
             }
         } else {
             modyilz = modyilz.map { mod ->
                 if (mod.id == modId) {
-                    val newGlefz = mod.glefz.toMutableList()
-                    while (newGlefz.size <= index) newGlefz.add("")
-                    newGlefz[index] = newLabel
-                    mod.copyWith(glefz = newGlefz)
+                    val newGlefs = mod.glefs.toMutableList()
+                    while (newGlefs.size <= index) newGlefs.add("")
+                    newGlefs[index] = newLabel
+                    mod.copyWith(glefs = newGlefs)
                 } else mod
             }
         }
@@ -141,31 +143,31 @@ class AngolSteyt {
     fun muvGlef(modId: String, fromIndex: Int, toIndex: Int) {
         convertAutoBackupToManual(modId)
         val updateFunc = { mod: ModyilDeyda ->
-            val newGlefz = mod.glefz.toMutableList()
+            val newGlefs = mod.glefs.toMutableList()
             val newKulorz = mod.glefKulorz.toMutableList()
             if (toIndex == -1) {
-                if (fromIndex in newGlefz.indices) newGlefz[fromIndex] = ""
+                if (fromIndex in newGlefs.indices) newGlefs[fromIndex] = ""
                 if (fromIndex in newKulorz.indices) newKulorz[fromIndex] = 0xFF333333
             } else {
                 val maxIdx = maxOf(fromIndex, toIndex)
-                while (newGlefz.size <= maxIdx) newGlefz.add("")
+                while (newGlefs.size <= maxIdx) newGlefs.add("")
                 while (newKulorz.size <= maxIdx) newKulorz.add(0xFF333333)
                 
                 // SWAP labels and colors
-                val tempGlef = newGlefz[toIndex]
+                val tempGlef = newGlefs[toIndex]
                 val tempKulor = newKulorz[toIndex]
                 
-                newGlefz[toIndex] = newGlefz[fromIndex]
+                newGlefs[toIndex] = newGlefs[fromIndex]
                 newKulorz[toIndex] = newKulorz[fromIndex]
                 
-                newGlefz[fromIndex] = tempGlef
+                newGlefs[fromIndex] = tempGlef
                 newKulorz[fromIndex] = tempKulor
             }
             
-            mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
+            mod.copyWith(glefs = newGlefs, glefKulorz = newKulorz)
         }
-        if (beldirModyilz.any { it.id == modId }) {
-            beldirModyilz = beldirModyilz.map { if (it.id == modId) updateFunc(it) else it }
+        if (rebeldModyilz.any { it.id == modId }) {
+            rebeldModyilz = rebeldModyilz.map { if (it.id == modId) updateFunc(it) else it }
         } else {
             modyilz = modyilz.map { if (it.id == modId) updateFunc(it) else it }
         }
@@ -174,21 +176,21 @@ class AngolSteyt {
     fun kopeGlefTuEmpt(modId: String, fromIndex: Int, toIndex: Int) {
         convertAutoBackupToManual(modId)
         val updateFunc = { mod: ModyilDeyda ->
-            val newGlefz = mod.glefz.toMutableList()
+            val newGlefs = mod.glefs.toMutableList()
             val newKulorz = mod.glefKulorz.toMutableList()
             if (toIndex != -1) {
-                while (newGlefz.size <= toIndex) newGlefz.add("")
+                while (newGlefs.size <= toIndex) newGlefs.add("")
                 while (newKulorz.size <= toIndex) newKulorz.add(mod.kulor.toArgbLong())
-                if (fromIndex in newGlefz.indices) {
-                    newGlefz[toIndex] = newGlefz[fromIndex]
+                if (fromIndex in newGlefs.indices) {
+                    newGlefs[toIndex] = newGlefs[fromIndex]
                     val sourceColor = if (fromIndex < newKulorz.size) newKulorz[fromIndex] else mod.kulor.toArgbLong()
                     newKulorz[toIndex] = sourceColor
                 }
             }
-            mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
+            mod.copyWith(glefs = newGlefs, glefKulorz = newKulorz)
         }
-        if (beldirModyilz.any { it.id == modId }) {
-            beldirModyilz = beldirModyilz.map { if (it.id == modId) updateFunc(it) else it }
+        if (rebeldModyilz.any { it.id == modId }) {
+            rebeldModyilz = rebeldModyilz.map { if (it.id == modId) updateFunc(it) else it }
         } else {
             modyilz = modyilz.map { if (it.id == modId) updateFunc(it) else it }
         }
@@ -196,28 +198,28 @@ class AngolSteyt {
 
     fun muvGlefTuHub(modId: String, glefIndex: Int) {
         convertAutoBackupToManual(modId)
-        val isBeldir = beldirModyilz.any { it.id == modId }
-        val list = if (isBeldir) beldirModyilz else modyilz
+        val isRebeld = rebeldModyilz.any { it.id == modId }
+        val list = if (isRebeld) rebeldModyilz else modyilz
         val sourceMod = list.find { it.id == modId } ?: return
-        val glefLabel = sourceMod.glefz.getOrNull(glefIndex) ?: return
+        val glefLabel = sourceMod.glefs.getOrNull(glefIndex) ?: return
         if (glefLabel.isEmpty() || glefIndex == 0) return
 
         val newId = "mod_${list.size + 1}_${getCurrentTimeMillis()}"
         val newPozecon = (list.maxOfOrNull { it.pozecon } ?: 0) + 1
-        val newMod = ModyilDeyda(id = newId, neym = glefLabel, kulorLong = sourceMod.kulorLong, pozecon = newPozecon, glefz = listOf(glefLabel))
+        val newMod = ModyilDeyda(id = newId, neym = glefLabel, kulorLong = sourceMod.kulorLong, pozecon = newPozecon, glefs = listOf(glefLabel))
 
         val updatedList = list.map { mod ->
             if (mod.id == modId) {
-                val newGlefz = mod.glefz.toMutableList()
+                val newGlefs = mod.glefs.toMutableList()
                 val newKulorz = mod.glefKulorz.toMutableList()
-                newGlefz[glefIndex] = ""
+                newGlefs[glefIndex] = ""
                 if (glefIndex in newKulorz.indices) newKulorz[glefIndex] = mod.kulorLong
-                mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
+                mod.copyWith(glefs = newGlefs, glefKulorz = newKulorz)
             } else mod
         } + newMod
 
-        if (isBeldir) {
-            beldirModyilz = updatedList
+        if (isRebeld) {
+            rebeldModyilz = updatedList
         } else {
             modyilz = updatedList
         }
@@ -226,24 +228,24 @@ class AngolSteyt {
     fun replaceGlef(modId: String, fromIndex: Int, toIndex: Int) {
         convertAutoBackupToManual(modId)
         val updateFunc = { mod: ModyilDeyda ->
-            val newGlefz = mod.glefz.toMutableList()
+            val newGlefs = mod.glefs.toMutableList()
             val newKulorz = mod.glefKulorz.toMutableList()
             if (toIndex == -1) {
-                if (fromIndex in newGlefz.indices) newGlefz[fromIndex] = ""
+                if (fromIndex in newGlefs.indices) newGlefs[fromIndex] = ""
                 if (fromIndex in newKulorz.indices) newKulorz[fromIndex] = 0xFF333333
             } else {
                 val maxIdx = maxOf(fromIndex, toIndex)
-                while (newGlefz.size <= maxIdx) newGlefz.add("")
+                while (newGlefs.size <= maxIdx) newGlefs.add("")
                 while (newKulorz.size <= maxIdx) newKulorz.add(0xFF333333)
-                newGlefz[toIndex] = newGlefz[fromIndex]
+                newGlefs[toIndex] = newGlefs[fromIndex]
                 newKulorz[toIndex] = newKulorz[fromIndex]
-                newGlefz[fromIndex] = ""
+                newGlefs[fromIndex] = ""
                 newKulorz[fromIndex] = 0xFF333333
             }
-            mod.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
+            mod.copyWith(glefs = newGlefs, glefKulorz = newKulorz)
         }
-        if (beldirModyilz.any { it.id == modId }) {
-            beldirModyilz = beldirModyilz.map { if (it.id == modId) updateFunc(it) else it }
+        if (rebeldModyilz.any { it.id == modId }) {
+            rebeldModyilz = rebeldModyilz.map { if (it.id == modId) updateFunc(it) else it }
         } else {
             modyilz = modyilz.map { if (it.id == modId) updateFunc(it) else it }
         }
@@ -259,8 +261,8 @@ class AngolSteyt {
         }
     }
 
-    fun swopBeldirModyilz(fromPozecon: Int, toPozecon: Int) {
-        beldirModyilz = beldirModyilz.map { mod ->
+    fun swopRebeldModyilz(fromPozecon: Int, toPozecon: Int) {
+        rebeldModyilz = rebeldModyilz.map { mod ->
             when (mod.pozecon) {
                 fromPozecon -> mod.copyWith(pozecon = toPozecon)
                 toPozecon -> mod.copyWith(pozecon = fromPozecon)
@@ -270,14 +272,14 @@ class AngolSteyt {
     }
 
 
-    /** Move a beldir module to the next free sideline position (disconnected but not deleted). */
-    fun muvBeldModyilAwdirSpeys(pozecon: Int) {
-        val mod = beldirModyilz.find { it.pozecon == pozecon } ?: return
+    /** Move a rebeld module to the next free sideline position (disconnected but not deleted). */
+    fun muvRebeldModjilAwdirSpeys(pozecon: Int) {
+        val mod = rebeldModyilz.find { it.pozecon == pozecon } ?: return
         if (PROTECTED_IDS.contains(mod.id)) return
-        val occupiedPozecons = beldirModyilz.map { it.pozecon }.toSet()
-        var newPozecon = (beldirModyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
+        val occupiedPozecons = rebeldModyilz.map { it.pozecon }.toSet()
+        var newPozecon = (rebeldModyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
         while (occupiedPozecons.contains(newPozecon)) newPozecon++
-        beldirModyilz = beldirModyilz.map {
+        rebeldModyilz = rebeldModyilz.map {
             if (it.pozecon == pozecon) it.copyWith(pozecon = newPozecon) else it
         }
     }
@@ -288,53 +290,53 @@ class AngolSteyt {
         modyilz = modyilz + modToCopy.copyWith(id = newId, pozecon = toPozecon, ezAktiv = false)
     }
 
-    fun kopeBeldirModyilTuEmpt(fromPozecon: Int, toPozecon: Int) {
-        val modToCopy = beldirModyilz.find { it.pozecon == fromPozecon } ?: return
-        val newId = "mod_${beldirModyilz.size + 1}_${getCurrentTimeMillis()}"
-        beldirModyilz = beldirModyilz + modToCopy.copyWith(id = newId, pozecon = toPozecon, ezAktiv = false)
+    fun kopeRebeldModyilTuEmpt(fromPozecon: Int, toPozecon: Int) {
+        val modToCopy = rebeldModyilz.find { it.pozecon == fromPozecon } ?: return
+        val newId = "mod_${rebeldModyilz.size + 1}_${getCurrentTimeMillis()}"
+        rebeldModyilz = rebeldModyilz + modToCopy.copyWith(id = newId, pozecon = toPozecon, ezAktiv = false)
     }
 
     fun muvModyilTuParent(index: Int) {
         // No-op for Hub
     }
 
-    fun createBackupIfNeeded(): Boolean {
+    fun kreyeytBakupEfNeded(): Boolean {
         val currentKeypad = modyilz.find { it.type == "keypad" } ?: return false
-        val existingAutoBackup = beldirModyilz.find { it.id == "auto_backup" }
+        val existingAutoBackup = rebeldModyilz.find { it.id == "auto_backup" }
         if (existingAutoBackup != null) return false
         
-        val isDuplicate = beldirModyilz.any { it.glefz == currentKeypad.glefz && it.glefKulorz == currentKeypad.glefKulorz }
+        val isDuplicate = rebeldModyilz.any { it.glefs == currentKeypad.glefs && it.glefKulorz == currentKeypad.glefKulorz }
         if (isDuplicate) return false
         
-        val newPozecon = (beldirModyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
+        val newPozecon = (rebeldModyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
         val backupMod = currentKeypad.copyWith(
             id = "auto_backup",
             neym = "kepad beld",
             pozecon = newPozecon,
             ezAktiv = false
         )
-        beldirModyilz = beldirModyilz + backupMod
+        rebeldModyilz = rebeldModyilz + backupMod
         return true
     }
 
-    fun copyModuleToDaylKeypad(fromIndexInBeldir: Int) {
-        val sourceMod = beldirModyilz.find { it.pozecon == fromIndexInBeldir + 1 } ?: return
+    fun kopeModjilTuDaylKepad(fromIndexInRebeld: Int) {
+        val sourceMod = rebeldModyilz.find { it.pozecon == fromIndexInRebeld + 1 } ?: return
         
         val currentKeypad = modyilz.find { it.type == "keypad" }
         if (currentKeypad != null) {
-            val isDuplicate = beldirModyilz.any { it.glefz == currentKeypad.glefz && it.glefKulorz == currentKeypad.glefKulorz }
+            val isDuplicate = rebeldModyilz.any { it.glefs == currentKeypad.glefs && it.glefKulorz == currentKeypad.glefKulorz }
             if (!isDuplicate) {
-                beldirModyilz = beldirModyilz.map { 
+                rebeldModyilz = rebeldModyilz.map { 
                     if (it.id == "auto_backup") it.copyWith(id = "backup_${getCurrentTimeMillis()}", neym = "Backup ${getCurrentTimeMillis() % 1000}") else it 
                 }
-                val newPozecon = (beldirModyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
+                val newPozecon = (rebeldModyilz.maxOfOrNull { it.pozecon } ?: 0) + 1
                 val backupMod = currentKeypad.copyWith(
                     id = "auto_backup",
                     neym = "kepad beld",
                     pozecon = newPozecon,
                     ezAktiv = false
                 )
-                beldirModyilz = beldirModyilz + backupMod
+                rebeldModyilz = rebeldModyilz + backupMod
             }
         }
 
@@ -343,17 +345,17 @@ class AngolSteyt {
                 mod.copyWith(
                     neym = sourceMod.neym,
                     kulor = sourceMod.kulor,
-                    glefz = sourceMod.glefz,
+                    glefs = sourceMod.glefs,
                     glefKulorz = sourceMod.glefKulorz
                 )
             } else mod
         }
     }
 
-    fun copyModuleToBeldir(fromIndexInDayl: Int) {
+    fun copyModuleToRebeld(fromIndexInDayl: Int) {
         val sourceMod = modyilz.find { it.pozecon == fromIndexInDayl + 1 } ?: return
-        val newId = "mod_${beldirModyilz.size + 1}_${getCurrentTimeMillis()}"
-        val occupiedPozecons = beldirModyilz.map { it.pozecon }.toSet()
+        val newId = "mod_${rebeldModyilz.size + 1}_${getCurrentTimeMillis()}"
+        val occupiedPozecons = rebeldModyilz.map { it.pozecon }.toSet()
         var newPozecon = 4
         while (occupiedPozecons.contains(newPozecon)) {
             newPozecon++
@@ -363,7 +365,7 @@ class AngolSteyt {
             pozecon = newPozecon,
             ezAktiv = false
         )
-        beldirModyilz = beldirModyilz + copiedMod
+        rebeldModyilz = rebeldModyilz + copiedMod
     }
 
     fun replaceModyil(fromPozecon: Int, toPozecon: Int) {
@@ -375,44 +377,44 @@ class AngolSteyt {
         }.filter { it.pozecon != fromPozecon }
     }
 
-    fun replaceBeldirModyil(fromPozecon: Int, toPozecon: Int) {
-        val sourceMod = beldirModyilz.find { it.pozecon == fromPozecon } ?: return
-        beldirModyilz = beldirModyilz.map { mod ->
+    fun replaceRebeldModyil(fromPozecon: Int, toPozecon: Int) {
+        val sourceMod = rebeldModyilz.find { it.pozecon == fromPozecon } ?: return
+        rebeldModyilz = rebeldModyilz.map { mod ->
             if (mod.pozecon == toPozecon) {
                 sourceMod.copyWith(pozecon = toPozecon)
             } else mod
         }.filter { it.pozecon != fromPozecon }
     }
 
-    fun muvBeldirModyilEntuFoldir(sourceIndex: Int, targetIndex: Int) {
-        val sourceMod = beldirModyilz.find { it.pozecon == sourceIndex + 1 } ?: return
-        val targetMod = beldirModyilz.find { it.pozecon == targetIndex + 1 } ?: return
+    fun muvRebeldModyilEntuFoldir(sourceIndex: Int, targetIndex: Int) {
+        val sourceMod = rebeldModyilz.find { it.pozecon == sourceIndex + 1 } ?: return
+        val targetMod = rebeldModyilz.find { it.pozecon == targetIndex + 1 } ?: return
         if (PROTECTED_IDS.contains(sourceMod.id)) return
         if (targetMod.type != "keypad") return
         convertAutoBackupToManual(targetMod.id)
-        val newGlefz = targetMod.glefz.toMutableList()
+        val newGlefs = targetMod.glefs.toMutableList()
         val newKulorz = targetMod.glefKulorz.toMutableList()
-        if (newGlefz.isEmpty()) {
-            newGlefz.add(targetMod.neym)
+        if (newGlefs.isEmpty()) {
+            newGlefs.add(targetMod.neym)
             newKulorz.add(targetMod.kulorLong)
         }
         var emptyIdx = -1
-        for (i in 1 until newGlefz.size) {
-            if (newGlefz[i].isEmpty()) {
+        for (i in 1 until newGlefs.size) {
+            if (newGlefs[i].isEmpty()) {
                 emptyIdx = i
                 break
             }
         }
         if (emptyIdx == -1) {
-            emptyIdx = newGlefz.size
+            emptyIdx = newGlefs.size
         }
-        while (newGlefz.size <= emptyIdx) newGlefz.add("")
+        while (newGlefs.size <= emptyIdx) newGlefs.add("")
         while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333)
-        newGlefz[emptyIdx] = sourceMod.neym
+        newGlefs[emptyIdx] = sourceMod.neym
         newKulorz[emptyIdx] = sourceMod.kulorLong
-        beldirModyilz = beldirModyilz.map { m ->
+        rebeldModyilz = rebeldModyilz.map { m ->
             if (m.id == targetMod.id) {
-                m.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
+                m.copyWith(glefs = newGlefs, glefKulorz = newKulorz)
             } else m
         }.filter { it.id != sourceMod.id }
     }
@@ -421,46 +423,46 @@ class AngolSteyt {
         val sourceMod = modyilz.find { it.pozecon == sourceIndex + 1 } ?: return
         val targetMod = modyilz.find { it.pozecon == targetIndex + 1 } ?: return
         if (targetMod.type == "rebeld" && sourceMod.type == "keypad") {
-            copyModuleToBeldir(sourceIndex)
+            copyModuleToRebeld(sourceIndex)
             return
         }
         if (PROTECTED_IDS.contains(sourceMod.id)) return
         if (targetMod.type == "rebeld") {
-            copyModuleToBeldir(sourceIndex)
+            copyModuleToRebeld(sourceIndex)
             return
         }
         if (targetMod.type != "keypad") return
-        val newGlefz = targetMod.glefz.toMutableList()
+        val newGlefs = targetMod.glefs.toMutableList()
         val newKulorz = targetMod.glefKulorz.toMutableList()
-        if (newGlefz.isEmpty()) {
-            newGlefz.add(targetMod.neym)
+        if (newGlefs.isEmpty()) {
+            newGlefs.add(targetMod.neym)
             newKulorz.add(targetMod.kulorLong)
         }
         var emptyIdx = -1
-        for (i in 1 until newGlefz.size) {
-            if (newGlefz[i].isEmpty()) {
+        for (i in 1 until newGlefs.size) {
+            if (newGlefs[i].isEmpty()) {
                 emptyIdx = i
                 break
             }
         }
         if (emptyIdx == -1) {
-            emptyIdx = newGlefz.size
+            emptyIdx = newGlefs.size
         }
-        while (newGlefz.size <= emptyIdx) newGlefz.add("")
+        while (newGlefs.size <= emptyIdx) newGlefs.add("")
         while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333)
-        newGlefz[emptyIdx] = sourceMod.neym
+        newGlefs[emptyIdx] = sourceMod.neym
         newKulorz[emptyIdx] = sourceMod.kulorLong
         modyilz = modyilz.map { m ->
             if (m.id == targetMod.id) {
-                m.copyWith(glefz = newGlefz, glefKulorz = newKulorz)
+                m.copyWith(glefs = newGlefs, glefKulorz = newKulorz)
             } else m
         }.filter { it.id != sourceMod.id }
     }
 
     fun reset() {
         modyilz = listOf(
-            ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefz = listOf("angol"), type = "hub"),
-            ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, glefz = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"),
+            ModyilDeyda(id = "dayl", neym = "angol", kulorLong = Color(0xFF000000).toArgb().toLong(), pozecon = 1, ezAktiv = false, glefs = listOf("angol"), type = "hub"),
+            ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"),
             ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, type = "rebeld"),
             ModyilDeyda(id = "mod4", neym = "mod4", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, ezAktiv = false),
             ModyilDeyda(id = "mod5", neym = "mod5", kulorLong = Color(0xFF0000FF).toArgb().toLong(), pozecon = 5, ezAktiv = false),

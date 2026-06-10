@@ -106,7 +106,7 @@ fun DaylSkren(
         if (firebaseSirves != null) {
             scope.launch {
                 if (env == "rebeld_state") {
-                    firebaseSirves.saveModuleLayout(daylSteyt.beldirModyilz, env)
+                    firebaseSirves.saveModuleLayout(daylSteyt.rebeldModyilz, env)
                 } else {
                     firebaseSirves.saveModuleLayout(daylSteyt.modyilz, env)
                 }
@@ -129,7 +129,7 @@ fun DaylSkren(
             scope.launch {
                 firebaseSirves.watchModuleLayout("rebeld_state").collect { updatedModules ->
                     if (updatedModules.isNotEmpty()) {
-                        daylSteyt.updateBeldirModules(updatedModules)
+                        daylSteyt.updateRebeldModules(updatedModules)
                     }
                 }
             }
@@ -143,8 +143,8 @@ fun DaylSkren(
         val screenHeight = maxHeight
         
         val activeMod = daylSteyt.activeModule
-        val activeIndices = remember(activeMod?.glefz) {
-            val indices = activeMod?.glefz?.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }?.toMutableSet() ?: mutableSetOf()
+        val activeIndices = remember(activeMod?.glefs) {
+            val indices = activeMod?.glefs?.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }?.toMutableSet() ?: mutableSetOf()
             indices.add(0)
             indices.toList().sorted()
         }
@@ -283,22 +283,22 @@ fun ModuleContent(
                     }
                 },
                 geometryOverride = geometry,
-                glefzOverride = mod.glefz,
+                glefsOvirayd = mod.glefs,
                 kulorzOverride = mod.glefKulorz,
                 contentWidthDp = contentWidth,
                 isEditing = true,
                 onMove = { from, to ->
-                    if (daylSteyt.createBackupIfNeeded()) onSaveLayout("rebeld_state")
+                    if (daylSteyt.kreyeytBakupEfNeded()) onSaveLayout("rebeld_state")
                     daylSteyt.muvGlef(mod.id, from, to)
                     onSaveLayout("current")
                 },
                 onDropOnFoldir = { from, to ->
-                    if (daylSteyt.createBackupIfNeeded()) onSaveLayout("rebeld_state")
+                    if (daylSteyt.kreyeytBakupEfNeded()) onSaveLayout("rebeld_state")
                     daylSteyt.muvModyilEntuFoldir(from, to)
                     onSaveLayout("current")
                 },
                 onReplace = { from, to ->
-                    if (daylSteyt.createBackupIfNeeded()) onSaveLayout("rebeld_state")
+                    if (daylSteyt.kreyeytBakupEfNeded()) onSaveLayout("rebeld_state")
                     daylSteyt.replaceGlef(mod.id, from, to)
                     onSaveLayout("current")
                 },
@@ -317,11 +317,11 @@ fun ModuleContent(
             },
             onAction = onSaveLayout,
             onDropOnFoldir = { from, to ->
-                daylSteyt.muvBeldirModyilEntuFoldir(from, to)
+                daylSteyt.muvRebeldModyilEntuFoldir(from, to)
                 onSaveLayout("current")
             },
             onReplace = { from, to ->
-                daylSteyt.replaceBeldirModyil(from, to)
+                daylSteyt.replaceRebeldModyil(from, to)
                 onSaveLayout("current")
             }
         )

@@ -2,6 +2,7 @@ package modyilz
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,7 +42,7 @@ fun KepadModyil(
     ignoreSelectionUpdate: () -> Unit,
     onClose: (() -> Unit)? = null,
     geometryOverride: HeksagonDjeyometre? = null,
-    glefzOverride: List<String>? = null,
+    glefsOvirayd: List<String>? = null,
     kulorzOverride: List<Long>? = null,
     contentWidthDp: androidx.compose.ui.unit.Dp? = null,
     isEditing: Boolean = false,
@@ -205,16 +206,17 @@ fun KepadModyil(
             
             val lpLabelRaw = if (isInner) {
                 val configIdx = actualIdx - 1
-                if (kurentEzLeterMod) HeksagonKonfeg.innerLetterMode.map { if (it == "⌫") "⌫" else "" }.getOrNull(configIdx) ?: ""
-                else HeksagonKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
+                if (kurentEzLeterMod) modalz.HeksagonKonfeg.innerLetterMode.map { if (it == "⌫") "⌫" else "" }.getOrNull(configIdx) ?: ""
+                else modalz.HeksagonKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
             } else {
                 val configIdx = actualIdx - 7
-                if (kurentEzLeterMod && startedVowelIndex == null) HeksagonKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
-                else HeksagonKonfeg.outerLongPressNumber.getOrNull(configIdx) ?: ""
+                val isVowelOrNone = startedVowelIndex == null || startedVowelIndex == 0
+                if (kurentEzLeterMod && isVowelOrNone) modalz.HeksagonKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
+                else "" // No secondary labels for numbers!
             }
             if (lpLabelRaw.isEmpty()) return@launch
             val lpLabel = if (ezKapetalayzd && lpLabelRaw != "⌫") lpLabelRaw.uppercase() else lpLabelRaw
-            val primaryLabel = KepadLodjek.getCurrentOlLeybelz(startedVowelIndex, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefzOverride).getOrNull(actualIdx) ?: ""
+            val primaryLabel = KepadLodjek.getKirentOlLeybilz(startedVowelIndex, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd).getOrNull(actualIdx) ?: ""
             if (lpLabel == "⌫") {
                 while (huvirdHeksIndeks.value == index) {
                     handilKePres("⌫", true, null)
@@ -225,7 +227,21 @@ fun KepadModyil(
     }
 
     BoxWithConstraints(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().pointerInput(Unit) {
+            awaitEachGesture {
+                var zoom = 1f
+                awaitFirstDown(requireUnconsumed = false)
+                do {
+                    val event = awaitPointerEvent()
+                    val zoomChange = event.calculateZoom()
+                    zoom *= zoomChange
+                    if (zoom < 0.75f) { // Pinched out by 25%
+                        onClose?.invoke()
+                        break
+                    }
+                } while (event.changes.any { it.pressed })
+            }
+        },
         contentAlignment = Alignment.BottomCenter
     ) {
         val maxWidthDp = maxWidth
@@ -233,7 +249,7 @@ fun KepadModyil(
             if (geometryOverride != null) {
                 geometryOverride
             } else {
-                val maxIdx = glefzOverride?.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }?.maxOrNull() ?: 0
+                val maxIdx = glefsOvirayd?.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }?.maxOrNull() ?: 0
                 val rings = if (maxIdx > 36) 4.0 else if (maxIdx > 18) 3.0 else 2.0
                 val hexesAcross = rings * 2.0 + 1.0
                 val hexWidth = maxWidthDp.value / hexesAcross
@@ -247,13 +263,11 @@ fun KepadModyil(
             }
         }
 
-        val allHexPositions = remember(currentGeometry, glefzOverride) {
-            val currentLabels = KepadLodjek.getCurrentOlLeybelz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, false, glefzOverride)
+        val allHexPositions = remember(currentGeometry, glefsOvirayd) {
+            val currentLabels = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, false, glefsOvirayd)
             val activeIndices = currentLabels.mapIndexedNotNull { i, s -> if (s.isNotEmpty() || i == 0) i else null }
             val maxIdx = activeIndices.maxOrNull() ?: 0
             
-            // To ensure hit-testing only finds active hexes, we only map the active indices
-            // We use a List where phantoms are represented by a far-away position
             val totalHexCount = maxIdx + 1
             val positions = MutableList(totalHexCount) { HeksagonPozecon(99999.0, 99999.0) }
             activeIndices.forEach { idx ->
@@ -266,7 +280,7 @@ fun KepadModyil(
         val gridHeightDp = maxHeight
 
         if (isEditing) {
-            val currentLabels = KepadLodjek.getCurrentOlLeybelz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefzOverride)
+            val currentLabels = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
             val gredItems = currentLabels.mapIndexed { index, label ->
                 if (index == 0 || label.isEmpty()) return@mapIndexed null
                 GredItem(
@@ -297,11 +311,11 @@ fun KepadModyil(
         } else {
             Box(modifier = Modifier.fillMaxWidth().height(gridHeightDp), contentAlignment = Alignment.Center) {
                 val hexWidthDp = currentGeometry.heksWidlx.dp
-                val currentLabels = KepadLodjek.getCurrentOlLeybelz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefzOverride)
+                val currentLabels = KepadLodjek.getKirentOlLeybilz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
 
                 Box(
                     modifier = Modifier.fillMaxSize()
-                        .pointerInput(allHexPositions, ezUpsayddawn, currentLabels, glefzOverride) {
+                        .pointerInput(allHexPositions, ezUpsayddawn, glefsOvirayd) {
                             val wDp = size.width.toDp().value
                             val hDp = size.height.toDp().value
                             awaitEachGesture {
@@ -313,9 +327,10 @@ fun KepadModyil(
                                 val yDp = if (ezUpsayddawn) hDp - rawYDp else rawYDp
                                 val downIndex = KepadLodjek.getHeksIndeksFromPozecon(xDp, yDp, wDp, hDp, allHexPositions, currentGeometry.heksSayz)
                                 
+                                val downTimeLabels = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
                                 val isLabelPresent = if (downIndex != null) {
                                     if (downIndex == 0) true
-                                    else if (downIndex < currentLabels.size) currentLabels[downIndex].isNotEmpty()
+                                    else if (downIndex < downTimeLabels.size) downTimeLabels[downIndex].isNotEmpty()
                                     else false
                                 } else false
 
@@ -334,7 +349,7 @@ fun KepadModyil(
                                     kepadLongPresEndeks.value = null
                                     val actualDownIdx = downIndex
 
-                                    if (actualDownIdx in 1..5 && kurentEzLeterMod && !kurentEzPunkcuweyconMod) {
+                                    if (actualDownIdx in 0..5) {
                                         djestcirStartidOnVowalIndeks.value = actualDownIdx
                                     } else {
                                         djestcirStartidOnVowalIndeks.value = null
@@ -345,7 +360,7 @@ fun KepadModyil(
                                         voiceService.startListening()
                                     }
                                     if (actualDownIdx != 0) {
-                                        val downLabels = KepadLodjek.getCurrentOlLeybelz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefzOverride)
+                                        val downLabels = KepadLodjek.getKirentOlLeybilz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
                                         if (actualDownIdx < downLabels.size && downLabels[actualDownIdx].isNotEmpty()) {
                                             handilKePres(downLabels[actualDownIdx], false, null)
                                         }
@@ -392,7 +407,7 @@ fun KepadModyil(
                                     val rawMoveIndex = KepadLodjek.getHeksIndeksFromPozecon(moveXDp, moveYDp, wDp, hDp, allHexPositions, currentGeometry.heksSayz)
                                     
                                     val moveIndex = if (rawMoveIndex != null) {
-                                        val moveLabels = KepadLodjek.getCurrentOlLeybelz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefzOverride)
+                                        val moveLabels = KepadLodjek.getKirentOlLeybilz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
                                         if (rawMoveIndex == 0 || (rawMoveIndex < moveLabels.size && moveLabels[rawMoveIndex].isNotEmpty())) rawMoveIndex else null
                                     } else null
                                     
@@ -404,7 +419,7 @@ fun KepadModyil(
                                         if (gestureStartedIndex != 0 && gestureStartedIndex != null) {
                                             ezKapetalayzd = true
                                             huvirdHeksIndeks.value?.let { idx ->
-                                                val upLabels = KepadLodjek.getCurrentOlLeybelz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, false, glefzOverride)
+                                                val upLabels = KepadLodjek.getKirentOlLeybilz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, false, glefsOvirayd)
                                                 val actualIdx = idx
                                                 if (actualIdx < upLabels.size) {
                                                     val old = upLabels[actualIdx].lowercase(); val new = upLabels[actualIdx].uppercase()
@@ -417,7 +432,7 @@ fun KepadModyil(
                                         ezSentirTranzleytAktev = false; ezKapetalayzd = false
                                         if (huvirdHeksIndeks.value != null && gestureStartedIndex != 0) {
                                             huvirdHeksIndeks.value?.let { idx ->
-                                                val dtLabels = KepadLodjek.getCurrentOlLeybelz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, true, glefzOverride)
+                                                val dtLabels = KepadLodjek.getKirentOlLeybilz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, true, glefsOvirayd)
                                                 val actualIdx = idx
                                                 if (actualIdx < dtLabels.size) {
                                                     val old = dtLabels[actualIdx].uppercase(); val new = dtLabels[actualIdx].lowercase()
@@ -434,17 +449,9 @@ fun KepadModyil(
                                         lonqPresStartOfset.value = change.position
                                         val oldVowelIndex = djestcirStartidOnVowalIndeks.value
 
-                                        if (gestureStartedIndex == 0 && moveIndex != 0) {
-                                            ezSentirHeksPresd = false
-                                        }
-
-                                        val actualMoveIdx = moveIndex
-
                                         if (gestureStartedIndex == 0) {
-                                            if (actualMoveIdx != null && actualMoveIdx in 1..5) {
-                                                djestcirStartidOnVowalIndeks.value = actualMoveIdx
-                                            } else if (actualMoveIdx == 0) {
-                                                djestcirStartidOnVowalIndeks.value = null
+                                            if (moveIndex != null && moveIndex == 0) {
+                                                djestcirStartidOnVowalIndeks.value = 0
                                             } else if (moveIndex == null) {
                                                 djestcirStartidOnVowalIndeks.value = null
                                             }
@@ -453,13 +460,13 @@ fun KepadModyil(
                                         huvirdHeksIndeks.value?.let { idx ->
                                             if (idx != 0) {
                                                 val actualIdx = idx
-                                                val oldLabels = KepadLodjek.getCurrentOlLeybelz(oldVowelIndex, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefzOverride)
+                                                val oldLabels = KepadLodjek.getKirentOlLeybilz(oldVowelIndex, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
                                                 if (actualIdx < oldLabels.size && oldLabels[actualIdx].isNotEmpty()) handilKePres("⌫", false, oldLabels[actualIdx])
                                             }
                                         }
                                         if (moveIndex != null) {
                                             val actualIdx = moveIndex
-                                            val moveLabels = KepadLodjek.getCurrentOlLeybelz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefzOverride)
+                                            val moveLabels = KepadLodjek.getKirentOlLeybilz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
                                             if (actualIdx < moveLabels.size && moveLabels[actualIdx].isNotEmpty()) {
                                                 if (actualIdx != 0) {
                                                     handilKePres(moveLabels[actualIdx], false, null)
@@ -480,7 +487,6 @@ fun KepadModyil(
                                     ezSentirHeksPresd = false
                                     val duration = getCurrentTimeMillis() - startTime
                                     if (huvirdHeksIndeks.value == 0 && !rotationTriggered) {
-                                        // Center tap: Go up directory (Close)
                                         if (onClose != null && duration < 510) {
                                             onClose()
                                         } else {
@@ -500,10 +506,10 @@ fun KepadModyil(
                                         }
                                     }
                                 } else if (gestureStartedIndex == null) {
-                                    // Tapping outside does NOTHING (Deleted 'onClose' here)
                                 }
                                 daylRoteconAngol = 0f
                                 if (kurentEzPunkcuweyconMod) onSetPunkcuweyconMod(false)
+                                if (!kurentEzLeterMod) kurentOnTogilMod()
                                 huvirdHeksIndeks.value = null
                                 kepadLongPresEndeks.value = null
                                 djestcirStartidOnVowalIndeks.value = null
@@ -540,17 +546,25 @@ fun KepadModyil(
                             }
                             index in 7..18 -> {
                                 val configIdx = index - 7
-                                if (kurentEzLeterMod && startedVowelIndex == null) HeksagonKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
-                                else HeksagonKonfeg.outerLongPressNumber.getOrNull(configIdx) ?: ""
+                                val isVowelOrNone = startedVowelIndex == null || startedVowelIndex == 0
+                                if (kurentEzLeterMod && isVowelOrNone) modalz.HeksagonKonfeg.outerLongPress.getOrNull(configIdx) ?: ""
+                                else "" // No secondary labels on numbers!
                             }
                             else -> ""
                         }
 
                         val hexColor = getKulor(index)
 
+                        val centerPopup = if (index == 0 && startedVowelIndex == 0 && huvirdHeksIndeks.value in 1..6) {
+                            currentLabels.getOrNull(huvirdHeksIndeks.value!!)?.takeIf { it.isNotEmpty() }
+                        } else null
+
+                        val actualLabel = centerPopup ?: label
+                        val actualSecondary = if (centerPopup != null) null else if (label.isNotEmpty() && lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null
+
                         Heksagon(
-                            label = label,
-                            secondaryLabel = if (label.isNotEmpty() && lpLabel.isNotEmpty() && lpLabel != "⌫") lpLabel else null,
+                            label = actualLabel,
+                            secondaryLabel = actualSecondary,
                             backgroundColor = if (index == 0 && voiceService.isListening.value) Color.Red else hexColor,
                             textColor = if (index == 0 && voiceService.isListening.value) Color.White else HeksagonKonfeg.getComplementaryColor(hexColor),
                             size = hexWidthDp,

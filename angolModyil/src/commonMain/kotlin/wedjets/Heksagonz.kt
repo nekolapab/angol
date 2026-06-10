@@ -128,7 +128,7 @@ fun Heksagon(
     val totalLength = if (ezKonsestentSayz) 2f else (label.length + (secondaryLabel?.length ?: 0) + (if (secondaryLabel != null) 0.5f else 0f))
     val safeLength = totalLength.coerceAtLeast(0.8f)
     val autoFontSize = (size.value * 2f) / (safeLength * 0.5f + 1.75f)
-    val finalRawFontSize = (autoFontSize * (fontSizeFactor ?: 1f)).coerceAtMost(size.value * 1f)
+    val finalRawFontSize = (autoFontSize * (fontSizeFactor ?: 1f)).coerceAtMost(size.value * (15f / 12f))
     val finalFontSize = (finalRawFontSize / density.fontScale).sp
 
     // Glow config: 12/12 radius, 12/12 intensity (alpha 1.0)
@@ -137,7 +137,7 @@ fun Heksagon(
 
     Box(
         modifier = modifier
-            .size(width = size, height = hexHeight),
+            .size(width = size * 1.2f, height = hexHeight),
         contentAlignment = Alignment.Center
     ) {
         HeksagonTutcboks(
@@ -235,8 +235,9 @@ fun Heksagon(
                             fontSize = finalFontSize, 
                             fontWeight = FontWeight.Bold, 
                             textAlign = TextAlign.Center, 
-                            softWrap = false,
-                            maxLines = 1
+                            softWrap = true,
+                            maxLines = Int.MAX_VALUE,
+                            lineHeight = finalFontSize * 1.1f
                         )
                     }
                 }

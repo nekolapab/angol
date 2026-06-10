@@ -2,6 +2,9 @@ package modyilz
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -9,10 +12,14 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import modalz.ModyilDeyda
 import modalz.HeksagonKonfeg
 import steyt.AngolSteyt
@@ -46,9 +53,9 @@ fun Rebeld(
     }
 
     if (selectedModuleId != null) {
-        val mod = daylSteyt.beldirModyilz.find { it.id == selectedModuleId }
+        val mod = daylSteyt.rebeldModyilz.find { it.id == selectedModuleId }
         if (mod != null) {
-            GlefsEdetSkren(
+            BeldWedjet(
                 mod = mod,
                 onBack = { selectedModuleId = null },
                 onReneymGlef = { index, label ->
@@ -88,7 +95,7 @@ fun Rebeld(
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
-        val gredItems = daylSteyt.beldirModyilz.filter { it.type != "hub" }.map { mod ->
+        val gredItems = daylSteyt.rebeldModyilz.filter { it.type != "hub" }.map { mod ->
             GredItem(
                 index = mod.pozecon - 1,
                 label = mod.neym,
@@ -117,9 +124,31 @@ fun Rebeld(
             )
         }
 
-        val daylModule = daylSteyt.beldirModyilz.find { it.type == "hub" } ?: daylSteyt.beldirModyilz.first()
+        val daylModule = daylSteyt.rebeldModyilz.find { it.type == "hub" } ?: daylSteyt.rebeldModyilz.first()
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        val goBack = {
+            if (selectedModuleId != null) {
+                selectedModuleId = null
+            } else {
+                onClose()
+            }
+        }
+
+        Column(modifier = Modifier.fillMaxSize().pointerInput(Unit) {
+            awaitEachGesture {
+                var zoom = 1f
+                awaitFirstDown(requireUnconsumed = false)
+                do {
+                    val event = awaitPointerEvent()
+                    val zoomChange = event.calculateZoom()
+                    zoom *= zoomChange
+                    if (zoom < 0.75f) { // Pinched out by 25%
+                        goBack()
+                        break
+                    }
+                } while (event.changes.any { it.pressed })
+            }
+        }) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -143,25 +172,25 @@ fun Rebeld(
                     onMove = { from, to ->
                         if (to == -1) {
                             // Dropped outside grid: send to sidelines (disconnected, not deleted)
-                            daylSteyt.muvBeldModyilAwdirSpeys(from + 1)
+                            daylSteyt.muvRebeldModjilAwdirSpeys(from + 1)
                         } else {
-                            daylSteyt.swopBeldirModyilz(from + 1, to + 1)
+                            daylSteyt.swopRebeldModyilz(from + 1, to + 1)
                         }
                         syncRebeld()
                     },
                     onCopyToEmpty = { from, to ->
-                        daylSteyt.kopeBeldirModyilTuEmpt(from + 1, to + 1)
+                        daylSteyt.kopeRebeldModyilTuEmpt(from + 1, to + 1)
                         syncRebeld()
                     },
                     onMoveToCenter = { from ->
                         moduleToReplace = from
                     },
                     onDropOnFoldir = { from, to ->
-                        daylSteyt.muvBeldirModyilEntuFoldir(from, to)
+                        daylSteyt.muvRebeldModyilEntuFoldir(from, to)
                         syncRebeld()
                     },
                     onDelete = { index ->
-                        val mod = daylSteyt.beldirModyilz.find { it.pozecon == index + 1 }
+                        val mod = daylSteyt.rebeldModyilz.find { it.pozecon == index + 1 }
                         if (mod != null) {
                             daylSteyt.deletModyil(mod.id)
                             syncRebeld()
@@ -171,17 +200,17 @@ fun Rebeld(
                         if (index == 0) { // Center
                             onClose()
                         } else {
-                            val clickedMod = daylSteyt.beldirModyilz.find { it.pozecon == index + 1 }
+                            val clickedMod = daylSteyt.rebeldModyilz.find { it.pozecon == index + 1 }
                             if (clickedMod != null && clickedMod.id != "dayl" && clickedMod.id != "rebeld") {
                                 selectedModuleId = clickedMod.id
                             }
                         }
                     },
                     onReplace = { from, to ->
-                        daylSteyt.replaceBeldirModyil(from + 1, to + 1)
+                        daylSteyt.replaceRebeldModyil(from + 1, to + 1)
                         syncRebeld()
                     },
-                    fontSizeFactor = 10f / 12f
+                    fontSizeFactor = 14f / 12f
                 )
             }
         }
@@ -193,7 +222,7 @@ fun Rebeld(
                 text = { Text("lhes wel repleys lha aktev kepad.", color = Color.LightGray) },
                 confirmButton = {
                     TextButton(onClick = {
-                        daylSteyt.copyModuleToDaylKeypad(moduleToReplace!!)
+                        daylSteyt.kopeModjilTuDaylKepad(moduleToReplace!!)
                         onAction("current")
                         moduleToReplace = null
                     }) {
@@ -212,7 +241,7 @@ fun Rebeld(
 }
 
 @Composable
-fun GlefsEdetSkren(
+fun BeldWedjet(
     mod: ModyilDeyda,
     onBack: () -> Unit,
     onReneymGlef: (Int, String) -> Unit,
@@ -231,8 +260,8 @@ fun GlefsEdetSkren(
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
-        val activeIndices = remember(mod.glefz) {
-            val indices = mod.glefz.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }.toMutableSet()
+        val activeIndices = remember(mod.glefs) {
+            val indices = mod.glefs.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }.toMutableSet()
             indices.add(0)
             indices.toList().sorted()
         }
@@ -254,7 +283,7 @@ fun GlefsEdetSkren(
             )
         }
 
-        val centerLabel = mod.glefz.getOrNull(0) ?: " "
+        val centerLabel = mod.glefs.getOrNull(0) ?: " "
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -267,11 +296,19 @@ fun GlefsEdetSkren(
                             value = newModNeym,
                             onValueChange = { newModNeym = it },
                             modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = {
+                                onReneymMod(newModNeym)
+                                isEditingModNeym = false
+                                onBack()
+                            }),
                             colors = TextFieldDefaults.textFieldColors(textColor = Color.White)
                         )
                         IconButton(onClick = {
                             onReneymMod(newModNeym)
                             isEditingModNeym = false
+                            onBack()
                         }) { Icon(Icons.Default.Edit, "Save", tint = Color.Green) }
                     }
                 } else {
@@ -283,7 +320,7 @@ fun GlefsEdetSkren(
             }
 
             Box(modifier = Modifier.weight(1f)) {
-                val currentLabels = KepadLodjek.getCurrentOlLeybelz(null, true, false, false, mod.glefz)
+                val currentLabels = KepadLodjek.getKirentOlLeybilz(null, true, false, false, mod.glefs)
                 val itemsForGred = currentLabels.mapIndexed { index, label ->
                     if (index == 0 || label.isEmpty()) return@mapIndexed null
                     val colorLong = mod.glefKulorz.getOrNull(index) ?: mod.kulor.toArgb().toLong()
@@ -311,7 +348,7 @@ fun GlefsEdetSkren(
                             newGlefLabel = currentLabels.getOrNull(index) ?: ""
                         }
                     },
-                    fontSizeFactor = 13f/12f
+                    fontSizeFactor = 14f / 12f
                 )
             }
             
@@ -325,6 +362,12 @@ fun GlefsEdetSkren(
                             value = newGlefLabel,
                             onValueChange = { newGlefLabel = it },
                             modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = {
+                                onReneymGlef(editingGlefIndex!!, newGlefLabel)
+                                editingGlefIndex = null
+                            }),
                             colors = TextFieldDefaults.textFieldColors(textColor = Color.White)
                         )
                         Button(onClick = {

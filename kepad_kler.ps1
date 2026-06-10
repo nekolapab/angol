@@ -5,7 +5,7 @@ Write-Host "beldenq and updeydenq Angol Kepad..." -ForegroundColor Cyan
 # Step 1: Klin and Beld lha APK
 Write-Host "klenenq and beldenq APK..." -ForegroundColor Yellow
 ./gradlew clean
-./gradlew :kepadApekstencon:assembleDebug
+./gradlew :angolKepadAp:assembleDebug
 if ($LASTEXITCODE -ne 0) {
     Write-Host "beld feyld!" -ForegroundColor Red
     exit 1
@@ -41,7 +41,7 @@ foreach ($devays in $devaysez) {
 
     # Step 0: En-pleys updeyt
     Write-Host "updeydenq pakedj on $devays..." -ForegroundColor Yellow
-    $apkPax = Join-Path (Get-Location) "kepadApekstencon\build\outputs\apk\debug\kepadApekstencon-debug.apk"
+    $apkPax = Join-Path (Get-Location) "angolKepadAp\build\outputs\apk\debug\angolKepadAp-debug.apk"
     if (Test-Path $apkPax) {
         adb -s $devays install -r $apkPax
         if ($LASTEXITCODE -ne 0) {

@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -100,6 +101,11 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     private lateinit var audioManager: AudioManager
     private var originalSystemVol = -1
     private var dynamicGridHeightPx = 0
+    private var dynamicGridWidthPx = 0
+    private var dynamicAdjustedHeightPx = 0
+    private var dynamicGridCenterYPx = 0f
+    private var hexCentersDp: List<Pair<Float, Float>> = emptyList()
+    private var hexSayzDp: Float = 0f
 
     private var layoutUpdateReceiver: android.content.BroadcastReceiver? = null
 
@@ -433,8 +439,8 @@ private fun startVoysEnpit() {
                         }
 
                         val activeMod = daylSteyt.activeModule ?: daylSteyt.modyilz.find { it.type == "keypad" } ?: return@BoxWithConstraints
-                        val activeIndices = remember(activeMod.glefz) {
-                            val set: MutableSet<Int> = activeMod.glefz.mapIndexedNotNull { i: Int, s: String -> if (s.isNotEmpty()) i else null }.toMutableSet()
+                        val activeIndices = remember(activeMod.glefs) {
+                            val set: MutableSet<Int> = activeMod.glefs.mapIndexedNotNull { i: Int, s: String -> if (s.isNotEmpty()) i else null }.toMutableSet()
                             set.add(0)
                             set.toList().sorted()
                         }
@@ -449,10 +455,6 @@ private fun startVoysEnpit() {
                             )
                         }
 
-                        LaunchedEffect(gredDimz.height) {
-                            dynamicGridHeightPx = (gredDimz.height * resources.displayMetrics.density).toInt()
-                        }
-
                         val geometry = remember(gredDimz) {
                             HeksagonDjeyometre(
                                 heksSayz = gredDimz.heksSayz,
@@ -461,14 +463,60 @@ private fun startVoysEnpit() {
                             )
                         }
 
+                        val density = resources.displayMetrics.density
                         val hexHeightDp = (gredDimz.heksSayz * 2.0).dp
-                        val shiftUpDp = hexHeightDp * 0f
+                        val bottomShiftDp = hexHeightDp * 0.5f
+                        val topReductionDp = hexHeightDp * 0.333f // 1/3 less overlap at top
+                        
+                        // To keep hit-testing correct, we compute the expanded box dimensions
+                        val shiftUpDp = hexHeightDp * 1.5f
 
+                        val localView = LocalView.current
+                        val parentView = localView.parent as? android.view.View
+
+                        LaunchedEffect(geometry, gredDimz, parentView?.height) {
+                            val originalGridHeightPx = (gredDimz.height * density).toInt()
+                            val bottomShiftPx = (bottomShiftDp.value * density).toInt()
+                            val topReductionPx = (topReductionDp.value * density).toInt()
+                            
+                            dynamicGridHeightPx = originalGridHeightPx
+                            dynamicGridWidthPx = (gredDimz.width * density).toInt()
+                            hexSayzDp = gredDimz.heksSayz.toFloat()
+                            
+                            // App needs to be pushed up to accommodate the bottom shift + top overlap reduction
+                            dynamicAdjustedHeightPx = originalGridHeightPx + bottomShiftPx + topReductionPx
+                            
+                            // The visual center of the grid from the screen's top
+                            val screenHeight = parentView?.height ?: 0
+                            if (screenHeight > 0) {
+                                dynamicGridCenterYPx = screenHeight - bottomShiftPx - originalGridHeightPx / 2f
+                            }
+                            
+                            // Compute all displayed hex centers in dp (relative to box center)
+                            val maxIdx = activeMod.glefs.size - 1
+                            var rings = 1
+                            while (3 * rings * (rings + 1) < maxIdx) rings++
+                            val displayRings = maxOf(2, rings)
+                            val centers = mutableListOf<Pair<Float, Float>>()
+                            centers.add(Pair(geometry.sentir.x.toFloat(), geometry.sentir.y.toFloat()))
+                            for (r in 1..displayRings) {
+                                geometry.getKowordenatsForRenq(r).forEach { coord ->
+                                    val p = geometry.aksyalTuPeksel(coord.q, coord.r)
+                                    centers.add(Pair(p.x.toFloat(), p.y.toFloat()))
+                                }
+                            }
+                            hexCentersDp = centers
+                            // Force onComputeInsets to re-run with the correct hex positions
+                            localView.post { localView.requestLayout() }
+                        }
+
+                        // Expand Box bounds to capture touches on protruding hexagons (overlap strip).
+                        // By increasing height symmetrically (x2) and offsetting, the visual center remains exactly the same.
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(gredDimz.height.dp + shiftUpDp)
-                                .offset(y = -shiftUpDp)
+                                .height(gredDimz.height.dp + shiftUpDp * 2)
+                                .offset(y = shiftUpDp - bottomShiftDp)
                                 .align(Alignment.BottomCenter),
                             contentAlignment = Alignment.BottomCenter
                         ) {
@@ -486,7 +534,7 @@ private fun startVoysEnpit() {
                                 onStartAiVoys = { voiceService.startListening(isAiMode = true) },
                                 ignoreSelectionUpdate = { ignoreSelectionUpdateCount++ },
                                 geometryOverride = geometry,
-                                glefzOverride = activeMod.glefz,
+                                glefsOvirayd = activeMod.glefs,
                                 kulorzOverride = activeMod.glefKulorz,
                                 contentWidthDp = gredDimz.width.dp
                             )
@@ -544,23 +592,62 @@ private fun startVoysEnpit() {
         val totalWidth = inputView.width
         if (totalHeight <= 0) return
         // Use dynamic height if available, otherwise fallback to massive scale floor
-        val clusterHeightPx = if (dynamicGridHeightPx > 0) {
-            dynamicGridHeightPx
+        val adjustedHeightPx = if (dynamicAdjustedHeightPx > 0) {
+            dynamicAdjustedHeightPx
         } else {
-            val screenWidth = resources.displayMetrics.widthPixels
-            val hexSizePx = screenWidth / (2.0 * 2.6 + 1.0) / kotlin.math.sqrt(3.0)
-            (hexSizePx * 6.0).toInt()
+            val clusterHeightPx = if (dynamicGridHeightPx > 0) {
+                dynamicGridHeightPx
+            } else {
+                val screenWidth = resources.displayMetrics.widthPixels
+                val hexSizePx = screenWidth / (2.0 * 2.6 + 1.0) / kotlin.math.sqrt(3.0)
+                (hexSizePx * 6.0).toInt()
+            }
+            clusterHeightPx
         }
-        
-        val adjustedHeightPx = clusterHeightPx
 
         val top = totalHeight - adjustedHeightPx
         outInsets.contentTopInsets = top
         outInsets.visibleTopInsets = top
         outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
         outInsets.touchableRegion.setEmpty()
-        // Expand touch region to full screen width/height to ensure 100% responsiveness
-        outInsets.touchableRegion.union(android.graphics.Rect(0, top, totalWidth, totalHeight))
+
+        val density = resources.displayMetrics.density
+        val hexSizePx = if (hexSayzDp > 0f) hexSayzDp * density
+        else (resources.displayMetrics.widthPixels / (2.0 * 2.6 + 1.0) / kotlin.math.sqrt(3.0)).toFloat()
+
+        if (hexCentersDp.isNotEmpty()) {
+            // Exact hexagonal touch regions — one per visible hexagon
+            val gridCenterX = totalWidth / 2f
+            val gridCenterY = if (dynamicGridCenterYPx > 0f) dynamicGridCenterYPx else top + adjustedHeightPx / 2f
+            val combinedPath = android.graphics.Path()
+            hexCentersDp.forEach { (cxDp, cyDp) ->
+                val cx = gridCenterX + cxDp * density
+                val cy = gridCenterY + cyDp * density
+                val hexPath = android.graphics.Path()
+                for (i in 0..5) {
+                    // Pointy-top hex: vertices at 30°, 90°, 150°, 210°, 270°, 330°
+                    val rad = Math.toRadians(60.0 * i + 30.0)
+                    val vx = (cx + hexSizePx * kotlin.math.cos(rad)).toFloat()
+                    val vy = (cy + hexSizePx * kotlin.math.sin(rad)).toFloat()
+                    if (i == 0) hexPath.moveTo(vx, vy) else hexPath.lineTo(vx, vy)
+                }
+                hexPath.close()
+                combinedPath.addPath(hexPath)
+            }
+            val boundsF = android.graphics.RectF()
+            combinedPath.computeBounds(boundsF, true)
+            val clipRegion = android.graphics.Region(
+                (boundsF.left - 1).toInt(), (boundsF.top - 1).toInt(),
+                (boundsF.right + 1).toInt(), (boundsF.bottom + 1).toInt()
+            )
+            val hexRegion = android.graphics.Region()
+            hexRegion.setPath(combinedPath, clipRegion)
+            outInsets.touchableRegion.op(hexRegion, android.graphics.Region.Op.UNION)
+        } else {
+            // Fallback: bounding rect of keyboard + overlap strip
+            val touchTop = (top - hexSizePx * 2).toInt().coerceAtLeast(0)
+            outInsets.touchableRegion.union(android.graphics.Rect(0, touchTop, totalWidth, totalHeight))
+        }
     }
 
     override fun onWindowShown() {

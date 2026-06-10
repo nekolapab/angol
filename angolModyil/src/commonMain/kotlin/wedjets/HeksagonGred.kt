@@ -258,6 +258,18 @@ fun HeksagonGred(
         }
 
         val ghostItem = remember(items, draggingIndex) { items.firstOrNull { it.index == draggingIndex } }
+        
+        if (!isCopyDragActive && ghostItem != null && draggingIndex != null && currentHoverIndex == null) {
+            val xDp = with(density) { dragOffset.x.toDp() }; val yDp = with(density) { dragOffset.y.toDp() }
+            Heksagon(
+                label = ghostItem.label, backgroundColor = ghostItem.color, textColor = HeksagonKonfeg.getComplementaryColor(ghostItem.color),
+                size = hexWidthDp, fontSizeFactor = fontSizeFactor, onTap = null, onLongPress = null,
+                ezPresd = false,
+                ezGlowenq = true,
+                modifier = Modifier.align(Alignment.TopStart).offset(x = xDp - (hexWidthDp / 2), y = yDp - ((hexWidthDp * (2f / kotlin.math.sqrt(3f))) / 2))
+            )
+        }
+
         if (isCopyDragActive && ghostItem != null && draggingIndex != null) {
             val xDp = with(density) { dragOffset.x.toDp() }; val yDp = with(density) { dragOffset.y.toDp() }
             Heksagon(

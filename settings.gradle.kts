@@ -19,6 +19,6 @@ dependencyResolutionManagement {
 
 include(":angolModyil")
 include(":angolDaylAp")
-include(":kepadApekstencon")
+include(":angolKepadAp")
 include(":kepadModyil")
-include(":rebeldApadon")
+include(":angolRebeldAp")

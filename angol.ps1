@@ -1,6 +1,6 @@
 # Fast Updeyt Entayr Angol Sestem (Dayl + Kepad)
 Write-Host "beldenq..." -ForegroundColor Cyan
-./gradlew :angolDaylAp:assembleDebug :kepadApekstencon:assembleDebug
+./gradlew :angolDaylAp:assembleDebug :angolKepadAp:assembleDebug
 
 $devaysez = adb devices | Select-String -Pattern "\tdevice$" | ForEach-Object { $_.ToString().Split("`t")[0] }
 
@@ -22,7 +22,7 @@ if ($devaysez.Count -eq 0) {
 foreach ($dev in $devaysez) {
     Write-Host "--- fast updeyt on $dev ---"
     adb -s $dev install -r angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk
-    adb -s $dev install -r kepadApekstencon/build/outputs/apk/debug/kepadApekstencon-debug.apk
+    adb -s $dev install -r angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk
     adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
 }
 Write-Host "Angol sestem updeyded!" -ForegroundColor Green

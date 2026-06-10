@@ -20,7 +20,7 @@ data class ModyilDeyda(
     val kulorLong: Long = Color.Gray.toArgb().toLong(),
     val pozecon: Int,
     val ezAktiv: Boolean = false,
-    val glefz: List<String> = emptyList(),
+    val glefs: List<String> = emptyList(),
     val glefKulorz: List<Long> = emptyList(),
     val type: String = "app"
 ) {
@@ -33,7 +33,7 @@ data class ModyilDeyda(
         kulor: Color? = null,
         pozecon: Int? = null,
         ezAktiv: Boolean? = null,
-        glefz: List<String>? = null,
+        glefs: List<String>? = null,
         glefKulorz: List<Long>? = null,
         type: String? = null
     ): ModyilDeyda {
@@ -43,7 +43,7 @@ data class ModyilDeyda(
             kulorLong = kulor?.toArgb()?.toLong() ?: this.kulorLong,
             pozecon = pozecon ?: this.pozecon,
             ezAktiv = ezAktiv ?: this.ezAktiv,
-            glefz = glefz ?: this.glefz,
+            glefs = glefs ?: this.glefs,
             glefKulorz = glefKulorz ?: this.glefKulorz,
             type = type ?: this.type
         )
@@ -56,7 +56,7 @@ data class ModyilDeyda(
             "kulor" to kulorLong,
             "pozecon" to pozecon,
             "ezAktiv" to ezAktiv,
-            "glefz" to glefz,
+            "glefs" to glefs,
             "glefKulorz" to glefKulorz,
             "type" to type
         )
@@ -70,7 +70,7 @@ data class ModyilDeyda(
                 kulorLong = (json["kulor"] as? Number)?.toLong() ?: 0L,
                 pozecon = (json["pozecon"] as? Number)?.toInt() ?: 0,
                 ezAktiv = json["ezAktiv"] as? Boolean ?: false,
-                glefz = (json["glefz"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                glefs = ((json["glefs"] ?: json["glefz"]) as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                 glefKulorz = (json["glefKulorz"] as? List<*>)?.mapNotNull { (it as? Number)?.toLong() } ?: emptyList(),
                 type = json["type"] as? String ?: "app"
             )

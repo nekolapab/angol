@@ -55,24 +55,51 @@ object KepadLodjek {
         return null
     }
 
-    fun getCurrentOlLeybelz(
+    fun getKirentOlLeybilz(
         vowelIndex: Int?,
         isLetterMode: Boolean,
         isPunctuationMode: Boolean,
         isCapitalized: Boolean,
-        glefzOverride: List<String>?
+        glefsOvirayd: List<String>?
     ): List<String> {
+        val usePunctuation = isPunctuationMode || vowelIndex == 0
+
         // 1. Base layout (Override or Default)
-        val baseLabels = if (glefzOverride != null && glefzOverride.isNotEmpty() && isLetterMode && !isPunctuationMode) {
-            glefzOverride
+        val hasActualText = glefsOvirayd?.any { it.trim().isNotEmpty() } == true
+        val baseLabels = if (glefsOvirayd != null && hasActualText && isLetterMode && !usePunctuation) {
+            val expanded = MutableList(37) { "" }
+            glefsOvirayd.forEachIndexed { i, s -> if (i < expanded.size) expanded[i] = s }
+            if (vowelIndex != null && vowelIndex in 1..5 && isLetterMode) {
+                // Clear the outer ring (7..18)
+                for (i in 7..18) expanded[i] = " "
+                when (vowelIndex) {
+                    1 -> { expanded[18] = "1"; expanded[7] = "2" }
+                    2 -> { expanded[8] = "3"; expanded[9] = "4"; expanded[10] = "5" }
+                    3 -> { expanded[11] = "6"; expanded[12] = "7" }
+                    4 -> { expanded[13] = "8"; expanded[14] = "9" }
+                    5 -> { expanded[15] = "0"; expanded[16] = "A"; expanded[17] = "O" }
+                }
+            }
+            expanded
         } else {
             val center = if (isLetterMode) " " else "."
             val inner = when {
-                isPunctuationMode -> HeksagonKonfeg.innerPunctuationMode
-                isLetterMode -> HeksagonKonfeg.innerLetterMode
-                else -> HeksagonKonfeg.innerNumberMode
+                usePunctuation -> modalz.HeksagonKonfeg.innerPunctuationMode
+                isLetterMode -> modalz.HeksagonKonfeg.innerLetterMode
+                else -> modalz.HeksagonKonfeg.innerNumberMode
             }
-            val outer = if (isLetterMode) HeksagonKonfeg.outerTap else HeksagonKonfeg.outerTapNumber
+            val outer = if (vowelIndex != null && vowelIndex in 1..5 && isLetterMode) {
+                val outerNumbers = MutableList(12) { " " }
+                when (vowelIndex) {
+                    1 -> { outerNumbers[11] = "1"; outerNumbers[0] = "2" } // 18 and 7
+                    2 -> { outerNumbers[1] = "3"; outerNumbers[2] = "4"; outerNumbers[3] = "5" } // 8, 9, 10
+                    3 -> { outerNumbers[4] = "6"; outerNumbers[5] = "7" } // 11, 12
+                    4 -> { outerNumbers[6] = "8"; outerNumbers[7] = "9" } // 13, 14
+                    5 -> { outerNumbers[8] = "0"; outerNumbers[9] = "A"; outerNumbers[10] = "O" } // 15, 16, 17
+                }
+                outerNumbers
+            } else if (isLetterMode) modalz.HeksagonKonfeg.outerTap else modalz.HeksagonKonfeg.outerTapNumber
+            
             listOf(center) + inner + outer
         }
 

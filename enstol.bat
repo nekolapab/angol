@@ -20,28 +20,28 @@ echo   kepad    The Angol Input Method (IME)
 echo   WearOS   Launch the Wear OS emulator
 echo.
 echo Modifiers:
-echo   klen     Clean build and deep activation (for dayl/kepad/angol)
+echo   kler     Clean build and deep activation (for dayl/kepad/angol)
 goto :eof
 
 :angol
-if "%MOD%"=="klen" (
-    powershell -ExecutionPolicy Bypass -File .\angol_klen.ps1
+if "%MOD%"=="kler" (
+    powershell -ExecutionPolicy Bypass -File .\angol_kler.ps1
 ) else (
     powershell -ExecutionPolicy Bypass -File .\angol.ps1
 )
 goto :eof
 
 :dayl
-if "%MOD%"=="klen" (
-    powershell -ExecutionPolicy Bypass -File .\dayl_klen.ps1
+if "%MOD%"=="kler" (
+    powershell -ExecutionPolicy Bypass -File .\dayl_kler.ps1
 ) else (
     powershell -ExecutionPolicy Bypass -File .\dayl.ps1
 )
 goto :eof
 
 :kepad
-if "%MOD%"=="klen" (
-    powershell -ExecutionPolicy Bypass -File .\kepad_klen.ps1
+if "%MOD%"=="kler" (
+    powershell -ExecutionPolicy Bypass -File .\kepad_kler.ps1
 ) else (
     powershell -ExecutionPolicy Bypass -File .\kepad.ps1
 )
