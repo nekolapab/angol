@@ -139,6 +139,18 @@ class AndroidFirebaseSirves(
         }
     }
 
+    /** Writes to disk WITHOUT broadcasting — used by cloud sync to avoid overwriting IME state. */
+    private fun saveLocallySilent(modyilz: List<ModyilDeyda>, environment: String) {
+        try {
+            val content = json.encodeToString(modyilz)
+            val file = getLocalFile(environment)
+            file.writeText(content)
+            Log.d("AndroidFirebaseSirves", "Saved locally (silent) to ${file.absolutePath}")
+        } catch (e: Exception) {
+            Log.e("AndroidFirebaseSirves", "Error saving locally (silent)", e)
+        }
+    }
+
     private fun broadcastLayout(jsonString: String, environment: String) {
         val intent = Intent(ACTION_UPDATE_LAYOUT).apply {
             putExtra(EXTRA_LAYOUT_JSON, jsonString)
@@ -155,8 +167,9 @@ class AndroidFirebaseSirves(
         val local = loadLocally(environment)
         if (local.isNotEmpty()) {
             trySend(local)
-            // Ensure other apps (kepad) see this local layout on startup
-            broadcastLayout(json.encodeToString(local), environment)
+            // Do NOT broadcast on startup — only broadcast on explicit saves.
+            // Startup broadcast caused a race: Dayl and Kepad IME would overwrite each other's
+            // live layout with the stale local file whenever either app started.
         }
 
         if (user == null) {
@@ -194,15 +207,9 @@ class AndroidFirebaseSirves(
                     val modyilz = modyilzData?.map { ModyilDeyda.fromJson(it) } ?: emptyList()
                     if (modyilz.isNotEmpty()) {
                         trySend(modyilz)
-                        saveLocally(modyilz, environment)
-                        
-                        // Broadcast update received from cloud
-                        val intent = Intent(ACTION_UPDATE_LAYOUT).apply {
-                            action = ACTION_UPDATE_LAYOUT
-                            putExtra(EXTRA_LAYOUT_JSON, json.encodeToString(modyilz))
-                            putExtra(EXTRA_ENVIRONMENT, environment)
-                        }
-                        appContext.sendBroadcast(intent)
+                        saveLocallySilent(modyilz, environment)
+                        // Cloud sync only updates the local file silently.
+                        // Kepad IME is updated only by explicit user-action saves.
                     }
                 } else {
                     Log.d("AndroidFirebaseSirves", "Cloud document ($environment) empty or non-existent for UID: ${user.uid}")

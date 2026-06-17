@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import steyt.AngolSteyt
 import skrenz.DaylSkrenEntry
 import com.example.angol.ime.AndroidPlatformServices
@@ -32,6 +33,18 @@ class MeynAktevede : ComponentActivity() {
         val kebordKontrolir = AndroidKeyboardController({ null }, { }, { })
 
         setContent {
+            LaunchedEffect(Unit) {
+                firebaseSirves.watchModuleLayout("current").collect { updatedModules ->
+                    if (updatedModules.isNotEmpty()) {
+                        var mods = updatedModules
+                        if (mods.none { it.id == "reset" || it.type == "reset" }) {
+                            val resetMod = modalz.ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = 8, type = "reset")
+                            mods = mods + resetMod
+                        }
+                        angolSteyt.updateModules(mods)
+                    }
+                }
+            }
             DaylSkrenEntry(
                 kebordKontrolir = kebordKontrolir,
                 platformServices = platformServices,

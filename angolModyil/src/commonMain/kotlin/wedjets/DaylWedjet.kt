@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import yuteledez.HeksagonDjeyometre
 import modalz.ModyilDeyda
 import modalz.HeksagonKonfeg
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun DaylWedjet(
@@ -18,19 +19,27 @@ fun DaylWedjet(
     onMoveModule: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
     onMoveToCenter: (Int) -> Unit,
-    onDropOnFoldir: (Int, Int) -> Unit,
+    onDropOnFoldir: (Int, Int, Boolean) -> Unit,
     stackWidth: Dp,
     stackHeight: Dp,
     allowSwap: Boolean = true,
-    onReplace: ((Int, Int) -> Unit)? = null
+    onReplace: ((Int, Int, Boolean, String?) -> Unit)? = null,
+    onRotate: ((Double) -> Unit)? = null,
+    onLongPressItem: ((Int) -> Unit)? = null
 ) {
     val daylModule = modyilz.find { it.id == "dayl" } ?: modyilz.first()
-    val gredItems = modyilz.filter { it.id != "dayl" }.map { mod ->
-        GredItem(
+    val gredItems = modyilz.map { mod ->
+        val rawColor = if (mod.id == "dayl" && (mod.kulorLong == 0L || mod.kulorLong == 4278190080L || mod.kulorLong == -16777216L)) {
+            Color(0xFFFF0000)
+        } else {
+            mod.kulor
+        }
+        val finalColor = if (mod.ezAktiv) Color.White else rawColor
+        GredUydem(
             index = mod.pozecon - 1,
             label = mod.neym,
-            color = mod.kulor,
-            isFolder = mod.type == "keypad" || mod.type == "beld",
+            color = finalColor,
+            isFolder = (mod.type == "keypad" || mod.type == "rebeld" || mod.type == "beld" || mod.id == "beldir"),
             deyda = mod
         )
     }
@@ -39,17 +48,21 @@ fun DaylWedjet(
         HeksagonGred(
             geometry = geometry,
             items = gredItems,
-            centerLabel = daylModule.neym,
-            centerColor = daylModule.kulor,
+            centerLabel = "angol",
+            centerColor = if (modyilz.none { it.ezAktiv }) Color.White else Color.Black,
             onMove = onMoveModule,
             onCopyToEmpty = onCopyToEmpty,
             onMoveToCenter = onMoveToCenter,
             onDropOnFoldir = onDropOnFoldir,
             onReplace = onReplace,
+            onRotate = onRotate,
+            onLongPressItem = onLongPressItem,
             modifier = Modifier.fillMaxSize(),
             onTap = onToggleModule,
             allowSwap = allowSwap,
-            fontSizeFactor = 10f / 12f
+            fontSizeFactor = 10f / 12f,
+            fixedLabelLength = 5f
         )
     }
 }
+

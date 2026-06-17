@@ -1,4 +1,4 @@
-package wedjets
+﻿package wedjets
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -61,7 +61,7 @@ fun AwdirRenqWedjet(
 
                     Heksagon(
                         label = tapLabel,
-                        secondaryLabel = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
+                        sekondereLeybil = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
                         backgroundColor = hexColor,
                         textColor = textColor,
                         size = hexSizeDp,
@@ -106,3 +106,4 @@ fun AwdirRenqWedjet(
         }
     }
 }
+

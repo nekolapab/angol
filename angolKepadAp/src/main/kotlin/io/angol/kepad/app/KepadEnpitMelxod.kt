@@ -61,6 +61,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.sp
 import kotlin.math.sqrt
 import kotlinx.serialization.json.Json
 import com.example.angol.ime.*
@@ -90,6 +95,7 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     private var originalLeterMod = true
     private var ignoreSelectionUpdateCount = 0
     private var isClosing = false
+    private var isNumberField = false
 
     private val scope = CoroutineScope(Dispatchers.Main)
     
@@ -424,7 +430,25 @@ private fun startVoysEnpit() {
                             firebaseSirves.watchModuleLayout("current").collect { updatedModules ->
                                 if (updatedModules.isNotEmpty()) {
                                     Log.d(TAG, "Keyboard loaded initial layout from Firebase/Local")
-                                    daylSteyt.updateModules(updatedModules)
+                                    var mods = updatedModules
+                                    var modified = false
+                                    mods = mods.map { mod ->
+                                        if (mod.id == "reset" && mod.kulorLong == 0xFFFF0000L) {
+                                            modified = true
+                                            mod.copyWith(kulorLong = 0xFF000000L)
+                                        } else mod
+                                    }
+                                    if (mods.none { it.id == "reset" || it.type == "reset" }) {
+                                        var newPozecon = 8
+                                        while (mods.any { it.pozecon == newPozecon }) newPozecon++
+                                        val resetMod = modalz.ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = newPozecon, ezAktiv = false, type = "reset")
+                                        mods = mods + resetMod
+                                        modified = true
+                                    }
+                                    if (modified) {
+                                        scope.launch { firebaseSirves.saveModuleLayout(mods, "current") }
+                                    }
+                                    daylSteyt.updateModules(mods)
                                     
                                     // AUTO-ACTIVATE: If nothing is active, find the first keypad module and show it!
                                     if (daylSteyt.activeModule == null) {
@@ -451,7 +475,7 @@ private fun startVoysEnpit() {
                                 screenWidth = screenWidth.value.toDouble(),
                                 screenHeight = screenHeight.value.toDouble(),
                                 isWearOS = yuteledez.isWearOS,
-                                ezHub = false
+                                ezKepad = true
                             )
                         }
 
@@ -527,7 +551,11 @@ private fun startVoysEnpit() {
                                 ezLeterMod = ezLeterMod,
                                 ezPunkcuweyconMod = ezPunkcuweyconMod,
                                 ezUpsayddawn = ezUpsayddawn,
-                                onTogilMod = { ezLeterMod = !ezLeterMod },
+                                onTogilMod = {
+                                    if (!isNumberField) {
+                                        ezLeterMod = !ezLeterMod
+                                    }
+                                },
                                 onSetPunkcuweyconMod = { ezPunkcuweyconMod = it },
                                 ezAngolMod = angolSpelenqMod > 0,
                                 onTogilAngol = { voiceService.togilAngolMod(it) }, 
@@ -536,7 +564,8 @@ private fun startVoysEnpit() {
                                 geometryOverride = geometry,
                                 glefsOvirayd = activeMod.glefs,
                                 kulorzOverride = activeMod.glefKulorz,
-                                contentWidthDp = gredDimz.width.dp
+                                contentWidthDp = gredDimz.width.dp,
+                                neym = activeMod.id
                             )
                         }
                     }
@@ -557,8 +586,8 @@ private fun startVoysEnpit() {
         super.onStartInputView(info, restarting)
 
         val inputClass = info?.inputType?.and(android.text.InputType.TYPE_MASK_CLASS)
-        val isNumberField = inputClass == android.text.InputType.TYPE_CLASS_NUMBER ||
-                            inputClass == android.text.InputType.TYPE_CLASS_PHONE
+        isNumberField = inputClass == android.text.InputType.TYPE_CLASS_NUMBER ||
+                        inputClass == android.text.InputType.TYPE_CLASS_PHONE
         if (isNumberField) {
             ezLeterMod = false
             ezPunkcuweyconMod = false

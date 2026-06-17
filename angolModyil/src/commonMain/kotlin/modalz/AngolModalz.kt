@@ -31,17 +31,30 @@ data class ModyilDeyda(
         id: String? = null,
         neym: String? = null,
         kulor: Color? = null,
+        kulorLong: Long? = null,
         pozecon: Int? = null,
         ezAktiv: Boolean? = null,
         glefs: List<String>? = null,
         glefKulorz: List<Long>? = null,
         type: String? = null
     ): ModyilDeyda {
+        val targetPozecon = pozecon ?: this.pozecon
+        val absoluteColor = when (targetPozecon) {
+            2 -> 0xFFFF0000L // Red
+            3 -> 0xFFFFFF00L // Yellow
+            4 -> 0xFF00FF00L // Green
+            5 -> 0xFF00FFFFL // Cyan
+            6 -> 0xFF0000FFL // Blue
+            7 -> 0xFFFF00FFL // Magenta
+            else -> null
+        }
+        val targetKulorLong = absoluteColor ?: kulorLong ?: kulor?.toArgb()?.toLong() ?: this.kulorLong
+
         return ModyilDeyda(
             id = id ?: this.id,
             neym = neym ?: this.neym,
-            kulorLong = kulor?.toArgb()?.toLong() ?: this.kulorLong,
-            pozecon = pozecon ?: this.pozecon,
+            kulorLong = targetKulorLong,
+            pozecon = targetPozecon,
             ezAktiv = ezAktiv ?: this.ezAktiv,
             glefs = glefs ?: this.glefs,
             glefKulorz = glefKulorz ?: this.glefKulorz,

@@ -24,7 +24,7 @@ import modalz.ModyilDeyda
 import modalz.HeksagonKonfeg
 import steyt.AngolSteyt
 import yuteledez.KepadLodjek
-import wedjets.GredItem
+import wedjets.GredUydem
 import wedjets.CopyDragPolicy
 import wedjets.HeksagonGred
 import yuteledez.HeksagonDjeyometre
@@ -42,8 +42,9 @@ fun Rebeld(
     voiceService: VoiceService,
     onClose: () -> Unit,
     onAction: (String) -> Unit = {},
-    onDropOnFoldir: (Int, Int) -> Unit = { _, _ -> },
-    onReplace: (Int, Int) -> Unit = { _, _ -> }
+    onDropOnFoldir: (Int, Int, Boolean) -> Unit = { _, _, _ -> },
+    onReplace: (Int, Int, Boolean, String?) -> Unit = { _, _, _, _ -> },
+    isApp: Boolean = false
 ) {
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
     var moduleToReplace by remember { mutableStateOf<Int?>(null) }
@@ -56,7 +57,9 @@ fun Rebeld(
         val mod = daylSteyt.rebeldModyilz.find { it.id == selectedModuleId }
         if (mod != null) {
             BeldWedjet(
+                daylSteyt = daylSteyt,
                 mod = mod,
+                path = "angol.rebeld",
                 onBack = { selectedModuleId = null },
                 onReneymGlef = { index, label ->
                     daylSteyt.reneymGlef(mod.id, index, label)
@@ -78,7 +81,7 @@ fun Rebeld(
                     daylSteyt.reneymModyil(mod.id, newNeym)
                     syncRebeld()
                 },
-                onReplace = { from, to ->
+                onReplace = { from, to, isMove, _ ->
                     daylSteyt.replaceGlef(mod.id, from, to)
                     syncRebeld()
                 }
@@ -87,25 +90,35 @@ fun Rebeld(
         }
     }
 
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0f / 12f))
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (isApp && selectedModuleId == null) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                androidx.compose.material.Text(text = "angol", color = Color.White, fontSize = 32.sp)
+            }
+        }
+        BoxWithConstraints(
+            modifier = Modifier
+                .weight(1f)
+                .background(Color.Black.copy(alpha = 0f / 12f))
+        ) {
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
         val gredItems = daylSteyt.rebeldModyilz.filter { it.type != "hub" }.map { mod ->
-            GredItem(
+            GredUydem(
                 index = mod.pozecon - 1,
                 label = mod.neym,
                 color = mod.kulor,
-                isFolder = mod.type == "keypad",
+                isFolder = (mod.type == "keypad" || mod.type == "beld" || mod.id == "beldir"),
                 deyda = mod
             )
         }
         
-        val activeIndices = (gredItems.map { it.index } + 0).toList().sorted()
+        val activeIndices = (0..18).toList()
         
         val gredDimz = remember(activeIndices, screenWidth, screenHeight) {
             yuteledez.HeksagonDjeyometre.kalkyuleytGredDimenzconz(
@@ -120,7 +133,8 @@ fun Rebeld(
             HeksagonDjeyometre(
                 heksSayz = gredDimz.heksSayz,
                 sentir = HeksagonPozecon(-gredDimz.unitCenterX * gredDimz.heksSayz, -gredDimz.unitCenterY * gredDimz.heksSayz),
-                ezLeterMod = true
+                ezLeterMod = true,
+                roteyconAngol = daylSteyt.roteyconAngol
             )
         }
 
@@ -149,30 +163,18 @@ fun Rebeld(
                 } while (event.changes.any { it.pressed })
             }
         }) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "rebeld",
-                    color = Color.White,
-                    fontSize = 32.sp
-                )
-            }
-
             Box(modifier = Modifier.weight(1f)) {
                 HeksagonGred(
                     geometry = geometry,
                     items = gredItems,
-                    centerLabel = daylModule.neym,
-                    centerColor = daylModule.kulor,
+                    centerLabel = "rebeld",
+                    centerColor = if (daylSteyt.rebeldModyilz.none { it.ezAktiv }) Color.White else Color.Black,
                     copyDragPolicy = CopyDragPolicy.TwoStepArmed,
                     allowSwap = true,
                     onMove = { from, to ->
                         if (to == -1) {
                             // Dropped outside grid: send to sidelines (disconnected, not deleted)
-                            daylSteyt.muvRebeldModjilAwdirSpeys(from + 1)
+                            daylSteyt.muvRebeldModyilAwdirSpeys(from + 1)
                         } else {
                             daylSteyt.swopRebeldModyilz(from + 1, to + 1)
                         }
@@ -183,10 +185,16 @@ fun Rebeld(
                         syncRebeld()
                     },
                     onMoveToCenter = { from ->
-                        moduleToReplace = from
+                        daylSteyt.moveModuleToDayl(from)
+                        onAction("rebeld_state")
+                        onAction("current")
                     },
-                    onDropOnFoldir = { from, to ->
-                        daylSteyt.muvRebeldModyilEntuFoldir(from, to)
+                    onDropOnFoldir = { from, to, isMove ->
+                        if (isMove) {
+                            daylSteyt.muvRebeldModyilEntuFoldir(from, to)
+                        } else {
+                            daylSteyt.kopeRebeldModyilEntuFoldir(from, to)
+                        }
                         syncRebeld()
                     },
                     onDelete = { index ->
@@ -201,16 +209,29 @@ fun Rebeld(
                             onClose()
                         } else {
                             val clickedMod = daylSteyt.rebeldModyilz.find { it.pozecon == index + 1 }
-                            if (clickedMod != null && clickedMod.id != "dayl" && clickedMod.id != "rebeld") {
+                            if (clickedMod?.type == "reset" || clickedMod?.id == "reset") {
+                                // Do nothing on tap for reset
+                            } else if (clickedMod != null && clickedMod.id != "dayl" && clickedMod.id != "rebeld") {
                                 selectedModuleId = clickedMod.id
                             }
                         }
                     },
-                    onReplace = { from, to ->
-                        daylSteyt.replaceRebeldModyil(from + 1, to + 1)
+                    onLongPressItem = { index ->
+                        val clickedMod = daylSteyt.rebeldModyilz.find { it.pozecon == index + 1 }
+                        if (clickedMod?.type == "reset" || clickedMod?.id == "reset") {
+                            daylSteyt.pendingResetTargetId = "rebeld"
+                        }
+                    },
+                    onReplace = { from, to, isMove, renameTo ->
+                        daylSteyt.replaceRebeldModyil(from + 1, to + 1, isMove, renameTo)
                         syncRebeld()
                     },
-                    fontSizeFactor = 14f / 12f
+                    onRotate = { delta ->
+                        daylSteyt.roteyconAngol += delta
+                    },
+                    fontSizeFactor = 10f / 12f,
+                    ezKonsestentSayz = false,
+                    fixedLabelLength = 5f
                 )
             }
         }
@@ -237,19 +258,22 @@ fun Rebeld(
                 backgroundColor = Color.DarkGray
             )
         }
+        }
     }
 }
 
 @Composable
 fun BeldWedjet(
+    daylSteyt: steyt.AngolSteyt,
     mod: ModyilDeyda,
+    path: String,
     onBack: () -> Unit,
     onReneymGlef: (Int, String) -> Unit,
     onMuvGlef: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
     onMoveToParent: (Int) -> Unit,
     onReneymMod: (String) -> Unit,
-    onReplace: (Int, Int) -> Unit
+    onReplace: (Int, Int, Boolean, String?) -> Unit
 ) {
     var editingGlefIndex by remember { mutableStateOf<Int?>(null) }
     var newGlefLabel by remember { mutableStateOf("") }
@@ -260,11 +284,7 @@ fun BeldWedjet(
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         
-        val activeIndices = remember(mod.glefs) {
-            val indices = mod.glefs.mapIndexedNotNull { i, s -> if (s.isNotEmpty()) i else null }.toMutableSet()
-            indices.add(0)
-            indices.toList().sorted()
-        }
+        val activeIndices = (0..18).toList()
 
         val gredDimz = remember(activeIndices, screenWidth, screenHeight) {
             yuteledez.HeksagonDjeyometre.kalkyuleytGredDimenzconz(
@@ -279,7 +299,8 @@ fun BeldWedjet(
             HeksagonDjeyometre(
                 heksSayz = gredDimz.heksSayz,
                 sentir = HeksagonPozecon(-gredDimz.unitCenterX * gredDimz.heksSayz, -gredDimz.unitCenterY * gredDimz.heksSayz),
-                ezLeterMod = true
+                ezLeterMod = true,
+                roteyconAngol = daylSteyt.roteyconAngol
             )
         }
 
@@ -297,13 +318,13 @@ fun BeldWedjet(
                             onValueChange = { newModNeym = it },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
+                            colors = TextFieldDefaults.textFieldColors(textColor = Color.Black),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(onDone = {
                                 onReneymMod(newModNeym)
                                 isEditingModNeym = false
                                 onBack()
-                            }),
-                            colors = TextFieldDefaults.textFieldColors(textColor = Color.White)
+                            })
                         )
                         IconButton(onClick = {
                             onReneymMod(newModNeym)
@@ -313,33 +334,51 @@ fun BeldWedjet(
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { isEditingModNeym = true }) {
-                        Text(text = "beld: ${mod.neym}", color = Color.White, fontSize = 32.sp)
-                        Icon(Icons.Default.Edit, "Rename", tint = Color.Cyan, modifier = Modifier.size(24.dp).padding(start = 8.dp))
+                        Text(text = path, color = Color.White, fontSize = 32.sp)
                     }
                 }
             }
 
             Box(modifier = Modifier.weight(1f)) {
-                val currentLabels = KepadLodjek.getKirentOlLeybilz(null, true, false, false, mod.glefs)
+                val currentLabels = if (mod.type == "keypad") {
+                    KepadLodjek.getKirentOlLeybilz(null, true, false, false, mod.glefs)
+                } else {
+                    val base = mod.glefs.toMutableList()
+                    while (base.size < 37) base.add("")
+                    base.mapIndexed { i, s -> if (i == 0) " " else s }
+                }
+                val sekondereLeybilz = buildList {
+                    add(null) // index 0: center, no secondary
+                    // Inner ring (1..6): no secondary shown in editor (same as KepadModyil)
+                    repeat(6) { add(null) }
+                    // Outer ring (7..18): show awdirLonqPres letters
+                    modalz.HeksagonKonfeg.awdirLonqPres.forEachIndexed { i, lp ->
+                        add(lp.ifEmpty { null })
+                    }
+                }
                 val itemsForGred = currentLabels.mapIndexed { index, label ->
                     if (index == 0 || label.isEmpty()) return@mapIndexed null
-                    val colorLong = mod.glefKulorz.getOrNull(index) ?: mod.kulor.toArgb().toLong()
-                    GredItem(
+                    // Read color: use glefKulorz if available, else fall back to module color
+                    val colorLong = if (index < mod.glefKulorz.size) mod.glefKulorz[index]
+                                    else mod.kulor.toArgb().toLong()
+                    GredUydem(
                         index = index,
                         label = label,
-                        color = Color(colorLong.toInt())
+                        color = Color(colorLong.toInt()),
+                        sekondereLeybil = sekondereLeybilz.getOrNull(index)
                     )
                 }.filterNotNull()
+
 
                 HeksagonGred(
                     geometry = geometry,
                     items = itemsForGred,
-                    centerLabel = currentLabels.getOrNull(0) ?: " ",
-                    centerColor = mod.kulor,
+                    centerLabel = mod.neym,
+                    centerColor = Color.White,
                     onMove = onMuvGlef,
                     onCopyToEmpty = onCopyToEmpty,
                     onMoveToCenter = onMoveToParent,
-                    onDropOnFoldir = { _, _ -> },
+                    onDropOnFoldir = { _, _, _ -> },
                     onReplace = onReplace,
                     onTap = { index ->
                         if (index == 0) onBack()
@@ -348,7 +387,19 @@ fun BeldWedjet(
                             newGlefLabel = currentLabels.getOrNull(index) ?: ""
                         }
                     },
-                    fontSizeFactor = 14f / 12f
+                    onRotate = { delta ->
+                        daylSteyt.roteyconAngol += delta
+                    },
+                    fontSizeFactor = 12f / 12f,
+                    centerFontSizeFactor = 10f / 12f,
+                    ezKonsestentSayz = true,
+                    centerEzKonsestentSayz = false,
+                    onLongPressItem = { index ->
+                        val label = currentLabels.getOrNull(index) ?: return@HeksagonGred
+                        if (label == "reset" || label.startsWith("mod_reset_")) {
+                            daylSteyt.pendingResetTargetId = mod.id
+                        }
+                    }
                 )
             }
             
@@ -381,3 +432,4 @@ fun BeldWedjet(
         }
     }
 }
+

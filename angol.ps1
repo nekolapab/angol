@@ -1,7 +1,12 @@
 # Fast Updeyt Entayr Angol Sestem (Dayl + Kepad)
-Write-Host "beldenq..." -ForegroundColor Cyan
-./gradlew :angolDaylAp:assembleDebug :angolKepadAp:assembleDebug
+$daylApk = "angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk"
+$kepadApk = "angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk"
 
+$daylMod = if (Test-Path $daylApk) { (Get-Item $daylApk).LastWriteTime } else { [DateTime]::MinValue }
+$kepadMod = if (Test-Path $kepadApk) { (Get-Item $kepadApk).LastWriteTime } else { [DateTime]::MinValue }
+
+Write-Host "beldenq..." -ForegroundColor Cyan
+./gradlew --offline :angolDaylAp:assembleDebug :angolKepadAp:assembleDebug
 $devaysez = adb devices | Select-String -Pattern "\tdevice$" | ForEach-Object { $_.ToString().Split("`t")[0] }
 
 if ($devaysez.Count -eq 0) {
@@ -21,8 +26,29 @@ if ($devaysez.Count -eq 0) {
 
 foreach ($dev in $devaysez) {
     Write-Host "--- fast updeyt on $dev ---"
-    adb -s $dev install -r angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk
-    adb -s $dev install -r angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk
-    adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
+    
+    $newDaylMod = if (Test-Path $daylApk) { (Get-Item $daylApk).LastWriteTime } else { [DateTime]::MinValue }
+    $newKepadMod = if (Test-Path $kepadApk) { (Get-Item $kepadApk).LastWriteTime } else { [DateTime]::MinValue }
+    
+    $daylChanged = $newDaylMod -gt $daylMod
+    $kepadChanged = $newKepadMod -gt $kepadMod
+    
+    if ($daylChanged -or $daylMod -eq [DateTime]::MinValue) {
+        Write-Host "enstolenq dayl..."
+        adb -s $dev install -r $daylApk
+    } else {
+        Write-Host "skepenq dayl (no tceynjez)"
+    }
+    
+    if ($kepadChanged -or $kepadMod -eq [DateTime]::MinValue) {
+        Write-Host "enstolenq kepad..."
+        adb -s $dev install -r $kepadApk
+    } else {
+        Write-Host "skepenq kepad (no tceynjez)"
+    }
+    
+    if ($daylChanged -or $kepadChanged) {
+        adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
+    }
 }
 Write-Host "Angol sestem updeyded!" -ForegroundColor Green

@@ -1,6 +1,9 @@
 # Sempil Kepad Updeyt Skrept
-Write-Host "beldenq kepad..." -ForegroundColor Cyan
-./gradlew :angolKepadAp:assembleDebug
+$kepadApk = "angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk"
+$kepadMod = if (Test-Path $kepadApk) { (Get-Item $kepadApk).LastWriteTime } else { [DateTime]::MinValue }
+
+Write-Host "beldenq..." -ForegroundColor Cyan
+./gradlew --offline :angolKepadAp:assembleDebug
 
 $devaysez = adb devices | Select-String -Pattern "\tdevice$" | ForEach-Object { $_.ToString().Split("`t")[0] }
 
@@ -25,7 +28,17 @@ if ($devaysez.Count -eq 0) {
 }
 
 foreach ($dev in $devaysez) {
-    Write-Host "enstolenq kepad on $dev..." -ForegroundColor Yellow
-    adb -s $dev install -r angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk
+    $newKepadMod = if (Test-Path $kepadApk) { (Get-Item $kepadApk).LastWriteTime } else { [DateTime]::MinValue }
+    $kepadChanged = $newKepadMod -gt $kepadMod
+    
+    if ($kepadChanged -or $kepadMod -eq [DateTime]::MinValue) {
+        Write-Host "enstolenq on $dev..." -ForegroundColor Yellow
+        adb -s $dev install -r $kepadApk
+        
+        Write-Host "aplayenq kepad..." -ForegroundColor Yellow
+        adb -s $dev shell ime enable io.angol.dayl/io.angol.kepad.app.KepadEnpitMelxod
+        adb -s $dev shell ime set io.angol.dayl/io.angol.kepad.app.KepadEnpitMelxod
+    } else {
+        Write-Host "skepenq (no tceynjez)"
+    }
 }
-

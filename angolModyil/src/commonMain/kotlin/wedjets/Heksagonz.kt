@@ -1,4 +1,4 @@
-package wedjets
+﻿package wedjets
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -91,7 +91,7 @@ fun HeksagonTutcboks(
 fun Heksagon(
     modifier: Modifier = Modifier,
     label: String,
-    secondaryLabel: String? = null,
+    sekondereLeybil: String? = null,
     backgroundColor: Color,
     textColor: Color,
     size: Dp,
@@ -103,6 +103,7 @@ fun Heksagon(
     rotationAngle: Float = 0f,
     fontSizeFactor: Float? = null,
     ezKonsestentSayz: Boolean = false,
+    fixedLabelLength: Float? = null,
     verticalOffset: Dp = 0.dp,
     child: @Composable (() -> Unit)? = null
 ) {
@@ -125,7 +126,13 @@ fun Heksagon(
     val finalTextColor = if (ezPresd) backgroundColor else textColor
 
     // Aggressive font scaling
-    val totalLength = if (ezKonsestentSayz) 2f else (label.length + (secondaryLabel?.length ?: 0) + (if (secondaryLabel != null) 0.5f else 0f))
+    val cleanLabel = remember(label) { label.substringBefore("|") }
+    val words = cleanLabel.split(" ", "\n")
+    val longestWordLength = words.maxOfOrNull { it.length }?.toFloat() ?: 0f
+    val lines = words.size.toFloat()
+    val baseLength = longestWordLength + (lines - 1f) * 1.5f
+    
+    val totalLength = if (ezKonsestentSayz && baseLength <= 3f) 3f else (fixedLabelLength ?: (baseLength + (sekondereLeybil?.length ?: 0) + (if (sekondereLeybil != null) 0.5f else 0f)))
     val safeLength = totalLength.coerceAtLeast(0.8f)
     val autoFontSize = (size.value * 2f) / (safeLength * 0.5f + 1.75f)
     val finalRawFontSize = (autoFontSize * (fontSizeFactor ?: 1f)).coerceAtMost(size.value * (15f / 12f))
@@ -137,7 +144,7 @@ fun Heksagon(
 
     Box(
         modifier = modifier
-            .size(width = size * 1.2f, height = hexHeight),
+            .size(width = size * 1.5f, height = hexHeight),
         contentAlignment = Alignment.Center
     ) {
         HeksagonTutcboks(
@@ -202,7 +209,7 @@ fun Heksagon(
                             
                             // Attribute B: Expansion Aura (24/12 scale = 200% bigger) - 8/12 intensity
                             // Unclipped to maintain the massive bleeding ora diameter
-                            val glowRadius = this.size.maxDimension 
+                            val glowRadius = this.size.maxDimension * 0.75f
                             drawCircle(
                                 brush = Brush.radialGradient(
                                     colors = listOf(activeGlowColor.copy(alpha = 0.66f), Color.Transparent),
@@ -217,20 +224,20 @@ fun Heksagon(
                 contentAlignment = Alignment.Center
             ) {
                 Box(
-                    modifier = Modifier.rotate(-rotationAngle * (180f / PI.toFloat())).offset(y = verticalOffset),
+                    modifier = Modifier.fillMaxSize().rotate(-rotationAngle * (180f / PI.toFloat())).offset(y = verticalOffset),
                     contentAlignment = Alignment.Center
                 ) {
                     if (child != null) {
                         child()
-                    } else if (secondaryLabel != null) {
+                    } else if (sekondereLeybil != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = label, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
+                            Text(text = cleanLabel, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = secondaryLabel, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
+                            Text(text = sekondereLeybil, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                         }
                     } else {
                         Text(
-                            text = label, 
+                            text = cleanLabel.replace(" ", "\n"), 
                             color = finalTextColor, 
                             fontSize = finalFontSize, 
                             fontWeight = FontWeight.Bold, 
@@ -260,3 +267,4 @@ private fun createVisualPath(size: Size, rotation: Float): Path {
     path.close()
     return path
 }
+

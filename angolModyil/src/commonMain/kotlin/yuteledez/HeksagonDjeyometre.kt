@@ -135,7 +135,8 @@ class HeksagonDjeyometre(
             screenWidth: Double,
             screenHeight: Double,
             isWearOS: Boolean,
-            ezHub: Boolean = false
+            ezHub: Boolean = false,
+            ezKepad: Boolean = false
         ): GredDimenzconz {
             val tempGeo = HeksagonDjeyometre(heksSayz = 1.0, sentir = modalz.HeksagonPozecon(0.0, 0.0))
             val positions = activeIndices.map { idx ->
@@ -151,24 +152,21 @@ class HeksagonDjeyometre(
             val minY = if (positions.isEmpty()) 0.0 else positions.minOf { it.y } - (unitHexHeight / 2.0)
             val maxY = if (positions.isEmpty()) 0.0 else positions.maxOf { it.y } + (unitHexHeight / 2.0)
 
-            // RESTORED to stable start-of-session state
+            val maxAbsX = maxOf(abs(minX), abs(maxX))
+            val maxAbsY = maxOf(abs(minY), abs(maxY))
+
             val minFitRings = if (isWearOS) 1.0 else 2.0
-            val minBoundX = 2.6 * unitHexWidth
-            val minBoundY = 3.0
+            val minHalfWidth = (minFitRings + 0.5) * unitHexWidth
+            // Use 3.5 (Total 7.0) for 2 rings
+            val minHalfHeight = minFitRings * 1.5 + 0.5
 
-            val finalMinX = minOf(minX, -minBoundX)
-            val finalMaxX = maxOf(maxX, minBoundX)
-            val finalMinY = minOf(minY, -minBoundY)
-            val finalMaxY = maxOf(maxY, minBoundY)
+            val contentHalfWidth = maxOf(maxAbsX, minHalfWidth)
+            val paddingY = if (ezKepad) 0.0 else 0.75
+            val actualMaxAbsY = if (positions.isEmpty()) 0.0 else positions.maxOf { abs(it.y) } + paddingY
+            val contentHalfHeight = maxOf(actualMaxAbsY, minHalfHeight)
 
-            // Tight Asymmetrical Bounding
-            val contentWidth = finalMaxX - finalMinX
-            val contentHeight = finalMaxY - finalMinY
-            
-            // unitCenterX/Y centers (0,0) relative to the bounding box
-            val unitCenterX = (finalMinX + finalMaxX) / 2.0
-            val unitCenterY = (finalMinY + finalMaxY) / 2.0
-
+            val contentWidth = contentHalfWidth * 2.0
+            val contentHeight = contentHalfHeight * 2.0
             val sizeW = screenWidth / contentWidth
             val sizeH = screenHeight / contentHeight
             val finalHexSize = minOf(sizeW, sizeH).coerceAtLeast(10.0)
@@ -177,8 +175,8 @@ class HeksagonDjeyometre(
                 heksSayz = finalHexSize,
                 width = contentWidth * finalHexSize,
                 height = contentHeight * finalHexSize,
-                unitCenterX = unitCenterX,
-                unitCenterY = unitCenterY
+                unitCenterX = 0.0,
+                unitCenterY = 0.0
             )
         }
     }

@@ -1,6 +1,9 @@
 # Sempil Updeyt Skrept
+$daylApk = "angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk"
+$daylMod = if (Test-Path $daylApk) { (Get-Item $daylApk).LastWriteTime } else { [DateTime]::MinValue }
+
 Write-Host "beldenq..." -ForegroundColor Cyan
-./gradlew :angolDaylAp:assembleDebug
+./gradlew --offline :angolDaylAp:assembleDebug
 
 $devaysez = adb devices | Select-String -Pattern "\tdevice$" | ForEach-Object { $_.ToString().Split("`t")[0] }
 
@@ -25,10 +28,18 @@ if ($devaysez.Count -eq 0) {
 }
 
 foreach ($dev in $devaysez) {
-    Write-Host "enstolenq on $dev..." -ForegroundColor Yellow
-    adb -s $dev install -r angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk
+    $newDaylMod = if (Test-Path $daylApk) { (Get-Item $daylApk).LastWriteTime } else { [DateTime]::MinValue }
+    $daylChanged = $newDaylMod -gt $daylMod
     
-    Write-Host "lontchenq ap on $dev..." -ForegroundColor Yellow
-    adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
+    if ($daylChanged -or $daylMod -eq [DateTime]::MinValue) {
+        Write-Host "enstolenq on $dev..." -ForegroundColor Yellow
+        adb -s $dev install -r $daylApk
+        
+        Write-Host "lontchenq ap on $dev..." -ForegroundColor Yellow
+        adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
+    } else {
+        Write-Host "skepenq (no tceynjez)"
+        adb -s $dev shell am start -n io.angol.dayl/.app.MeynAktevede
+    }
 }
 
