@@ -11,7 +11,7 @@ interface FirebaseSirves {
     suspend fun signInAnonymously(): Result<Unit>
     suspend fun signOut()
     suspend fun saveModuleLayout(modyilz: List<ModyilDeyda>, environment: String = "current")
-    fun watchModuleLayout(environment: String = "current"): Flow<List<ModyilDeyda>>
+    fun watcModjilLeyawt(environment: String = "current"): Flow<List<ModyilDeyda>>
 }
 
 data class User(

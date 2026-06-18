@@ -34,7 +34,7 @@ class MeynAktevede : ComponentActivity() {
 
         setContent {
             LaunchedEffect(Unit) {
-                firebaseSirves.watchModuleLayout("current").collect { updatedModules ->
+                firebaseSirves.watcModjilLeyawt("current").collect { updatedModules ->
                     if (updatedModules.isNotEmpty()) {
                         var mods = updatedModules
                         if (mods.none { it.id == "reset" || it.type == "reset" }) {

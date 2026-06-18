@@ -427,7 +427,7 @@ private fun startVoysEnpit() {
                         val screenHeight = maxHeight
                         
                         LaunchedEffect(Unit) {
-                            firebaseSirves.watchModuleLayout("current").collect { updatedModules ->
+                            firebaseSirves.watcModjilLeyawt("current").collect { updatedModules ->
                                 if (updatedModules.isNotEmpty()) {
                                     Log.d(TAG, "Keyboard loaded initial layout from Firebase/Local")
                                     var mods = updatedModules
@@ -441,7 +441,7 @@ private fun startVoysEnpit() {
                                     if (mods.none { it.id == "reset" || it.type == "reset" }) {
                                         var newPozecon = 8
                                         while (mods.any { it.pozecon == newPozecon }) newPozecon++
-                                        val resetMod = modalz.ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = newPozecon, ezAktiv = false, type = "reset")
+                                        val resetMod = modalz.ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = newPozecon, ezAkdev = false, type = "reset")
                                         mods = mods + resetMod
                                         modified = true
                                     }
@@ -450,19 +450,19 @@ private fun startVoysEnpit() {
                                     }
                                     daylSteyt.updateModules(mods)
                                     
-                                    // AUTO-ACTIVATE: If nothing is active, find the first keypad module and show it!
+                                    // AUTO-ACTIVATE: If nothing is active, find the first keypad module (not dayl) and show it!
                                     if (daylSteyt.activeModule == null) {
-                                        val firstKepad = updatedModules.find { it.type == "keypad" }
+                                        val firstKepad = updatedModules.find { it.type == "keypad" && it.id != "dayl" }
                                         if (firstKepad != null) {
                                             Log.d(TAG, "Auto-activating module: ${firstKepad.neym}")
-                                            daylSteyt.activateModyil(firstKepad.id)
+                                            daylSteyt.akdeveytModyil(firstKepad.id)
                                         }
                                     }
                                 }
                             }
                         }
 
-                        val activeMod = daylSteyt.activeModule ?: daylSteyt.modyilz.find { it.type == "keypad" } ?: return@BoxWithConstraints
+                        val activeMod = daylSteyt.modyilz.find { it.ezAkdev && it.type == "keypad" && it.id != "dayl" } ?: daylSteyt.modyilz.find { it.type == "keypad" && it.id != "dayl" } ?: return@BoxWithConstraints
                         val activeIndices = remember(activeMod.glefs) {
                             val set: MutableSet<Int> = activeMod.glefs.mapIndexedNotNull { i: Int, s: String -> if (s.isNotEmpty()) i else null }.toMutableSet()
                             set.add(0)

@@ -108,7 +108,7 @@ fun DaylSkren(
     val saveLayout: (String) -> Unit = { env ->
         if (firebaseSirves != null) {
             scope.launch {
-                if (env == "rebeld_state") {
+                if (env == "rebeld_steyt") {
                     firebaseSirves.saveModuleLayout(daylSteyt.rebeldModyilz, env)
                 } else {
                     firebaseSirves.saveModuleLayout(daylSteyt.modyilz, env)
@@ -136,7 +136,7 @@ fun DaylSkren(
                                 daylSteyt.undoModule(targetId)
                                 daylSteyt.pendingResetTargetId = null
                                 saveLayout("current")
-                                saveLayout("rebeld_state")
+                                saveLayout("rebeld_steyt")
                             }
                         ) {
                             androidx.compose.material.Text("undo", fontSize = 20.sp)
@@ -146,7 +146,7 @@ fun DaylSkren(
                                 daylSteyt.redoModule(targetId)
                                 daylSteyt.pendingResetTargetId = null
                                 saveLayout("current")
-                                saveLayout("rebeld_state")
+                                saveLayout("rebeld_steyt")
                             }
                         ) {
                             androidx.compose.material.Text("redo", fontSize = 20.sp)
@@ -162,7 +162,7 @@ fun DaylSkren(
                             }
                             daylSteyt.pendingResetTargetId = null
                             saveLayout("current")
-                            saveLayout("rebeld_state")
+                            saveLayout("rebeld_steyt")
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -178,11 +178,11 @@ fun DaylSkren(
 
     LaunchedEffect(isApp) {
         if (!isApp && daylSteyt.activeModule == null) {
-            daylSteyt.activateModyil("keypad")
+            daylSteyt.akdeveytModyil("keypad")
         }
         if (isApp && firebaseSirves != null) {
             scope.launch {
-                firebaseSirves.watchModuleLayout("current").collect { updatedModules ->
+                firebaseSirves.watcModjilLeyawt("current").collect { updatedModules ->
                     if (updatedModules.isNotEmpty()) {
                         var modified = false
                         var currentList = updatedModules.toMutableList()
@@ -191,9 +191,9 @@ fun DaylSkren(
                         currentList = currentList.map { mod ->
                             var updatedMod = mod.copyWith() // applies absolute colors
                             if (updatedMod.kulorLong != mod.kulorLong) modified = true
-                            if (updatedMod.id == "dayl" && (updatedMod.neym != "dayl" || updatedMod.pozecon != 2 || updatedMod.glefs != listOf("dayl"))) {
+                            if (updatedMod.id == "dayl" && (updatedMod.neym != "dayl" || updatedMod.pozecon != 2)) {
                                 modified = true
-                                updatedMod = updatedMod.copyWith(neym = "dayl", pozecon = 2, glefs = listOf("dayl"))
+                                updatedMod = updatedMod.copyWith(neym = "dayl", pozecon = 2)
                             }
                             if (updatedMod.id == "reset" && updatedMod.kulorLong == 0xFFFF0000L) {
                                 modified = true
@@ -209,46 +209,33 @@ fun DaylSkren(
                         val hasReset = currentList.any { it.id == "reset" || it.type == "reset" }
 
                         if (!hasDayl) {
-                            currentList.add(ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = 0xFFFF0000L, pozecon = 2, ezAktiv = false, glefs = listOf("dayl"), type = "hub"))
+                            currentList.add(ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = 0xFFFF0000L, pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad"))
                             modified = true
                         }
                         if (!hasKeypad) {
-                            currentList.add(ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = 0xFFFFFF00L, pozecon = 3, ezAktiv = false, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"))
+                            currentList.add(ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = 0xFFFFFF00L, pozecon = 3, ezAkdev = false, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"))
                             modified = true
                         }
                         if (!hasRebeld) {
-                            currentList.add(ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = 0xFF00FF00L, pozecon = 4, ezAktiv = false, type = "rebeld"))
+                            currentList.add(ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = 0xFF00FF00L, pozecon = 4, ezAkdev = false, type = "rebeld"))
                             modified = true
                         }
                         if (!hasReset) {
                             var newPozecon = 8
                             while (currentList.any { it.pozecon == newPozecon }) newPozecon++
-                            currentList.add(ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = newPozecon, ezAktiv = false, type = "reset"))
+                            currentList.add(ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = newPozecon, ezAkdev = false, type = "reset"))
                             modified = true
                         }
 
-                        // 3. Resolve pozecon conflicts for protected positions (1, 2)
-                        val protectedIds = setOf("dayl")
-                        val occupiedPozecons = currentList.map { it.pozecon }.toMutableList()
-                        currentList = currentList.map { mod ->
-                            if (!protectedIds.contains(mod.id) && (mod.pozecon == 1 || mod.pozecon == 2)) {
-                                var newPozecon = 3
-                                while (occupiedPozecons.contains(newPozecon)) {
-                                    newPozecon++
-                                }
-                                occupiedPozecons.add(newPozecon)
-                                modified = true
-                                mod.copyWith(pozecon = newPozecon)
-                            } else mod
-                        }.toMutableList()
+                        // Removed aggressive pozecon conflict resolution to allow modules at 1 o'clock
 
                         // 5. Make sure only one folder/module is active
-                        val activeFolder = currentList.find { it.ezAktiv && it.type != "hub" }
+                        val activeFolder = currentList.find { it.ezAkdev && it.type != "hub" }
                         if (activeFolder != null) {
                             currentList = currentList.map { mod ->
-                                if (mod.id != activeFolder.id && mod.ezAktiv) {
+                                if (mod.id != activeFolder.id && mod.ezAkdev) {
                                     modified = true
-                                    mod.copyWith(ezAktiv = false)
+                                    mod.copyWith(ezAkdev = false)
                                 } else mod
                             }.toMutableList()
                         }
@@ -261,7 +248,7 @@ fun DaylSkren(
                 }
             }
             scope.launch {
-                firebaseSirves.watchModuleLayout("rebeld_state").collect { updatedModules ->
+                firebaseSirves.watcModjilLeyawt("rebeld_steyt").collect { updatedModules ->
                     if (updatedModules.isNotEmpty()) {
                         var modified = false
                         var currentList = updatedModules.toMutableList()
@@ -270,9 +257,9 @@ fun DaylSkren(
                         currentList = currentList.map { mod ->
                             var updatedMod = mod.copyWith() // applies absolute colors
                             if (updatedMod.kulorLong != mod.kulorLong) modified = true
-                            if (updatedMod.id == "dayl" && (updatedMod.neym != "dayl" || updatedMod.pozecon != 2 || updatedMod.glefs != listOf("dayl"))) {
+                            if (updatedMod.id == "dayl" && (updatedMod.neym != "dayl" || updatedMod.pozecon != 2)) {
                                 modified = true
-                                updatedMod = updatedMod.copyWith(neym = "dayl", pozecon = 2, glefs = listOf("dayl"))
+                                updatedMod = updatedMod.copyWith(neym = "dayl", pozecon = 2)
                             }
                             updatedMod
                         }.toMutableList()
@@ -281,32 +268,19 @@ fun DaylSkren(
                         val hasBeldir = currentList.any { it.id == "beldir" } || daylSteyt.modyilz.any { it.id == "beldir" }
 
                         if (!hasDayl) {
-                            currentList.add(ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = 0xFFFF0000L, pozecon = 2, ezAktiv = false, glefs = listOf("dayl"), type = "hub"))
+                            currentList.add(ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = 0xFFFF0000L, pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad"))
                             modified = true
                         }
                         if (!hasBeldir) {
-                            currentList.add(ModyilDeyda(id = "beldir", neym = "beldir", kulorLong = 0xFF00FFCCL, pozecon = 3, ezAktiv = false, type = "keypad"))
+                            currentList.add(ModyilDeyda(id = "beldir", neym = "beldir", kulorLong = 0xFF00FFCCL, pozecon = 3, ezAkdev = false, type = "keypad"))
                             modified = true
                         }
 
-                        // 2. Resolve pozecon conflicts for protected positions (1, 2)
-                        val protectedIds = setOf("dayl")
-                        val occupiedPozecons = currentList.map { it.pozecon }.toMutableList()
-                        currentList = currentList.map { mod ->
-                            if (!protectedIds.contains(mod.id) && (mod.pozecon == 1 || mod.pozecon == 2)) {
-                                var newPozecon = 3
-                                while (occupiedPozecons.contains(newPozecon)) {
-                                    newPozecon++
-                                }
-                                occupiedPozecons.add(newPozecon)
-                                modified = true
-                                mod.copyWith(pozecon = newPozecon)
-                            } else mod
-                        }.toMutableList()
+                        // Removed aggressive pozecon conflict resolution to allow modules at 1 o'clock
 
-                        daylSteyt.updateRebeldModules(currentList)
+                        daylSteyt.updeytRebeldModjilz(currentList)
                         if (modified) {
-                            firebaseSirves.saveModuleLayout(currentList, "rebeld_state")
+                            firebaseSirves.saveModuleLayout(currentList, "rebeld_steyt")
                         }
                     }
                 }
@@ -400,8 +374,10 @@ fun DaylSkren(
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 32.dp),
-                horizontalArrangement = Arrangement.spacedBy(32.dp)
+                    .fillMaxWidth()
+                    .padding(start = 32.dp, end = 32.dp, bottom = 32.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { platformServices.openSettings() }) {
                     Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(32.dp))
@@ -458,25 +434,33 @@ fun ModuleContent(
                     onSaveLayout("current")
                 },
                 onCopyToEmpty = { from, to ->
-                    daylSteyt.kopeGlefTuEmpt(mod.id, from, to)
+                    if (to == -1) {
+                        daylSteyt.muvGlefTuHub(mod.id, from, isCopy = true)
+                    } else {
+                        daylSteyt.kopeGlefTuEmpt(mod.id, from, to)
+                    }
                     onSaveLayout("current")
                 },
-                onMoveToParent = { from ->
-                    daylSteyt.muvGlefTuHub(mod.id, from)
+                onMuvTuParent = { from ->
+                    daylSteyt.repleysGlef(mod.id, from, 0)
                     onSaveLayout("current")
                 },
                 onReneymMod = { newNeym ->
                     daylSteyt.reneymModyil(mod.id, newNeym)
                     onSaveLayout("current")
                 },
-                onReplace = { from, to, isMove, _ ->
-                    daylSteyt.replaceGlef(mod.id, from, to)
+                onRepleys = { from, to, isMove, _ ->
+                    if (to == -1) {
+                        daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
+                    } else {
+                        daylSteyt.repleysGlef(mod.id, from, to)
+                    }
                     onSaveLayout("current")
                 }
             )
         }
         currentType == "keypad" -> {
-            val mod = activeMod ?: daylSteyt.modyilz.find { it.type == "keypad" } ?: return
+            val mod = activeMod ?: daylSteyt.modyilz.find { it.type == "keypad" && it.id != "dayl" } ?: return
             Column(modifier = Modifier.fillMaxSize()) {
                 if (isApp) {
                     Row(
@@ -517,22 +501,39 @@ fun ModuleContent(
                             daylSteyt.pendingResetTargetId = mod.id
                         },
                         onMove = { from, to ->
-                            if (daylSteyt.kreyeytBakupEfNeded()) onSaveLayout("rebeld_state")
-                            daylSteyt.muvGlef(mod.id, from, to)
+                            if (to == -1) {
+                                daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
+                            } else {
+                                daylSteyt.muvGlef(mod.id, from, to)
+                            }
                             onSaveLayout("current")
                         },
                         onDropOnFoldir = { from, to, isMove ->
                             if (isMove) {
-                                if (daylSteyt.kreyeytBakupEfNeded()) onSaveLayout("rebeld_state")
                                 daylSteyt.muvModyilEntuFoldir(from, to)
                             } else {
                                 daylSteyt.kopeModyilEntuFoldir(from, to)
                             }
                             onSaveLayout("current")
                         },
-                        onReplace = { from, to, isMove, _ ->
-                            if (daylSteyt.kreyeytBakupEfNeded()) onSaveLayout("rebeld_state")
-                            daylSteyt.replaceGlef(mod.id, from, to)
+                        onRepleys = { from, to, isMove, _ ->
+                            if (to == -1) {
+                                daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
+                            } else {
+                                daylSteyt.repleysGlef(mod.id, from, to)
+                            }
+                            onSaveLayout("current")
+                        },
+                        onCopyToEmpty = { from, to ->
+                            if (to == -1) {
+                                daylSteyt.muvGlefTuHub(mod.id, from, isCopy = true)
+                            } else {
+                                daylSteyt.kopeGlefTuEmpt(mod.id, from, to)
+                            }
+                            onSaveLayout("current")
+                        },
+                        onMuvTuSentir = { from ->
+                            daylSteyt.repleysGlef(mod.id, from, 0)
                             onSaveLayout("current")
                         },
                         glowOnHover = false,
@@ -561,7 +562,7 @@ fun ModuleContent(
                     }
                     onSaveLayout("current")
                 },
-                onReplace = { from, to, isMove, renameTo ->
+                onRepleys = { from, to, isMove, renameTo ->
                     daylSteyt.replaceRebeldModyil(from, to, isMove, renameTo)
                     onSaveLayout("current")
                 }
@@ -590,24 +591,36 @@ fun ModuleContent(
                     daylSteyt.pendingResetTargetId = "dayl"
                 }
             },
-            onMoveModule = { from, to ->
-                if (to == -1) {
-                    daylSteyt.muvModyilAwdirSpeys(from + 1)
+            onMuvModjil = { from, to ->
+                val draggedMod = daylSteyt.modyilz.find { it.pozecon == from + 1 }
+                val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                if (hasTraveler) {
+                    if (to != -1) daylSteyt.pilTravlirTuHub(draggedMod!!.id, to + 1)
                 } else {
-                    daylSteyt.swopModyilz(from + 1, to + 1)
+                    if (to == -1) {
+                        daylSteyt.muvModyilAwdirSpeys(from + 1)
+                    } else {
+                        daylSteyt.swopModyilz(from + 1, to + 1)
+                    }
                 }
                 onSaveLayout("current")
             },
             onDropOnFoldir = { from, to, isMove ->
+                val draggedMod = daylSteyt.modyilz.find { it.pozecon == from + 1 }
+                val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
                 val targetMod = daylSteyt.modyilz.find { it.pozecon == to + 1 }
-                if (isMove) {
-                    daylSteyt.muvModyilEntuFoldir(from, to)
+                if (hasTraveler) {
+                    daylSteyt.pilTravlirEntuFoldir(draggedMod!!.id, targetMod?.id ?: "", to + 1)
                 } else {
-                    daylSteyt.kopeModyilEntuFoldir(from, to)
+                    if (isMove) {
+                        daylSteyt.muvModyilEntuFoldir(from, to)
+                    } else {
+                        daylSteyt.kopeModyilEntuFoldir(from, to)
+                    }
                 }
                 onSaveLayout("current")
                 if (targetMod?.type == "rebeld") {
-                    onSaveLayout("rebeld_state")
+                    onSaveLayout("rebeld_steyt")
                 }
             },
             onCopyToEmpty = { from, to ->
@@ -615,18 +628,24 @@ fun ModuleContent(
                 daylSteyt.kopeModyilTuEmpt(from + 1, to + 1)
                 onSaveLayout("current")
                 if (targetMod?.type == "rebeld") {
-                    onSaveLayout("rebeld_state")
+                    onSaveLayout("rebeld_steyt")
                 }
             },
-            onMoveToCenter = { from ->
+            onMuvTuSentir = { from ->
                 daylSteyt.muvModyilTuParent(from + 1)
                 onSaveLayout("current")
             },
             stackWidth = screenWidth,
             stackHeight = screenHeight,
             allowSwap = true,
-            onReplace = { from, to, isMove, renameTo ->
-                daylSteyt.replaceModyil(from + 1, to + 1, isMove, renameTo)
+            onRepleys = { from, to, isMove, renameTo ->
+                val draggedMod = daylSteyt.modyilz.find { it.pozecon == from + 1 }
+                val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                if (hasTraveler) {
+                    daylSteyt.pilTravlirRepleys(draggedMod!!.id, to + 1, isMove)
+                } else {
+                    daylSteyt.replaceModyil(from + 1, to + 1, isMove, renameTo)
+                }
                 onSaveLayout("current")
             },
             onRotate = { delta ->

@@ -32,7 +32,7 @@ object KepadLodjek {
         return if (count > 0) count else 1
     }
 
-    fun getHeksIndeksFromPozecon(offsetX: Float, offsetY: Float, w: Float, h: Float, allHexPositions: List<HeksagonPozecon>, hexSize: Double): Int? {
+    fun getHeksEndeksFrumPozecon(offsetX: Float, offsetY: Float, w: Float, h: Float, allHexPositions: List<HeksagonPozecon>, hexSize: Double): Int? {
         val localX = offsetX - w / 2
         val localY = offsetY - h / 2
         var closestIndex: Int? = null

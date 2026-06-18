@@ -1,10 +1,85 @@
 **prodjekt angol**
 ###**golz**
+lhes ez global lodjek, not djust kepad! lhe kepad wuz lha pleys we got a glemps ov et lho lhat geyv me lhe aydeya!
+The "drag off" mechanism: ya djust luyk et wuz on lhe ensaydz ov kepad and dayl, also meyk et wirk on lhe awtsaydz.
+
+1. yes egzaktle!
+2. yes egzaktle!
+3. 
+4. 
+5. 
+reneym
+replaceGlef repleysGlef
+onMoveModule onMuvModjil
+onReplace onRepleys
+watchModuleLayout watcModjilLeyawt 
+centerLabel sentirLeybil
+pullTravelerTuHub pilTravlirTuHub
+pullTravelerEntuFoldir pilTravlirEntuFoldir
+pullTravelerReplace pilTravlirRepleys
+
+
+1. okey pirfekt.
+2. no. meyk drag tu sentir 'moves the item out into the parent workspace' *on* lhes parent modjil leybil 'instead of accidentally hiding it *under* the center label'. 
+so meyk lhes travlir modjil on elhir sayd ov desteneycon modjil eybil tu drag of tu pleys and revel lha parent leybil agen!
+3. no. meyk lha sentir desteneycon modjil agen 'inherit strange colors if a slot was emptied into it' and blak on lha kulord sayd desteneycon modjil, untel muvd of.
+and cow lha travlir modjil leybil ensted, on bolx saydz ov lha desteneycon modjil, untel muvd of az wel.
+4. no. bolx 'beldir'z ay hav en rebeld stel hav kepadz! empte lhem, or at lest wan ov lhem so ay kan delet lhe olhir.
+
+1. yes pirfekt! duz et teyk mor prosesenq and memre? 
+2. no. et wuzint 'replacing' but haydenq undir lha leybil. lha kulorz ov bolx lha bakgrawnd and tekst cow lhru en kepad but not en dayl. meyk et cow lha leybil tuw on 'kepad'l bolx saydz! and wuyt on sub direktore untel teyken of!
+
+reneym:
+preEditKeypadState preEdetKepadSteyt
+ezAktiv ezAkdev 
+auto_backup odo_bakup 
+activateModyil akdeveytModyil
+ensureGlefsPopulated encurGlefsPopyuleyded
+getHeksEndeksFromPozecon getHeksEndeksFrumPozecon
+
+1. angol.rebeld.kepad ced not delet wen gowenq en angol.kepad. 'tregir odomadek reset oviruyt' duz not men delet. et menz alaw ovirruyt wen onle kepad modjil ez tceynjd. *lets empruv lha muv kondecon tu tceynj ov kepad at ekset ensted ov tceynj en kepad. lhat wey, ef sumwon muvs modyilz but pits lhem bak tu oredjenal pozeconz befor ekset, et wel not muv tu rebeld.kepad. so onle ekset kumperz an muvs ef tceynjd.
+2. ay kan muv en but not awt ov dayl and kepad, et muvs tu sentir but duz not repleys. cidint kepad sentir be wuyt luyk dayl and rebeld? ets blak grey! verefay and feks.
+3. 
+4. no et stel haz a kepad! verefay and kler.
+
+yes 'just like any other' modjil. oh! lhe entent ov kepad ez tu not kope or muv tu sentir mod ez lha problem. 
+may entent ez ene modjil kan muv enewer on angol and en dayl kope enewer but angol. so wen kepad ez en dayl alaw muvment en and awt ov kepad and kope not en bolx angol and dayl.
+Bug 1: yes. yes.
+Bug 2: okey yes.
+Bug 3: yes semplir. et cid not hav ene kepad.
+Bug 4: 'the real question is why reset won't move.' et wel muv on but not awt ov kepad. lhats bekuz nun ov lhem kan. wons kepad ez muvd tu dayl frum angol, et cid muv or kope ene modjilz awt!
+Bug 5: cid we muv lha kepad ensted ov kope first? or lhats lha seym? kan entirenq kepad meyk rebeld tregir odomadek reset oviruyt ensted ov manyuwal neym tceynj? and reneym 'kepad beld' 'kepad'? 
+
+?meyk 'rebeld.beld' foldir modyil for kepad bakups direktle
+
++kan yu se may Firestore kod and haw et defirz frum Google Cloud storadj?
+
+-wen aym en angol, or angol.kepad, kepad ap cowz angol.kepad. but wen aym en angol.rebeld, lha kepad ap tceynjez tu prezumable lha kodbeys kepad (broken delet key glef ⌫) and wen aym en angol.dayl, lha kepad ap tceynjez tu grey 'dayl' at sentir welx no keyz arawnd but lha sentir funkconz az normal kepad.
+-muvenq modyilz tu dayl stel repelz lhem.
+-and rebeld.beldir stel haz kepad prezumle kodbeys.
+-'reset' wirks en 'rebeld' but not en kepad or dayl. and et wel not muv awt ov kepad but wel awt ov dayl. wen muvenq a sekond 'reset' tu kepad tuh arawnd angol desaper but wan went en kepad! 
+wen muvenq a modyil at angol.kepad lha prevyus kepad muvs tu rebeld kold 'kepad beld'. wen duz rebeld meyk anulhir kope?
+
+
+cid `enstol.bat`ad 'beld' an 'beld kler' for rebeld and beldir modjilz?
+
+-pit '. or , or ; or -' afdir palx leybil. so dayl, kepad, and rebeld sey 'angol' at lha top cid sey 'angol.' and modyilz en rebeld, for egzampil, sey 'angol.rebeld.'.
+tceynj '.' en palxs tu ',' sutc az 'angol.kepad' tu 'angol,kepad,'. so ad ',' at end tu endekeyt.
+
+-horezontal kepad ap display ez not fet agen layk virdekal wuz pirfekt frum Claude also. kan yu lik tu prevyuz Github kumet tu se haw et wuz korekt? virdekal ez stel padenq ov 1/4 heksagon at bolx top and bodum.
+
+feks ⌫ funkcon on kepad.
+delet kapedol funkcon.
+
+-roteyded 15 degrees klokwayz tu 12:30/6:30.
+slaydenq fengir frum bodum tu top bordir ov a kepad modyil pits on kaps lok?ez lha lonq pres at 6 aklok lha seym az lonq pres at sentir?meyk angol or dayl.kepad not edetabil wen rebeld ez not enstold.ar SentirModTogilWedjet.kt and AwtpitTekstWedjet.kt yuzd?ez HeksagonDjeyometre.kt meyd ov seks trayangilz etc sepret tu tutc? and kan DaylWedjet.kt sens wetc ar tutcd? 
+ez HeksagonGred.kt mene or wan heksagon?
+**kuntenyu entegreycon kuntenyuwus deployment** flow: yuzir prefrensez send frum Firestore tuGoogle Cloud Repo. that updates the code base there. Then you have some TypeScript logic that watches for certain thresholds — like usage or time — and if everything looks good and stable, it automatically mirrors or pushes that code over to GitHub. So Firestore is the data trigger, Cloud Repo is your primary code base, and GitHub is the final promotion target. That’s a continuous integration and continuous deployment pipeline with a promotion gate.
 **klawd senk**modyul leyawts senkronayz welx Firebase Firestore veya `FirebaseSirves`.
 **olxentekeycon**GitHub logen
 **Google Cloud konsol** AI tu ruyt lha TypeScript funkcon skedyulir odomadek fetc ov angol dayl kepad modyil tceynjez deyda frum Firestore tu pic Google Source Repository at 3am event dreven onle wen tceynj okirz.
 **heksagon djeyometre peksilz** etc ov lha seks trayangilz meyd ov 24 2|3 trayangilz for total 144 cerz.
-`enstol.bat`ad 'beld' an 'beld kler'.
+ // | kalkyu(spredcet) | eyay eydjents [fon] | klok | kumpas | eklekt  | yecuw wirdz | tcekirz | kemekal | myuzek | lxirmostat
 
 ###**arketekcir**`Kotlin Multiplatform`onle updeyt tu best Kotlin MP (2.3.21), Compose (1.10.3), AGP (9.2.0), CompileSdk (37), WearOS (6).
 **angolModjul**enkludz`angolWedjet`*cerd laybrere*(`com.android.kotlin.multiplatform.library`) kor rawdir reprezents lha fawndeycon geytkepir sesdom etself ov cerd lodjek, sekyir tranzakconz, enkrepcon, AngolSteyt, deydabeys clawd entirakconz (`FirebaseSirves`), paslok, and yuteledez rekwayrd tu entsol-unenstol ol ap adenz.  kopeleft alon open sors.
@@ -12,12 +87,12 @@
     `src/androidMain/kotlin/`: emplementeyconz (Android sirvesez, fayl storedj, tekst tu spetc).
 ez lher a**poyntirWedjet**dependz on`angolModjul`entirfeys?
 
-**poyntirModyil**drag an drop: dayl(bay akdev sentir wedjet), kirsir(bay swuyp frum awdir speys or enpit feld welx sekond fengir lokd drags and bolx drag delet-undelet). swuyp, pentc-zum, huvir, pres, tap, klek, lonq pres, unpres, spetc tu tekst. awt: togil mod (beys yunets(10|O), domeyn me|yu, angol 1|2, |—), roteyt: dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devays, direkcon. popup, glow, kontrast kulor, tekst tu spetc, hapdek.
+**poyntirModjul**drag an drop: dayl(bay akdev sentir wedjet), kirsir(bay swuyp frum awdir speys or enpit feld welx sekond fengir lokd drags and bolx drag delet-undelet). swuyp, pentc-zum, huvir, pres, tap, klek, lonq pres, unpres, spetc tu tekst. awt: togil mod (beys yunets(10|O), domeyn me|yu, angol 1|2, |—), roteyt: dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devays, direkcon. popup, glow, kontrast kulor, tekst tu spetc, hapdek.
 ez spetc tu tekst en DaylEnpitMelxod.kt?
 **poyntirWedjet**dependz on`poyntirModjul`entirfeys.
 
 **angolDaylAp**{`angolModjul`+`daylModjul`+`poyntirModyil`+ rapir}*ap entre*(`com.android.application`) redjestirz az sesdom aps manadjir, and awtpit edetir.
-**daylModjul**enkludz`daylWedjet`aps publek repozecon, resent at enir renq an most at awdir, drag an drop, ad-remuv lxru angol modjul.
+**daylModjul**enkludz`daylWedjet`aps publek repozecon, resent at enir renq an most at awdir, drag an drop lxru poyntirModjul, ad-remuv lxru angol modjul.
 **daylWedjet**dependz on`daylModjul`hub entirfeys leyawt ov ap adenz arawnd angol modjul.
 
 **angolKepadAp**{`angolModjul`+`kepadModyil`+`poyntirModyil`+ rapir} ekstencon redjestirz az`InputMethodService`opireydenq sestem enpit edetir.
@@ -25,12 +100,10 @@ ez spetc tu tekst en DaylEnpitMelxod.kt?
 malx mod and wird mod
 
 **angolRebeldAp**{`angolModjul`+`rebeldModyil`+`daylModjul`+`poyntirModyil`+ rapir} redjestirz az sestom modyil awtpit edetir. tceynjenq a kepad modyil pozecon odomadekle muvz prevyus kepad tu rebeld.
-**beldModyil**dayl repozecon aps and modjilz drag an drop.
 **rebeldModjul**+`rebeldWedjet`uysoleyded frum dayl repozecon aps an modyilz kope an delet and mirdj funkconz an atrebyuts frum dayl and beldir.
-**rebeldWedjet**
+**beldWedjet**
 **beldirModyil**ensayd rebeldModyil, sketc templet tu emport-eksport ceyps sutc az glefs.
 
- // | kalkyu(spredcet) | eyay eydjents [fon] | klok | kumpas | eklekt  | yecuw wirdz | tcekirz | kemekal | myuzek | lxirmostat
 
 ##**funkcon lodjek**
 **ap separeycon**'dayl' and 'kepad' ar sepret aps (`io.angol.dayl` and `io.angol.kepad`) for sestom level enpit edetir redjestreycon and klen prodjekt strukcir.

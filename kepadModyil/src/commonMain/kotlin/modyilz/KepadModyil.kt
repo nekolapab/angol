@@ -48,10 +48,10 @@ fun KepadModyil(
     isEditing: Boolean = false,
     onMove: (Int, Int) -> Unit = { _, _ -> },
     onCopyToEmpty: (Int, Int) -> Unit = { _, _ -> },
-    onMoveToCenter: (Int) -> Unit = { _ -> },
+    onMuvTuSentir: (Int) -> Unit = { _ -> },
     onDropOnFoldir: (Int, Int, Boolean) -> Unit = { _, _, _ -> },
     onDelete: (Int) -> Unit = { _ -> },
-    onReplace: ((Int, Int, Boolean, String?) -> Unit)? = null,
+    onRepleys: ((Int, Int, Boolean, String?) -> Unit)? = null,
     glowOnHover: Boolean = true,
     hideDisconnected: Boolean = false,
     neym: String = "kepad",
@@ -82,12 +82,19 @@ fun KepadModyil(
     var ezSentirHeksPresd by remember { mutableStateOf(false) }
 
     fun getKulor(index: Int): Color {
+        if (index == 0) {
+            val hasTraveler = glefsOvirayd != null && glefsOvirayd.isNotEmpty() && glefsOvirayd[0].isNotBlank() && glefsOvirayd[0] != neym && glefsOvirayd[0] != " "
+            if (hasTraveler && kulorzOverride != null && kulorzOverride.isNotEmpty()) {
+                val c = Color(kulorzOverride[0].toInt())
+                if (c != Color.Transparent) return c
+            }
+            return Color.White
+        }
         if (kulorzOverride != null && index < kulorzOverride.size) {
             val c = Color(kulorzOverride[index].toInt())
             if (c != Color.Transparent) return c
         }
         return when {
-            index == 0 -> Color.White
             index in 1..6 -> HeksagonKonfeg.innerRingColors[index - 1]
             index in 7..18 -> HeksagonKonfeg.rainbowColors[index - 7]
             else -> Color.Transparent
@@ -305,18 +312,21 @@ fun KepadModyil(
                 )
             }.filterNotNull()
 
-            val centerLabel = currentLabels.getOrNull(0) ?: " "
+            val sentirLeybil = currentLabels.getOrNull(0) ?: " "
+            
+            val hasTraveler = glefsOvirayd != null && glefsOvirayd.isNotEmpty() && glefsOvirayd[0].isNotBlank() && glefsOvirayd[0] != neym && glefsOvirayd[0] != " "
+            val finalSentirLeybil = if (hasTraveler) glefsOvirayd!![0] else neym
 
             wedjets.HeksagonGred(
                 geometry = currentGeometry,
                 items = gredItems,
-                centerLabel = neym,
+                sentirLeybil = finalSentirLeybil,
                 centerColor = getKulor(0),
                 onMove = onMove,
                 onCopyToEmpty = onCopyToEmpty,
-                onMoveToCenter = onMoveToCenter,
+                onMuvTuSentir = onMuvTuSentir,
                 onDropOnFoldir = onDropOnFoldir,
-                onReplace = onReplace,
+                onRepleys = onRepleys,
                 onDelete = onDelete,
                 onTap = { index -> if (index == 0) onClose?.invoke() },
                 fontSizeFactor = 12f/12f,
@@ -351,7 +361,7 @@ fun KepadModyil(
                                 val rawYDp = down.position.y.toDp().value
                                 val xDp = if (ezUpsayddawn) wDp - rawXDp else rawXDp
                                 val yDp = if (ezUpsayddawn) hDp - rawYDp else rawYDp
-                                val downIndex = KepadLodjek.getHeksIndeksFromPozecon(xDp, yDp, wDp, hDp, allHexPositions, currentGeometry.heksSayz)
+                                val downIndex = KepadLodjek.getHeksEndeksFrumPozecon(xDp, yDp, wDp, hDp, allHexPositions, currentGeometry.heksSayz)
                                 
                                 val downTimeLabels = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
                                 val isLabelPresent = if (downIndex != null) {
@@ -430,7 +440,7 @@ fun KepadModyil(
                                     val rawMoveYDp = change.position.y.toDp().value
                                     val moveXDp = if (ezUpsayddawn) wDp - rawMoveXDp else rawMoveXDp
                                     val moveYDp = if (ezUpsayddawn) hDp - rawMoveYDp else rawMoveYDp
-                                    val rawMoveIndex = KepadLodjek.getHeksIndeksFromPozecon(moveXDp, moveYDp, wDp, hDp, allHexPositions, currentGeometry.heksSayz)
+                                    val rawMoveIndex = KepadLodjek.getHeksEndeksFrumPozecon(moveXDp, moveYDp, wDp, hDp, allHexPositions, currentGeometry.heksSayz)
                                     
                                     val moveIndex = if (rawMoveIndex != null) {
                                         val moveLabels = KepadLodjek.getKirentOlLeybilz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)

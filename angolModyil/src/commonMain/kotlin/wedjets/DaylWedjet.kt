@@ -16,28 +16,31 @@ fun DaylWedjet(
     geometry: HeksagonDjeyometre,
     modyilz: List<ModyilDeyda>,
     onToggleModule: (Int) -> Unit,
-    onMoveModule: (Int, Int) -> Unit,
+    onMuvModjil: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
-    onMoveToCenter: (Int) -> Unit,
+    onMuvTuSentir: (Int) -> Unit,
     onDropOnFoldir: (Int, Int, Boolean) -> Unit,
     stackWidth: Dp,
     stackHeight: Dp,
     allowSwap: Boolean = true,
-    onReplace: ((Int, Int, Boolean, String?) -> Unit)? = null,
+    onRepleys: ((Int, Int, Boolean, String?) -> Unit)? = null,
     onRotate: ((Double) -> Unit)? = null,
     onLongPressItem: ((Int) -> Unit)? = null
 ) {
     val daylModule = modyilz.find { it.id == "dayl" } ?: modyilz.first()
     val gredItems = modyilz.map { mod ->
+        val hasTraveler = mod.glefs.isNotEmpty() && mod.glefs[0].isNotBlank() && mod.glefs[0] != mod.neym && mod.glefs[0] != " "
+        val label = if (hasTraveler) mod.glefs[0] else mod.neym
+        
         val rawColor = if (mod.id == "dayl" && (mod.kulorLong == 0L || mod.kulorLong == 4278190080L || mod.kulorLong == -16777216L)) {
             Color(0xFFFF0000)
         } else {
             mod.kulor
         }
-        val finalColor = if (mod.ezAktiv) Color.White else rawColor
+        val finalColor = if (hasTraveler) Color.Black else if (mod.ezAkdev) Color.White else rawColor
         GredUydem(
             index = mod.pozecon - 1,
-            label = mod.neym,
+            label = label,
             color = finalColor,
             isFolder = (mod.type == "keypad" || mod.type == "rebeld" || mod.type == "beld" || mod.id == "beldir"),
             deyda = mod
@@ -48,13 +51,13 @@ fun DaylWedjet(
         HeksagonGred(
             geometry = geometry,
             items = gredItems,
-            centerLabel = "angol",
-            centerColor = if (modyilz.none { it.ezAktiv }) Color.White else Color.Black,
-            onMove = onMoveModule,
+            sentirLeybil = "angol",
+            centerColor = if (modyilz.none { it.ezAkdev }) Color.White else Color.Black,
+            onMove = onMuvModjil,
             onCopyToEmpty = onCopyToEmpty,
-            onMoveToCenter = onMoveToCenter,
+            onMuvTuSentir = onMuvTuSentir,
             onDropOnFoldir = onDropOnFoldir,
-            onReplace = onReplace,
+            onRepleys = onRepleys,
             onRotate = onRotate,
             onLongPressItem = onLongPressItem,
             modifier = Modifier.fillMaxSize(),

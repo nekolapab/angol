@@ -1,4 +1,4 @@
-﻿package wedjets
+package wedjets
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
@@ -56,12 +56,12 @@ fun HeksagonGred(
     items: List<GredUydem>,
     onMove: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
-    onMoveToCenter: (Int) -> Unit,
+    onMuvTuSentir: (Int) -> Unit = {},
     onDropOnFoldir: (Int, Int, Boolean) -> Unit,
-    onReplace: ((Int, Int, Boolean, String?) -> Unit)? = null,
+    onRepleys: ((Int, Int, Boolean, String?) -> Unit)? = null,
     onRotate: ((Double) -> Unit)? = null,
     modifier: Modifier = Modifier,
-    centerLabel: String = "",
+    sentirLeybil: String = "",
     centerColor: Color = Color.Black,
     onTap: (Int) -> Unit = {},
     onLongPressItem: ((Int) -> Unit)? = null,
@@ -170,9 +170,7 @@ fun HeksagonGred(
 
             // If target is null or not connectable in keypad folder mode, move back to parent screen
             if (toIdx == null || (hideDisconnected && toIdx != 0 && !geometry.getNeybirIndesiz(toIdx).any { it in konekdedEndeksez && it != fromIdx })) {
-                if (hideDisconnected) {
-                    onMoveToCenter(fromIdx)
-                } else {
+                if (!hideDisconnected) {
                     if (isMoveDrag) {
                         onMove(fromIdx, -1)
                     } else {
@@ -182,8 +180,8 @@ fun HeksagonGred(
                 return
             }
 
-            val targetItem = items.firstOrNull { it.index == toIdx }
-            if (targetItem?.label == "âŒ«") return
+            val targetUydem = items.firstOrNull { it.index == toIdx }
+            if (targetUydem?.label == "⌫") return
 
             val sameSpot = (toIdx == fromIdx)
             if (sameSpot) {
@@ -191,16 +189,16 @@ fun HeksagonGred(
             } else {
                 if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = null
                 if (toIdx == 0) {
-                    onMoveToCenter(fromIdx)
+                    onMuvTuSentir(fromIdx)
                     return
                 }
 
-                val isReplaceConflict = draggedItem?.label == targetItem?.label
-                if (draggedItem != null && targetItem != null && 
-                    draggedItem.label.isNotEmpty() && targetItem.label.isNotEmpty() && 
-                    isReplaceConflict
+                val ezRepleysKonflekt = draggedItem?.label == targetUydem?.label
+                if (draggedItem != null && targetUydem != null && 
+                    draggedItem.label.isNotEmpty() && targetUydem.label.isNotEmpty() && 
+                    ezRepleysKonflekt
                 ) {
-                    if (onReplace != null) {
+                    if (onRepleys != null) {
                         pendingReplaceFrom = fromIdx
                         pendingReplaceTo = toIdx
                         pendingIsMoveDrag = isMoveDrag
@@ -209,19 +207,19 @@ fun HeksagonGred(
                     }
                 }
 
-                if (targetItem?.isFolder == true) {
+                if (targetUydem?.isFolder == true) {
                     onDropOnFoldir(fromIdx, toIdx, isMoveDrag)
                 } else if (isMoveDrag) {
-                    if (targetItem != null && targetItem.label.isNotEmpty()) {
+                    if (targetUydem != null && targetUydem.label.isNotEmpty()) {
                         if (allowSwap) onMove(fromIdx, toIdx)
                     } else {
                         onMove(fromIdx, toIdx)
                     }
                 } else {
-                    if (toIdx != 0 && targetItem == null) {
+                    if (toIdx != 0 && targetUydem == null) {
                         onCopyToEmpty(fromIdx, toIdx)
-                    } else if (targetItem != null && targetItem.label.isNotEmpty()) {
-                        if (onReplace != null) {
+                    } else if (targetUydem != null && targetUydem.label.isNotEmpty()) {
+                        if (onRepleys != null) {
                             pendingReplaceFrom = fromIdx
                             pendingReplaceTo = toIdx
                             pendingIsMoveDrag = isMoveDrag
@@ -248,9 +246,9 @@ fun HeksagonGred(
             val isHovered = currentHoverIndex == index && draggingIndex != null
 
             Box(modifier = Modifier.align(Alignment.Center).offset(x = pos.x.dp, y = pos.y.dp)) {
-                if (index == 0 && item == null && centerLabel.isNotEmpty()) {
+                if (index == 0 && item == null && sentirLeybil.isNotEmpty()) {
                     Heksagon(
-                        label = centerLabel, backgroundColor = centerColor,
+                        label = sentirLeybil, backgroundColor = centerColor,
                         textColor = HeksagonKonfeg.getComplementaryColor(centerColor), size = hexWidthDp, fontSizeFactor = centerFontSizeFactor,
                         ezKonsestentSayz = centerEzKonsestentSayz,
                         fixedLabelLength = fixedLabelLength,
@@ -353,7 +351,7 @@ fun HeksagonGred(
                             onClick = {
                                 val from = pendingReplaceFrom
                                 val to = pendingReplaceTo
-                                if (from != null && to != null) onReplace?.invoke(from, to, pendingIsMoveDrag, null)
+                                if (from != null && to != null) onRepleys?.invoke(from, to, pendingIsMoveDrag, null)
                                 showReplaceDialog = false
                             },
                             modifier = Modifier.weight(1f)
@@ -386,7 +384,7 @@ fun HeksagonGred(
                         val from = pendingReplaceFrom
                         val to = pendingReplaceTo
                         if (from != null && to != null) {
-                            onReplace?.invoke(from, to, pendingIsMoveDrag, renameText)
+                            onRepleys?.invoke(from, to, pendingIsMoveDrag, renameText)
                         }
                         showRenameDialog = false
                     }) {
@@ -406,11 +404,11 @@ fun HeksagonGred(
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
                 val start = down.position
-                val downIdx = getHexIndexFromPosition(start.x, start.y, wPx, hPx, expandedHexPositionsPx, hexSizePx)
+                val downIdx = getHeksEndeksFrumPozecon(start.x, start.y, wPx, hPx, expandedHexPositionsPx, hexSizePx, geometry.roteyconAngol.toFloat())
                 
                 if (downIdx == null) return@awaitEachGesture
                 
-                val isCenterOccupied = downIdx == 0 && centerLabel.isNotEmpty()
+                val isCenterOccupied = downIdx == 0 && sentirLeybil.isNotEmpty()
                 val isItemAtIdx = items.any { it.index == downIdx && it.label.isNotEmpty() }
                 
                 if (!isCenterOccupied && !isItemAtIdx && disconnectedArmedIndex != downIdx) {
@@ -517,8 +515,8 @@ fun HeksagonGred(
                             draggingIndex = downIdx
                             isCopyDragActive = !isMoveDrag
                             dragOffset = position
-                            val newHover = getHexIndexFromPosition(
-                                dragOffset.x, dragOffset.y, wPx, hPx, expandedHexPositionsPx, hexSizePx
+                            val newHover = getHeksEndeksFrumPozecon(
+                                dragOffset.x, dragOffset.y, wPx, hPx, expandedHexPositionsPx, hexSizePx, geometry.roteyconAngol.toFloat()
                             )
                             if (newHover != downIdx) {
                                 hasMuvd = true
@@ -568,7 +566,7 @@ fun HeksagonGred(
     }
 }
 
-private fun getHexIndexFromPosition(offsetX: Float, offsetY: Float, w: Float, h: Float, allHexPositionsPx: List<HeksagonPozecon>, hexSizePx: Float): Int? {
+private fun getHeksEndeksFrumPozecon(offsetX: Float, offsetY: Float, w: Float, h: Float, allHexPositionsPx: List<HeksagonPozecon>, hexSizePx: Float, roteyconAngol: Float): Int? {
     val localX = offsetX - w / 2f; val localY = offsetY - h / 2f
     var closestIndex: Int? = null; var minDistSq = Double.MAX_VALUE
     for (i in allHexPositionsPx.indices) {
@@ -576,7 +574,16 @@ private fun getHexIndexFromPosition(offsetX: Float, offsetY: Float, w: Float, h:
         if (distSq < minDistSq) { minDistSq = distSq; closestIndex = i }
     }
     if (closestIndex != null) {
-        val center = allHexPositionsPx[closestIndex]; val dx = kotlin.math.abs(localX - center.x); val dy = kotlin.math.abs(localY - center.y)
+        val center = allHexPositionsPx[closestIndex]
+        val unrotatedX = localX - center.x
+        val unrotatedY = localY - center.y
+        val angleRad = kotlin.math.PI / 180.0 * -roteyconAngol
+        val cosA = kotlin.math.cos(angleRad).toFloat()
+        val sinA = kotlin.math.sin(angleRad).toFloat()
+        val rotatedX = unrotatedX * cosA - unrotatedY * sinA
+        val rotatedY = unrotatedX * sinA + unrotatedY * cosA
+        val dx = kotlin.math.abs(rotatedX)
+        val dy = kotlin.math.abs(rotatedY)
         val sqrt3Val = sqrt(3.0).toFloat()
         if (dx > hexSizePx * sqrt3Val / 2f) return null
         if ((dx + sqrt3Val * dy) <= (sqrt3Val * hexSizePx)) return closestIndex

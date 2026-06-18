@@ -160,7 +160,7 @@ class AndroidFirebaseSirves(
         Log.d("AndroidFirebaseSirves", "Broadcasted layout update ($environment)")
     }
 
-    override fun watchModuleLayout(environment: String): Flow<List<ModyilDeyda>> = callbackFlow {
+    override fun watcModjilLeyawt(environment: String): Flow<List<ModyilDeyda>> = callbackFlow {
         val user = auth.currentUser
         Log.d("AndroidFirebaseSirves", "Starting watch for environment: $environment. User logged in: ${user != null}, UID: ${user?.uid}")
 

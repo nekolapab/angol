@@ -43,14 +43,14 @@ fun Rebeld(
     onClose: () -> Unit,
     onAction: (String) -> Unit = {},
     onDropOnFoldir: (Int, Int, Boolean) -> Unit = { _, _, _ -> },
-    onReplace: (Int, Int, Boolean, String?) -> Unit = { _, _, _, _ -> },
+    onRepleys: (Int, Int, Boolean, String?) -> Unit = { _, _, _, _ -> },
     isApp: Boolean = false
 ) {
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
     var moduleToReplace by remember { mutableStateOf<Int?>(null) }
     
     val syncRebeld = {
-        onAction("rebeld_state")
+        onAction("rebeld_steyt")
     }
 
     if (selectedModuleId != null) {
@@ -70,10 +70,14 @@ fun Rebeld(
                     syncRebeld()
                 },
                 onCopyToEmpty = { from, to ->
-                    daylSteyt.kopeGlefTuEmpt(mod.id, from, to)
+                    if (to == -1) {
+                        daylSteyt.muvGlefTuHub(mod.id, from, isCopy = true)
+                    } else {
+                        daylSteyt.kopeGlefTuEmpt(mod.id, from, to)
+                    }
                     syncRebeld()
                 },
-                onMoveToParent = { from ->
+                onMuvTuParent = { from ->
                     daylSteyt.muvGlefTuHub(mod.id, from)
                     syncRebeld()
                 },
@@ -81,8 +85,12 @@ fun Rebeld(
                     daylSteyt.reneymModyil(mod.id, newNeym)
                     syncRebeld()
                 },
-                onReplace = { from, to, isMove, _ ->
-                    daylSteyt.replaceGlef(mod.id, from, to)
+                onRepleys = { from, to, isMove, _ ->
+                    if (to == -1) {
+                        daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
+                    } else {
+                        daylSteyt.repleysGlef(mod.id, from, to)
+                    }
                     syncRebeld()
                 }
             )
@@ -109,10 +117,13 @@ fun Rebeld(
         val screenHeight = maxHeight
         
         val gredItems = daylSteyt.rebeldModyilz.filter { it.type != "hub" }.map { mod ->
+            val hasTraveler = mod.glefs.isNotEmpty() && mod.glefs[0].isNotBlank() && mod.glefs[0] != mod.neym && mod.glefs[0] != " "
+            val label = if (hasTraveler) mod.glefs[0] else mod.neym
+            val color = if (hasTraveler) Color.Black else mod.kulor
             GredUydem(
                 index = mod.pozecon - 1,
-                label = mod.neym,
-                color = mod.kulor,
+                label = label,
+                color = color,
                 isFolder = (mod.type == "keypad" || mod.type == "beld" || mod.id == "beldir"),
                 deyda = mod
             )
@@ -167,16 +178,21 @@ fun Rebeld(
                 HeksagonGred(
                     geometry = geometry,
                     items = gredItems,
-                    centerLabel = "rebeld",
-                    centerColor = if (daylSteyt.rebeldModyilz.none { it.ezAktiv }) Color.White else Color.Black,
+                    sentirLeybil = "rebeld",
+                    centerColor = if (daylSteyt.rebeldModyilz.none { it.ezAkdev }) Color.White else Color.Black,
                     copyDragPolicy = CopyDragPolicy.TwoStepArmed,
                     allowSwap = true,
                     onMove = { from, to ->
-                        if (to == -1) {
-                            // Dropped outside grid: send to sidelines (disconnected, not deleted)
-                            daylSteyt.muvRebeldModyilAwdirSpeys(from + 1)
+                        val draggedMod = daylSteyt.rebeldModyilz.find { it.pozecon == from + 1 }
+                        val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                        if (hasTraveler) {
+                            if (to != -1) daylSteyt.pilTravlirTuHub(draggedMod!!.id, to + 1)
                         } else {
-                            daylSteyt.swopRebeldModyilz(from + 1, to + 1)
+                            if (to == -1) {
+                                daylSteyt.muvRebeldModyilAwdirSpeys(from + 1)
+                            } else {
+                                daylSteyt.swopRebeldModyilz(from + 1, to + 1)
+                            }
                         }
                         syncRebeld()
                     },
@@ -184,16 +200,23 @@ fun Rebeld(
                         daylSteyt.kopeRebeldModyilTuEmpt(from + 1, to + 1)
                         syncRebeld()
                     },
-                    onMoveToCenter = { from ->
-                        daylSteyt.moveModuleToDayl(from)
-                        onAction("rebeld_state")
+                    onMuvTuSentir = { from ->
+                        daylSteyt.muvModjilTuDayl(from)
+                        onAction("rebeld_steyt")
                         onAction("current")
                     },
                     onDropOnFoldir = { from, to, isMove ->
-                        if (isMove) {
-                            daylSteyt.muvRebeldModyilEntuFoldir(from, to)
+                        val draggedMod = daylSteyt.rebeldModyilz.find { it.pozecon == from + 1 }
+                        val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                        val targetMod = daylSteyt.rebeldModyilz.find { it.pozecon == to + 1 }
+                        if (hasTraveler) {
+                            daylSteyt.pilTravlirEntuFoldir(draggedMod!!.id, targetMod?.id ?: "", to + 1)
                         } else {
-                            daylSteyt.kopeRebeldModyilEntuFoldir(from, to)
+                            if (isMove) {
+                                daylSteyt.muvRebeldModyilEntuFoldir(from, to)
+                            } else {
+                                daylSteyt.kopeRebeldModyilEntuFoldir(from, to)
+                            }
                         }
                         syncRebeld()
                     },
@@ -222,8 +245,14 @@ fun Rebeld(
                             daylSteyt.pendingResetTargetId = "rebeld"
                         }
                     },
-                    onReplace = { from, to, isMove, renameTo ->
-                        daylSteyt.replaceRebeldModyil(from + 1, to + 1, isMove, renameTo)
+                    onRepleys = { from, to, isMove, renameTo ->
+                        val draggedMod = daylSteyt.rebeldModyilz.find { it.pozecon == from + 1 }
+                        val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                        if (hasTraveler) {
+                            daylSteyt.pilTravlirRepleys(draggedMod!!.id, to + 1, isMove)
+                        } else {
+                            daylSteyt.replaceRebeldModyil(from + 1, to + 1, isMove, renameTo)
+                        }
                         syncRebeld()
                     },
                     onRotate = { delta ->
@@ -271,9 +300,9 @@ fun BeldWedjet(
     onReneymGlef: (Int, String) -> Unit,
     onMuvGlef: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
-    onMoveToParent: (Int) -> Unit,
+    onMuvTuParent: (Int) -> Unit,
     onReneymMod: (String) -> Unit,
-    onReplace: (Int, Int, Boolean, String?) -> Unit
+    onRepleys: (Int, Int, Boolean, String?) -> Unit
 ) {
     var editingGlefIndex by remember { mutableStateOf<Int?>(null) }
     var newGlefLabel by remember { mutableStateOf("") }
@@ -304,7 +333,7 @@ fun BeldWedjet(
             )
         }
 
-        val centerLabel = mod.glefs.getOrNull(0) ?: " "
+        val sentirLeybil = mod.glefs.getOrNull(0) ?: " "
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -373,13 +402,13 @@ fun BeldWedjet(
                 HeksagonGred(
                     geometry = geometry,
                     items = itemsForGred,
-                    centerLabel = mod.neym,
+                    sentirLeybil = mod.neym,
                     centerColor = Color.White,
                     onMove = onMuvGlef,
                     onCopyToEmpty = onCopyToEmpty,
-                    onMoveToCenter = onMoveToParent,
+                    onMuvTuSentir = onMuvTuParent,
                     onDropOnFoldir = { _, _, _ -> },
-                    onReplace = onReplace,
+                    onRepleys = onRepleys,
                     onTap = { index ->
                         if (index == 0) onBack()
                         else {
