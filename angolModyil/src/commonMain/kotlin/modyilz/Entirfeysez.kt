@@ -10,7 +10,7 @@ interface KeyboardController {
     fun getTextAfterCursor(n: Int): String?
     fun performSmartEnter()
     fun performSubmitAction()
-    fun finishComposingText()
+    fun fenecKumpozenqTekst()
 }
 
 interface PlatformServices {

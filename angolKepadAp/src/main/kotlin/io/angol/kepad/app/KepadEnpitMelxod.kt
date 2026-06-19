@@ -69,6 +69,13 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.sqrt
 import kotlinx.serialization.json.Json
 import com.example.angol.ime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 
 private const val TAG = "KepadEnpitMelxod"
 
@@ -336,7 +343,7 @@ private fun startVoysEnpit() {
                                     
                                     ic.beginBatchEdit()
                                     ic.setComposingText(finalResult, 1)
-                                    ic.finishComposingText()
+                                    ic.commitText(finalResult, 1)
                                     ic.endBatchEdit()
                                     
                                     ezLeterMod = originalLeterMod
@@ -565,7 +572,51 @@ private fun startVoysEnpit() {
                                 glefsOvirayd = activeMod.glefs,
                                 kulorzOverride = activeMod.glefKulorz,
                                 contentWidthDp = gredDimz.width.dp,
-                                neym = activeMod.id
+                                neym = activeMod.id,
+                                onReset = {
+                                    daylSteyt.pendingResetTargetId = activeMod.id
+                                }
+                            )
+                        }
+                        
+                        if (daylSteyt.pendingResetTargetId != null) {
+                            val targetId = daylSteyt.pendingResetTargetId!!
+                            val targetMod = daylSteyt.modyilz.find { it.id == targetId }
+                            val targetNeym = targetMod?.neym ?: targetId
+                            AlertDialog(
+                                onDismissRequest = { daylSteyt.pendingResetTargetId = null },
+                                title = null,
+                                text = {
+                                    androidx.compose.foundation.layout.Column {
+                                        Button(
+                                            onClick = {
+                                                daylSteyt.undoModule(targetId)
+                                                daylSteyt.pendingResetTargetId = null
+                                                scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
+                                            },
+                                            modifier = androidx.compose.ui.Modifier.fillMaxWidth()
+                                        ) { Text("undo", fontSize = 20.sp) }
+                                        Button(
+                                            onClick = {
+                                                daylSteyt.redoModule(targetId)
+                                                daylSteyt.pendingResetTargetId = null
+                                                scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
+                                            },
+                                            modifier = androidx.compose.ui.Modifier.fillMaxWidth()
+                                        ) { Text("redo", fontSize = 20.sp) }
+                                        Button(
+                                            onClick = {
+                                                daylSteyt.resetModyilTarget(targetId)
+                                                daylSteyt.pendingResetTargetId = null
+                                                scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
+                                            },
+                                            modifier = androidx.compose.ui.Modifier.fillMaxWidth()
+                                        ) { Text("restor $targetNeym", fontSize = 20.sp) }
+                                    }
+                                },
+                                confirmButton = {},
+                                dismissButton = null,
+                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF1E1E1E)
                             )
                         }
                     }

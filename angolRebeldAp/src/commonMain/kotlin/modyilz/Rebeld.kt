@@ -85,6 +85,9 @@ fun Rebeld(
                     daylSteyt.reneymModyil(mod.id, newNeym)
                     syncRebeld()
                 },
+                onRepleysMod = {
+                    moduleToReplace = mod.pozecon - 1
+                },
                 onRepleys = { from, to, isMove, _ ->
                     if (to == -1) {
                         daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
@@ -117,9 +120,9 @@ fun Rebeld(
         val screenHeight = maxHeight
         
         val gredItems = daylSteyt.rebeldModyilz.filter { it.type != "hub" }.map { mod ->
-            val hasTraveler = mod.glefs.isNotEmpty() && mod.glefs[0].isNotBlank() && mod.glefs[0] != mod.neym && mod.glefs[0] != " "
-            val label = if (hasTraveler) mod.glefs[0] else mod.neym
-            val color = if (hasTraveler) Color.Black else mod.kulor
+            val hazTravlir = mod.glefs.isNotEmpty() && mod.glefs[0].isNotBlank() && mod.glefs[0] != mod.neym && mod.glefs[0] != " "
+            val label = if (hazTravlir) daylSteyt.deserializeMod(mod.glefs[0])?.neym ?: mod.glefs[0] else mod.neym
+            val color = if (hazTravlir) Color.Black else mod.kulor
             GredUydem(
                 index = mod.pozecon - 1,
                 label = label,
@@ -184,9 +187,10 @@ fun Rebeld(
                     allowSwap = true,
                     onMove = { from, to ->
                         val draggedMod = daylSteyt.rebeldModyilz.find { it.pozecon == from + 1 }
-                        val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
-                        if (hasTraveler) {
+                        val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                        if (hazTravlir) {
                             if (to != -1) daylSteyt.pilTravlirTuHub(draggedMod!!.id, to + 1)
+                            else daylSteyt.pilTravlirAwdirSpeys(draggedMod!!.id)
                         } else {
                             if (to == -1) {
                                 daylSteyt.muvRebeldModyilAwdirSpeys(from + 1)
@@ -207,9 +211,9 @@ fun Rebeld(
                     },
                     onDropOnFoldir = { from, to, isMove ->
                         val draggedMod = daylSteyt.rebeldModyilz.find { it.pozecon == from + 1 }
-                        val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                        val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
                         val targetMod = daylSteyt.rebeldModyilz.find { it.pozecon == to + 1 }
-                        if (hasTraveler) {
+                        if (hazTravlir) {
                             daylSteyt.pilTravlirEntuFoldir(draggedMod!!.id, targetMod?.id ?: "", to + 1)
                         } else {
                             if (isMove) {
@@ -247,8 +251,8 @@ fun Rebeld(
                     },
                     onRepleys = { from, to, isMove, renameTo ->
                         val draggedMod = daylSteyt.rebeldModyilz.find { it.pozecon == from + 1 }
-                        val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
-                        if (hasTraveler) {
+                        val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                        if (hazTravlir) {
                             daylSteyt.pilTravlirRepleys(draggedMod!!.id, to + 1, isMove)
                         } else {
                             daylSteyt.replaceRebeldModyil(from + 1, to + 1, isMove, renameTo)
@@ -302,6 +306,7 @@ fun BeldWedjet(
     onCopyToEmpty: (Int, Int) -> Unit,
     onMuvTuParent: (Int) -> Unit,
     onReneymMod: (String) -> Unit,
+    onRepleysMod: () -> Unit,
     onRepleys: (Int, Int, Boolean, String?) -> Unit
 ) {
     var editingGlefIndex by remember { mutableStateOf<Int?>(null) }
@@ -335,47 +340,29 @@ fun BeldWedjet(
 
         val sentirLeybil = mod.glefs.getOrNull(0) ?: " "
         Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (isEditingModNeym) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
-                        TextField(
-                            value = newModNeym,
-                            onValueChange = { newModNeym = it },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                            colors = TextFieldDefaults.textFieldColors(textColor = Color.Black),
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(onDone = {
-                                onReneymMod(newModNeym)
-                                isEditingModNeym = false
-                                onBack()
-                            })
-                        )
-                        IconButton(onClick = {
-                            onReneymMod(newModNeym)
-                            isEditingModNeym = false
-                            onBack()
-                        }) { Icon(Icons.Default.Edit, "Save", tint = Color.Green) }
-                    }
-                } else {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { isEditingModNeym = true }) {
-                        Text(text = path, color = Color.White, fontSize = 32.sp)
-                    }
-                }
-            }
-
             Box(modifier = Modifier.weight(1f)) {
                 val currentLabels = if (mod.type == "keypad") {
                     KepadLodjek.getKirentOlLeybilz(null, true, false, false, mod.glefs)
                 } else {
+                    val parseLabel = { raw: String ->
+                        if (raw.contains("id=") && raw.contains("neym=")) {
+                            raw.split("|").find { it.startsWith("neym=") }?.substringAfter("neym=") ?: raw
+                        } else if (raw == " ") {
+                            ""
+                        } else {
+                            raw
+                        }
+                    }
                     val base = mod.glefs.toMutableList()
                     while (base.size < 37) base.add("")
-                    base.mapIndexed { i, s -> if (i == 0) " " else s }
+                    base.mapIndexed { i, s -> if (i == 0) " " else parseLabel(s) }
                 }
+                // Check if traveler in slot 0
+                val travelerStr = mod.glefs.getOrNull(0)
+                val hazTravlir = travelerStr != null && travelerStr.isNotBlank() && travelerStr != mod.neym && travelerStr != " "
+                val centerLabel = if (hazTravlir) {
+                    daylSteyt.deserializeMod(travelerStr!!)?.neym ?: travelerStr
+                } else sentirLeybil
                 val sekondereLeybilz = buildList {
                     add(null) // index 0: center, no secondary
                     // Inner ring (1..6): no secondary shown in editor (same as KepadModyil)
@@ -402,8 +389,8 @@ fun BeldWedjet(
                 HeksagonGred(
                     geometry = geometry,
                     items = itemsForGred,
-                    sentirLeybil = mod.neym,
-                    centerColor = Color.White,
+                    sentirLeybil = if (hazTravlir) centerLabel else mod.neym,
+                    centerColor = if (hazTravlir) Color.Black else Color.White,
                     onMove = onMuvGlef,
                     onCopyToEmpty = onCopyToEmpty,
                     onMuvTuSentir = onMuvTuParent,
@@ -432,33 +419,9 @@ fun BeldWedjet(
                 )
             }
             
-            if (editingGlefIndex != null) {
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    backgroundColor = Color.DarkGray
-                ) {
-                    Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        TextField(
-                            value = newGlefLabel,
-                            onValueChange = { newGlefLabel = it },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(onDone = {
-                                onReneymGlef(editingGlefIndex!!, newGlefLabel)
-                                editingGlefIndex = null
-                            }),
-                            colors = TextFieldDefaults.textFieldColors(textColor = Color.White)
-                        )
-                        Button(onClick = {
-                            onReneymGlef(editingGlefIndex!!, newGlefLabel)
-                            editingGlefIndex = null
-                        }) { Text("Save") }
-                        IconButton(onClick = { editingGlefIndex = null }) { Text("X", color = Color.Red) }
-                    }
-                }
-            }
+
         }
     }
 }
+
 

@@ -53,7 +53,7 @@ class AndroidKeyboardController(
         onForcedSubmit()
     }
 
-    override fun finishComposingText() {
+    override fun fenecKumpozenqTekst() {
         getIc()?.finishComposingText()
     }
 }

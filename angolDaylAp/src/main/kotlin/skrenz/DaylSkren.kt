@@ -166,7 +166,10 @@ fun DaylSkren(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        androidx.compose.material.Text("restor $targetNeym", fontSize = 24.sp)
+                        androidx.compose.material.Text(
+                            if (targetId == "dayl") "restor angol" else "restor $targetNeym",
+                            fontSize = 24.sp
+                        )
                     }
                 }
             },
@@ -175,6 +178,8 @@ fun DaylSkren(
             backgroundColor = Color(0xFF1E1E1E)
         )
     }
+
+    var initialLoadDone by remember { mutableStateOf(false) }
 
     LaunchedEffect(isApp) {
         if (!isApp && daylSteyt.activeModule == null) {
@@ -186,6 +191,12 @@ fun DaylSkren(
                     if (updatedModules.isNotEmpty()) {
                         var modified = false
                         var currentList = updatedModules.toMutableList()
+
+                        if (isApp && !initialLoadDone) {
+                            initialLoadDone = true
+                            currentList = currentList.map { it.copyWith(ezAkdev = false) }.toMutableList()
+                            modified = true
+                        }
 
                         // 1. Force absolute colors and dayl properties
                         currentList = currentList.map { mod ->
@@ -449,6 +460,7 @@ fun ModuleContent(
                     daylSteyt.reneymModyil(mod.id, newNeym)
                     onSaveLayout("current")
                 },
+                onRepleysMod = {},
                 onRepleys = { from, to, isMove, _ ->
                     if (to == -1) {
                         daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
@@ -593,9 +605,10 @@ fun ModuleContent(
             },
             onMuvModjil = { from, to ->
                 val draggedMod = daylSteyt.modyilz.find { it.pozecon == from + 1 }
-                val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
-                if (hasTraveler) {
+                val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                if (hazTravlir) {
                     if (to != -1) daylSteyt.pilTravlirTuHub(draggedMod!!.id, to + 1)
+                    else daylSteyt.pilTravlirAwdirSpeys(draggedMod!!.id)
                 } else {
                     if (to == -1) {
                         daylSteyt.muvModyilAwdirSpeys(from + 1)
@@ -607,9 +620,9 @@ fun ModuleContent(
             },
             onDropOnFoldir = { from, to, isMove ->
                 val draggedMod = daylSteyt.modyilz.find { it.pozecon == from + 1 }
-                val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
                 val targetMod = daylSteyt.modyilz.find { it.pozecon == to + 1 }
-                if (hasTraveler) {
+                if (hazTravlir) {
                     daylSteyt.pilTravlirEntuFoldir(draggedMod!!.id, targetMod?.id ?: "", to + 1)
                 } else {
                     if (isMove) {
@@ -640,8 +653,8 @@ fun ModuleContent(
             allowSwap = true,
             onRepleys = { from, to, isMove, renameTo ->
                 val draggedMod = daylSteyt.modyilz.find { it.pozecon == from + 1 }
-                val hasTraveler = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
-                if (hasTraveler) {
+                val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                if (hazTravlir) {
                     daylSteyt.pilTravlirRepleys(draggedMod!!.id, to + 1, isMove)
                 } else {
                     daylSteyt.replaceModyil(from + 1, to + 1, isMove, renameTo)
@@ -654,3 +667,4 @@ fun ModuleContent(
         )
     }
 }
+

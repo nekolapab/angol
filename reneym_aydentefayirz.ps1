@@ -4,6 +4,7 @@ $replacements = @{
     "\bsecondaryLabel\b" = "sekondereLeybil"
     "\bsecondaryLabels\b" = "sekondereLeybilz"
     "\bGredItem\b" = "GredUydem"
+    "\bhasTraveler\b" = "hazTravlir"
 }
 
 Get-ChildItem -Path $dirPath -Filter *.kt -Recurse | Where-Object { $_.FullName -notmatch "build|tmp|\.gradle|\.git" } | ForEach-Object {

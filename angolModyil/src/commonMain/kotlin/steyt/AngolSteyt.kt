@@ -10,7 +10,7 @@ import yuteledez.getCurrentTimeMillis
 
 class AngolSteyt {
     companion object {
-        val PROTECTED_IDS = setOf("dayl")
+        val PROTECTED_IDS = emptySet<String>()
     }
 
     var inputText by mutableStateOf("")
@@ -505,7 +505,11 @@ class AngolSteyt {
         recordState()
     }
     fun muvModyilTuParent(index: Int) {
-        // No-op for Hub
+        // Moving to center in hub swaps the module to position 1
+        val hubMod = modyilz.find { it.type == "hub" || it.id == "dayl" } ?: return
+        val sourceMod = modyilz.find { it.pozecon == index } ?: return
+        if (sourceMod.id == hubMod.id) return
+        swopModyilz(sourceMod.pozecon, hubMod.pozecon)
     }
 
     private fun encurGlefsPopyuleyded(modyilId: String) {
@@ -829,16 +833,22 @@ class AngolSteyt {
             newGlefs.add(targetMod.neym)
             newKulorz.add(targetMod.kulorLong)
         }
-        var emptyIdx = -1
-        for (i in 1 until newGlefs.size) {
-            if (newGlefs[i].isEmpty()) {
-                emptyIdx = i
-                break
+        val currentTraveler = newGlefs.getOrNull(0)
+        val hazTravlir = currentTraveler != null && currentTraveler.isNotBlank() && currentTraveler != targetMod.neym && currentTraveler != " "
+        var emptyIdx = if (!hazTravlir) 0 else -1
+        
+        if (emptyIdx == -1) {
+            for (i in 1 until newGlefs.size) {
+                if (newGlefs[i].isEmpty()) {
+                    emptyIdx = i
+                    break
+                }
+            }
+            if (emptyIdx == -1) {
+                emptyIdx = newGlefs.size
             }
         }
-        if (emptyIdx == -1) {
-            emptyIdx = newGlefs.size
-        }
+        
         while (newGlefs.size <= emptyIdx) newGlefs.add("")
         while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333)
         newGlefs[emptyIdx] = serializeMod(sourceMod)
@@ -870,16 +880,22 @@ class AngolSteyt {
             newGlefs.add(targetMod.neym)
             newKulorz.add(targetMod.kulorLong)
         }
-        var emptyIdx = -1
-        for (i in 1 until newGlefs.size) {
-            if (newGlefs[i].isEmpty()) {
-                emptyIdx = i
-                break
+        val currentTraveler = newGlefs.getOrNull(0)
+        val hazTravlir = currentTraveler != null && currentTraveler.isNotBlank() && currentTraveler != targetMod.neym && currentTraveler != " "
+        var emptyIdx = if (!hazTravlir) 0 else -1
+        
+        if (emptyIdx == -1) {
+            for (i in 1 until newGlefs.size) {
+                if (newGlefs[i].isEmpty()) {
+                    emptyIdx = i
+                    break
+                }
+            }
+            if (emptyIdx == -1) {
+                emptyIdx = newGlefs.size
             }
         }
-        if (emptyIdx == -1) {
-            emptyIdx = newGlefs.size
-        }
+        
         while (newGlefs.size <= emptyIdx) newGlefs.add("")
         while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333)
         newGlefs[emptyIdx] = serializeMod(sourceMod)
@@ -935,16 +951,22 @@ class AngolSteyt {
             newGlefs.add(targetMod.neym)
             newKulorz.add(targetMod.kulorLong)
         }
-        var emptyIdx = -1
-        for (i in 1 until newGlefs.size) {
-            if (newGlefs[i].isEmpty()) {
-                emptyIdx = i
-                break
+        val currentTraveler = newGlefs.getOrNull(0)
+        val hazTravlir = currentTraveler != null && currentTraveler.isNotBlank() && currentTraveler != targetMod.neym && currentTraveler != " "
+        var emptyIdx = if (!hazTravlir) 0 else -1
+        
+        if (emptyIdx == -1) {
+            for (i in 1 until newGlefs.size) {
+                if (newGlefs[i].isEmpty()) {
+                    emptyIdx = i
+                    break
+                }
+            }
+            if (emptyIdx == -1) {
+                emptyIdx = newGlefs.size
             }
         }
-        if (emptyIdx == -1) {
-            emptyIdx = newGlefs.size
-        }
+        
         while (newGlefs.size <= emptyIdx) newGlefs.add("")
         while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333)
         newGlefs[emptyIdx] = serializeMod(sourceMod)
@@ -968,16 +990,22 @@ class AngolSteyt {
             newGlefs.add(targetMod.neym)
             newKulorz.add(targetMod.kulorLong)
         }
-        var emptyIdx = -1
-        for (i in 1 until newGlefs.size) {
-            if (newGlefs[i].isEmpty()) {
-                emptyIdx = i
-                break
+        val currentTraveler = newGlefs.getOrNull(0)
+        val hazTravlir = currentTraveler != null && currentTraveler.isNotBlank() && currentTraveler != targetMod.neym && currentTraveler != " "
+        var emptyIdx = if (!hazTravlir) 0 else -1
+        
+        if (emptyIdx == -1) {
+            for (i in 1 until newGlefs.size) {
+                if (newGlefs[i].isEmpty()) {
+                    emptyIdx = i
+                    break
+                }
+            }
+            if (emptyIdx == -1) {
+                emptyIdx = newGlefs.size
             }
         }
-        if (emptyIdx == -1) {
-            emptyIdx = newGlefs.size
-        }
+        
         while (newGlefs.size <= emptyIdx) newGlefs.add("")
         while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333)
         newGlefs[emptyIdx] = serializeMod(sourceMod)
@@ -1005,16 +1033,22 @@ class AngolSteyt {
             newGlefs.add(targetMod.neym)
             newKulorz.add(targetMod.kulorLong)
         }
-        var emptyIdx = -1
-        for (i in 1 until newGlefs.size) {
-            if (newGlefs[i].isEmpty()) {
-                emptyIdx = i
-                break
+        val currentTraveler = newGlefs.getOrNull(0)
+        val hazTravlir = currentTraveler != null && currentTraveler.isNotBlank() && currentTraveler != targetMod.neym && currentTraveler != " "
+        var emptyIdx = if (!hazTravlir) 0 else -1
+        
+        if (emptyIdx == -1) {
+            for (i in 1 until newGlefs.size) {
+                if (newGlefs[i].isEmpty()) {
+                    emptyIdx = i
+                    break
+                }
+            }
+            if (emptyIdx == -1) {
+                emptyIdx = newGlefs.size
             }
         }
-        if (emptyIdx == -1) {
-            emptyIdx = newGlefs.size
-        }
+        
         while (newGlefs.size <= emptyIdx) newGlefs.add("")
         while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333)
         newGlefs[emptyIdx] = serializeMod(sourceMod)
@@ -1026,11 +1060,21 @@ class AngolSteyt {
         }
     }
 
-    private fun extractTravelerData(mod: ModyilDeyda): Pair<String, Long>? {
+    private fun extractTravelerMod(mod: ModyilDeyda, targetPozecon: Int): ModyilDeyda? {
         if (mod.glefs.isNotEmpty() && mod.glefs[0].isNotBlank() && mod.glefs[0] != mod.neym && mod.glefs[0] != " ") {
-            val travelerLabel = mod.glefs[0]
+            val travelerStr = mod.glefs[0]
+            val deserialized = deserializeMod(travelerStr)
+            if (deserialized != null) {
+                return deserialized.copyWith(pozecon = targetPozecon)
+            }
             val travelerColor = if (mod.glefKulorz.isNotEmpty()) mod.glefKulorz[0] else 0xFF333333L
-            return Pair(travelerLabel, travelerColor)
+            return ModyilDeyda(
+                id = "mod_${kotlin.random.Random.nextInt(1000000)}",
+                neym = travelerStr,
+                kulorLong = travelerColor,
+                pozecon = targetPozecon,
+                ezAkdev = false
+            )
         }
         return null
     }
@@ -1046,16 +1090,29 @@ class AngolSteyt {
     fun pilTravlirTuHub(sourceModId: String, targetPozecon: Int) {
         val inModyilz = modyilz.any { it.id == sourceModId }
         val sourceMod = (if (inModyilz) modyilz else rebeldModyilz).find { it.id == sourceModId } ?: return
-        val travelerData = extractTravelerData(sourceMod) ?: return
+        val newMod = extractTravelerMod(sourceMod, targetPozecon) ?: return
         
         val updatedSourceMod = removeTravelerFromMod(sourceMod)
-        val newMod = ModyilDeyda(
-            id = "mod_${kotlin.random.Random.nextInt(1000000)}",
-            neym = travelerData.first,
-            kulorLong = travelerData.second,
-            pozecon = targetPozecon,
-            ezAkdev = false
-        )
+        
+        if (inModyilz) {
+            modyilz = modyilz.map { if (it.id == sourceModId) updatedSourceMod else it } + newMod
+        } else {
+            rebeldModyilz = rebeldModyilz.map { if (it.id == sourceModId) updatedSourceMod else it } + newMod
+        }
+        recordState()
+    }
+
+    fun pilTravlirAwdirSpeys(sourceModId: String) {
+        val inModyilz = modyilz.any { it.id == sourceModId }
+        val sourceMod = (if (inModyilz) modyilz else rebeldModyilz).find { it.id == sourceModId } ?: return
+        
+        val occupiedPozecons = if (inModyilz) modyilz.map { it.pozecon }.toSet() else rebeldModyilz.map { it.pozecon }.toSet()
+        val maxPozecon = if (inModyilz) modyilz.maxOfOrNull { it.pozecon } ?: 0 else rebeldModyilz.maxOfOrNull { it.pozecon } ?: 0
+        var newPozecon = maxOf(7, maxPozecon) + 1
+        while (occupiedPozecons.contains(newPozecon)) newPozecon++
+        
+        val newMod = extractTravelerMod(sourceMod, newPozecon) ?: return
+        val updatedSourceMod = removeTravelerFromMod(sourceMod)
         
         if (inModyilz) {
             modyilz = modyilz.map { if (it.id == sourceModId) updatedSourceMod else it } + newMod
@@ -1068,7 +1125,6 @@ class AngolSteyt {
     fun pilTravlirEntuFoldir(sourceModId: String, targetFoldirId: String, targetPozecon: Int) {
         val inModyilz = modyilz.any { it.id == sourceModId }
         val sourceMod = (if (inModyilz) modyilz else rebeldModyilz).find { it.id == sourceModId } ?: return
-        val travelerData = extractTravelerData(sourceMod) ?: return
         
         val targetMod = (if (inModyilz) modyilz else rebeldModyilz).find { it.pozecon == targetPozecon } ?: return
         if (targetMod.type != "keypad" && targetMod.type != "beld" && targetMod.id != "beldir" && targetMod.id != "keypad" && targetMod.id != "dayl" && targetMod.type != "hub") return
@@ -1092,16 +1148,10 @@ class AngolSteyt {
         while (newGlefs.size <= emptyIdx) newGlefs.add("")
         while (newKulorz.size <= emptyIdx) newKulorz.add(0xFF333333L)
         
-        // Convert traveler label/color into serialized string format
-        val travelerMod = ModyilDeyda(
-            id = "mod_${kotlin.random.Random.nextInt(1000000)}",
-            neym = travelerData.first,
-            kulorLong = travelerData.second,
-            pozecon = emptyIdx,
-            ezAkdev = false
-        )
+        val travelerMod = extractTravelerMod(sourceMod, emptyIdx) ?: return
+        
         newGlefs[emptyIdx] = serializeMod(travelerMod)
-        newKulorz[emptyIdx] = travelerData.second
+        newKulorz[emptyIdx] = travelerMod.kulorLong
         
         if (inModyilz) {
             modyilz = modyilz.map { 
@@ -1123,15 +1173,12 @@ class AngolSteyt {
         // Drop the traveler onto another module to swap/replace
         val inModyilz = modyilz.any { it.id == sourceModId }
         val sourceMod = (if (inModyilz) modyilz else rebeldModyilz).find { it.id == sourceModId } ?: return
-        val travelerData = extractTravelerData(sourceMod) ?: return
+        val newTravelerModBase = extractTravelerMod(sourceMod, targetPozecon) ?: return
         val targetMod = (if (inModyilz) modyilz else rebeldModyilz).find { it.pozecon == targetPozecon } ?: return
         
         val updatedSourceMod = removeTravelerFromMod(sourceMod)
-        val newTravelerMod = ModyilDeyda(
+        val newTravelerMod = newTravelerModBase.copyWith(
             id = targetMod.id,
-            neym = travelerData.first,
-            kulorLong = travelerData.second,
-            pozecon = targetPozecon,
             ezAkdev = targetMod.ezAkdev
         )
         
@@ -1331,3 +1378,4 @@ class AngolSteyt {
         return ModyilDeyda(id, neym, kulorLong, pozecon, ezAkdev, glefs, glefKulorz, type)
     }
 }
+

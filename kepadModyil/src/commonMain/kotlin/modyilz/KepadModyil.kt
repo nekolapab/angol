@@ -83,8 +83,8 @@ fun KepadModyil(
 
     fun getKulor(index: Int): Color {
         if (index == 0) {
-            val hasTraveler = glefsOvirayd != null && glefsOvirayd.isNotEmpty() && glefsOvirayd[0].isNotBlank() && glefsOvirayd[0] != neym && glefsOvirayd[0] != " "
-            if (hasTraveler && kulorzOverride != null && kulorzOverride.isNotEmpty()) {
+            val hazTravlir = glefsOvirayd != null && glefsOvirayd.isNotEmpty() && glefsOvirayd[0].isNotBlank() && glefsOvirayd[0] != neym && glefsOvirayd[0] != " "
+            if (hazTravlir && kulorzOverride != null && kulorzOverride.isNotEmpty()) {
                 val c = Color(kulorzOverride[0].toInt())
                 if (c != Color.Transparent) return c
             }
@@ -131,7 +131,7 @@ fun KepadModyil(
             return
         }
 
-        if (char == "âŒ«") {
+        if (char == "Ã¢Å’Â«") {
             if (primaryChar != null && primaryChar.isNotEmpty()) {
                 if (kurentWirdBufir.length >= primaryChar.length) {
                     kurentWirdBufir.deleteRange(kurentWirdBufir.length - primaryChar.length, kurentWirdBufir.length)
@@ -205,12 +205,16 @@ fun KepadModyil(
                 if (kurentEzLeterMod) {
                     handilKePres(".", false, null)
                 }
-                delay(1500)
+                delay(500)
                 if (huvirdHeksIndeks.value != 0) return@launch
-                if (kurentEzLeterMod) {
-                    kebordKontrolir?.finishComposingText()
-                    handilKePres("âŒ«", false, null)
-                }
+                // Double long press (12/12 sec total): move cursor back
+                kebordKontrolir?.sendKeyEvent(21) // KEYCODE_DPAD_LEFT
+                delay(500)
+                if (huvirdHeksIndeks.value != 0) return@launch
+                // Triple long press (18/12 sec total): delete front + enter
+                kebordKontrolir?.fenecKumpozenqTekst()
+                kebordKontrolir?.deleteSurroundingText(0, 1)
+                kebordKontrolir?.performSubmitAction()
                 return@launch
             }
             
@@ -222,7 +226,7 @@ fun KepadModyil(
             
             val lpLabelRaw = if (isInner) {
                 val configIdx = actualIdx - 1
-                if (kurentEzLeterMod) modalz.HeksagonKonfeg.innerLetterMode.map { if (it == "âŒ«") "âŒ«" else "" }.getOrNull(configIdx) ?: ""
+                if (kurentEzLeterMod) modalz.HeksagonKonfeg.innerLetterMode.map { if (it == "Ã¢Å’Â«") "Ã¢Å’Â«" else "" }.getOrNull(configIdx) ?: ""
                 else modalz.HeksagonKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
             } else {
                 val configIdx = actualIdx - 7
@@ -230,12 +234,16 @@ fun KepadModyil(
                 if (kurentEzLeterMod && isVowelOrNone) modalz.HeksagonKonfeg.awdirLonqPres.getOrNull(configIdx) ?: ""
                 else "" // No secondary labels for numbers!
             }
-            if (lpLabelRaw.isEmpty()) return@launch
-            val lpLabel = if (ezKapetalayzd && lpLabelRaw != "âŒ«") lpLabelRaw.uppercase() else lpLabelRaw
             val primaryLabel = KepadLodjek.getKirentOlLeybilz(startedVowelIndex, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd).getOrNull(actualIdx) ?: ""
-            if (lpLabel == "âŒ«") {
+            if (primaryLabel == "reset" || primaryLabel.startsWith("mod_reset_")) {
+                handilKePres(primaryLabel, true, primaryLabel)
+                return@launch
+            }
+            if (lpLabelRaw.isEmpty()) return@launch
+            val lpLabel = if (ezKapetalayzd && lpLabelRaw != "Ã¢Å’Â«") lpLabelRaw.uppercase() else lpLabelRaw
+            if (lpLabel == "Ã¢Å’Â«") {
                 while (huvirdHeksIndeks.value == index) {
-                    handilKePres("âŒ«", true, null)
+                    handilKePres("Ã¢Å’Â«", true, null)
                     delay(500)
                 }
             } else { handilKePres(lpLabel, true, primaryLabel) }
@@ -314,8 +322,8 @@ fun KepadModyil(
 
             val sentirLeybil = currentLabels.getOrNull(0) ?: " "
             
-            val hasTraveler = glefsOvirayd != null && glefsOvirayd.isNotEmpty() && glefsOvirayd[0].isNotBlank() && glefsOvirayd[0] != neym && glefsOvirayd[0] != " "
-            val finalSentirLeybil = if (hasTraveler) glefsOvirayd!![0] else neym
+            val hazTravlir = glefsOvirayd != null && glefsOvirayd.isNotEmpty() && glefsOvirayd[0].isNotBlank() && glefsOvirayd[0] != neym && glefsOvirayd[0] != " "
+            val finalSentirLeybil = if (hazTravlir) glefsOvirayd!![0] else neym
 
             wedjets.HeksagonGred(
                 geometry = currentGeometry,
@@ -459,7 +467,7 @@ fun KepadModyil(
                                                 val actualIdx = idx
                                                 if (actualIdx < upLabels.size) {
                                                     val old = upLabels[actualIdx].lowercase(); val new = upLabels[actualIdx].uppercase()
-                                                    if (old != new) { handilKePres("âŒ«", false, old); handilKePres(new, false, null) }
+                                                    if (old != new) { handilKePres("Ã¢Å’Â«", false, old); handilKePres(new, false, null) }
                                                 }
                                             }
                                         }
@@ -472,7 +480,7 @@ fun KepadModyil(
                                                 val actualIdx = idx
                                                 if (actualIdx < dtLabels.size) {
                                                     val old = dtLabels[actualIdx].uppercase(); val new = dtLabels[actualIdx].lowercase()
-                                                    if (old != new) { handilKePres("âŒ«", false, old); handilKePres(new, false, null) }
+                                                    if (old != new) { handilKePres("Ã¢Å’Â«", false, old); handilKePres(new, false, null) }
                                                 }
                                             }
                                         }
@@ -497,7 +505,7 @@ fun KepadModyil(
                                             if (idx != 0) {
                                                 val actualIdx = idx
                                                 val oldLabels = KepadLodjek.getKirentOlLeybilz(oldVowelIndex, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
-                                                if (actualIdx < oldLabels.size && oldLabels[actualIdx].isNotEmpty()) handilKePres("âŒ«", false, oldLabels[actualIdx])
+                                                if (actualIdx < oldLabels.size && oldLabels[actualIdx].isNotEmpty()) handilKePres("Ã¢Å’Â«", false, oldLabels[actualIdx])
                                             }
                                         }
                                         if (moveIndex != null) {
@@ -596,7 +604,7 @@ fun KepadModyil(
                         } else null
 
                         val actualLabel = centerPopup ?: label
-                        val actualSecondary = if (centerPopup != null) null else if (label.isNotEmpty() && lpLabel.isNotEmpty() && lpLabel != "âŒ«") lpLabel else null
+                        val actualSecondary = if (centerPopup != null) null else if (label.isNotEmpty() && lpLabel.isNotEmpty() && lpLabel != "Ã¢Å’Â«") lpLabel else null
 
                         Heksagon(
                             label = actualLabel,
@@ -626,4 +634,5 @@ fun KepadModyil(
         }
     }
 }
+
 

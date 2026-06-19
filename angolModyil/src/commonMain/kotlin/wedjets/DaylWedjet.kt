@@ -1,4 +1,4 @@
-package wedjets
+﻿package wedjets
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
@@ -29,15 +29,15 @@ fun DaylWedjet(
 ) {
     val daylModule = modyilz.find { it.id == "dayl" } ?: modyilz.first()
     val gredItems = modyilz.map { mod ->
-        val hasTraveler = mod.glefs.isNotEmpty() && mod.glefs[0].isNotBlank() && mod.glefs[0] != mod.neym && mod.glefs[0] != " "
-        val label = if (hasTraveler) mod.glefs[0] else mod.neym
+        val hazTravlir = mod.glefs.isNotEmpty() && mod.glefs[0].isNotBlank() && mod.glefs[0] != mod.neym && mod.glefs[0] != " "
+        val label = if (hazTravlir) mod.glefs[0] else mod.neym
         
         val rawColor = if (mod.id == "dayl" && (mod.kulorLong == 0L || mod.kulorLong == 4278190080L || mod.kulorLong == -16777216L)) {
             Color(0xFFFF0000)
         } else {
             mod.kulor
         }
-        val finalColor = if (hasTraveler) Color.Black else if (mod.ezAkdev) Color.White else rawColor
+        val finalColor = if (hazTravlir) Color.Black else if (mod.ezAkdev) Color.White else rawColor
         GredUydem(
             index = mod.pozecon - 1,
             label = label,
@@ -68,4 +68,5 @@ fun DaylWedjet(
         )
     }
 }
+
 

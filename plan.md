@@ -1,41 +1,29 @@
 **prodjekt angol**
 ###**golz**
-lhes ez global lodjek, not djust kepad! lhe kepad wuz lha pleys we got a glemps ov et lho lhat geyv me lhe aydeya!
-The "drag off" mechanism: ya djust luyk et wuz on lhe ensaydz ov kepad and dayl, also meyk et wirk on lhe awtsaydz.
+dragenq blak reset tu dayl desaperd 3 modz on angol
+muv angol.reset tu pozecon 6 aklok.
 
-1. yes egzaktle!
-2. yes egzaktle!
-3. 
-4. 
-5. 
-reneym
-replaceGlef repleysGlef
-onMoveModule onMuvModjil
-onReplace onRepleys
-watchModuleLayout watcModjilLeyawt 
-centerLabel sentirLeybil
-pullTravelerTuHub pilTravlirTuHub
-pullTravelerEntuFoldir pilTravlirEntuFoldir
-pullTravelerReplace pilTravlirRepleys
+2. yes.
+6. no stel yelow an red kez en kepad and dayl. stel dubilz , and stel no undo/redo/restor function ensayd elhir! beldir haz lhe oposet defeset stel luyk ay sed, lhat hazint tceynjd!
+dayl stel wont muv on angol or muv at ol, but kopez wel.
 
 
-1. okey pirfekt.
-2. no. meyk drag tu sentir 'moves the item out into the parent workspace' *on* lhes parent modjil leybil 'instead of accidentally hiding it *under* the center label'. 
-so meyk lhes travlir modjil on elhir sayd ov desteneycon modjil eybil tu drag of tu pleys and revel lha parent leybil agen!
-3. no. meyk lha sentir desteneycon modjil agen 'inherit strange colors if a slot was emptied into it' and blak on lha kulord sayd desteneycon modjil, untel muvd of.
-and cow lha travlir modjil leybil ensted, on bolx saydz ov lha desteneycon modjil, untel muvd of az wel.
-4. no. bolx 'beldir'z ay hav en rebeld stel hav kepadz! empte lhem, or at lest wan ov lhem so ay kan delet lhe olhir.
 
-1. yes pirfekt! duz et teyk mor prosesenq and memre? 
-2. no. et wuzint 'replacing' but haydenq undir lha leybil. lha kulorz ov bolx lha bakgrawnd and tekst cow lhru en kepad but not en dayl. meyk et cow lha leybil tuw on 'kepad'l bolx saydz! and wuyt on sub direktore untel teyken of!
+1. no. wan desaperd an atempt. tuh bawns bak. 
+2. yes!
+3.  kepad and dayl teyk 'reset' en-awt. but duz not wirk ensayd and kepad tirnd ol modz yelow but sentir wuyt. tuh 'reset's keym bak wan not funkconenq. ensayd a kope leybil sez 'reset z' but lhe olhir tuh ded not. and lha 'reset z' desaperd wen ay muvd wan ov lhe olhir tuh on lhe ulhir.
+-but duz not funkcon en kepad or dayl.
+-and dayl duz not cow travelir ensayd at sentir.
+4. yes.
 
-reneym:
-preEditKeypadState preEdetKepadSteyt
-ezAktiv ezAkdev 
-auto_backup odo_bakup 
-activateModyil akdeveytModyil
-ensureGlefsPopulated encurGlefsPopyuleyded
-getHeksEndeksFromPozecon getHeksEndeksFrumPozecon
+
+kan kepad go abuv kirsor feld ensted ov undir so kirsor feld wendow steyz at bodum? 
+kan a parcol heksagon (2/12) at a bodum sentir left open spot togil a mod on kepad?
+
++meyk parent modjulz, ol lha wey bak tu angol stey vezebil az blak sentirz and kulord renqz ensted ov desaperenq. togil sentir tekna wuyt tu tel yu wetc wan ez akdev. so kirent modjil mey not be at setnir ov skren.
+
+
+
 
 1. angol.rebeld.kepad ced not delet wen gowenq en angol.kepad. 'tregir odomadek reset oviruyt' duz not men delet. et menz alaw ovirruyt wen onle kepad modjil ez tceynjd. *lets empruv lha muv kondecon tu tceynj ov kepad at ekset ensted ov tceynj en kepad. lhat wey, ef sumwon muvs modyilz but pits lhem bak tu oredjenal pozeconz befor ekset, et wel not muv tu rebeld.kepad. so onle ekset kumperz an muvs ef tceynjd.
 2. ay kan muv en but not awt ov dayl and kepad, et muvs tu sentir but duz not repleys. cidint kepad sentir be wuyt luyk dayl and rebeld? ets blak grey! verefay and feks.
@@ -79,7 +67,9 @@ ez HeksagonGred.kt mene or wan heksagon?
 **olxentekeycon**GitHub logen
 **Google Cloud konsol** AI tu ruyt lha TypeScript funkcon skedyulir odomadek fetc ov angol dayl kepad modyil tceynjez deyda frum Firestore tu pic Google Source Repository at 3am event dreven onle wen tceynj okirz.
 **heksagon djeyometre peksilz** etc ov lha seks trayangilz meyd ov 24 2|3 trayangilz for total 144 cerz.
- // | kalkyu(spredcet) | eyay eydjents [fon] | klok | kumpas | eklekt  | yecuw wirdz | tcekirz | kemekal | myuzek | lxirmostat
+ // dayl klok ke pad bord re beld or | yecow virs | spel kalkyu(spredcet) | eyay eydjents [fown] | klok | kumpas | eklekt | tcekirz | kemekal | myuzek | lxirmostat
+
+Q.H Y.H      Y.H V.H
 
 ###**arketekcir**`Kotlin Multiplatform`onle updeyt tu best Kotlin MP (2.3.21), Compose (1.10.3), AGP (9.2.0), CompileSdk (37), WearOS (6).
 **angolModjul**enkludz`angolWedjet`*cerd laybrere*(`com.android.kotlin.multiplatform.library`) kor rawdir reprezents lha fawndeycon geytkepir sesdom etself ov cerd lodjek, sekyir tranzakconz, enkrepcon, AngolSteyt, deydabeys clawd entirakconz (`FirebaseSirves`), paslok, and yuteledez rekwayrd tu entsol-unenstol ol ap adenz.  kopeleft alon open sors.
@@ -87,8 +77,10 @@ ez HeksagonGred.kt mene or wan heksagon?
     `src/androidMain/kotlin/`: emplementeyconz (Android sirvesez, fayl storedj, tekst tu spetc).
 ez lher a**poyntirWedjet**dependz on`angolModjul`entirfeys?
 
-**poyntirModjul**drag an drop: dayl(bay akdev sentir wedjet), kirsir(bay swuyp frum awdir speys or enpit feld welx sekond fengir lokd drags and bolx drag delet-undelet). swuyp, pentc-zum, huvir, pres, tap, klek, lonq pres, unpres, spetc tu tekst. awt: togil mod (beys yunets(10|O), domeyn me|yu, angol 1|2, |—), roteyt: dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devays, direkcon. popup, glow, kontrast kulor, tekst tu spetc, hapdek.
+**poyntirModjul**drag an drop: dayl(bay akdev sentir wedjet), kirsor(bay swuyp frum awdir speys or enpit feld welx sekond fengir lokd drags and bolx drag delet-undelet). swuyp, pentc-zum, huvir, pres, tap, klek (2 vaybreyt), lonq pres, unpres, spetc tu tekst. awt: togil mod (beys yunets(10|O), domeyn me|yu, angol 1|2, |—), roteyt: dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devays, direkcon. popup, glow, kontrast kulor, tekst tu spetc, hapdek.
 ez spetc tu tekst en DaylEnpitMelxod.kt?
+**kirsorWedjet**dependz on`poyntirModjul`entirfeys.
+**spelorWedjet**dependz on`poyntirModjul`entirfeys.
 **poyntirWedjet**dependz on`poyntirModjul`entirfeys.
 
 **angolDaylAp**{`angolModjul`+`daylModjul`+`poyntirModyil`+ rapir}*ap entre*(`com.android.application`) redjestirz az sesdom aps manadjir, and awtpit edetir.

@@ -338,6 +338,17 @@ fun HeksagonGred(
                     ) {
                         Button(
                             onClick = {
+                                val from = pendingReplaceFrom
+                                val to = pendingReplaceTo
+                                if (from != null && to != null) onRepleys?.invoke(from, to, pendingIsMoveDrag, null)
+                                showReplaceDialog = false
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("delet", fontSize = 28.sp)
+                        }
+                        Button(
+                            onClick = {
                                 showReplaceDialog = false
                                 val draggedItem = items.firstOrNull { it.index == pendingReplaceFrom }
                                 renameText = draggedItem?.label ?: ""
@@ -346,17 +357,6 @@ fun HeksagonGred(
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("reneym", fontSize = 28.sp)
-                        }
-                        Button(
-                            onClick = {
-                                val from = pendingReplaceFrom
-                                val to = pendingReplaceTo
-                                if (from != null && to != null) onRepleys?.invoke(from, to, pendingIsMoveDrag, null)
-                                showReplaceDialog = false
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("repleys", fontSize = 28.sp)
                         }
                     }
                 },
