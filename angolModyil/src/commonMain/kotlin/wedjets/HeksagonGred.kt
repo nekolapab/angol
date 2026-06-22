@@ -80,8 +80,7 @@ fun HeksagonGred(
     var pendingReplaceFrom by remember { mutableStateOf<Int?>(null) }
     var pendingReplaceTo by remember { mutableStateOf<Int?>(null) }
     var showReplaceDialog by remember { mutableStateOf(false) }
-    var showRenameDialog by remember { mutableStateOf(false) }
-    var renameText by remember { mutableStateOf("") }
+
     var pendingIsMoveDrag by remember { mutableStateOf(true) }
     val haptic = LocalHapticFeedback.current
     val density = LocalDensity.current
@@ -303,7 +302,7 @@ fun HeksagonGred(
 
         val ghostItem = remember(items, draggingIndex) { items.firstOrNull { it.index == draggingIndex } }
         
-        if (!isCopyDragActive && ghostItem != null && draggingIndex != null && currentHoverIndex == null) {
+        if (!ezKepad && !isCopyDragActive && ghostItem != null && draggingIndex != null && currentHoverIndex == null) {
             val xDp = with(density) { dragOffset.x.toDp() }; val yDp = with(density) { dragOffset.y.toDp() }
             Heksagon(
                 label = ghostItem.label, backgroundColor = ghostItem.color, textColor = HeksagonKonfeg.getComplementaryColor(ghostItem.color),
@@ -315,7 +314,7 @@ fun HeksagonGred(
             )
         }
 
-        if (isCopyDragActive && ghostItem != null && draggingIndex != null) {
+        if (!ezKepad && isCopyDragActive && ghostItem != null && draggingIndex != null) {
             val xDp = with(density) { dragOffset.x.toDp() }; val yDp = with(density) { dragOffset.y.toDp() }
             Heksagon(
                 label = ghostItem.label, backgroundColor = ghostItem.color, textColor = HeksagonKonfeg.getComplementaryColor(ghostItem.color),
@@ -349,10 +348,10 @@ fun HeksagonGred(
                         }
                         Button(
                             onClick = {
+                                val from = pendingReplaceFrom
+                                val to = pendingReplaceTo
+                                if (from != null && to != null) onMove?.invoke(from, to)
                                 showReplaceDialog = false
-                                val draggedItem = items.firstOrNull { it.index == pendingReplaceFrom }
-                                renameText = draggedItem?.label ?: ""
-                                showRenameDialog = true
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -362,40 +361,6 @@ fun HeksagonGred(
                 },
                 confirmButton = {},
                 dismissButton = null
-            )
-        }
-
-        if (showRenameDialog) {
-            AlertDialog(
-                onDismissRequest = { showRenameDialog = false },
-                title = { Text("Rename module", color = Color.White) },
-                text = {
-                    Column {
-                        TextField(
-                            value = renameText,
-                            onValueChange = { renameText = it },
-                            singleLine = true,
-                            colors = TextFieldDefaults.textFieldColors(textColor = Color.Black)
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(onClick = {
-                        val from = pendingReplaceFrom
-                        val to = pendingReplaceTo
-                        if (from != null && to != null) {
-                            onRepleys?.invoke(from, to, pendingIsMoveDrag, renameText)
-                        }
-                        showRenameDialog = false
-                    }) {
-                        Text("OK")
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = { showRenameDialog = false }) {
-                        Text("Cancel")
-                    }
-                }
             )
         }
 
@@ -475,7 +440,11 @@ fun HeksagonGred(
                             if (!isDrag) {
                                 val isDiskonekded = downIdx != 0 && downIdx !in konekdedEndeksez && isItemAtIdx
                                 if (isDiskonekded) {
-                                    disconnectedArmedIndex = if (disconnectedArmedIndex == downIdx) null else downIdx
+                                    if (isLongPressed && onLongPressItem != null) {
+                                        onLongPressItem(downIdx)
+                                    } else {
+                                        disconnectedArmedIndex = if (disconnectedArmedIndex == downIdx) null else downIdx
+                                    }
                                 } else {
                                     if (isLongPressed && onLongPressItem != null) {
                                         onLongPressItem(downIdx)

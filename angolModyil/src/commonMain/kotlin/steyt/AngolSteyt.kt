@@ -1232,7 +1232,7 @@ class AngolSteyt {
             ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad"),
             ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"),
             ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 4, type = "rebeld"),
-            ModyilDeyda(id = "mod4", neym = "mod4", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 5, ezAkdev = false),
+            ModyilDeyda(id = "poyntir", neym = "poyntir", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 5, type = "poyntir"),
             ModyilDeyda(id = "mod5", neym = "mod5", kulorLong = Color(0xFF0000FF).toArgb().toLong(), pozecon = 6, ezAkdev = false),
             ModyilDeyda(id = "reset", neym = "reset", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 8, type = "reset")
         )
@@ -1243,6 +1243,7 @@ class AngolSteyt {
             "dayl" -> ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad")
             "keypad" -> ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad", glefKulorz = listOf(Color.White.toArgbLong()) + modalz.HeksagonKonfeg.innerRingColors.map { it.toArgbLong() } + modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() })
             "rebeld" -> ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, type = "rebeld")
+            "poyntir" -> ModyilDeyda(id = "poyntir", neym = "poyntir", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 5, type = "poyntir")
             "beldir" -> ModyilDeyda(id = "beldir", neym = "beldir", kulorLong = Color(0xFF00FFCC).toArgb().toLong(), pozecon = 3, ezAkdev = false, type = "beld")
             else -> return
         }

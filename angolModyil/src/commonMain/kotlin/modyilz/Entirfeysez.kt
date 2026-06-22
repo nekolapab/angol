@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 
 interface KeyboardController {
     fun commitText(text: String)
-    fun deleteSurroundingText(beforeLength: Int, afterLength: Int)
+    fun deletSirawndenqTekst(beforeLength: Int, afterLength: Int)
     fun sendKeyEvent(keyCode: Int)
     fun getTextBeforeCursor(n: Int): String?
     fun getTextAfterCursor(n: Int): String?

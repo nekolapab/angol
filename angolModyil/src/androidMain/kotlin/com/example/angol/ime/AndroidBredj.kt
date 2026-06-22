@@ -27,7 +27,7 @@ class AndroidKeyboardController(
         getIc()?.commitText(text, 1)
     }
 
-    override fun deleteSurroundingText(beforeLength: Int, afterLength: Int) {
+    override fun deletSirawndenqTekst(beforeLength: Int, afterLength: Int) {
         getIc()?.deleteSurroundingText(beforeLength, afterLength)
     }
 

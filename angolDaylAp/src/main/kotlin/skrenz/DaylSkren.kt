@@ -122,11 +122,32 @@ fun DaylSkren(
         val targetMod = daylSteyt.modyilz.find { it.id == targetId } ?: daylSteyt.rebeldModyilz.find { it.id == targetId }
         val targetNeym = targetMod?.neym ?: targetId
         
-        androidx.compose.material.AlertDialog(
-            onDismissRequest = { daylSteyt.pendingResetTargetId = null },
-            title = null,
-            text = {
-                androidx.compose.foundation.layout.Column {
+        Box(
+            modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f)).clickable { daylSteyt.pendingResetTargetId = null },
+            contentAlignment = Alignment.Center
+        ) {
+            androidx.compose.material.Card(
+                modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f).clickable(enabled = false) {},
+                backgroundColor = androidx.compose.ui.graphics.Color(0xFF1E1E1E),
+                elevation = 8.dp
+            ) {
+                androidx.compose.foundation.layout.Column(modifier = Modifier.padding(16.dp)) {
+                    androidx.compose.material.Button(
+                        onClick = {
+                            if (targetId == "dayl") {
+                                daylSteyt.reset()
+                            } else {
+                                daylSteyt.resetModyilTarget(targetId)
+                            }
+                            daylSteyt.pendingResetTargetId = null
+                            saveLayout("current")
+                            saveLayout("rebeld_steyt")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        androidx.compose.material.Text("restor $targetNeym", fontSize = 20.sp)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                     androidx.compose.foundation.layout.Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly
@@ -152,31 +173,9 @@ fun DaylSkren(
                             androidx.compose.material.Text("redo", fontSize = 20.sp)
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    androidx.compose.material.Button(
-                        onClick = {
-                            if (targetId == "dayl") {
-                                daylSteyt.reset()
-                            } else {
-                                daylSteyt.resetModyilTarget(targetId)
-                            }
-                            daylSteyt.pendingResetTargetId = null
-                            saveLayout("current")
-                            saveLayout("rebeld_steyt")
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        androidx.compose.material.Text(
-                            if (targetId == "dayl") "restor angol" else "restor $targetNeym",
-                            fontSize = 24.sp
-                        )
-                    }
                 }
-            },
-            confirmButton = {},
-            dismissButton = null,
-            backgroundColor = Color(0xFF1E1E1E)
-        )
+            }
+        }
     }
 
     var initialLoadDone by remember { mutableStateOf(false) }
@@ -202,9 +201,9 @@ fun DaylSkren(
                         currentList = currentList.map { mod ->
                             var updatedMod = mod.copyWith() // applies absolute colors
                             if (updatedMod.kulorLong != mod.kulorLong) modified = true
-                            if (updatedMod.id == "dayl" && (updatedMod.neym != "dayl" || updatedMod.pozecon != 2)) {
+                            if (updatedMod.id == "dayl" && updatedMod.neym != "dayl") {
                                 modified = true
-                                updatedMod = updatedMod.copyWith(neym = "dayl", pozecon = 2)
+                                updatedMod = updatedMod.copyWith(neym = "dayl")
                             }
                             if (updatedMod.id == "reset" && updatedMod.kulorLong == 0xFFFF0000L) {
                                 modified = true
@@ -268,9 +267,9 @@ fun DaylSkren(
                         currentList = currentList.map { mod ->
                             var updatedMod = mod.copyWith() // applies absolute colors
                             if (updatedMod.kulorLong != mod.kulorLong) modified = true
-                            if (updatedMod.id == "dayl" && (updatedMod.neym != "dayl" || updatedMod.pozecon != 2)) {
+                            if (updatedMod.id == "dayl" && updatedMod.neym != "dayl") {
                                 modified = true
-                                updatedMod = updatedMod.copyWith(neym = "dayl", pozecon = 2)
+                                updatedMod = updatedMod.copyWith(neym = "dayl")
                             }
                             updatedMod
                         }.toMutableList()
@@ -520,6 +519,10 @@ fun ModuleContent(
                             }
                             onSaveLayout("current")
                         },
+                        onMuvTuSentir = { from ->
+                            daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
+                            onSaveLayout("current")
+                        },
                         onDropOnFoldir = { from, to, isMove ->
                             if (isMove) {
                                 daylSteyt.muvModyilEntuFoldir(from, to)
@@ -544,12 +547,34 @@ fun ModuleContent(
                             }
                             onSaveLayout("current")
                         },
-                        onMuvTuSentir = { from ->
-                            daylSteyt.repleysGlef(mod.id, from, 0)
-                            onSaveLayout("current")
-                        },
+
                         glowOnHover = false,
                         hideDisconnected = true
+                    )
+                }
+            }
+        }
+        currentType == "poyntir" -> {
+            val mod = activeMod ?: daylSteyt.modyilz.find { it.type == "poyntir" } ?: return
+            Column(modifier = Modifier.fillMaxSize()) {
+                if (isApp) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = mod.neym, color = Color.White, fontSize = 32.sp)
+                    }
+                }
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    modyilz.PoyntirModyil(
+                        kebordKontrolir = kebordKontrolir,
+                        onClose = { 
+                            if (isApp) {
+                                daylSteyt.togilModyil(mod.pozecon)
+                                onSaveLayout("current")
+                            }
+                        }
                     )
                 }
             }

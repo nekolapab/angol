@@ -583,41 +583,51 @@ private fun startVoysEnpit() {
                             val targetId = daylSteyt.pendingResetTargetId!!
                             val targetMod = daylSteyt.modyilz.find { it.id == targetId }
                             val targetNeym = targetMod?.neym ?: targetId
-                            AlertDialog(
-                                onDismissRequest = { daylSteyt.pendingResetTargetId = null },
-                                title = null,
-                                text = {
-                                    androidx.compose.foundation.layout.Column {
-                                        Button(
+                            Box(
+                                modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f)).clickable { daylSteyt.pendingResetTargetId = null },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                androidx.compose.material.Card(
+                                    modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f).clickable(enabled = false) {},
+                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF1E1E1E),
+                                    elevation = 8.dp
+                                ) {
+                                    androidx.compose.foundation.layout.Column(modifier = Modifier.padding(16.dp)) {
+                                        androidx.compose.material.Button(
                                             onClick = {
-                                                daylSteyt.undoModule(targetId)
+                                                if (targetId == "dayl") {
+                                                    daylSteyt.reset()
+                                                } else {
+                                                    daylSteyt.resetModyilTarget(targetId)
+                                                }
                                                 daylSteyt.pendingResetTargetId = null
                                                 scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
                                             },
                                             modifier = androidx.compose.ui.Modifier.fillMaxWidth()
-                                        ) { Text("undo", fontSize = 20.sp) }
-                                        Button(
-                                            onClick = {
-                                                daylSteyt.redoModule(targetId)
-                                                daylSteyt.pendingResetTargetId = null
-                                                scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
-                                            },
-                                            modifier = androidx.compose.ui.Modifier.fillMaxWidth()
-                                        ) { Text("redo", fontSize = 20.sp) }
-                                        Button(
-                                            onClick = {
-                                                daylSteyt.resetModyilTarget(targetId)
-                                                daylSteyt.pendingResetTargetId = null
-                                                scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
-                                            },
-                                            modifier = androidx.compose.ui.Modifier.fillMaxWidth()
-                                        ) { Text("restor $targetNeym", fontSize = 20.sp) }
+                                        ) { androidx.compose.material.Text("restor $targetNeym", fontSize = 20.sp) }
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        androidx.compose.foundation.layout.Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly
+                                        ) {
+                                            androidx.compose.material.Button(
+                                                onClick = {
+                                                    daylSteyt.undoModule(targetId)
+                                                    daylSteyt.pendingResetTargetId = null
+                                                    scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
+                                                }
+                                            ) { androidx.compose.material.Text("undo", fontSize = 20.sp) }
+                                            androidx.compose.material.Button(
+                                                onClick = {
+                                                    daylSteyt.redoModule(targetId)
+                                                    daylSteyt.pendingResetTargetId = null
+                                                    scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
+                                                }
+                                            ) { androidx.compose.material.Text("redo", fontSize = 20.sp) }
+                                        }
                                     }
-                                },
-                                confirmButton = {},
-                                dismissButton = null,
-                                backgroundColor = androidx.compose.ui.graphics.Color(0xFF1E1E1E)
-                            )
+                                }
+                            }
                         }
                     }
                 }

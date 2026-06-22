@@ -118,7 +118,7 @@ fun KepadModyil(
         if (char == "\n") {
             if (isLongPress && primaryChar != null) {
                 ignoreSelectionUpdate()
-                controller.deleteSurroundingText(primaryChar.length, 0)
+                controller.deletSirawndenqTekst(primaryChar.length, 0)
             }
             ignoreSelectionUpdate()
             controller.commitText("\n")
@@ -147,16 +147,16 @@ fun KepadModyil(
                 ignoreSelectionUpdate()
                 val textBefore = controller.getTextBeforeCursor(100) ?: ""
                 val deleteCount = KepadLodjek.kalkyuleytDeletKawnt(textBefore.toString())
-                controller.deleteSurroundingText(deleteCount, 0)
+                controller.deletSirawndenqTekst(deleteCount, 0)
                 kurentWirdBufir.clear()
                 dezspleyTekst = ""
             } else {
                 if (primaryChar != null && primaryChar.isNotEmpty()) {
                     ignoreSelectionUpdate()
-                    controller.deleteSurroundingText(primaryChar.length, 0)
+                    controller.deletSirawndenqTekst(primaryChar.length, 0)
                 } else {
                     ignoreSelectionUpdate()
-                    controller.deleteSurroundingText(1, 0)
+                    controller.deletSirawndenqTekst(1, 0)
                 }
             }
             return
@@ -177,13 +177,13 @@ fun KepadModyil(
             if (primaryChar != null) {
                 if (kurentWirdBufir.length >= primaryChar.length) kurentWirdBufir.deleteRange(kurentWirdBufir.length - primaryChar.length, kurentWirdBufir.length)
                 ignoreSelectionUpdate()
-                controller.deleteSurroundingText(primaryChar.length, 0)
+                controller.deletSirawndenqTekst(primaryChar.length, 0)
                 ignoreSelectionUpdate()
                 controller.commitText(char)
             } else {
                 if (kurentWirdBufir.isNotEmpty()) kurentWirdBufir.deleteAt(kurentWirdBufir.length - 1)
                 ignoreSelectionUpdate()
-                controller.deleteSurroundingText(1, 0)
+                controller.deletSirawndenqTekst(1, 0)
                 ignoreSelectionUpdate()
                 controller.commitText(char)
             }
@@ -202,18 +202,24 @@ fun KepadModyil(
             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
             
             if (index == 0) { // Center
+                // Single long press (6/12 sec): move cursor back
+                kebordKontrolir?.sendKeyEvent(21) // KEYCODE_DPAD_LEFT
+                delay(500)
+                if (huvirdHeksIndeks.value != 0) return@launch
+                // Double long press (12/12 sec total): '.'
                 if (kurentEzLeterMod) {
                     handilKePres(".", false, null)
                 }
                 delay(500)
                 if (huvirdHeksIndeks.value != 0) return@launch
-                // Double long press (12/12 sec total): move cursor back
-                kebordKontrolir?.sendKeyEvent(21) // KEYCODE_DPAD_LEFT
-                delay(500)
-                if (huvirdHeksIndeks.value != 0) return@launch
                 // Triple long press (18/12 sec total): delete front + enter
                 kebordKontrolir?.fenecKumpozenqTekst()
-                kebordKontrolir?.deleteSurroundingText(0, 1)
+                kebordKontrolir?.deletSirawndenqTekst(0, 1)
+                kebordKontrolir?.performSubmitAction()
+                delay(500)
+                if (huvirdHeksIndeks.value != 0) return@launch
+                // Quadruple long press (24/12 sec total): delete back + enter
+                kebordKontrolir?.deletSirawndenqTekst(1, 0)
                 kebordKontrolir?.performSubmitAction()
                 return@launch
             }
@@ -346,7 +352,7 @@ fun KepadModyil(
                 ezKepad = true,
                 onLongPressItem = { index ->
                     val currentLabelsLocal = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
-                    val label = currentLabelsLocal.getOrNull(index - 1) ?: return@HeksagonGred
+                    val label = currentLabelsLocal.getOrNull(index) ?: return@HeksagonGred
                     if (label == "reset" || label.startsWith("mod_reset_")) {
                         onReset?.invoke()
                     }
