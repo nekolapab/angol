@@ -1,4 +1,5 @@
 package io.angol.kepad.app
+import yuteledez.padenq
 
 import android.content.Context
 import android.content.Intent
@@ -62,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import yuteledez.klekabil
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.sp
@@ -453,7 +454,7 @@ private fun startVoysEnpit() {
                                         modified = true
                                     }
                                     if (modified) {
-                                        scope.launch { firebaseSirves.saveModuleLayout(mods, "current") }
+                                        scope.launch { firebaseSirves.seyvModjilLeyawt(mods, "current") }
                                     }
                                     daylSteyt.updateModules(mods)
                                     
@@ -575,6 +576,19 @@ private fun startVoysEnpit() {
                                 neym = activeMod.id,
                                 onReset = {
                                     daylSteyt.pendingResetTargetId = activeMod.id
+                                },
+                                onKloz = {
+                                    if (daylSteyt.tempNestedMod != null) {
+                                        daylSteyt.closeNestedMod()
+                                    }
+                                },
+                                onTapGlef = { label ->
+                                    if (label.contains("|")) {
+                                        val deserialized = daylSteyt.deserializeMod(label)
+                                        if (deserialized != null) {
+                                            daylSteyt.openNestedMod(deserialized)
+                                        }
+                                    }
                                 }
                             )
                         }
@@ -584,49 +598,55 @@ private fun startVoysEnpit() {
                             val targetMod = daylSteyt.modyilz.find { it.id == targetId }
                             val targetNeym = targetMod?.neym ?: targetId
                             Box(
-                                modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f)).clickable { daylSteyt.pendingResetTargetId = null },
+                                modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f)).klekabil { daylSteyt.pendingResetTargetId = null },
                                 contentAlignment = Alignment.Center
                             ) {
-                                androidx.compose.material.Card(
-                                    modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f).clickable(enabled = false) {},
-                                    backgroundColor = androidx.compose.ui.graphics.Color(0xFF1E1E1E),
-                                    elevation = 8.dp
-                                ) {
-                                    androidx.compose.foundation.layout.Column(modifier = Modifier.padding(16.dp)) {
-                                        androidx.compose.material.Button(
-                                            onClick = {
+                                val resetItems = listOf(
+                                    wedjets.GredUydem(index = 0, label = "undu", color = androidx.compose.ui.graphics.Color(0xFF808080)),
+                                    wedjets.GredUydem(index = 1, label = "redu", color = androidx.compose.ui.graphics.Color(0xFF808080)),
+                                    wedjets.GredUydem(index = 2, label = "restor", color = androidx.compose.ui.graphics.Color(0xFF808080)),
+                                    wedjets.GredUydem(index = 3, label = "repleys", color = androidx.compose.ui.graphics.Color(0xFF808080))
+                                )
+                                
+                                wedjets.HeksagonGred(
+                                    geometry = geometry,
+                                    items = resetItems,
+                                    sentirLeybil = targetNeym,
+                                    centerColor = androidx.compose.ui.graphics.Color.Red,
+                                    onMove = { _, _ -> },
+                                    onCopyToEmpty = { _, _ -> },
+                                    onMuvTuSentir = { _ -> },
+                                    onDropOnFoldir = { _, _, _ -> },
+                                    onTap = { index ->
+                                        when (index) {
+                                            1 -> { 
+                                                daylSteyt.undoModule(targetId)
+                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                            }
+                                            2 -> { 
+                                                daylSteyt.redoModule(targetId)
+                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                            }
+                                            3 -> {
                                                 if (targetId == "dayl") {
                                                     daylSteyt.reset()
                                                 } else {
                                                     daylSteyt.resetModyilTarget(targetId)
                                                 }
+                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
                                                 daylSteyt.pendingResetTargetId = null
-                                                scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
-                                            },
-                                            modifier = androidx.compose.ui.Modifier.fillMaxWidth()
-                                        ) { androidx.compose.material.Text("restor $targetNeym", fontSize = 20.sp) }
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        androidx.compose.foundation.layout.Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly
-                                        ) {
-                                            androidx.compose.material.Button(
-                                                onClick = {
-                                                    daylSteyt.undoModule(targetId)
-                                                    daylSteyt.pendingResetTargetId = null
-                                                    scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
+                                            }
+                                            4 -> {
+                                                // trigger repleys logic (cloud sync)
+                                                scope.launch {
+                                                    firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current", true)
                                                 }
-                                            ) { androidx.compose.material.Text("undo", fontSize = 20.sp) }
-                                            androidx.compose.material.Button(
-                                                onClick = {
-                                                    daylSteyt.redoModule(targetId)
-                                                    daylSteyt.pendingResetTargetId = null
-                                                    scope.launch { firebaseSirves.saveModuleLayout(daylSteyt.modyilz, "current") }
-                                                }
-                                            ) { androidx.compose.material.Text("redo", fontSize = 20.sp) }
+                                                daylSteyt.pendingResetTargetId = null
+                                            }
                                         }
-                                    }
-                                }
+                                    },
+                                    modifier = Modifier.fillMaxSize()
+                                )
                             }
                         }
                     }
@@ -706,7 +726,7 @@ private fun startVoysEnpit() {
         else (resources.displayMetrics.widthPixels / (2.0 * 2.6 + 1.0) / kotlin.math.sqrt(3.0)).toFloat()
 
         if (hexCentersDp.isNotEmpty()) {
-            // Exact hexagonal touch regions — one per visible hexagon
+            // Exact hexagonal touch regions â€” one per visible hexagon
             val gridCenterX = totalWidth / 2f
             val gridCenterY = if (dynamicGridCenterYPx > 0f) dynamicGridCenterYPx else top + adjustedHeightPx / 2f
             val combinedPath = android.graphics.Path()
@@ -715,7 +735,7 @@ private fun startVoysEnpit() {
                 val cy = gridCenterY + cyDp * density
                 val hexPath = android.graphics.Path()
                 for (i in 0..5) {
-                    // Pointy-top hex: vertices at 30°, 90°, 150°, 210°, 270°, 330°
+                    // Pointy-top hex: vertices at 30Â°, 90Â°, 150Â°, 210Â°, 270Â°, 330Â°
                     val rad = Math.toRadians(60.0 * i + 30.0)
                     val vx = (cx + hexSizePx * kotlin.math.cos(rad)).toFloat()
                     val vy = (cy + hexSizePx * kotlin.math.sin(rad)).toFloat()
@@ -762,3 +782,5 @@ private fun startVoysEnpit() {
         speechRecognizer?.destroy()
     }
 }
+
+

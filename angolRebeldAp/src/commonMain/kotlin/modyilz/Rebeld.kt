@@ -1,12 +1,14 @@
 package modyilz
+import yuteledez.padenq
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import yuteledez.klekabil
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.AlertDialog as AlirtDayalog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
@@ -40,14 +42,14 @@ fun Rebeld(
     kebordKontrolir: KeyboardController?,
     platformServices: PlatformServices,
     voiceService: VoiceService,
-    onClose: () -> Unit,
+    onKloz: () -> Unit,
     onAction: (String) -> Unit = {},
     onDropOnFoldir: (Int, Int, Boolean) -> Unit = { _, _, _ -> },
     onRepleys: (Int, Int, Boolean, String?) -> Unit = { _, _, _, _ -> },
     isApp: Boolean = false
 ) {
     var selectedModuleId by remember { mutableStateOf<String?>(null) }
-    var moduleToReplace by remember { mutableStateOf<Int?>(null) }
+    var modjilTuRepleys by remember { mutableStateOf<Int?>(null) }
     
     val syncRebeld = {
         onAction("rebeld_steyt")
@@ -85,8 +87,8 @@ fun Rebeld(
                     daylSteyt.reneymModyil(mod.id, newNeym)
                     syncRebeld()
                 },
-                onRepleysMod = {
-                    moduleToReplace = mod.pozecon - 1
+                onRepleysMod = { 
+                    modjilTuRepleys = mod.pozecon 
                 },
                 onRepleys = { from, to, isMove, _ ->
                     if (to == -1) {
@@ -104,7 +106,7 @@ fun Rebeld(
     Column(modifier = Modifier.fillMaxSize()) {
         if (isApp && selectedModuleId == null) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padenq(16.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -158,7 +160,7 @@ fun Rebeld(
             if (selectedModuleId != null) {
                 selectedModuleId = null
             } else {
-                onClose()
+                onKloz()
             }
         }
 
@@ -233,7 +235,7 @@ fun Rebeld(
                     },
                     onTap = { index ->
                         if (index == 0) { // Center
-                            onClose()
+                            onKloz()
                         } else {
                             val clickedMod = daylSteyt.rebeldModyilz.find { it.pozecon == index + 1 }
                             if (clickedMod?.type == "reset" || clickedMod?.id == "reset") {
@@ -243,7 +245,7 @@ fun Rebeld(
                             }
                         }
                     },
-                    onLongPressItem = { index ->
+                    onLonqPresUydem = { index ->
                         val clickedMod = daylSteyt.rebeldModyilz.find { it.pozecon == index + 1 }
                         if (clickedMod?.type == "reset" || clickedMod?.id == "reset") {
                             daylSteyt.pendingResetTargetId = "rebeld"
@@ -269,26 +271,26 @@ fun Rebeld(
             }
         }
 
-        if (moduleToReplace != null) {
-            AlertDialog(
-                onDismissRequest = { moduleToReplace = null },
+        if (modjilTuRepleys != null) {
+            AlirtDayalog(
+                onDismissRequest = { modjilTuRepleys = null },
                 title = { Text("repleys and send tu rebeld?", color = Color.White) },
                 text = { Text("lhes wel repleys lha aktev kepad.", color = Color.LightGray) },
                 confirmButton = {
                     TextButton(onClick = {
-                        daylSteyt.kopeModjilTuDaylKepad(moduleToReplace!!)
+                        daylSteyt.kopeModjilTuDaylKepad(modjilTuRepleys!!)
                         onAction("current")
-                        moduleToReplace = null
+                        modjilTuRepleys = null
                     }) {
-                        Text("Replace", color = Color.Red)
+                        Text("yes", color = Color.Cyan)
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { moduleToReplace = null }) {
-                        Text("Cancel", color = Color.White)
+                    TextButton(onClick = { modjilTuRepleys = null }) {
+                        Text("no", color = Color.LightGray)
                     }
                 },
-                backgroundColor = Color.DarkGray
+                backgroundColor = Color(0xFF1A1A2E)
             )
         }
         }
@@ -340,6 +342,13 @@ fun BeldWedjet(
 
         val sentirLeybil = mod.glefs.getOrNull(0) ?: " "
         Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padenq(16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                androidx.compose.material.Text(text = path, color = Color.White, fontSize = 32.sp)
+            }
             Box(modifier = Modifier.weight(1f)) {
                 val currentLabels = if (mod.type == "keypad") {
                     KepadLodjek.getKirentOlLeybilz(null, true, false, false, mod.glefs)
@@ -363,25 +372,29 @@ fun BeldWedjet(
                 val centerLabel = if (hazTravlir) {
                     daylSteyt.deserializeMod(travelerStr!!)?.neym ?: travelerStr
                 } else sentirLeybil
-                val sekondereLeybilz = buildList {
+                val sekondLeybilz = buildList {
                     add(null) // index 0: center, no secondary
                     // Inner ring (1..6): no secondary shown in editor (same as KepadModyil)
                     repeat(6) { add(null) }
-                    // Outer ring (7..18): show awdirLonqPres letters
-                    modalz.HeksagonKonfeg.awdirLonqPres.forEachIndexed { i, lp ->
+                    // Outer ring (7..18): show sekondRenqLonqPres letters
+                    modalz.HeksagonKonfeg.sekondRenqLonqPres.forEachIndexed { i, lp ->
                         add(lp.ifEmpty { null })
                     }
                 }
                 val itemsForGred = currentLabels.mapIndexed { index, label ->
                     if (index == 0 || label.isEmpty()) return@mapIndexed null
-                    // Read color: use glefKulorz if available, else fall back to module color
+                    // Read color: use glefKulorz if available, else fall back to rainbow defaults
                     val colorLong = if (index < mod.glefKulorz.size) mod.glefKulorz[index]
-                                    else mod.kulor.toArgb().toLong()
+                                    else when {
+                                        index in 1..6  -> modalz.HeksagonKonfeg.enirRenqKulorz[index - 1].toArgb().toLong()
+                                        index in 7..18 -> modalz.HeksagonKonfeg.reynbowKulorz[index - 7].toArgb().toLong()
+                                        else           -> mod.kulor.toArgb().toLong()
+                                    }
                     GredUydem(
                         index = index,
                         label = label,
                         color = Color(colorLong.toInt()),
-                        sekondereLeybil = sekondereLeybilz.getOrNull(index)
+                        sekondLeybil = sekondLeybilz.getOrNull(index)
                     )
                 }.filterNotNull()
 
@@ -410,7 +423,7 @@ fun BeldWedjet(
                     centerFontSizeFactor = 10f / 12f,
                     ezKonsestentSayz = true,
                     centerEzKonsestentSayz = false,
-                    onLongPressItem = { index ->
+                    onLonqPresUydem = { index ->
                         val label = currentLabels.getOrNull(index) ?: return@HeksagonGred
                         if (label == "reset" || label.startsWith("mod_reset_")) {
                             daylSteyt.pendingResetTargetId = mod.id
@@ -423,5 +436,8 @@ fun BeldWedjet(
         }
     }
 }
+
+
+
 
 

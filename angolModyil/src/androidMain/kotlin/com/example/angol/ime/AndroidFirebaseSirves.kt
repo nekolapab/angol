@@ -41,7 +41,7 @@ class AndroidFirebaseSirves(
         encodeDefaults = true
     }
 
-    /** Same path for Activity + IME service process — enables layout sync without cloud. */
+    /** Same path for Activity + IME service process â€” enables layout sync without cloud. */
     private fun getLocalFile(env: String): File = File(appContext.filesDir, "layout_$env.json")
 
     override val currentUser: User?
@@ -97,13 +97,14 @@ class AndroidFirebaseSirves(
         auth.signOut()
     }
 
-    override suspend fun saveModuleLayout(modyilz: List<ModyilDeyda>, environment: String) {
+    override suspend fun seyvModjilLeyawt(modyilz: List<ModyilDeyda>, environment: String, ezRepleys: Boolean) {
         val user = auth.currentUser
         if (user != null) {
             try {
                 val data = mapOf(
                     "modyilz" to modyilz.map { it.toJson() },
-                    "updatedAt" to com.google.firebase.Timestamp.now()
+                    "updatedAt" to com.google.firebase.Timestamp.now(),
+                    "ezRepleys" to ezRepleys
                 )
                 db.collection("users")
                     .document(user.uid)
@@ -117,7 +118,7 @@ class AndroidFirebaseSirves(
         }
 
         val jsonString = json.encodeToString(modyilz)
-        saveLocally(modyilz, environment)
+        seyvLokale(modyilz, environment)
         
         // Broadcast to other apps (bridge dayl -> kepad)
         val intent = Intent(ACTION_UPDATE_LAYOUT).apply {
@@ -127,20 +128,20 @@ class AndroidFirebaseSirves(
         appContext.sendBroadcast(intent)
     }
 
-    private fun saveLocally(modyilz: List<ModyilDeyda>, environment: String) {
+    private fun seyvLokale(modyilz: List<ModyilDeyda>, environment: String) {
         try {
             val content = json.encodeToString(modyilz)
             val file = getLocalFile(environment)
             file.writeText(content)
             Log.d("AndroidFirebaseSirves", "Saved locally to ${file.absolutePath}")
-            broadcastLayout(content, environment)
+            brodkastLeyawt(content, environment)
         } catch (e: Exception) {
             Log.e("AndroidFirebaseSirves", "Error saving locally", e)
         }
     }
 
-    /** Writes to disk WITHOUT broadcasting — used by cloud sync to avoid overwriting IME state. */
-    private fun saveLocallySilent(modyilz: List<ModyilDeyda>, environment: String) {
+    /** Writes to disk WITHOUT broadcasting â€” used by cloud sync to avoid overwriting IME state. */
+    private fun seyvLokaleSaylent(modyilz: List<ModyilDeyda>, environment: String) {
         try {
             val content = json.encodeToString(modyilz)
             val file = getLocalFile(environment)
@@ -151,7 +152,7 @@ class AndroidFirebaseSirves(
         }
     }
 
-    private fun broadcastLayout(jsonString: String, environment: String) {
+    private fun brodkastLeyawt(jsonString: String, environment: String) {
         val intent = Intent(ACTION_UPDATE_LAYOUT).apply {
             putExtra(EXTRA_LAYOUT_JSON, jsonString)
             putExtra(EXTRA_ENVIRONMENT, environment)
@@ -167,7 +168,7 @@ class AndroidFirebaseSirves(
         val local = loadLocally(environment)
         if (local.isNotEmpty()) {
             trySend(local)
-            // Do NOT broadcast on startup — only broadcast on explicit saves.
+            // Do NOT broadcast on startup â€” only broadcast on explicit saves.
             // Startup broadcast caused a race: Dayl and Kepad IME would overwrite each other's
             // live layout with the stale local file whenever either app started.
         }
@@ -207,7 +208,7 @@ class AndroidFirebaseSirves(
                     val modyilz = modyilzData?.map { ModyilDeyda.fromJson(it) } ?: emptyList()
                     if (modyilz.isNotEmpty()) {
                         trySend(modyilz)
-                        saveLocallySilent(modyilz, environment)
+                        seyvLokaleSaylent(modyilz, environment)
                         // Cloud sync only updates the local file silently.
                         // Kepad IME is updated only by explicit user-action saves.
                     }
@@ -239,3 +240,5 @@ private fun com.google.firebase.auth.FirebaseUser.toCommonUser(): User {
         photoUrl = photoUrl?.toString()
     )
 }
+
+

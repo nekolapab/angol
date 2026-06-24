@@ -40,7 +40,7 @@ fun KepadModyil(
     onTogilAngol: (Boolean) -> Unit,
     onStartAiVoys: () -> Unit,
     ignoreSelectionUpdate: () -> Unit,
-    onClose: (() -> Unit)? = null,
+    onKloz: (() -> Unit)? = null,
     geometryOverride: HeksagonDjeyometre? = null,
     glefsOvirayd: List<String>? = null,
     kulorzOverride: List<Long>? = null,
@@ -55,7 +55,8 @@ fun KepadModyil(
     glowOnHover: Boolean = true,
     hideDisconnected: Boolean = false,
     neym: String = "kepad",
-    onReset: (() -> Unit)? = null
+    onReset: (() -> Unit)? = null,
+    onTapGlef: ((String) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -95,13 +96,17 @@ fun KepadModyil(
             if (c != Color.Transparent) return c
         }
         return when {
-            index in 1..6 -> HeksagonKonfeg.innerRingColors[index - 1]
-            index in 7..18 -> HeksagonKonfeg.rainbowColors[index - 7]
+            index in 1..6 -> HeksagonKonfeg.enirRenqKulorz[index - 1]
+            index in 7..18 -> HeksagonKonfeg.reynbowKulorz[index - 7]
             else -> Color.Transparent
         }
     }
 
     fun handilKePres(char: String, isLongPress: Boolean, primaryChar: String?) {
+        if (char.contains("|")) {
+            onTapGlef?.invoke(char)
+            return
+        }
         if (char == "TRANSLATE") {
             onStartAiVoys()
             return
@@ -131,7 +136,7 @@ fun KepadModyil(
             return
         }
 
-        if (char == "Ã¢Å’Â«") {
+        if (char == "ÃƒÂ¢Ã…â€™Ã‚Â«") {
             if (primaryChar != null && primaryChar.isNotEmpty()) {
                 if (kurentWirdBufir.length >= primaryChar.length) {
                     kurentWirdBufir.deleteRange(kurentWirdBufir.length - primaryChar.length, kurentWirdBufir.length)
@@ -194,7 +199,7 @@ fun KepadModyil(
         }
     }
 
-    fun startLongPressTimer(index: Int): Job {
+    fun startLonqPresTaymir(index: Int): Job {
         return scope.launch {
             delay(500)
             if (huvirdHeksIndeks.value != index) return@launch
@@ -232,12 +237,12 @@ fun KepadModyil(
             
             val lpLabelRaw = if (isInner) {
                 val configIdx = actualIdx - 1
-                if (kurentEzLeterMod) modalz.HeksagonKonfeg.innerLetterMode.map { if (it == "Ã¢Å’Â«") "Ã¢Å’Â«" else "" }.getOrNull(configIdx) ?: ""
+                if (kurentEzLeterMod) modalz.HeksagonKonfeg.innerLetterMode.map { if (it == "ÃƒÂ¢Ã…â€™Ã‚Â«") "ÃƒÂ¢Ã…â€™Ã‚Â«" else "" }.getOrNull(configIdx) ?: ""
                 else modalz.HeksagonKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
             } else {
                 val configIdx = actualIdx - 7
                 val isVowelOrNone = startedVowelIndex == null || startedVowelIndex == 0
-                if (kurentEzLeterMod && isVowelOrNone) modalz.HeksagonKonfeg.awdirLonqPres.getOrNull(configIdx) ?: ""
+                if (kurentEzLeterMod && isVowelOrNone) modalz.HeksagonKonfeg.sekondRenqLonqPres.getOrNull(configIdx) ?: ""
                 else "" // No secondary labels for numbers!
             }
             val primaryLabel = KepadLodjek.getKirentOlLeybilz(startedVowelIndex, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd).getOrNull(actualIdx) ?: ""
@@ -246,10 +251,10 @@ fun KepadModyil(
                 return@launch
             }
             if (lpLabelRaw.isEmpty()) return@launch
-            val lpLabel = if (ezKapetalayzd && lpLabelRaw != "Ã¢Å’Â«") lpLabelRaw.uppercase() else lpLabelRaw
-            if (lpLabel == "Ã¢Å’Â«") {
+            val lpLabel = if (ezKapetalayzd && lpLabelRaw != "ÃƒÂ¢Ã…â€™Ã‚Â«") lpLabelRaw.uppercase() else lpLabelRaw
+            if (lpLabel == "ÃƒÂ¢Ã…â€™Ã‚Â«") {
                 while (huvirdHeksIndeks.value == index) {
-                    handilKePres("Ã¢Å’Â«", true, null)
+                    handilKePres("ÃƒÂ¢Ã…â€™Ã‚Â«", true, null)
                     delay(500)
                 }
             } else { handilKePres(lpLabel, true, primaryLabel) }
@@ -266,7 +271,7 @@ fun KepadModyil(
                     val zoomChange = event.calculateZoom()
                     zoom *= zoomChange
                     if (zoom < 0.75f) { // Pinched out by 25%
-                        onClose?.invoke()
+                        onKloz?.invoke()
                         break
                     }
                 } while (event.changes.any { it.pressed })
@@ -311,10 +316,10 @@ fun KepadModyil(
 
         if (isEditing) {
             val currentLabels = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
-            val sekondereLeybilz = buildList {
+            val sekondLeybilz = buildList {
                 add(null) // index 0: center
                 repeat(6) { add(null) } // inner ring (1..6): no secondary in editor
-                modalz.HeksagonKonfeg.awdirLonqPres.forEach { lp -> add(lp.ifEmpty { null }) }
+                modalz.HeksagonKonfeg.sekondRenqLonqPres.forEach { lp -> add(lp.ifEmpty { null }) }
             }
             val gredItems = currentLabels.mapIndexed { index, label ->
                 if (index == 0 || label.isEmpty()) return@mapIndexed null
@@ -322,7 +327,7 @@ fun KepadModyil(
                     index = index,
                     label = label,
                     color = getKulor(index),
-                    sekondereLeybil = sekondereLeybilz.getOrNull(index)
+                    sekondLeybil = sekondLeybilz.getOrNull(index)
                 )
             }.filterNotNull()
 
@@ -342,7 +347,15 @@ fun KepadModyil(
                 onDropOnFoldir = onDropOnFoldir,
                 onRepleys = onRepleys,
                 onDelete = onDelete,
-                onTap = { index -> if (index == 0) onClose?.invoke() },
+                onTap = { index ->
+                    if (index == 0) {
+                        onKloz?.invoke()
+                    } else if (onTapGlef != null) {
+                        val currentLabelsLocal = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
+                        val label = currentLabelsLocal.getOrNull(index) ?: return@HeksagonGred
+                        if (label.isNotEmpty()) onTapGlef(label)
+                    }
+                },
                 fontSizeFactor = 12f/12f,
                 centerFontSizeFactor = 10f/12f,
                 ezKonsestentSayz = true,
@@ -350,7 +363,7 @@ fun KepadModyil(
                 glowOnHover = glowOnHover,
                 hideDisconnected = hideDisconnected,
                 ezKepad = true,
-                onLongPressItem = { index ->
+                onLonqPresUydem = { index ->
                     val currentLabelsLocal = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
                     val label = currentLabelsLocal.getOrNull(index) ?: return@HeksagonGred
                     if (label == "reset" || label.startsWith("mod_reset_")) {
@@ -415,7 +428,7 @@ fun KepadModyil(
                                             handilKePres(downLabels[actualDownIdx], false, null)
                                         }
                                     }
-                                    lonqPresDjob.value = startLongPressTimer(downIndex)
+                                    lonqPresDjob.value = startLonqPresTaymir(downIndex)
                                 } else {
                                     huvirdHeksIndeks.value = null
                                     kepadLongPresEndeks.value = null
@@ -473,7 +486,7 @@ fun KepadModyil(
                                                 val actualIdx = idx
                                                 if (actualIdx < upLabels.size) {
                                                     val old = upLabels[actualIdx].lowercase(); val new = upLabels[actualIdx].uppercase()
-                                                    if (old != new) { handilKePres("Ã¢Å’Â«", false, old); handilKePres(new, false, null) }
+                                                    if (old != new) { handilKePres("ÃƒÂ¢Ã…â€™Ã‚Â«", false, old); handilKePres(new, false, null) }
                                                 }
                                             }
                                         }
@@ -486,7 +499,7 @@ fun KepadModyil(
                                                 val actualIdx = idx
                                                 if (actualIdx < dtLabels.size) {
                                                     val old = dtLabels[actualIdx].uppercase(); val new = dtLabels[actualIdx].lowercase()
-                                                    if (old != new) { handilKePres("Ã¢Å’Â«", false, old); handilKePres(new, false, null) }
+                                                    if (old != new) { handilKePres("ÃƒÂ¢Ã…â€™Ã‚Â«", false, old); handilKePres(new, false, null) }
                                                 }
                                             }
                                         }
@@ -511,7 +524,7 @@ fun KepadModyil(
                                             if (idx != 0) {
                                                 val actualIdx = idx
                                                 val oldLabels = KepadLodjek.getKirentOlLeybilz(oldVowelIndex, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
-                                                if (actualIdx < oldLabels.size && oldLabels[actualIdx].isNotEmpty()) handilKePres("Ã¢Å’Â«", false, oldLabels[actualIdx])
+                                                if (actualIdx < oldLabels.size && oldLabels[actualIdx].isNotEmpty()) handilKePres("ÃƒÂ¢Ã…â€™Ã‚Â«", false, oldLabels[actualIdx])
                                             }
                                         }
                                         if (moveIndex != null) {
@@ -521,7 +534,7 @@ fun KepadModyil(
                                                 if (actualIdx != 0) {
                                                     handilKePres(moveLabels[actualIdx], false, null)
                                                 }
-                                                lonqPresDjob.value = startLongPressTimer(moveIndex)
+                                                lonqPresDjob.value = startLonqPresTaymir(moveIndex)
                                             }
                                         }
                                         huvirdHeksIndeks.value = moveIndex
@@ -537,8 +550,8 @@ fun KepadModyil(
                                     ezSentirHeksPresd = false
                                     val duration = getCurrentTimeMillis() - startTime
                                     if (huvirdHeksIndeks.value == 0 && !rotationTriggered) {
-                                        if (onClose != null && duration < 510) {
-                                            onClose()
+                                        if (onKloz != null && duration < 510) {
+                                            onKloz()
                                         } else {
                                             when {
                                                 duration < 510 -> {
@@ -597,7 +610,7 @@ fun KepadModyil(
                             index in 7..18 -> {
                                 val configIdx = index - 7
                                 val isVowelOrNone = startedVowelIndex == null || startedVowelIndex == 0
-                                if (kurentEzLeterMod && isVowelOrNone) modalz.HeksagonKonfeg.awdirLonqPres.getOrNull(configIdx) ?: ""
+                                if (kurentEzLeterMod && isVowelOrNone) modalz.HeksagonKonfeg.sekondRenqLonqPres.getOrNull(configIdx) ?: ""
                                 else "" // No secondary labels on numbers!
                             }
                             else -> ""
@@ -610,11 +623,11 @@ fun KepadModyil(
                         } else null
 
                         val actualLabel = centerPopup ?: label
-                        val actualSecondary = if (centerPopup != null) null else if (label.isNotEmpty() && lpLabel.isNotEmpty() && lpLabel != "Ã¢Å’Â«") lpLabel else null
+                        val actualSecondary = if (centerPopup != null) null else if (label.isNotEmpty() && lpLabel.isNotEmpty() && lpLabel != "ÃƒÂ¢Ã…â€™Ã‚Â«") lpLabel else null
 
                         Heksagon(
                             label = actualLabel,
-                            sekondereLeybil = actualSecondary,
+                            sekondLeybil = actualSecondary,
                             backgroundColor = if (index == 0 && voiceService.isListening.value) Color.Red else hexColor,
                             textColor = if (index == 0 && voiceService.isListening.value) Color.White else HeksagonKonfeg.getComplementaryColor(hexColor),
                             size = hexWidthDp,
@@ -640,5 +653,7 @@ fun KepadModyil(
         }
     }
 }
+
+
 
 

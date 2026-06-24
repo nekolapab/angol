@@ -1,7 +1,8 @@
 package skrenz
+import yuteledez.padenq
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import yuteledez.klekabil
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -109,74 +110,22 @@ fun DaylSkren(
         if (firebaseSirves != null) {
             scope.launch {
                 if (env == "rebeld_steyt") {
-                    firebaseSirves.saveModuleLayout(daylSteyt.rebeldModyilz, env)
+                    firebaseSirves.seyvModjilLeyawt(daylSteyt.rebeldModyilz, env)
                 } else {
-                    firebaseSirves.saveModuleLayout(daylSteyt.modyilz, env)
+                    firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, env)
                 }
             }
         }
     }
     
-    if (daylSteyt.pendingResetTargetId != null) {
-        val targetId = daylSteyt.pendingResetTargetId!!
-        val targetMod = daylSteyt.modyilz.find { it.id == targetId } ?: daylSteyt.rebeldModyilz.find { it.id == targetId }
-        val targetNeym = targetMod?.neym ?: targetId
-        
-        Box(
-            modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f)).clickable { daylSteyt.pendingResetTargetId = null },
-            contentAlignment = Alignment.Center
-        ) {
-            androidx.compose.material.Card(
-                modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f).clickable(enabled = false) {},
-                backgroundColor = androidx.compose.ui.graphics.Color(0xFF1E1E1E),
-                elevation = 8.dp
-            ) {
-                androidx.compose.foundation.layout.Column(modifier = Modifier.padding(16.dp)) {
-                    androidx.compose.material.Button(
-                        onClick = {
-                            if (targetId == "dayl") {
-                                daylSteyt.reset()
-                            } else {
-                                daylSteyt.resetModyilTarget(targetId)
-                            }
-                            daylSteyt.pendingResetTargetId = null
-                            saveLayout("current")
-                            saveLayout("rebeld_steyt")
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        androidx.compose.material.Text("restor $targetNeym", fontSize = 20.sp)
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    androidx.compose.foundation.layout.Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly
-                    ) {
-                        androidx.compose.material.Button(
-                            onClick = {
-                                daylSteyt.undoModule(targetId)
-                                daylSteyt.pendingResetTargetId = null
-                                saveLayout("current")
-                                saveLayout("rebeld_steyt")
-                            }
-                        ) {
-                            androidx.compose.material.Text("undo", fontSize = 20.sp)
-                        }
-                        androidx.compose.material.Button(
-                            onClick = {
-                                daylSteyt.redoModule(targetId)
-                                daylSteyt.pendingResetTargetId = null
-                                saveLayout("current")
-                                saveLayout("rebeld_steyt")
-                            }
-                        ) {
-                            androidx.compose.material.Text("redo", fontSize = 20.sp)
-                        }
-                    }
-                }
+    val saveLayoutRepleys: () -> Unit = {
+        if (firebaseSirves != null) {
+            scope.launch {
+                firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current", true)
             }
         }
     }
+    
 
     var initialLoadDone by remember { mutableStateOf(false) }
 
@@ -252,7 +201,7 @@ fun DaylSkren(
 
                         daylSteyt.updateModules(currentList)
                         if (modified) {
-                            firebaseSirves.saveModuleLayout(currentList, "current")
+                            firebaseSirves.seyvModjilLeyawt(currentList, "current")
                         }
                     }
                 }
@@ -290,7 +239,7 @@ fun DaylSkren(
 
                         daylSteyt.updeytRebeldModjilz(currentList)
                         if (modified) {
-                            firebaseSirves.saveModuleLayout(currentList, "rebeld_steyt")
+                            firebaseSirves.seyvModjilLeyawt(currentList, "rebeld_steyt")
                         }
                     }
                 }
@@ -373,6 +322,7 @@ fun DaylSkren(
                 onStartAiVoys = onStartAiVoys,
                 ignoreSelectionUpdate = ignoreSelectionUpdate,
                 onSaveLayout = saveLayout,
+                onRepleys = saveLayoutRepleys,
                 screenWidth = screenWidth,
                 screenHeight = if (isApp) screenHeight else gredDimz.height.dp,
                 contentWidth = if (isApp) screenWidth else gredDimz.width.dp,
@@ -385,7 +335,7 @@ fun DaylSkren(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(start = 32.dp, end = 32.dp, bottom = 32.dp),
+                    .padenq(start = 32.dp, end = 32.dp, bottom = 32.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -417,6 +367,7 @@ fun ModuleContent(
     onStartAiVoys: () -> Unit,
     ignoreSelectionUpdate: () -> Unit,
     onSaveLayout: (String) -> Unit,
+    onRepleys: () -> Unit = {},
     screenWidth: androidx.compose.ui.unit.Dp,
     screenHeight: androidx.compose.ui.unit.Dp,
     contentWidth: androidx.compose.ui.unit.Dp = screenWidth,
@@ -424,8 +375,9 @@ fun ModuleContent(
 ) {
     val activeMod = daylSteyt.activeModule
     val currentType = activeMod?.type ?: if (!isApp) "keypad" else "hub"
-    when {
-        activeMod?.id == "dayl" -> {
+    Box(modifier = Modifier.fillMaxSize()) {
+        when {
+            activeMod?.id == "dayl" -> {
             val mod = activeMod!!
             modyilz.BeldWedjet(
                 daylSteyt = daylSteyt,
@@ -475,7 +427,7 @@ fun ModuleContent(
             Column(modifier = Modifier.fillMaxSize()) {
                 if (isApp) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier.fillMaxWidth().padenq(16.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -496,10 +448,14 @@ fun ModuleContent(
                         onTogilAngol = onTogilAngol,
                         onStartAiVoys = onStartAiVoys,
                         ignoreSelectionUpdate = ignoreSelectionUpdate,
-                        onClose = { 
+                        onKloz = { 
                             if (isApp) {
-                                daylSteyt.togilModyil(mod.pozecon)
-                                onSaveLayout("current")
+                                if (daylSteyt.tempNestedMod != null) {
+                                    daylSteyt.closeNestedMod()
+                                } else {
+                                    daylSteyt.togilModyil(mod.pozecon)
+                                    onSaveLayout("current")
+                                }
                             }
                         },
                         geometryOverride = geometry,
@@ -549,7 +505,16 @@ fun ModuleContent(
                         },
 
                         glowOnHover = false,
-                        hideDisconnected = true
+                        hideDisconnected = true,
+                        onTapGlef = { label ->
+                            // If the tapped glyph is a serialized module (contains '|'), open it
+                            if (label.contains("|")) {
+                                val deserialized = daylSteyt.deserializeMod(label)
+                                if (deserialized != null) {
+                                    daylSteyt.openNestedMod(deserialized)
+                                }
+                            }
+                        }
                     )
                 }
             }
@@ -559,7 +524,7 @@ fun ModuleContent(
             Column(modifier = Modifier.fillMaxSize()) {
                 if (isApp) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier.fillMaxWidth().padenq(16.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -569,7 +534,7 @@ fun ModuleContent(
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                     modyilz.PoyntirModyil(
                         kebordKontrolir = kebordKontrolir,
-                        onClose = { 
+                        onKloz = { 
                             if (isApp) {
                                 daylSteyt.togilModyil(mod.pozecon)
                                 onSaveLayout("current")
@@ -586,7 +551,7 @@ fun ModuleContent(
                 platformServices = platformServices,
                 voiceService = voiceService,
                 isApp = isApp,
-                onClose = { 
+                onKloz = { 
                     daylSteyt.togilModyil(activeMod!!.pozecon)
                     onSaveLayout("current")
                 },
@@ -622,7 +587,7 @@ fun ModuleContent(
                     }
                 }
             },
-            onLongPressItem = { index ->
+            onLonqPresUydem = { index ->
                 val clickedMod = daylSteyt.modyilz.find { it.pozecon == index + 1 }
                 if (clickedMod?.type == "reset" || clickedMod?.id == "reset") {
                     daylSteyt.pendingResetTargetId = "dayl"
@@ -663,7 +628,7 @@ fun ModuleContent(
             },
             onCopyToEmpty = { from, to ->
                 val targetMod = daylSteyt.modyilz.find { it.pozecon == to + 1 }
-                daylSteyt.kopeModyilTuEmpt(from + 1, to + 1)
+                daylSteyt.kopeModyilTuEmpde(from + 1, to + 1)
                 onSaveLayout("current")
                 if (targetMod?.type == "rebeld") {
                     onSaveLayout("rebeld_steyt")
@@ -690,6 +655,59 @@ fun ModuleContent(
                 daylSteyt.roteyconAngol += delta
             }
         )
+        }
+
+        if (daylSteyt.pendingResetTargetId != null) {
+            val targetId = daylSteyt.pendingResetTargetId!!
+            val targetMod = daylSteyt.modyilz.find { it.id == targetId }
+            val targetNeym = targetMod?.neym ?: targetId
+            
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)).klekabil { daylSteyt.pendingResetTargetId = null },
+                contentAlignment = Alignment.Center
+            ) {
+                val resetItems = listOf(
+                    wedjets.GredUydem(index = 6, label = "undu", color = Color(0xFF404040)),    // Top Left
+                    wedjets.GredUydem(index = 1, label = "redu", color = Color(0xFF404040)),    // Top Right
+                    wedjets.GredUydem(index = 4, label = "restor", color = Color(0xFF404040)),  // Bottom Left
+                    wedjets.GredUydem(index = 3, label = "repleys", color = Color(0xFF404040))  // Bottom Right
+                )
+                
+                wedjets.HeksagonGred(
+                    geometry = geometry,
+                    items = resetItems,
+                    sentirLeybil = targetNeym,
+                    centerColor = Color.Red,
+                    onMove = { _, _ -> },
+                    onCopyToEmpty = { _, _ -> },
+                    onMuvTuSentir = { _ -> },
+                    onDropOnFoldir = { _, _, _ -> },
+                    onTap = { index ->
+                        when (index) {
+                            1 -> { daylSteyt.undoModule(targetId); onSaveLayout("current") }
+                            2 -> { daylSteyt.redoModule(targetId); onSaveLayout("current") }
+                            3 -> {
+                                if (targetId == "dayl") {
+                                    daylSteyt.reset()
+                                    onSaveLayout("current")
+                                } else {
+                                    daylSteyt.resetModyilTarget(targetId)
+                                    onSaveLayout("current")
+                                }
+                                daylSteyt.pendingResetTargetId = null
+                            }
+                            4 -> {
+                                onRepleys()
+                                daylSteyt.pendingResetTargetId = null
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
     }
 }
+
+
 

@@ -1,4 +1,5 @@
-package skrenz
+﻿package skrenz
+import yuteledez.padenq
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -32,9 +33,9 @@ fun AfdirLogenSkren(firebaseSirves: FirebaseSirves, onContinue: () -> Unit) {
                 }
             )
         }
-    ) { padding ->
+    ) { padenq ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padenq(padenq),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -50,3 +51,5 @@ fun AfdirLogenSkren(firebaseSirves: FirebaseSirves, onContinue: () -> Unit) {
         }
     }
 }
+
+

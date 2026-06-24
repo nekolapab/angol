@@ -91,7 +91,7 @@ fun HeksagonTutcboks(
 fun Heksagon(
     modifier: Modifier = Modifier,
     label: String,
-    sekondereLeybil: String? = null,
+    sekondLeybil: String? = null,
     backgroundColor: Color,
     textColor: Color,
     size: Dp,
@@ -132,7 +132,7 @@ fun Heksagon(
     val lines = words.size.toFloat()
     val baseLength = longestWordLength + (lines - 1f) * 1.5f
     
-    val totalLength = if (ezKonsestentSayz && baseLength <= 3f) 3f else (fixedLabelLength ?: (baseLength + (sekondereLeybil?.length ?: 0) + (if (sekondereLeybil != null) 0.5f else 0f)))
+    val totalLength = if (ezKonsestentSayz && baseLength <= 3f) 3f else (fixedLabelLength ?: (baseLength + (sekondLeybil?.length ?: 0) + (if (sekondLeybil != null) 0.5f else 0f)))
     val safeLength = totalLength.coerceAtLeast(0.8f)
     val autoFontSize = (size.value * 2f) / (safeLength * 0.5f + 1.75f)
     val finalRawFontSize = (autoFontSize * (fontSizeFactor ?: 1f)).coerceAtMost(size.value * (15f / 12f))
@@ -229,11 +229,11 @@ fun Heksagon(
                 ) {
                     if (child != null) {
                         child()
-                    } else if (sekondereLeybil != null) {
+                    } else if (sekondLeybil != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(text = cleanLabel, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = sekondereLeybil, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
+                            Text(text = sekondLeybil, color = finalTextColor, fontSize = finalFontSize, fontWeight = FontWeight.Bold, softWrap = false)
                         }
                     } else {
                         Text(
@@ -267,4 +267,5 @@ private fun createVisualPath(size: Size, rotation: Float): Path {
     path.close()
     return path
 }
+
 

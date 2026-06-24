@@ -6,6 +6,7 @@ if "%TARGET%"=="" goto usage
 if "%TARGET%"=="angol" goto angol
 if "%TARGET%"=="dayl" goto dayl
 if "%TARGET%"=="kepad" goto kepad
+if "%TARGET%"=="rebeld" goto dayl
 if "%TARGET%"=="WearOS" goto WearOS
 
 :usage
@@ -15,8 +16,9 @@ echo Usage: enstol [target] [modifier]
 echo.
 echo Targets:
 echo   angol    The entire Angol system (Dayl + Kepad)
-echo   dayl     The main Angol Dayl application
+echo   dayl     The main Angol Dayl application (includes Rebeld)
 echo   kepad    The Angol Input Method (IME)
+echo   rebeld   Alias for dayl (Rebeld is bundled inside the Dayl app)
 echo   WearOS   Launch the Wear OS emulator
 echo.
 echo Modifiers:

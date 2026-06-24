@@ -1,4 +1,5 @@
-package skrenz
+﻿package skrenz
+import yuteledez.padenq
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -32,7 +33,7 @@ fun SaynEnSkren(firebaseSirves: FirebaseSirves, onBypass: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .wrapContentHeight() // Wrap height to let the Box center the whole cluster
-                .padding(horizontal = 16.dp, vertical = 24.dp)
+                .padenq(horizontal = 16.dp, vertical = 24.dp)
         ) {
             Text("Angol", style = MaterialTheme.typography.h4)
             Spacer(modifier = Modifier.height(8.dp)) // Tighter spacing to center
@@ -101,10 +102,12 @@ fun SaynEnSkren(firebaseSirves: FirebaseSirves, onBypass: () -> Unit) {
                         text = errorMessage!!,
                         color = Color.Red,
                         style = MaterialTheme.typography.caption,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.padenq(horizontal = 16.dp)
                     )
                 }
             }
         }
     }
 }
+
+

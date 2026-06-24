@@ -3,15 +3,15 @@
 import androidx.compose.ui.graphics.Color
 
 object HeksagonKonfeg {
-    val innerLetterMode: List<String> = listOf("a", "e", "i", "u", "o", "âŒ«")
-    val innerNumberMode: List<String> = listOf("+", "*", "=", "(", "{", "âŒ«")
+    val innerLetterMode: List<String> = listOf("a", "e", "i", "u", "o", "Ã¢Å’Â«")
+    val innerNumberMode: List<String> = listOf("+", "*", "=", "(", "{", "Ã¢Å’Â«")
 
     // Clockwise from 1 o'clock
     val outerTap: List<String> = listOf(
         "l", "lx", "x", "d", "t", "c", "g", "k", "f", "b", "p", "s"
     )
 
-    val awdirLonqPres: List<String> = listOf(
+    val sekondRenqLonqPres: List<String> = listOf(
         "lh", "h", "n", "y", "r", "j", "nq", "q", "v", "w", "m", "z"
     )
 
@@ -19,19 +19,19 @@ object HeksagonKonfeg {
         "2", "3", "4", "5", "6", "7", "8", "9", "0", "A", "O", "1"
     )
 
-    val outerLongPressNumber: List<String> = listOf(
+    val sekondRenqNumbirLonqPres: List<String> = listOf(
         "!#", "$", "%", "^", "&", "*", "(", ")", "_", "|", "~", "!"
     )
 
     val innerLongPressNumber: List<String> = listOf(
-        "-", "/", ":", ")", "}", "âŒ«"
+        "-", "/", ":", ")", "}", "Ã¢Å’Â«"
     )
 
     val innerPunctuationMode: List<String> = listOf("?", "!", ",", ";", "'", "\n")
 
     // 12 rainbow colors for outer ring
     // 12 colors for outer ring: Black/White at specified indices, rainbow elsewhere
-    val rainbowColors: List<Color> = listOf(
+    val reynbowKulorz: List<Color> = listOf(
         Color(0xFFFF0000), // 0: Red
         Color(0xFFFF8000), // 1: Orange
         Color(0xFFFFFF00), // 2: Yellow
@@ -46,7 +46,7 @@ object HeksagonKonfeg {
         Color(0xFF800000)  // 11: Maroon (12 o'clock)
     )
 
-    val innerRingColors: List<Color> = listOf(
+    val enirRenqKulorz: List<Color> = listOf(
         Color(0xFFFF0000), // red
         Color(0xFFFFFF00), // yellow
         Color(0xFF00FF00), // green
@@ -70,4 +70,5 @@ object HeksagonKonfeg {
         )
     }
 }
+
 

@@ -27,8 +27,8 @@ class AngolSteyt {
             ezAkdev = false,
             glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap,
             glefKulorz = listOf(Color.White.toArgbLong()) + 
-                         modalz.HeksagonKonfeg.innerRingColors.map { it.toArgbLong() } + 
-                         modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() },
+                         modalz.HeksagonKonfeg.enirRenqKulorz.map { it.toArgbLong() } +
+                         modalz.HeksagonKonfeg.reynbowKulorz.map { it.toArgbLong() },
             type = "keypad"
         ),
         ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, ezAkdev = false, type = "rebeld"),
@@ -90,8 +90,9 @@ class AngolSteyt {
         lastRebeldModyilz = rebeldModyilz
     }
     val activeModule: ModyilDeyda?
-        get() = modyilz.find { it.ezAkdev }
+        get() = tempNestedMod ?: modyilz.find { it.ezAkdev }
 
+    var tempNestedMod by mutableStateOf<ModyilDeyda?>(null)
     var pendingResetTargetId by mutableStateOf<String?>(null)
 
     var preEdetKepadSteyt by mutableStateOf<ModyilDeyda?>(null)
@@ -125,12 +126,18 @@ class AngolSteyt {
 
     fun updateModules(newModules: List<ModyilDeyda>) {
         modyilz = newModules
+        // Ensure any keypad loaded from storage gets rainbow colors if missing
+        modyilz.forEach { mod ->
+            if ((mod.type == "keypad" || mod.id == "beldir") && mod.id != "dayl" && mod.glefKulorz.isEmpty()) {
+                encurGlefsPopyuleyded(mod.id)
+            }
+        }
     }
 
     fun updeytRebeldModjilz(newModules: List<ModyilDeyda>) {
         rebeldModyilz = newModules.map { if (it.id == "dayl") it.copyWith(type = "keypad") else it }.filter { it.type != "hub" && it.id != "dayl" }
         rebeldModyilz.forEach { mod ->
-            if ((mod.type == "keypad" || mod.id == "beldir") && (mod.glefs.isEmpty() || mod.glefs.all { it.trim().isEmpty() })) {
+            if ((mod.type == "keypad" || mod.id == "beldir") && (mod.glefs.isEmpty() || mod.glefs.all { it.trim().isEmpty() } || mod.glefKulorz.isEmpty())) {
                 encurGlefsPopyuleyded(mod.id)
             }
         }
@@ -219,6 +226,14 @@ class AngolSteyt {
             return newId
         }
         return modId
+    }
+
+    fun openNestedMod(mod: ModyilDeyda) {
+        tempNestedMod = mod
+    }
+
+    fun closeNestedMod() {
+        tempNestedMod = null
     }
 
     fun reneymModyil(id: String, newNeym: String) {
@@ -458,7 +473,7 @@ class AngolSteyt {
         recordState()
     }
 
-    fun kopeModyilTuEmpt(fromPozecon: Int, toPozecon: Int) {
+    fun kopeModyilTuEmpde(fromPozecon: Int, toPozecon: Int) {
         val modToCopy = modyilz.find { it.pozecon == fromPozecon } ?: return
         val targetMod = modyilz.find { it.pozecon == toPozecon }
         if (targetMod != null && (targetMod.type == "keypad" || targetMod.type == "beld" || targetMod.type == "rebeld" || targetMod.id == "beldir" || targetMod.id == "dayl" || targetMod.type == "hub")) {
@@ -505,16 +520,19 @@ class AngolSteyt {
         recordState()
     }
     fun muvModyilTuParent(index: Int) {
-        // Moving to center in hub swaps the module to position 1
-        val hubMod = modyilz.find { it.type == "hub" || it.id == "dayl" } ?: return
         val sourceMod = modyilz.find { it.pozecon == index } ?: return
-        if (sourceMod.id == hubMod.id) return
-        swopModyilz(sourceMod.pozecon, hubMod.pozecon)
+        val occupant = modyilz.find { it.pozecon == 7 }
+        if (occupant != null && occupant.id != sourceMod.id) {
+            swopModyilz(sourceMod.pozecon, 7)
+        } else {
+            modyilz = modyilz.map { if (it.id == sourceMod.id) it.copyWith(pozecon = 7) else it }
+            recordState()
+        }
     }
 
     private fun encurGlefsPopyuleyded(modyilId: String) {
         val defaultGlefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap
-        val defaultKulorz = listOf(Color.White.toArgbLong()) + modalz.HeksagonKonfeg.innerRingColors.map { it.toArgbLong() } + modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() }
+        val defaultKulorz = listOf(Color.White.toArgbLong()) + modalz.HeksagonKonfeg.enirRenqKulorz.map { it.toArgbLong() } + modalz.HeksagonKonfeg.reynbowKulorz.map { it.toArgbLong() }
 
         val updateFunc = { mod: ModyilDeyda ->
             if ((mod.type == "keypad" || mod.id == "beldir") && mod.id != "dayl" && (mod.glefs.isEmpty() || mod.glefs.all { it.trim().isEmpty() })) {
@@ -524,6 +542,8 @@ class AngolSteyt {
                 } else {
                     mod.copyWith(glefs = defaultGlefs, glefKulorz = defaultKulorz)
                 }
+            } else if ((mod.type == "keypad" || mod.id == "beldir") && mod.id != "dayl" && mod.glefKulorz.isEmpty()) {
+                mod.copyWith(glefKulorz = defaultKulorz)
             } else mod
         }
 
@@ -1241,7 +1261,7 @@ class AngolSteyt {
     fun resetModyilTarget(id: String) {
         val defaultMod = when (id) {
             "dayl" -> ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = Color(0xFFFF0000).toArgb().toLong(), pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad")
-            "keypad" -> ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad", glefKulorz = listOf(Color.White.toArgbLong()) + modalz.HeksagonKonfeg.innerRingColors.map { it.toArgbLong() } + modalz.HeksagonKonfeg.rainbowColors.map { it.toArgbLong() })
+            "keypad" -> ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = Color(0xFFFFFF00).toArgb().toLong(), pozecon = 3, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad", glefKulorz = listOf(Color.White.toArgbLong()) + modalz.HeksagonKonfeg.enirRenqKulorz.map { it.toArgbLong() } + modalz.HeksagonKonfeg.reynbowKulorz.map { it.toArgbLong() })
             "rebeld" -> ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 4, type = "rebeld")
             "poyntir" -> ModyilDeyda(id = "poyntir", neym = "poyntir", kulorLong = Color(0xFF00FF00).toArgb().toLong(), pozecon = 5, type = "poyntir")
             "beldir" -> ModyilDeyda(id = "beldir", neym = "beldir", kulorLong = Color(0xFF00FFCC).toArgb().toLong(), pozecon = 3, ezAkdev = false, type = "beld")

@@ -1,6 +1,7 @@
 package wedjets
+import yuteledez.padenq
 
-import androidx.compose.material.AlertDialog
+import androidx.compose.material.AlertDialog as AlirtDayalog
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -46,7 +47,7 @@ data class GredUydem(
     val label: String,
     val color: Color,
     val isFolder: Boolean = false,
-    val sekondereLeybil: String? = null,
+    val sekondLeybil: String? = null,
     val deyda: Any? = null
 )
 
@@ -64,7 +65,7 @@ fun HeksagonGred(
     sentirLeybil: String = "",
     centerColor: Color = Color.Black,
     onTap: (Int) -> Unit = {},
-    onLongPressItem: ((Int) -> Unit)? = null,
+    onLonqPresUydem: ((Int) -> Unit)? = null,
     onDelete: (Int) -> Unit = {},
     copyDragPolicy: CopyDragPolicy = CopyDragPolicy.TwoStepArmed,
     allowSwap: Boolean = true,
@@ -165,7 +166,7 @@ fun HeksagonGred(
     fun applyDragEnd(fromIdx: Int?, toIdx: Int?, isMoveDrag: Boolean) {
         if (fromIdx != null) {
             val draggedItem = items.firstOrNull { it.index == fromIdx }
-            if (draggedItem?.label == "âŒ«") return
+            if (draggedItem?.label == "Ã¢Å’Â«") return
 
             // If target is null or not connectable in keypad folder mode, move back to parent screen
             if (toIdx == null || (hideDisconnected && toIdx != 0 && !geometry.getNeybirIndesiz(toIdx).any { it in konekdedEndeksez && it != fromIdx })) {
@@ -180,7 +181,7 @@ fun HeksagonGred(
             }
 
             val targetUydem = items.firstOrNull { it.index == toIdx }
-            if (targetUydem?.label == "⌫") return
+            if (targetUydem?.label == "âŒ«") return
 
             val sameSpot = (toIdx == fromIdx)
             if (sameSpot) {
@@ -268,7 +269,7 @@ fun HeksagonGred(
 
                     Heksagon(
                         label = item.label,
-                        sekondereLeybil = item.sekondereLeybil,
+                        sekondLeybil = item.sekondLeybil,
                         backgroundColor = if (isArmed) item.color.copy(alpha = 0.5f) else item.color,
                         textColor = HeksagonKonfeg.getComplementaryColor(item.color).copy(alpha = if (isArmed) 0.5f else 1f),
                         size = hexWidthDp, fontSizeFactor = fontSizeFactor,
@@ -326,12 +327,12 @@ fun HeksagonGred(
         }
 
         if (showReplaceDialog) {
-            AlertDialog(
+            AlirtDayalog(
                 onDismissRequest = { showReplaceDialog = false },
                 title = null,
                 text = {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        modifier = Modifier.fillMaxWidth().padenq(top = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -390,11 +391,11 @@ fun HeksagonGred(
                 var hasMuvd = false
                 val touchSlop = viewConfiguration.touchSlop
                 var lastVibratedHoverIndex: Int? = downIdx
-                var isLongPressed = false
+                var ezLonqPresd = false
 
                 val longPressJob = scope.launch {
                     delay(longMs)
-                    isLongPressed = true
+                    ezLonqPresd = true
                     longPressedIndex = downIdx
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
@@ -440,14 +441,14 @@ fun HeksagonGred(
                             if (!isDrag) {
                                 val isDiskonekded = downIdx != 0 && downIdx !in konekdedEndeksez && isItemAtIdx
                                 if (isDiskonekded) {
-                                    if (isLongPressed && onLongPressItem != null) {
-                                        onLongPressItem(downIdx)
+                                    if (ezLonqPresd && onLonqPresUydem != null) {
+                                        onLonqPresUydem(downIdx)
                                     } else {
                                         disconnectedArmedIndex = if (disconnectedArmedIndex == downIdx) null else downIdx
                                     }
                                 } else {
-                                    if (isLongPressed && onLongPressItem != null) {
-                                        onLongPressItem(downIdx)
+                                    if (ezLonqPresd && onLonqPresUydem != null) {
+                                        onLonqPresUydem(downIdx)
                                     } else {
                                         onTap(downIdx)
                                     }
@@ -462,7 +463,7 @@ fun HeksagonGred(
                             val distance = (position - start).getDistance()
                             if (distance > touchSlop) {
                                 val itemAtIdx = items.firstOrNull { it.index == downIdx }
-                                if (itemAtIdx?.label != "âŒ«") {
+                                if (itemAtIdx?.label != "Ã¢Å’Â«") {
                                     isDrag = true
                                     longPressJob?.cancel()
                                     longPressedIndex = null
@@ -559,4 +560,7 @@ private fun getHeksEndeksFrumPozecon(offsetX: Float, offsetY: Float, w: Float, h
     }
     return null
 }
+
+
+
 

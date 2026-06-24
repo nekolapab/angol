@@ -53,7 +53,7 @@ fun AwdirRenqWedjet(
                 if (index < tapLabels.size) {
                     val tapLabel = tapLabels[index]
                     val longPressLabel = longPressLabels.getOrNull(index) ?: ""
-                    val hexColor = HeksagonKonfeg.rainbowColors[index]
+                    val hexColor = HeksagonKonfeg.reynbowKulorz[index]
                     
                     val textColor = HeksagonKonfeg.getComplementaryColor(hexColor)
 
@@ -61,7 +61,7 @@ fun AwdirRenqWedjet(
 
                     Heksagon(
                         label = tapLabel,
-                        sekondereLeybil = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
+                        sekondLeybil = if (isLetterMode && longPressLabel.isNotEmpty()) longPressLabel else null,
                         backgroundColor = hexColor,
                         textColor = textColor,
                         size = hexSizeDp,
@@ -106,4 +106,5 @@ fun AwdirRenqWedjet(
         }
     }
 }
+
 

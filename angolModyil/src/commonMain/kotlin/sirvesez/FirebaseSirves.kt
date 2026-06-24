@@ -10,8 +10,8 @@ interface FirebaseSirves {
     suspend fun signInWithGoogle(): Result<Unit>
     suspend fun signInAnonymously(): Result<Unit>
     suspend fun signOut()
-    suspend fun saveModuleLayout(modyilz: List<ModyilDeyda>, environment: String = "current")
-    fun watcModjilLeyawt(environment: String = "current"): Flow<List<ModyilDeyda>>
+    suspend fun seyvModjilLeyawt(modyilz: List<ModyilDeyda>, environment: String, ezRepleys: Boolean = false)
+    fun watcModjilLeyawt(environment: String): Flow<List<ModyilDeyda>>
 }
 
 data class User(
@@ -20,3 +20,4 @@ data class User(
     val displayName: String?,
     val photoUrl: String?
 )
+

@@ -39,7 +39,7 @@ data class ModyilDeyda(
         type: String? = null
     ): ModyilDeyda {
         val targetPozecon = pozecon ?: this.pozecon
-        val absoluteColor = when (targetPozecon) {
+        val absolutKulor = when (targetPozecon) {
             2 -> 0xFFFF0000L // Red
             3 -> 0xFFFFFF00L // Yellow
             4 -> 0xFF00FF00L // Green
@@ -48,7 +48,7 @@ data class ModyilDeyda(
             7 -> 0xFFFF00FFL // Magenta
             else -> null
         }
-        val targetKulorLong = absoluteColor ?: kulorLong ?: kulor?.toArgb()?.toLong() ?: this.kulorLong
+        val targetKulorLong = absolutKulor ?: kulorLong ?: kulor?.toArgb()?.toLong() ?: this.kulorLong
 
         return ModyilDeyda(
             id = id ?: this.id,

@@ -1,95 +1,50 @@
 **prodjekt angol**
 —**golz**⌫
-wut abawt lha tuh prevyus problemz abawt kepadz en: 1. angol, dayl, and rebeld kulor feylyir? and 2. dayl not openenq?
+yu sed, 'Firebase Cloud Functions strictly requires the Google Cloud environment to be on the Blaze (Pay-As-You-Go) tier.' ced ay muv prodjekt /angol-38753/ tu angoldayl@gmail.com frum nekolapab@gmail.com? ez lha projekt dependent frum her for ol yuzirz. or duz etc yuzir yuz lher own Firestore but not Firebase?
 
-1. no et duzint! ay hav 'reset' on bolx lhe aklok(enir)renq and lha oklok(sekond)renq.
-2. no et duzint elhir! not 3/9 but lhe akses ov 3 an 9 (9—3) oklok! lets postpon lhe ulhir tuh akses ov seven an wan (7/1) oklok and fayv an eleven (5\A) oklok, untel lha delet-undelet wirks on lha 9—3 akses for glefs endevedjile. aym sore ay geyv yu tu mutc.
-8.11 3111
-21  21
+Before I can deploy any functions for you, you'll need to visit https://console.firebase.google.com/project/angol-38753/usage/details and upgrade the billing plan.
 
-1. reset stel duzint wirk. lonq pres duz nulxenq.
-3. 'PoyntirModyil Creation:'
-*yes
-*yes
-*yes
-*not kwuyt. 'Integrated the two-finger swipe logic: swiping right 'or left' (3—9 oklok) with 'lha sekond ov' two fingers deletes a character and saves it to a buffer, and swiping 'lhe oposet direkcon' undeletes'. lhe ulhir 4 ov 6 'hexagonal angles (5\A oklok and 1/7 oklok), mapping directly to your keycodes...21, 22, 23, and 24', delet-undelet rowz ensted ov djust glef/'character' endevedyilz.
+'Research the angol project at' H:\My Drive\angol. not C:\Users\nicli\angol ! wut nedz tu refakdor first?
 
-1. kepadz en rebeld and dupleket kepad angol, but not lhe first wan, ar stel wan kulor on bolx kloks. wev had lhes problem for a lonq taym and yuv atempded tu feks et mene taymz en ol lxre aps.
-2. kopeyenq a gid kepad frum angol tu angol.dayl duz not open on tutc. wev had lhat problem for a lonq taym tuw!
-
-3. meyk modz en awdir speys not glow and kontrast untel koneked wonz tu lha sentir, ensted ov unglow on unpres
-
-kepad and dayl at 1 or 2 aklok. kepad tu angol oltirneyts dayl and kepad. dayl tu angol duz not. feks kepad tu  
-dragenq blak reset tu dayl desaperd 3 modz on angol
-muv angol.reset tu pozecon 6 aklok.
-
-2. yes.
-6. no stel yelow an red kez en kepad and dayl. stel dubilz , and stel no undo/redo/restor funkcon ensayd elhir! beldir haz lhe oposet defeset stel luyk ay sed, lhat hazint tceynjd!
-dayl stel wont muv on angol or muv at ol, but kopez wel.
+initialLoadDone initialLoadDone
+LaunchedEffect LaunchedEffect
+saveLayout saveLayout 
+DaylSkrenEntry DaylSkrenEntre
+configChanges configChanges
 
 
-
-1. no. wan desaperd an atempt. tuh bawns bak. 
-2. yes!
-3. kepad and dayl teyk 'reset' en-awt. but duz not wirk ensayd and kepad tirnd ol modz yelow but sentir wuyt. tuh 'reset's keym bak wan not funkconenq. ensayd a kope leybil sez 'reset z' but lhe olhir tuh ded not. and lha 'reset z' desaperd wen ay muvd wan ov lhe olhir tuh on lhe ulhir.
--but duz not funkcon en kepad or dayl.
--and dayl duz not cow travelir ensayd at sentir.
-4. yes.
+file:///c%3A/Users/nicli/.gemini/antigravity/brain/be11ea0f-7e08-4032-b15b-789955eed40b/implementation_plan.md
+-poyntir cid be standard sayz and kulor -not begir and grey but wuyt at sentir ensayd luyk standard mod sestom!
+-dayl and kepad stel wont open modz ensayd! verefay and feks. 
+-dayl stel wont pleys on angol sentir modjul lowkeycon. ets lhe onle wan lhat cid be eybil sens ets mirdjd olrede az lha seym ap welx angol.
 
 
-kan kepad go abuv kirsor feld ensted ov undir so kirsor feld wendow steyz at bodum? 
-kan a parcol heksagon (2/12) at a bodum sentir left open spot togil a mod on kepad?
++pit lha 'reset' modjil butonz [undu] [redu] [restor] on a regyulir enir renq and ad [repleys]. [repleys] repleysez lha kodbeys pozecon leyawt, manyuwle wan modjul onle, frum **Google Cloud konsol** TypeScript funkcon ov deyda tceynj frum Firestore and pic tu Google Cloud storadj. muv angol.reset tu pozecon 6 aklok.
 
-+meyk parent modjulz, ol lha wey bak tu angol stey vezebil az blak sentirz and kulord renqz ensted ov desaperenq. togil sentir tekna wuyt tu tel yu wetc wan ez akdev. so kirent modjil mey not be at setnir ov skren.
+-feks ⌫ funkcon on kepad.
+-padenq: horezontal kepad ap display ez not fet agen so lost luyk virdekal wuz pirfekt frum Claude also. kan yu lik tu prevyuz Github kumet tu se haw et wuz korekt?-virdekal ez stel padenq ov 1/4 heksagon at bolx top and bodum.
+-meyk modz en awdir speys not glow and kontrast untel koneked wonz tu lha sentir, ensted ov unglow on unpres
+-dragenq blak reset tu dayl desaperz multepil reset modz on angol
 
-
-1. angol.rebeld.kepad ced not delet wen gowenq en angol.kepad. 'tregir odomadek reset oviruyt' duz not men delet. et menz alaw ovirruyt wen onle kepad modjil ez tceynjd. *lets empruv lha muv kondecon tu tceynj ov kepad at ekset ensted ov tceynj en kepad. lhat wey, ef sumwon muvs modyilz but pits lhem bak tu oredjenal pozeconz befor ekset, et wel not muv tu rebeld.kepad. so onle ekset kumperz an muvs ef tceynjd.
-2. ay kan muv en but not awt ov dayl and kepad, et muvs tu sentir but duz not repleys. cidint kepad sentir be wuyt luyk dayl and rebeld? ets blak grey! verefay and feks.
-3. 
-4. no et stel haz a kepad! verefay and kler.
-
-yes 'just like any other' modjil. oh! lhe entent ov kepad ez tu not kope or muv tu sentir mod ez lha problem. 
-may entent ez ene modjil kan muv enewer on angol and en dayl kope enewer but angol. so wen kepad ez en dayl alaw muvment en and awt ov kepad and kope not en bolx angol and dayl.
-Bug 1: yes. yes.
-Bug 2: okey yes.
-Bug 3: yes semplir. et cid not hav ene kepad.
-Bug 4: 'the real question is why reset won't move.' et wel muv on but not awt ov kepad. lhats bekuz nun ov lhem kan. wons kepad ez muvd tu dayl frum angol, et cid muv or kope ene modjilz awt!
-Bug 5: cid we muv lha kepad ensted ov kope first? or lhats lha seym? kan entirenq kepad meyk rebeld tregir odomadek reset oviruyt ensted ov manyuwal neym tceynj? and reneym 'kepad beld' 'kepad'? 
-
-?meyk 'rebeld.beld' foldir modyil for kepad bakups direktle
++kan kepad ap go abuv kirsor feld ensted ov undir so kirsor feld wendow steyz at bodum? +kan togil for lhat be aded at a 2/12 heksagon spot at bodum sentir left?
++meyk parent modjulz, ol lha wey bak tu angol stey vezebil az blak sentirz and kulord renqz ensted ov desaperenq. togil sentir mod wuyt tu tel yu wetc wan ez akdev. so kirent modjil mey not be at setnir ov skren.
++delet kapedol funkcon fengir slayd up. ensted, kaps lok ez, slayd fengir frum bodum bordir tu top bordir ov a modyil ?
++meyk 2\3trayangonMalx.kt. beld HeksagonGred.kt frum twelv 2\3trayangonCeyp.kt. ez HeksagonDjeyometre.kt etc sepret tu tutc? kan DaylWedjet.kt sens wetc trayangilz ar tutcd? 
 
 +kan yu se may Firestore kod and haw et defirz frum Google Cloud storadj?
-
--wen aym en angol, or angol.kepad, kepad ap cowz angol.kepad. but wen aym en angol.rebeld, lha kepad ap tceynjez tu prezumable lha kodbeys kepad (broken delet key glef ⌫) and wen aym en angol.dayl, lha kepad ap tceynjez tu grey 'dayl' at sentir welx no keyz arawnd but lha sentir funkconz az normal kepad.
--muvenq modyilz tu dayl stel repelz lhem.
--and rebeld.beldir stel haz kepad prezumle kodbeys.
--'reset' wirks en 'rebeld' but not en kepad or dayl. and et wel not muv awt ov kepad but wel awt ov dayl. wen muvenq a sekond 'reset' tu kepad tuh arawnd angol desaper but wan went en kepad! 
-wen muvenq a modyil at angol.kepad lha prevyus kepad muvs tu rebeld kold 'kepad beld'. wen duz rebeld meyk anulhir kope?
-
-
-cid `enstol.bat`ad 'beld' an 'beld kler' for rebeld and beldir modjilz?
-
--pit '. or , or ; or -' afdir palx leybil. so dayl, kepad, and rebeld sey 'angol' at lha top cid sey 'angol.' and modyilz en rebeld, for egzampil, sey 'angol.rebeld.'.
-tceynj '.' en palxs tu ',' sutc az 'angol.kepad' tu 'angol,kepad,'. so ad ',' at end tu endekeyt.
-
--horezontal kepad ap display ez not fet agen layk virdekal wuz pirfekt frum Claude also. kan yu lik tu prevyuz Github kumet tu se haw et wuz korekt? virdekal ez stel padenq ov 1/4 heksagon at bolx top and bodum.
-
-feks ⌫ funkcon on kepad.
-delet kapedol funkcon.
-
--roteyded 15 degrees klokwayz tu 12:30/6:30.
-+slaydenq fengir frum bodum tu top bordir ov a kepad modyil pits on kaps lok?
-ez lha lonq pres at 6 aklok lha seym az lonq pres at sentir?
+-tceynj '.' en palxs tu '.' or ',' or ';' or '-' afdir palx leybil. so dayl, kepad, and rebeld sey 'angol' at lha top cid sey 'angol.' and modyilz en rebeld, for egzampil, sey 'angol.rebeld.' so ad ',' at end tu endekeyt.
 -meyk angol or dayl.kepad not edetabil wen rebeld ez not enstold.
+-roteyded 15 degrees klokwayz tu 12:30/6:30.
+ez lha lonq pres at 6 aklok lha seym az lonq pres at sentir?
 ar SentirModTogilWedjet.kt and AwtpitTekstWedjet.kt yuzd?
-+meyk 2\3trayangonMalx.kt. beld HeksagonGred.kt frum twelv 2\3trayangonCeyp.kt. ez HeksagonDjeyometre.kt etc sepret tu tutc? kan DaylWedjet.kt sens wetc trayangilz ar tutcd? 
+
 
 **kuntenyu entegreycon kuntenyuwus deployment** flow: yuzir prefrensez send frum Firestore tu Google Cloud storadj that updates the code base there. Then you have some TypeScript logic that watches for certain thresholds — like usage or time — and if everything looks good and stable, it automatically mirrors or pushes that code over to GitHub. So Firestore is the data trigger, Cloud Repo is your primary code base, and GitHub is the final promotion target. That’s a continuous integration and continuous deployment pipeline with a promotion gate.
 **klawd senk**modyul leyawts senkronayz welx Firebase Firestore veya `FirebaseSirves`.
 **olxentekeycon**GitHub logen
-**Google Cloud konsol**AI tu ruyt lha TypeScript funkcon skedyulir odomadek fetc ov angol dayl kepad modyil tceynjez deyda frum Firestore tu pic Google Cloud storadj at 3am event dreven onle wen tceynj okirz.
+**Google Cloud konsol**AI tu ruyt [se —**funkcon lodjek**]
 **heksagon djeyometre peksilz** etc ov lha seks trayangilz meyd ov 24 2|3 trayangilz for total 144 cerz.
- // dayl klok ke pad bord re beld or| spel | klok | yecow virs | eyay eydjents [fown] | kumpas | eklekt | kal | tcekirz | kemekal | myuzek | lxirmostat  Q.H Y.H   Y.H W.H
+ // dayl klok ke pad bord re beld or| spel | klok | yecow virs | eyay eydjents [fown] | kumpas | eklekt | kal | tcekirz | kemekal | myuzek | lxirmostat  D.H Y.H  Y.H W.H
 
 
 —**arketekcir**—`Kotlin Multiplatform`onle updeyt tu best Kotlin MP (2.3.21), Compose (1.10.3), AGP (9.2.0), CompileSdk (37), WearOS (6).
@@ -100,6 +55,14 @@ ez lher a**poyntirWedjet**dependz on`angolModjul`entirfeys?
 
 **poyntirModjul***kirsor*navegeyt bay swuyp, frum awdir speys and kirsor feld, left an ruyt and up an dawn -sekond fengir delets-undelets;*drag an drop*akdev sentir wedjet,*pentc-zum*navegeyt direkdirez, huvir, pres, lonq pres, unpres, tap, klek(2 vaybreyt), swuyp,*togil mod*beys yunets(10|O), domeyn me|yu, angol 1|2, |—;*roteyt*dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devuys, direkcon; popup, glow, kontrast kulor, hapdek.
 *'Integrated the two-finger swipe logic: swiping right 'or left' (3—9 oklok) with 'lha sekond ov' two fingers deletes a character and saves it to a buffer, and swiping 'lhe oposet direkcon' undeletes'. lhe ulhir 4 ov 6 'hexagonal angles (5\A oklok and 1/7 oklok), mapping directly to your keycodes...21, 22, 23, and 24', delet-undelet rowz ensted ov djust glef/'character' endevedyilz.
+ayv olrede sed et ez lha sekond fengir lhat swuyps left OR ruyt tu delet and swuyp lhe oposet direkcon tu du lhe oposet-undelet elhir wey. ets not: '2-finger swipe left deletes and swipe right undeletes characters'! ets lha sekond fengir lhat deletes and undelets. lha first fengir duz muvment onle so sekond fengir tregirz deledenq and lefdenq sekond fengir resets tu muvment onle agen untel sekond fengir kumz bak on skren tu tregir deledenq agen en lha direkcon ov sekond fengir muvment and undelet en oposet/envirs direkcon. 
+PoyntirModyil 2-Finger Gestures
+The 2-finger interaction in the Pointer Module has been entirely re-written to perfectly match your logic:
+Continuous Movement: Your 1st finger acts solely as the cursor movement controller. It works continuously and is no longer interrupted.
+Dynamic Delete/Undelete: When you place your 2nd finger, the system waits for it to move. The initial direction you swipe your 2nd finger becomes the "delete direction" for that gesture.
+Same vs Opposite Direction: If you continue swiping the 2nd finger in that initial direction, it triggers Delete. If you swipe the 2nd finger in the opposite direction, it triggers Undelete.
+Axis Recognition: If the initial swipe is Horizontal (3 or 9 o'clock), it deletes/undeletes Characters. If it is Vertical/Diagonal (5/A or 1/7 o'clock), it deletes/undeletes Rows.
+Resetting: Lifting your 2nd finger and placing it back down restarts the process, allowing you to pick a new delete direction with the next swipe.
 **kirsorModyil**dependz on`poyntirModjul`entirfeys.
 **spelModyil**dependz on`poyntirModjul`entirfeys.
 **poyntirWedjet**dependz on`poyntirModjul`entirfeys.
@@ -118,16 +81,19 @@ malx mod and wird mod
 ?**rekonstruktModjul****beldModjul**
 **beldWedjet**
 **beldirModyil**ensayd rebeldModyil, sketc templet tu emport-eksport ceyps sutc az glefs.
+modjul 
+modyul 
+modjil 
+modyil 
 
 —**funkcon lodjek**
 **ap separeycon**'dayl' and 'kepad' ar sepret aps (`io.angol.dayl` and `io.angol.kepad`) for sestom level enpit edetir redjestreycon and klen prodjekt strukcir.
 **brodkast senk (lha bredj)**tceyndjez meyd en 'rebeld' ap must kope/muv awt ov 'rebeld' tu repleys lhe ap on dayl (sutc az angol kepad ap) and ar not brodkast rel taym senkronayzeycon.
 ?-sens 'dayl' and 'kepad' hav eysoleyded storedj and 'auth' konteks, lhey kumyunekeyt veya a sekyir Android brodkast `io.angol.ACTION_UPDATE_LAYOUT`.
 **multay envurnment senk**suports `kirent` and `produkcon` Firestore palxs. lha 'rebeld' updeyts bolx odomadekle tu encsur lha produkcon envuronment ez olweyz kirent.
-**Google Cloud TypeScript funkcon**pils leyawt deyda frum Firestore and picez tu Cloud Repo.
+**Google Cloud konsol** TypeScript funkcon skedyulir odomadek fetc ov angol dayl kepad modjul leyawt deyda tceynjez frum Firestore and pic tu Google Cloud storadj at 3am event dreven onle wen tceynj okirz.
 
 — **navegeycon**
-
 **heksagon gred wedjet**suports lonq pres dragenq, swopenq, kopeyenq, and tap glow efekts, welx kustom presd steyts (kontrast kulorz) senkronayzd akros wedjets.
 **kunsestent kepad font sayz**lha keypad yuzez a konsestent font sayz beysd on lha lardjest lebil lenqlx, skeyld 2/12 larger.
 **drag an drop**muvz modjilz tu ene foldir. kep sentir drag frum desaperenq on meyn skren.

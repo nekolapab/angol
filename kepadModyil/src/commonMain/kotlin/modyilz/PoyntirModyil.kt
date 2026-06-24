@@ -12,37 +12,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
+enum class DeleteType { CHAR, ROW }
+data class DeleteDirection(val isHorizontal: Boolean, val isPositive: Boolean)
+
 /**
- * PoyntirModyil — Typewise-style cursor navigation and delete/undelete.
+ * PoyntirModyil â€” Typewise-style cursor navigation and delete/undelete.
  *
- * ONE finger swipe (6-way hexagonal):
- *   3  o'clock  (right)     → DPAD_RIGHT (20)
- *   9  o'clock  (left)      → DPAD_LEFT  (19)
- *   5  o'clock  (down-right)→ keycode 22
- *   A/11 o'clock(up-left)   → keycode 21
- *   7  o'clock  (down-left) → keycode 23
- *   1  o'clock  (up-right)  → keycode 24
+ * 1st finger:
+ *   Always moves the cursor (6-way hexagonal directions).
  *
- * TWO fingers — the SECOND finger's direction determines mode:
- *   Horizontal (3/9 o'clock): delete/undelete individual CHARACTERS
- *   Diagonal   (5/A or 1/7 o'clock): delete/undelete ROWS (lines)
- *
- *   Swiping toward 3 o'clock (right) → delete
- *   Swiping toward 9 o'clock (left)  → undelete
- *   Swiping toward 5/7 o'clock (down)→ delete row
- *   Swiping toward A/1 o'clock (up)  → undelete row
+ * 2nd finger:
+ *   Its initial movement direction locks the "delete" direction.
+ *   Moving in that direction deletes. Moving in the opposite direction undeletes.
+ *   If initial direction is horizontal (3 or 9 o'clock), it deletes/undeletes CHARACTERS.
+ *   If initial direction is vertical (5/7 or 1/A o'clock), it deletes/undeletes ROWS (lines).
  */
 @Composable
 fun PoyntirModyil(
     kebordKontrolir: KeyboardController?,
-    onClose: (() -> Unit)? = null
+    onKloz: (() -> Unit)? = null
 ) {
-    // Buffer for undoing deletes: each entry is the deleted text chunk
     val charUndoBuffer = remember { mutableListOf<String>() }
     val rowUndoBuffer  = remember { mutableListOf<String>() }
 
@@ -54,101 +49,94 @@ fun PoyntirModyil(
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false)
 
-                    // --- one-finger cursor state ---
                     var oneAccX = 0f
                     var oneAccY = 0f
                     val oneThreshold = 40f
 
-                    // --- two-finger delete state ---
-                    // We track the SECOND pointer's accumulated movement
                     var twoAccX = 0f
                     var twoAccY = 0f
                     val twoThreshold = 40f
 
-                    // Pointer ID for first vs second finger
                     var firstPointerId: Long? = null
+                    var secondPointerId: Long? = null
+                    
+                    var deleteDir: DeleteDirection? = null
 
                     var event = awaitPointerEvent()
 
                     do {
                         val pointers = event.changes
 
-                        // Assign first pointer on very first event
-                        if (firstPointerId == null && pointers.isNotEmpty()) {
-                            firstPointerId = pointers.first().id.value
-                        }
-
-                        if (pointers.size == 1) {
-                            // ── ONE finger: cursor movement ──
-                            twoAccX = 0f
-                            twoAccY = 0f
-                            val change = pointers.first()
-                            if (change.pressed) {
-                                oneAccX += change.position.x - change.previousPosition.x
-                                oneAccY += change.position.y - change.previousPosition.y
-                                val dist = sqrt(oneAccX * oneAccX + oneAccY * oneAccY)
-                                if (dist > oneThreshold) {
-                                    val keyCode = angleToKeyCode(oneAccX, oneAccY)
-                                    kebordKontrolir?.sendKeyEvent(keyCode)
-                                    oneAccX = 0f
-                                    oneAccY = 0f
-                                }
-                                change.consume()
-                            }
-                        } else if (pointers.size >= 2) {
-                            // ── TWO fingers: delete / undelete ──
+                        var firstPointer = pointers.find { it.id.value == firstPointerId }
+                        if (firstPointer == null || !firstPointer.pressed) {
+                            firstPointer = pointers.firstOrNull { it.pressed }
+                            firstPointerId = firstPointer?.id?.value
                             oneAccX = 0f
                             oneAccY = 0f
+                        }
 
-                            // Accumulate movement of the SECOND finger only
-                            val secondPointer = pointers.firstOrNull { it.id.value != firstPointerId }
-                            if (secondPointer != null && secondPointer.pressed) {
-                                twoAccX += secondPointer.position.x - secondPointer.previousPosition.x
-                                twoAccY += secondPointer.position.y - secondPointer.previousPosition.y
-                                secondPointer.consume()
+                        var secondPointer = pointers.find { it.id.value == secondPointerId }
+                        if (secondPointer == null || !secondPointer.pressed) {
+                            secondPointer = pointers.firstOrNull { it.pressed && it.id.value != firstPointerId }
+                            secondPointerId = secondPointer?.id?.value
+                            twoAccX = 0f
+                            twoAccY = 0f
+                            deleteDir = null
+                        }
+
+                        if (firstPointer != null && firstPointer.pressed) {
+                            oneAccX += firstPointer.position.x - firstPointer.previousPosition.x
+                            oneAccY += firstPointer.position.y - firstPointer.previousPosition.y
+                            val dist = sqrt(oneAccX * oneAccX + oneAccY * oneAccY)
+                            if (dist > oneThreshold) {
+                                val keyCode = angleToKeyCode(oneAccX, oneAccY)
+                                kebordKontrolir?.sendKeyEvent(keyCode)
+                                oneAccX = 0f
+                                oneAccY = 0f
                             }
+                            firstPointer.consume()
+                        }
 
+                        if (secondPointer != null && secondPointer.pressed) {
+                            twoAccX += secondPointer.position.x - secondPointer.previousPosition.x
+                            twoAccY += secondPointer.position.y - secondPointer.previousPosition.y
                             val twoDist = sqrt(twoAccX * twoAccX + twoAccY * twoAccY)
                             if (twoDist > twoThreshold) {
                                 val angleDeg = atan2(twoAccY.toDouble(), twoAccX.toDouble()) * 180 / PI
                                 val isHorizontal = abs(angleDeg) < 30 || abs(angleDeg) > 150
+                                val isPositive = if (isHorizontal) twoAccX > 0 else twoAccY > 0
 
-                                if (isHorizontal) {
-                                    // 3/9 o'clock → delete/undelete CHARACTERS
-                                    if (twoAccX > 0) {
-                                        // Swipe right: delete one character
-                                        val ch = kebordKontrolir?.getTextBeforeCursor(1)
-                                        if (!ch.isNullOrEmpty()) {
-                                            charUndoBuffer.add(ch)
-                                            kebordKontrolir?.deletSirawndenqTekst(1, 0)
-                                        }
-                                    } else {
-                                        // Swipe left: undelete one character
-                                        if (charUndoBuffer.isNotEmpty()) {
-                                            kebordKontrolir?.commitText(charUndoBuffer.removeLast())
-                                        }
-                                    }
-                                } else {
-                                    // 5/A or 1/7 o'clock → delete/undelete ROWS (lines)
-                                    val isDown = twoAccY > 0
-                                    if (isDown) {
-                                        // Swipe toward 5 or 7 o'clock: delete the row before cursor
-                                        val textBefore = kebordKontrolir?.getTextBeforeCursor(500) ?: ""
-                                        val lastNewline = textBefore.lastIndexOf('\n')
-                                        val rowText = if (lastNewline >= 0) {
-                                            // delete from after previous newline up to cursor (including the newline)
-                                            textBefore.substring(lastNewline) // includes '\n' + row
+                                if (deleteDir == null) {
+                                    deleteDir = DeleteDirection(isHorizontal, isPositive)
+                                }
+
+                                if (isHorizontal == deleteDir?.isHorizontal) {
+                                    val isDelete = (isPositive == deleteDir?.isPositive)
+                                    if (isHorizontal) {
+                                        if (isDelete) {
+                                            val ch = kebordKontrolir?.getTextBeforeCursor(1)
+                                            if (!ch.isNullOrEmpty()) {
+                                                charUndoBuffer.add(ch)
+                                                kebordKontrolir?.deletSirawndenqTekst(1, 0)
+                                            }
                                         } else {
-                                            textBefore // whole first line
-                                        }
-                                        if (rowText.isNotEmpty()) {
-                                            rowUndoBuffer.add(rowText)
-                                            kebordKontrolir?.deletSirawndenqTekst(rowText.length, 0)
+                                            if (charUndoBuffer.isNotEmpty()) {
+                                                kebordKontrolir?.commitText(charUndoBuffer.removeLast())
+                                            }
                                         }
                                     } else {
-                                        // Swipe toward A or 1 o'clock: undelete the last deleted row
-                                        if (rowUndoBuffer.isNotEmpty()) {
-                                            kebordKontrolir?.commitText(rowUndoBuffer.removeLast())
+                                        if (isDelete) {
+                                            val textBefore = kebordKontrolir?.getTextBeforeCursor(500) ?: ""
+                                            val lastNewline = textBefore.lastIndexOf('\n')
+                                            val rowText = if (lastNewline >= 0) textBefore.substring(lastNewline) else textBefore
+                                            if (rowText.isNotEmpty()) {
+                                                rowUndoBuffer.add(rowText)
+                                                kebordKontrolir?.deletSirawndenqTekst(rowText.length, 0)
+                                            }
+                                        } else {
+                                            if (rowUndoBuffer.isNotEmpty()) {
+                                                kebordKontrolir?.commitText(rowUndoBuffer.removeLast())
+                                            }
                                         }
                                     }
                                 }
@@ -156,6 +144,7 @@ fun PoyntirModyil(
                                 twoAccX = 0f
                                 twoAccY = 0f
                             }
+                            secondPointer.consume()
                         }
 
                         event = awaitPointerEvent()
@@ -164,27 +153,26 @@ fun PoyntirModyil(
             },
         contentAlignment = Alignment.Center
     ) {
-        Text("poyntir", color = Color.White.copy(alpha = 0.5f), fontSize = 24.sp)
+        wedjets.Heksagon(
+            label = "poyntir",
+            backgroundColor = Color.Transparent,
+            textColor = Color.White,
+            size = 80.dp,
+            fontSizeFactor = 10f / 12f,
+            ezKonsestentSayz = true
+        )
     }
 }
 
-/**
- * Maps accumulated X/Y swipe to a 6-way hexagonal keycode:
- *   3  o'clock → 20 (DPAD_RIGHT)
- *   9  o'clock → 19 (DPAD_LEFT)
- *   5  o'clock → 22
- *   A/11 o'clock→ 21
- *   7  o'clock → 23
- *   1  o'clock → 24
- */
 private fun angleToKeyCode(dx: Float, dy: Float): Int {
     val deg = atan2(dy.toDouble(), dx.toDouble()) * 180 / PI
     return when {
-        deg >= -30 && deg < 30   -> 20 // 3 o'clock  → right
-        deg >= 30  && deg < 90   -> 22 // 5 o'clock  → down-right
-        deg >= 90  && deg < 150  -> 23 // 7 o'clock  → down-left
-        deg >= 150 || deg < -150 -> 19 // 9 o'clock  → left
-        deg >= -150 && deg < -90 -> 21 // 11/A o'clock → up-left
-        else                     -> 24 // 1 o'clock  → up-right
+        deg >= -30 && deg < 30   -> 20 // right
+        deg >= 30  && deg < 90   -> 22 // down-right
+        deg >= 90  && deg < 150  -> 23 // down-left
+        deg >= 150 || deg < -150 -> 19 // left
+        deg >= -150 && deg < -90 -> 21 // up-left
+        else                     -> 24 // up-right
     }
 }
+
