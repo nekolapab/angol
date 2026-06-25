@@ -207,25 +207,21 @@ fun KepadModyil(
             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
             
             if (index == 0) { // Center
-                // Single long press (6/12 sec): move cursor back
-                kebordKontrolir?.sendKeyEvent(21) // KEYCODE_DPAD_LEFT
-                delay(500)
-                if (huvirdHeksIndeks.value != 0) return@launch
-                // Double long press (12/12 sec total): '.'
-                if (kurentEzLeterMod) {
-                    handilKePres(".", false, null)
+                if (onKloz == null) {
+                    if (kurentEzLeterMod) {
+                        kebordKontrolir?.deletSirawndenqTekst(1, 0)
+                        handilKePres(". ", false, null)
+                    } else {
+                        kebordKontrolir?.deletSirawndenqTekst(1, 0)
+                        handilKePres("? ", false, null)
+                    }
+                    
+                    delay(500)
+                    if (huvirdHeksIndeks.value != 0) return@launch
+                    
+                    kebordKontrolir?.deletSirawndenqTekst(2, 0)
+                    kebordKontrolir?.performSubmitAction()
                 }
-                delay(500)
-                if (huvirdHeksIndeks.value != 0) return@launch
-                // Triple long press (18/12 sec total): delete front + enter
-                kebordKontrolir?.fenecKumpozenqTekst()
-                kebordKontrolir?.deletSirawndenqTekst(0, 1)
-                kebordKontrolir?.performSubmitAction()
-                delay(500)
-                if (huvirdHeksIndeks.value != 0) return@launch
-                // Quadruple long press (24/12 sec total): delete back + enter
-                kebordKontrolir?.deletSirawndenqTekst(1, 0)
-                kebordKontrolir?.performSubmitAction()
                 return@launch
             }
             
@@ -420,7 +416,14 @@ fun KepadModyil(
 
                                     if (actualDownIdx == 0) {
                                         ezSentirHeksPresd = true
-                                        voiceService.startListening()
+                                        if (onKloz == null) {
+                                            if (voiceService.isListening.value) {
+                                                voiceService.stopListening()
+                                            } else {
+                                                val centerChar = if (kurentEzLeterMod) " " else "."
+                                                handilKePres(centerChar, false, null)
+                                            }
+                                        }
                                     }
                                     if (actualDownIdx != 0) {
                                         val downLabels = KepadLodjek.getKirentOlLeybilz(djestcirStartidOnVowalIndeks.value, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
@@ -540,7 +543,7 @@ fun KepadModyil(
                                         huvirdHeksIndeks.value = moveIndex
                                     } else {
                                         lonqPresStartOfset.value?.let { start ->
-                                            val dist = kotlin.math.sqrt((change.position.x - start.x).pow(2) + (change.position.y - start.y).pow(2))
+                        val dist = kotlin.math.sqrt((change.position.x - start.x).pow(2) + (change.position.y - start.y).pow(2))
                                             if (dist > with(density) { currentGeometry.heksSayz.dp.toPx() } * 0.5) lonqPresDjob.value?.cancel()
                                         }
                                     }
@@ -548,24 +551,9 @@ fun KepadModyil(
                                 lonqPresDjob.value?.cancel()
                                 if (gestureStartedIndex == 0) {
                                     ezSentirHeksPresd = false
-                                    val duration = getCurrentTimeMillis() - startTime
                                     if (huvirdHeksIndeks.value == 0 && !rotationTriggered) {
-                                        if (onKloz != null && duration < 510) {
+                                        if (onKloz != null) {
                                             onKloz()
-                                        } else {
-                                            when {
-                                                duration < 510 -> {
-                                                    voiceService.stopListening()
-                                                    val centerChar = if (kurentEzLeterMod) " " else "."
-                                                    handilKePres(centerChar, false, null)
-                                                }
-                                                duration in 510..1999 -> {
-                                                    handilKePres(" ", false, null)
-                                                }
-                                                else -> {
-                                                    kebordKontrolir?.performSubmitAction()
-                                                }
-                                            }
                                         }
                                     }
                                 } else if (gestureStartedIndex == null) {

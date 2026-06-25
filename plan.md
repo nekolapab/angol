@@ -1,30 +1,28 @@
 **prodjekt angol**
 —**golz**⌫
-yu sed, 'Firebase Cloud Functions strictly requires the Google Cloud environment to be on the Blaze (Pay-As-You-Go) tier.' ced ay muv prodjekt /angol-38753/ tu angoldayl@gmail.com frum nekolapab@gmail.com? ez lha projekt dependent frum her for ol yuzirz. or duz etc yuzir yuz lher own Firestore but not Firebase?
 
-Before I can deploy any functions for you, you'll need to visit https://console.firebase.google.com/project/angol-38753/usage/details and upgrade the billing plan.
 
-'Research the angol project at' H:\My Drive\angol. not C:\Users\nicli\angol ! wut nedz tu refakdor first?
 
-initialLoadDone initialLoadDone
-LaunchedEffect LaunchedEffect
-saveLayout saveLayout 
+Before I can deploy any functions, upgrade tu Blaze billing plan. https://console.firebase.google.com/project/angol-38753/usage/details
+
+senk_bredj seynk_bredj
+initialLoadDone enecolLodDun
+LaunchedEffect LontcdEfekt
+saveLayout seyvLeyawt 
 DaylSkrenEntry DaylSkrenEntre
-configChanges configChanges
+configChanges konfegTceynjez
 
-
-file:///c%3A/Users/nicli/.gemini/antigravity/brain/be11ea0f-7e08-4032-b15b-789955eed40b/implementation_plan.md
 -poyntir cid be standard sayz and kulor -not begir and grey but wuyt at sentir ensayd luyk standard mod sestom!
 -dayl and kepad stel wont open modz ensayd! verefay and feks. 
 -dayl stel wont pleys on angol sentir modjul lowkeycon. ets lhe onle wan lhat cid be eybil sens ets mirdjd olrede az lha seym ap welx angol.
 
 
-+pit lha 'reset' modjil butonz [undu] [redu] [restor] on a regyulir enir renq and ad [repleys]. [repleys] repleysez lha kodbeys pozecon leyawt, manyuwle wan modjul onle, frum **Google Cloud konsol** TypeScript funkcon ov deyda tceynj frum Firestore and pic tu Google Cloud storadj. muv angol.reset tu pozecon 6 aklok.
-
--feks ⌫ funkcon on kepad.
--padenq: horezontal kepad ap display ez not fet agen so lost luyk virdekal wuz pirfekt frum Claude also. kan yu lik tu prevyuz Github kumet tu se haw et wuz korekt?-virdekal ez stel padenq ov 1/4 heksagon at bolx top and bodum.
 -meyk modz en awdir speys not glow and kontrast untel koneked wonz tu lha sentir, ensted ov unglow on unpres
 -dragenq blak reset tu dayl desaperz multepil reset modz on angol
+padenq: 
+-kepad ap virdekal ez stel padenq ov 1/4 heksagon at bolx top and bodum.
+-kepad ap horezontal ez not fet agen so lost luyk virdekal wuz pirfekt frum Claude also. kan yu lik tu prevyuz Github kumet tu se haw et wuz korekt?
+-The Dayl hub app has paddingY = 0.75 so the hexes don't get cut off by your phone's status bar or navigation bar. The Keyboard app is constrained to a specific height at the bottom of the screen by Android
 
 +kan kepad ap go abuv kirsor feld ensted ov undir so kirsor feld wendow steyz at bodum? +kan togil for lhat be aded at a 2/12 heksagon spot at bodum sentir left?
 +meyk parent modjulz, ol lha wey bak tu angol stey vezebil az blak sentirz and kulord renqz ensted ov desaperenq. togil sentir mod wuyt tu tel yu wetc wan ez akdev. so kirent modjil mey not be at setnir ov skren.
@@ -37,7 +35,7 @@ file:///c%3A/Users/nicli/.gemini/antigravity/brain/be11ea0f-7e08-4032-b15b-78995
 -roteyded 15 degrees klokwayz tu 12:30/6:30.
 ez lha lonq pres at 6 aklok lha seym az lonq pres at sentir?
 ar SentirModTogilWedjet.kt and AwtpitTekstWedjet.kt yuzd?
-
+kan enstol.bat enstol kepad and dayl alon? or du we ned kepad.ps1 and dayl.ps1 for lhat?
 
 **kuntenyu entegreycon kuntenyuwus deployment** flow: yuzir prefrensez send frum Firestore tu Google Cloud storadj that updates the code base there. Then you have some TypeScript logic that watches for certain thresholds — like usage or time — and if everything looks good and stable, it automatically mirrors or pushes that code over to GitHub. So Firestore is the data trigger, Cloud Repo is your primary code base, and GitHub is the final promotion target. That’s a continuous integration and continuous deployment pipeline with a promotion gate.
 **klawd senk**modyul leyawts senkronayz welx Firebase Firestore veya `FirebaseSirves`.
@@ -54,10 +52,10 @@ ar SentirModTogilWedjet.kt and AwtpitTekstWedjet.kt yuzd?
 ez lher a**poyntirWedjet**dependz on`angolModjul`entirfeys?
 
 **poyntirModjul***kirsor*navegeyt bay swuyp, frum awdir speys and kirsor feld, left an ruyt and up an dawn -sekond fengir delets-undelets;*drag an drop*akdev sentir wedjet,*pentc-zum*navegeyt direkdirez, huvir, pres, lonq pres, unpres, tap, klek(2 vaybreyt), swuyp,*togil mod*beys yunets(10|O), domeyn me|yu, angol 1|2, |—;*roteyt*dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devuys, direkcon; popup, glow, kontrast kulor, hapdek.
-*'Integrated the two-finger swipe logic: swiping right 'or left' (3—9 oklok) with 'lha sekond ov' two fingers deletes a character and saves it to a buffer, and swiping 'lhe oposet direkcon' undeletes'. lhe ulhir 4 ov 6 'hexagonal angles (5\A oklok and 1/7 oklok), mapping directly to your keycodes...21, 22, 23, and 24', delet-undelet rowz ensted ov djust glef/'character' endevedyilz.
-ayv olrede sed et ez lha sekond fengir lhat swuyps left OR ruyt tu delet and swuyp lhe oposet direkcon tu du lhe oposet-undelet elhir wey. ets not: '2-finger swipe left deletes and swipe right undeletes characters'! ets lha sekond fengir lhat deletes and undelets. lha first fengir duz muvment onle so sekond fengir tregirz deledenq and lefdenq sekond fengir resets tu muvment onle agen untel sekond fengir kumz bak on skren tu tregir deledenq agen en lha direkcon ov sekond fengir muvment and undelet en oposet/envirs direkcon. 
-PoyntirModyil 2-Finger Gestures
-The 2-finger interaction in the Pointer Module has been entirely re-written to perfectly match your logic:
+-feks ⌫ funkcon on kepad.
+'Integrated the two-finger swipe logic: swiping right 'or left' (3—9 oklok) with 'lha sekond ov' two fingers deletes a character and saves it to a buffer, and swiping 'lhe oposet direkcon' undeletes'. lhe ulhir 4 ov 6 'hexagonal angles (5\A oklok and 1/7 oklok), mapping directly to your keycodes...21, 22, 23, and 24', delet-undelet rowz ensted ov djust glef/'character' endevedyilz.
+lha sekond fengir lhat swuyps left OR ruyt tu delet and swuyp lhe oposet direkcon tu du lhe oposet-undelet elhir wey. ets not: '2-finger swipe left deletes and swipe right undeletes characters'! ets lha sekond fengir lhat deletes and undelets. lha first fengir duz muvment onle so sekond fengir tregirz deledenq and lefdenq sekond fengir resets tu muvment onle agen untel sekond fengir kumz bak on skren tu tregir deledenq agen en lha direkcon ov sekond fengir muvment and undelet en oposet/envirs direkcon. 
+PoyntirModyil kirsor tuh fengir djestcirz muv and delet
 Continuous Movement: Your 1st finger acts solely as the cursor movement controller. It works continuously and is no longer interrupted.
 Dynamic Delete/Undelete: When you place your 2nd finger, the system waits for it to move. The initial direction you swipe your 2nd finger becomes the "delete direction" for that gesture.
 Same vs Opposite Direction: If you continue swiping the 2nd finger in that initial direction, it triggers Delete. If you swipe the 2nd finger in the opposite direction, it triggers Undelete.
@@ -81,12 +79,16 @@ malx mod and wird mod
 ?**rekonstruktModjul****beldModjul**
 **beldWedjet**
 **beldirModyil**ensayd rebeldModyil, sketc templet tu emport-eksport ceyps sutc az glefs.
+
+**reset** modjil butonz [undu] [redu] [restor] [repleys] repleysez lha kodbeys pozecon leyawt, manyuwle wan modjul onle, frum **Google Cloud konsol** TypeScript funkcon ov deyda tceynj frum Firestore and pic tu Google Cloud storadj. muv angol.reset tu pozecon 6 aklok.
+
 modjul 
 modyul 
 modjil 
 modyil 
 
 —**funkcon lodjek**
+**kepad ap**sentir mod ' ':0ms, repleys ' ' welx '. ':500ms, delet bak '. ' and unpres entir go:1000ms.
 **ap separeycon**'dayl' and 'kepad' ar sepret aps (`io.angol.dayl` and `io.angol.kepad`) for sestom level enpit edetir redjestreycon and klen prodjekt strukcir.
 **brodkast senk (lha bredj)**tceyndjez meyd en 'rebeld' ap must kope/muv awt ov 'rebeld' tu repleys lhe ap on dayl (sutc az angol kepad ap) and ar not brodkast rel taym senkronayzeycon.
 ?-sens 'dayl' and 'kepad' hav eysoleyded storedj and 'auth' konteks, lhey kumyunekeyt veya a sekyir Android brodkast `io.angol.ACTION_UPDATE_LAYOUT`.

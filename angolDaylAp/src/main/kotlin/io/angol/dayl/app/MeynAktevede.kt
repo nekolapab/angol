@@ -33,18 +33,6 @@ class MeynAktevede : ComponentActivity() {
         val kebordKontrolir = AndroidKeyboardController({ null }, { }, { })
 
         setContent {
-            LaunchedEffect(Unit) {
-                firebaseSirves.watcModjilLeyawt("current").collect { updatedModules ->
-                    if (updatedModules.isNotEmpty()) {
-                        var mods = updatedModules
-                        if (mods.none { it.id == "reset" || it.type == "reset" }) {
-                            val resetMod = modalz.ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = 8, type = "reset")
-                            mods = mods + resetMod
-                        }
-                        angolSteyt.updateModules(mods)
-                    }
-                }
-            }
             DaylSkrenEntry(
                 kebordKontrolir = kebordKontrolir,
                 platformServices = platformServices,

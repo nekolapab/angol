@@ -98,6 +98,16 @@ class AndroidFirebaseSirves(
     }
 
     override suspend fun seyvModjilLeyawt(modyilz: List<ModyilDeyda>, environment: String, ezRepleys: Boolean) {
+        if (ezRepleys) {
+            try {
+                val replaceFile = File(appContext.filesDir, "replace_request.json")
+                replaceFile.writeText(json.encodeToString(modyilz))
+                Log.d("AndroidFirebaseSirves", "Saved replace request locally to ${replaceFile.absolutePath}")
+            } catch (e: Exception) {
+                Log.e("AndroidFirebaseSirves", "Error saving replace request", e)
+            }
+        }
+
         val user = auth.currentUser
         if (user != null) {
             try {

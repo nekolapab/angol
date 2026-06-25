@@ -247,6 +247,20 @@ fun HeksagonGred(
 
             Box(modifier = Modifier.align(Alignment.Center).offset(x = pos.x.dp, y = pos.y.dp)) {
                 if (index == 0 && item == null && sentirLeybil.isNotEmpty()) {
+                    // 3. Draw placement ghost hexagon if hovering over empty space
+                    val isCenterGhost = currentHoverIndex == 0
+                    if (isCenterGhost && draggingIndex != null) {
+                        Heksagon(
+                            label = "",
+                            backgroundColor = Color.White,
+                            textColor = Color.White,
+                            size = hexWidthDp,
+                            fontSizeFactor = centerFontSizeFactor,
+                            ezPresd = true,
+                            ezGlowenq = true,
+                            rotationAngle = geometry.roteyconAngol.toFloat()
+                        )
+                    }
                     Heksagon(
                         label = sentirLeybil, backgroundColor = centerColor,
                         textColor = HeksagonKonfeg.getComplementaryColor(centerColor), size = hexWidthDp, fontSizeFactor = centerFontSizeFactor,

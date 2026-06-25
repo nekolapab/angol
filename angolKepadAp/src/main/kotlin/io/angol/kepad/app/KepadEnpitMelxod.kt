@@ -438,25 +438,11 @@ private fun startVoysEnpit() {
                             firebaseSirves.watcModjilLeyawt("current").collect { updatedModules ->
                                 if (updatedModules.isNotEmpty()) {
                                     Log.d(TAG, "Keyboard loaded initial layout from Firebase/Local")
-                                    var mods = updatedModules
-                                    var modified = false
-                                    mods = mods.map { mod ->
-                                        if (mod.id == "reset" && mod.kulorLong == 0xFFFF0000L) {
-                                            modified = true
-                                            mod.copyWith(kulorLong = 0xFF000000L)
-                                        } else mod
-                                    }
-                                    if (mods.none { it.id == "reset" || it.type == "reset" }) {
-                                        var newPozecon = 8
-                                        while (mods.any { it.pozecon == newPozecon }) newPozecon++
-                                        val resetMod = modalz.ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = newPozecon, ezAkdev = false, type = "reset")
-                                        mods = mods + resetMod
-                                        modified = true
-                                    }
+                                    val (normalizedMods, modified) = daylSteyt.normalizeLayout(updatedModules, "current")
                                     if (modified) {
-                                        scope.launch { firebaseSirves.seyvModjilLeyawt(mods, "current") }
+                                        scope.launch { firebaseSirves.seyvModjilLeyawt(normalizedMods, "current") }
                                     }
-                                    daylSteyt.updateModules(mods)
+                                    daylSteyt.updateModules(normalizedMods)
                                     
                                     // AUTO-ACTIVATE: If nothing is active, find the first keypad module (not dayl) and show it!
                                     if (daylSteyt.activeModule == null) {
@@ -577,11 +563,9 @@ private fun startVoysEnpit() {
                                 onReset = {
                                     daylSteyt.pendingResetTargetId = activeMod.id
                                 },
-                                onKloz = {
-                                    if (daylSteyt.tempNestedMod != null) {
-                                        daylSteyt.closeNestedMod()
-                                    }
-                                },
+                                onKloz = if (daylSteyt.tempNestedMod != null) {
+                                    { daylSteyt.closeNestedMod() }
+                                } else null,
                                 onTapGlef = { label ->
                                     if (label.contains("|")) {
                                         val deserialized = daylSteyt.deserializeMod(label)

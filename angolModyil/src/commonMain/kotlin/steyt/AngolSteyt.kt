@@ -1370,10 +1370,75 @@ class AngolSteyt {
     }
 
     private fun Color.toArgbLong(): Long {
-        return ((alpha * 255.0f).toInt().toLong() shl 24) or
-               ((red * 255.0f).toInt().toLong() shl 16) or
-               ((green * 255.0f).toInt().toLong() shl 8) or
-               ((blue * 255.0f).toInt().toLong())
+        return this.toArgb().toLong()
+    }
+
+    fun normalizeLayout(currentList: List<ModyilDeyda>, environment: String): Pair<List<ModyilDeyda>, Boolean> {
+        var modified = false
+        var mods = currentList.toMutableList()
+
+        mods = mods.map { mod ->
+            var updatedMod = mod
+            if (updatedMod.id == "dayl" && updatedMod.neym != "dayl") {
+                modified = true
+                updatedMod = updatedMod.copyWith(neym = "dayl")
+            }
+            if (updatedMod.id == "reset" && updatedMod.kulorLong == 0xFFFF0000L) {
+                modified = true
+                updatedMod = updatedMod.copyWith(kulorLong = 0xFF000000L)
+            }
+            updatedMod
+        }.toMutableList()
+
+        if (environment == "current") {
+            val hasDayl = mods.any { it.id == "dayl" }
+            val hasKeypad = mods.any { it.id == "keypad" }
+            val hasRebeld = mods.any { it.id == "rebeld" }
+            val hasReset = mods.any { it.id == "reset" || it.type == "reset" }
+
+            if (!hasDayl) {
+                mods.add(ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = 0xFFFF0000L, pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad"))
+                modified = true
+            }
+            if (!hasKeypad) {
+                mods.add(ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = 0xFFFFFF00L, pozecon = 3, ezAkdev = false, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"))
+                modified = true
+            }
+            if (!hasRebeld) {
+                mods.add(ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = 0xFF00FF00L, pozecon = 4, ezAkdev = false, type = "rebeld"))
+                modified = true
+            }
+            if (!hasReset) {
+                var newPozecon = 8
+                while (mods.any { it.pozecon == newPozecon }) newPozecon++
+                mods.add(ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = newPozecon, ezAkdev = false, type = "reset"))
+                modified = true
+            }
+
+            val activeFolder = mods.find { it.ezAkdev && it.type != "hub" }
+            if (activeFolder != null) {
+                mods = mods.map { mod ->
+                    if (mod.id != activeFolder.id && mod.ezAkdev) {
+                        modified = true
+                        mod.copyWith(ezAkdev = false)
+                    } else mod
+                }.toMutableList()
+            }
+        } else if (environment == "rebeld_steyt") {
+            val hasDayl = mods.any { it.id == "dayl" }
+            val hasBeldir = mods.any { it.id == "beldir" }
+
+            if (!hasDayl) {
+                mods.add(ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = 0xFFFF0000L, pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad"))
+                modified = true
+            }
+            if (!hasBeldir) {
+                mods.add(ModyilDeyda(id = "beldir", neym = "beldir", kulorLong = 0xFF00FFCCL, pozecon = 3, ezAkdev = false, type = "keypad"))
+                modified = true
+            }
+        }
+
+        return Pair(mods, modified)
     }
 
     fun serializeMod(mod: ModyilDeyda): String {

@@ -146,62 +146,12 @@ fun DaylSkren(
                             modified = true
                         }
 
-                        // 1. Force absolute colors and dayl properties
-                        currentList = currentList.map { mod ->
-                            var updatedMod = mod.copyWith() // applies absolute colors
-                            if (updatedMod.kulorLong != mod.kulorLong) modified = true
-                            if (updatedMod.id == "dayl" && updatedMod.neym != "dayl") {
-                                modified = true
-                                updatedMod = updatedMod.copyWith(neym = "dayl")
-                            }
-                            if (updatedMod.id == "reset" && updatedMod.kulorLong == 0xFFFF0000L) {
-                                modified = true
-                                updatedMod = updatedMod.copyWith(kulorLong = 0xFF000000L)
-                            }
-                            updatedMod
-                        }.toMutableList()
+                        val (normalizedMods, layoutModified) = daylSteyt.normalizeLayout(currentList, "current")
+                        var isModified = modified || layoutModified
 
-                        // 2. Ensure all protected modules exist
-                        val hasDayl = currentList.any { it.id == "dayl" }
-                        val hasKeypad = currentList.any { it.id == "keypad" }
-                        val hasRebeld = currentList.any { it.id == "rebeld" }
-                        val hasReset = currentList.any { it.id == "reset" || it.type == "reset" }
-
-                        if (!hasDayl) {
-                            currentList.add(ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = 0xFFFF0000L, pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad"))
-                            modified = true
-                        }
-                        if (!hasKeypad) {
-                            currentList.add(ModyilDeyda(id = "keypad", neym = "kepad", kulorLong = 0xFFFFFF00L, pozecon = 3, ezAkdev = false, glefs = listOf(" ") + modalz.HeksagonKonfeg.innerLetterMode + modalz.HeksagonKonfeg.outerTap, type = "keypad"))
-                            modified = true
-                        }
-                        if (!hasRebeld) {
-                            currentList.add(ModyilDeyda(id = "rebeld", neym = "rebeld", kulorLong = 0xFF00FF00L, pozecon = 4, ezAkdev = false, type = "rebeld"))
-                            modified = true
-                        }
-                        if (!hasReset) {
-                            var newPozecon = 8
-                            while (currentList.any { it.pozecon == newPozecon }) newPozecon++
-                            currentList.add(ModyilDeyda(id = "reset", neym = "reset", kulorLong = 0xFF000000L, pozecon = newPozecon, ezAkdev = false, type = "reset"))
-                            modified = true
-                        }
-
-                        // Removed aggressive pozecon conflict resolution to allow modules at 1 o'clock
-
-                        // 5. Make sure only one folder/module is active
-                        val activeFolder = currentList.find { it.ezAkdev && it.type != "hub" }
-                        if (activeFolder != null) {
-                            currentList = currentList.map { mod ->
-                                if (mod.id != activeFolder.id && mod.ezAkdev) {
-                                    modified = true
-                                    mod.copyWith(ezAkdev = false)
-                                } else mod
-                            }.toMutableList()
-                        }
-
-                        daylSteyt.updateModules(currentList)
-                        if (modified) {
-                            firebaseSirves.seyvModjilLeyawt(currentList, "current")
+                        daylSteyt.updateModules(normalizedMods)
+                        if (isModified) {
+                            firebaseSirves.seyvModjilLeyawt(normalizedMods, "current")
                         }
                     }
                 }
@@ -212,34 +162,12 @@ fun DaylSkren(
                         var modified = false
                         var currentList = updatedModules.toMutableList()
 
-                        // 1. Force absolute colors and dayl properties
-                        currentList = currentList.map { mod ->
-                            var updatedMod = mod.copyWith() // applies absolute colors
-                            if (updatedMod.kulorLong != mod.kulorLong) modified = true
-                            if (updatedMod.id == "dayl" && updatedMod.neym != "dayl") {
-                                modified = true
-                                updatedMod = updatedMod.copyWith(neym = "dayl")
-                            }
-                            updatedMod
-                        }.toMutableList()
+                        val (normalizedMods, layoutModified) = daylSteyt.normalizeLayout(currentList, "rebeld_steyt")
+                        var isModified = modified || layoutModified
 
-                        val hasDayl = currentList.any { it.id == "dayl" }
-                        val hasBeldir = currentList.any { it.id == "beldir" } || daylSteyt.modyilz.any { it.id == "beldir" }
-
-                        if (!hasDayl) {
-                            currentList.add(ModyilDeyda(id = "dayl", neym = "dayl", kulorLong = 0xFFFF0000L, pozecon = 2, ezAkdev = false, glefs = listOf("dayl"), type = "keypad"))
-                            modified = true
-                        }
-                        if (!hasBeldir) {
-                            currentList.add(ModyilDeyda(id = "beldir", neym = "beldir", kulorLong = 0xFF00FFCCL, pozecon = 3, ezAkdev = false, type = "keypad"))
-                            modified = true
-                        }
-
-                        // Removed aggressive pozecon conflict resolution to allow modules at 1 o'clock
-
-                        daylSteyt.updeytRebeldModjilz(currentList)
-                        if (modified) {
-                            firebaseSirves.seyvModjilLeyawt(currentList, "rebeld_steyt")
+                        daylSteyt.updeytRebeldModjilz(normalizedMods)
+                        if (isModified) {
+                            firebaseSirves.seyvModjilLeyawt(normalizedMods, "rebeld_steyt")
                         }
                     }
                 }
@@ -636,6 +564,13 @@ fun ModuleContent(
             },
             onMuvTuSentir = { from ->
                 daylSteyt.muvModyilTuParent(from + 1)
+                val draggedMod = daylSteyt.modyilz.find { it.pozecon == from + 1 }
+                val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                if (hazTravlir) {
+                    daylSteyt.pilTravlirTuHub(draggedMod!!.id, 1)
+                } else {
+                    daylSteyt.muvModyilTuParent(from + 1)
+                }
                 onSaveLayout("current")
             },
             stackWidth = screenWidth,

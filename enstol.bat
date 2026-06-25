@@ -26,27 +26,9 @@ echo   kler     Clean build and deep activation (for dayl/kepad/angol)
 goto :eof
 
 :angol
-if "%MOD%"=="kler" (
-    powershell -ExecutionPolicy Bypass -File .\angol_kler.ps1
-) else (
-    powershell -ExecutionPolicy Bypass -File .\angol.ps1
-)
-goto :eof
-
 :dayl
-if "%MOD%"=="kler" (
-    powershell -ExecutionPolicy Bypass -File .\dayl_kler.ps1
-) else (
-    powershell -ExecutionPolicy Bypass -File .\dayl.ps1
-)
-goto :eof
-
 :kepad
-if "%MOD%"=="kler" (
-    powershell -ExecutionPolicy Bypass -File .\kepad_kler.ps1
-) else (
-    powershell -ExecutionPolicy Bypass -File .\kepad.ps1
-)
+powershell -ExecutionPolicy Bypass -File .\angol.ps1
 goto :eof
 
 :WearOS
