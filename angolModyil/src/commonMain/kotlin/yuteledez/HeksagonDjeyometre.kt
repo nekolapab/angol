@@ -161,8 +161,7 @@ class HeksagonDjeyometre(
             val minHalfHeight = minFitRings * 1.5 + 0.5
 
             val contentHalfWidth = maxOf(maxAbsX, minHalfWidth)
-            val paddingY = if (ezKepad) 0.0 else 0.75
-            val actualMaxAbsY = if (positions.isEmpty()) 0.0 else positions.maxOf { abs(it.y) } + paddingY
+            val actualMaxAbsY = if (positions.isEmpty()) 0.0 else positions.maxOf { abs(it.y) }
             val contentHalfHeight = maxOf(actualMaxAbsY, minHalfHeight)
 
             val contentWidth = contentHalfWidth * 2.0

@@ -389,6 +389,7 @@ fun ModuleContent(
                         geometryOverride = geometry,
                         glefsOvirayd = mod.glefs,
                         kulorzOverride = mod.glefKulorz,
+                        sekondGlefsOverride = mod.sekondGlefs,
                         contentWidthDp = contentWidth,
                         isEditing = true,
                         neym = mod.neym,
@@ -516,8 +517,7 @@ fun ModuleContent(
                 }
             },
             onLonqPresUydem = { index ->
-                val clickedMod = daylSteyt.modyilz.find { it.pozecon == index + 1 }
-                if (clickedMod?.type == "reset" || clickedMod?.id == "reset") {
+                if (index == 0) {
                     daylSteyt.pendingResetTargetId = "dayl"
                 }
             },
@@ -621,7 +621,16 @@ fun ModuleContent(
                         when (index) {
                             1 -> { daylSteyt.undoModule(targetId); onSaveLayout("current") }
                             2 -> { daylSteyt.redoModule(targetId); onSaveLayout("current") }
+                            // 3 (replace) and 4 (restore) are ignored on tap to prevent accidents
+                        }
+                    },
+                    onLonqPresUydem = { index ->
+                        when (index) {
                             3 -> {
+                                onRepleys()
+                                daylSteyt.pendingResetTargetId = null
+                            }
+                            4 -> {
                                 if (targetId == "dayl") {
                                     daylSteyt.reset()
                                     onSaveLayout("current")
@@ -631,12 +640,12 @@ fun ModuleContent(
                                 }
                                 daylSteyt.pendingResetTargetId = null
                             }
-                            4 -> {
-                                onRepleys()
-                                daylSteyt.pendingResetTargetId = null
-                            }
                         }
                     },
+                    fontSizeFactor = 12f/12f,
+                    centerFontSizeFactor = 10f/12f,
+                    ezKonsestentSayz = false,
+                    centerEzKonsestentSayz = false,
                     modifier = Modifier.fillMaxSize()
                 )
             }

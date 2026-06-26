@@ -226,6 +226,9 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                                 if (updatedModules.isNotEmpty()) {
                                     Log.d(TAG, "Received broadcast layout update ($env)")
                                     daylSteyt.updateModules(updatedModules)
+                                    scope.launch {
+                                        firebaseSirves.seyvModjilLeyawt(updatedModules, "current")
+                                    }
                                 }
                             } catch (e: Exception) {
                                 Log.e(TAG, "Error parsing broadcast layout", e)
@@ -267,6 +270,7 @@ private fun startVoysEnpit() {
         val recognizer = speechRecognizer ?: return
         val intent = speechIntent ?: return
         ezLisenenq.value = true
+
         try { recognizer.startListening(intent) } catch (e: Exception) { ezLisenenq.value = false }
     }
 
@@ -558,6 +562,7 @@ private fun startVoysEnpit() {
                                 geometryOverride = geometry,
                                 glefsOvirayd = activeMod.glefs,
                                 kulorzOverride = activeMod.glefKulorz,
+                                sekondGlefsOverride = activeMod.sekondGlefs,
                                 contentWidthDp = gredDimz.width.dp,
                                 neym = activeMod.id,
                                 onReset = {
@@ -766,5 +771,7 @@ private fun startVoysEnpit() {
         speechRecognizer?.destroy()
     }
 }
+
+
 
 

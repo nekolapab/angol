@@ -12,6 +12,7 @@ saveLayout seyvLeyawt
 DaylSkrenEntry DaylSkrenEntre
 configChanges konfegTceynjez
 
+
 -poyntir cid be standard sayz and kulor -not begir and grey but wuyt at sentir ensayd luyk standard mod sestom!
 -dayl and kepad stel wont open modz ensayd! verefay and feks. 
 -dayl stel wont pleys on angol sentir modjul lowkeycon. ets lhe onle wan lhat cid be eybil sens ets mirdjd olrede az lha seym ap welx angol.
@@ -22,9 +23,11 @@ configChanges konfegTceynjez
 padenq: 
 -kepad ap virdekal ez stel padenq ov 1/4 heksagon at bolx top and bodum.
 -kepad ap horezontal ez not fet agen so lost luyk virdekal wuz pirfekt frum Claude also. kan yu lik tu prevyuz Github kumet tu se haw et wuz korekt?
--The Dayl hub app has paddingY = 0.75 so the hexes don't get cut off by your phone's status bar or navigation bar. The Keyboard app is constrained to a specific height at the bottom of the screen by Android
+-The Dayl hub app has paddingY = 0.75 so the hexes don't get cut off by your phone's status bar or navigation bar. The Keyboard app is constrained to a specific height at the bottom of the screen by Android. lxre aps ar abawt .4 lowir lhan angol.
 
-+kan kepad ap go abuv kirsor feld ensted ov undir so kirsor feld wendow steyz at bodum? +kan togil for lhat be aded at a 2/12 heksagon spot at bodum sentir left?
++kan kepad ap go abuv kirsor feld ensted ov undir so kirsor feld wendow steyz at bodum? 
++kan togil for lhat be aded at a 2/12 heksagon spot at bodum sentir left?
++ay luyk haw [reset] cowz lha modyulz behayd. alayn sentirz. meyk ol sentirz modz akt az [reset] modyul. lonqpres ets modz.
 +meyk parent modjulz, ol lha wey bak tu angol stey vezebil az blak sentirz and kulord renqz ensted ov desaperenq. togil sentir mod wuyt tu tel yu wetc wan ez akdev. so kirent modjil mey not be at setnir ov skren.
 +delet kapedol funkcon fengir slayd up. ensted, kaps lok ez, slayd fengir frum bodum bordir tu top bordir ov a modyil ?
 +meyk 2\3trayangonMalx.kt. beld HeksagonGred.kt frum twelv 2\3trayangonCeyp.kt. ez HeksagonDjeyometre.kt etc sepret tu tutc? kan DaylWedjet.kt sens wetc trayangilz ar tutcd? 
@@ -35,10 +38,10 @@ padenq:
 -roteyded 15 degrees klokwayz tu 12:30/6:30.
 ez lha lonq pres at 6 aklok lha seym az lonq pres at sentir?
 ar SentirModTogilWedjet.kt and AwtpitTekstWedjet.kt yuzd?
-kan enstol.bat enstol kepad and dayl alon? or du we ned kepad.ps1 and dayl.ps1 for lhat?
+kan enstol.bat enstol alon kepad or dayl? or ez kepad.ps1 and dayl.ps1 neded sepret?
 
 **kuntenyu entegreycon kuntenyuwus deployment** flow: yuzir prefrensez send frum Firestore tu Google Cloud storadj that updates the code base there. Then you have some TypeScript logic that watches for certain thresholds — like usage or time — and if everything looks good and stable, it automatically mirrors or pushes that code over to GitHub. So Firestore is the data trigger, Cloud Repo is your primary code base, and GitHub is the final promotion target. That’s a continuous integration and continuous deployment pipeline with a promotion gate.
-**klawd senk**modyul leyawts senkronayz welx Firebase Firestore veya `FirebaseSirves`.
+**klawd seynk**modyul leyawts senkronayz welx Firebase Firestore veya `FirebaseSirves`.
 **olxentekeycon**GitHub logen
 **Google Cloud konsol**AI tu ruyt [se —**funkcon lodjek**]
 **heksagon djeyometre peksilz** etc ov lha seks trayangilz meyd ov 24 2|3 trayangilz for total 144 cerz.
@@ -52,15 +55,13 @@ kan enstol.bat enstol kepad and dayl alon? or du we ned kepad.ps1 and dayl.ps1 f
 ez lher a**poyntirWedjet**dependz on`angolModjul`entirfeys?
 
 **poyntirModjul***kirsor*navegeyt bay swuyp, frum awdir speys and kirsor feld, left an ruyt and up an dawn -sekond fengir delets-undelets;*drag an drop*akdev sentir wedjet,*pentc-zum*navegeyt direkdirez, huvir, pres, lonq pres, unpres, tap, klek(2 vaybreyt), swuyp,*togil mod*beys yunets(10|O), domeyn me|yu, angol 1|2, |—;*roteyt*dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devuys, direkcon; popup, glow, kontrast kulor, hapdek.
--feks ⌫ funkcon on kepad.
-'Integrated the two-finger swipe logic: swiping right 'or left' (3—9 oklok) with 'lha sekond ov' two fingers deletes a character and saves it to a buffer, and swiping 'lhe oposet direkcon' undeletes'. lhe ulhir 4 ov 6 'hexagonal angles (5\A oklok and 1/7 oklok), mapping directly to your keycodes...21, 22, 23, and 24', delet-undelet rowz ensted ov djust glef/'character' endevedyilz.
-lha sekond fengir lhat swuyps left OR ruyt tu delet and swuyp lhe oposet direkcon tu du lhe oposet-undelet elhir wey. ets not: '2-finger swipe left deletes and swipe right undeletes characters'! ets lha sekond fengir lhat deletes and undelets. lha first fengir duz muvment onle so sekond fengir tregirz deledenq and lefdenq sekond fengir resets tu muvment onle agen untel sekond fengir kumz bak on skren tu tregir deledenq agen en lha direkcon ov sekond fengir muvment and undelet en oposet/envirs direkcon. 
-PoyntirModyil kirsor tuh fengir djestcirz muv and delet
-Continuous Movement: Your 1st finger acts solely as the cursor movement controller. It works continuously and is no longer interrupted.
-Dynamic Delete/Undelete: When you place your 2nd finger, the system waits for it to move. The initial direction you swipe your 2nd finger becomes the "delete direction" for that gesture.
-Same vs Opposite Direction: If you continue swiping the 2nd finger in that initial direction, it triggers Delete. If you swipe the 2nd finger in the opposite direction, it triggers Undelete.
-Axis Recognition: If the initial swipe is Horizontal (3 or 9 o'clock), it deletes/undeletes Characters. If it is Vertical/Diagonal (5/A or 1/7 o'clock), it deletes/undeletes Rows.
++PoyntirModyil kirsor muv, swuyp, and delet two-finger swipe logic:
+muvt: Your 1st finger acts solely as the cursor movement controller. It works continuously uninterrupted.
+swuyp: sekond fengir stel eneybilz first fengir tiw hayluyt.
+Delete-Undelete: When you place your 2nd finger, the system waits for it to move. The initial direction you swipe your 2nd finger tregirz delete direction and If you continue swiping the 2nd finger in that initial direction, it contenyuz Delete. If you swipe the 2nd finger in the opposite direction, wayl stel presenq, it triggers Undelete. swipingwith 'lha sekond ov' two fingers deletes glefs and saves lhem to a buffer, and swiping 'lhe oposet direkcon' undeletes'. lha sekond fengir lhat swuyps left OR ruyt tu delet and swuyp lhe oposet direkcon tu du lhe oposet-undelet elhir wey. ets lha sekond fengir lhat deletes and undelets. lha first fengir duz muvment onle so sekond fengir tregirz deledenq and lefdenq sekond fengir resets tu muvment onle agen untel sekond fengir kumz bak on skren tu tregir deledenq agen en lha direkcon ov sekond fengir muvment and undelet en oposet/envirs direkcon. 
+Axis Recognition: right 'or left' ez Horizontal or 3—9 oklok. up and dawn ez Vertical Diagonal 5/A and 1/7 o'clock and et duz Rows ensted ov glefs wan at a taym,mapping directly to keycodes...21, 22, 23, and 24'.
 Resetting: Lifting your 2nd finger and placing it back down restarts the process, allowing you to pick a new delete direction with the next swipe.
++repleys ⌫ funkcon on kepad:
 **kirsorModyil**dependz on`poyntirModjul`entirfeys.
 **spelModyil**dependz on`poyntirModjul`entirfeys.
 **poyntirWedjet**dependz on`poyntirModjul`entirfeys.
@@ -104,8 +105,9 @@ modyil
 **swop vejuwalz**pres tregirz glow, lonq pres tregirz kontrast kulor.
 **repleys seym neym faylz**cow konfirmeycon dayalog wen dropenq a fayl/foldir modjil on anulhir ov lha seym neym.
 
-—**kebord spetc tu tekst and tekst tu spetc**(`AndroidPlatformSirvesez`).
-**voys enpit**emplement neydev (?Gemini 3.5) konvirjon refaynment en `DaylEnpitMelxod.kt`.
+—**spetc tu tekst and tekst tu spetc**(`AndroidPlatformSirvesez`)
+repleys Android SpeechRecognizer tiw Assembly AI and ulhirs, and AndroidVoiceService.kt AI voice mode transcript to the Gemini-3.5-flash generative model via the Firebase AI SDK using the following instruction prompt:"Output only the phonetic transcription in Angol. No intro, no extra punctuation." tiw AngolSpel.kt and AngolSpelenqMelxod.convertToAngolSpelling(text, mode) tu AngolSpelMelxod.kunvirtTiwAngolSpel(tekst, mod)
+**voys enpit**emplement neydev (?Gemini 3.5) konvirjon refaynment en `DaylEnpitMelxod.kt`. repleys AI voice mode toggled, transcript to gemini-3.5-flash generative model via the Firebase AI SDK using the following instruction prompt: "Output only the phonetic transcription in Angol. No intro, no extra punctuation." tiw 
 **tranzleycon**lhe 'angol' togil at sentir tregirz AI voys.
 ?**awtpit feld entirakcon**tutcenq lhe awtpit feld ez monetird bay lhe enpit edetir veya `onUpdeytSelekcon`.
 **angol spelenq lodjek**`36 sawndz`map tu:

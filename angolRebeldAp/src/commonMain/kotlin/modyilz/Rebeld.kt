@@ -246,8 +246,7 @@ fun Rebeld(
                         }
                     },
                     onLonqPresUydem = { index ->
-                        val clickedMod = daylSteyt.rebeldModyilz.find { it.pozecon == index + 1 }
-                        if (clickedMod?.type == "reset" || clickedMod?.id == "reset") {
+                        if (index == 0) {
                             daylSteyt.pendingResetTargetId = "rebeld"
                         }
                     },
@@ -424,8 +423,7 @@ fun BeldWedjet(
                     ezKonsestentSayz = true,
                     centerEzKonsestentSayz = false,
                     onLonqPresUydem = { index ->
-                        val label = currentLabels.getOrNull(index) ?: return@HeksagonGred
-                        if (label == "reset" || label.startsWith("mod_reset_")) {
+                        if (index == 0) {
                             daylSteyt.pendingResetTargetId = mod.id
                         }
                     }

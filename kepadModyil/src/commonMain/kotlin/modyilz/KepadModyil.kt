@@ -44,6 +44,7 @@ fun KepadModyil(
     geometryOverride: HeksagonDjeyometre? = null,
     glefsOvirayd: List<String>? = null,
     kulorzOverride: List<Long>? = null,
+    sekondGlefsOverride: List<String>? = null,
     contentWidthDp: androidx.compose.ui.unit.Dp? = null,
     isEditing: Boolean = false,
     onMove: (Int, Int) -> Unit = { _, _ -> },
@@ -360,9 +361,7 @@ fun KepadModyil(
                 hideDisconnected = hideDisconnected,
                 ezKepad = true,
                 onLonqPresUydem = { index ->
-                    val currentLabelsLocal = KepadLodjek.getKirentOlLeybilz(null, kurentEzLeterMod, kurentEzPunkcuweyconMod, ezKapetalayzd, glefsOvirayd)
-                    val label = currentLabelsLocal.getOrNull(index) ?: return@HeksagonGred
-                    if (label == "reset" || label.startsWith("mod_reset_")) {
+                    if (index == 0) {
                         onReset?.invoke()
                     }
                 }
@@ -596,21 +595,26 @@ fun KepadModyil(
                                 if (kurentEzLeterMod) "" else HeksagonKonfeg.innerLongPressNumber.getOrNull(configIdx) ?: ""
                             }
                             index in 7..18 -> {
-                                val configIdx = index - 7
                                 val isVowelOrNone = startedVowelIndex == null || startedVowelIndex == 0
-                                if (kurentEzLeterMod && isVowelOrNone) modalz.HeksagonKonfeg.sekondRenqLonqPres.getOrNull(configIdx) ?: ""
-                                else "" // No secondary labels on numbers!
+                                if (kurentEzLeterMod && isVowelOrNone) {
+                                    if (sekondGlefsOverride != null && sekondGlefsOverride.size > index) {
+                                        sekondGlefsOverride[index]
+                                    } else {
+                                        val configIdx = index - 7
+                                        modalz.HeksagonKonfeg.sekondRenqLonqPres.getOrNull(configIdx) ?: ""
+                                    }
+                                } else "" // No secondary labels on numbers!
                             }
                             else -> ""
                         }
 
                         val hexColor = getKulor(index)
 
-                        val centerPopup = if (index == 0 && startedVowelIndex == 0 && huvirdHeksIndeks.value in 1..6) {
+                        val centerPopup = if (index == 0 && huvirdHeksIndeks.value != null && huvirdHeksIndeks.value != 0) {
                             currentLabels.getOrNull(huvirdHeksIndeks.value!!)?.takeIf { it.isNotEmpty() }
                         } else null
 
-                        val actualLabel = centerPopup ?: label
+                        val actualLabel = if (centerPopup != null) "" else label
                         val actualSecondary = if (centerPopup != null) null else if (label.isNotEmpty() && lpLabel.isNotEmpty() && lpLabel != "ÃƒÂ¢Ã…â€™Ã‚Â«") lpLabel else null
 
                         Heksagon(
@@ -624,7 +628,18 @@ fun KepadModyil(
                             rotationAngle = currentGeometry.roteyconAngol.toFloat(),
                             ezPresd = kepadLongPresEndeks.value == index,
                             ezGlowenq = huvirdHeksIndeks.value == index && kepadLongPresEndeks.value != index,
-                            modifier = Modifier.offset(x = pos.x.dp, y = pos.y.dp)
+                            modifier = Modifier.offset(x = pos.x.dp, y = pos.y.dp),
+                            child = if (centerPopup != null) {
+                                {
+                                    wedjets.AwtpitTekstWedjet(
+                                        text = centerPopup,
+                                        style = androidx.compose.ui.text.TextStyle(
+                                            color = if (voiceService.isListening.value) Color.White else HeksagonKonfeg.getComplementaryColor(hexColor),
+                                            fontSize = with(androidx.compose.ui.platform.LocalDensity.current) { (hexWidthDp.toPx() * 0.4f).toSp() }
+                                        )
+                                    )
+                                }
+                            } else null
                         )
                     }
 
@@ -641,7 +656,3 @@ fun KepadModyil(
         }
     }
 }
-
-
-
-
