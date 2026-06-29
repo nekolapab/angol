@@ -131,7 +131,9 @@ fun DaylSkren(
 
     LaunchedEffect(isApp) {
         if (!isApp && daylSteyt.activeModule == null) {
-            daylSteyt.akdeveytModyil("keypad")
+            val firstKepad = daylSteyt.modyilz.find { it.type == "kepad" && it.id != "dayl" }
+            if (firstKepad != null) daylSteyt.akdeveytModyil(firstKepad.id)
+            else daylSteyt.akdeveytModyil("kepad")
         }
         if (isApp && firebaseSirves != null) {
             scope.launch {
@@ -302,7 +304,7 @@ fun ModuleContent(
     isApp: Boolean
 ) {
     val activeMod = daylSteyt.activeModule
-    val currentType = activeMod?.type ?: if (!isApp) "keypad" else "hub"
+    val currentType = activeMod?.type ?: if (!isApp) "kepad" else "hub"
     Box(modifier = Modifier.fillMaxSize()) {
         when {
             activeMod?.id == "dayl" -> {
@@ -331,7 +333,7 @@ fun ModuleContent(
                     }
                     onSaveLayout("current")
                 },
-                onMuvTuParent = { from ->
+                onMuvTuParent = { from, isMove ->
                     daylSteyt.repleysGlef(mod.id, from, 0)
                     onSaveLayout("current")
                 },
@@ -350,8 +352,8 @@ fun ModuleContent(
                 }
             )
         }
-        currentType == "keypad" -> {
-            val mod = activeMod ?: daylSteyt.modyilz.find { it.type == "keypad" && it.id != "dayl" } ?: return
+        currentType == "kepad" -> {
+            val mod = activeMod ?: daylSteyt.modyilz.find { it.type == "kepad" && it.id != "dayl" } ?: return
             Column(modifier = Modifier.fillMaxSize()) {
                 if (isApp) {
                     Row(
@@ -404,8 +406,8 @@ fun ModuleContent(
                             }
                             onSaveLayout("current")
                         },
-                        onMuvTuSentir = { from ->
-                            daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
+                        onMuvTuSentir = { from, isMove ->
+                            daylSteyt.muvGlefTuHub(mod.id, from, isCopy = !isMove)
                             onSaveLayout("current")
                         },
                         onDropOnFoldir = { from, to, isMove ->
@@ -502,23 +504,31 @@ fun ModuleContent(
         else -> DaylWedjet(
             geometry = geometry,
             modyilz = daylSteyt.modyilz,
+            activeParentId = daylSteyt.activeParentId,
             onToggleModule = { index ->
                 if (index == 0) {
-                    daylSteyt.deactivateAll()
+                    daylSteyt.toggleActiveParent()
                     onSaveLayout("current")
                 } else {
-                    val clickedMod = daylSteyt.modyilz.find { it.pozecon == index + 1 }
-                    if (clickedMod?.type == "reset" || clickedMod?.id == "reset") {
-                        // Do nothing on tap for reset
-                    } else {
-                        daylSteyt.togilModyil(index + 1)
+                    val clickedMod = daylSteyt.modyilz.find { it.pozecon == index + 1 && (it.parentId == daylSteyt.activeParentId || it.id == if (daylSteyt.activeParentId == "dayl") "angol" else "dayl") }
+                    if (clickedMod != null) {
+                        if (clickedMod.id == "angol" || clickedMod.id == "dayl") {
+                            daylSteyt.toggleActiveParent()
+                        } else if (clickedMod.type != "reset" && clickedMod.id != "reset") {
+                            daylSteyt.togilModyil(index + 1)
+                        }
                         onSaveLayout("current")
                     }
                 }
             },
             onLonqPresUydem = { index ->
                 if (index == 0) {
-                    daylSteyt.pendingResetTargetId = "dayl"
+                    daylSteyt.pendingResetTargetId = daylSteyt.activeParentId
+                } else {
+                    val clickedMod = daylSteyt.modyilz.find { it.pozecon == index + 1 && (it.parentId == daylSteyt.activeParentId || it.id == if (daylSteyt.activeParentId == "dayl") "angol" else "dayl") }
+                    if (clickedMod != null && (clickedMod.id == "angol" || clickedMod.id == "dayl")) {
+                        daylSteyt.pendingResetTargetId = clickedMod.id
+                    }
                 }
             },
             onMuvModjil = { from, to ->
@@ -562,14 +572,24 @@ fun ModuleContent(
                     onSaveLayout("rebeld_steyt")
                 }
             },
-            onMuvTuSentir = { from ->
-                daylSteyt.muvModyilTuParent(from + 1)
+            onMuvTuSentir = { from, isMove ->
                 val draggedMod = daylSteyt.modyilz.find { it.pozecon == from + 1 }
-                val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
-                if (hazTravlir) {
-                    daylSteyt.pilTravlirTuHub(draggedMod!!.id, 1)
+                if (draggedMod != null && (draggedMod.id == "dayl" || draggedMod.id == "angol")) {
+                    daylSteyt.modyilz = daylSteyt.modyilz.map {
+                        if (it.id == draggedMod.id) it.copyWith(pozecon = 1) else it
+                    }
+                    daylSteyt.recordState()
                 } else {
-                    daylSteyt.muvModyilTuParent(from + 1)
+                    val hazTravlir = draggedMod != null && draggedMod.glefs.isNotEmpty() && draggedMod.glefs[0].isNotBlank() && draggedMod.glefs[0] != draggedMod.neym && draggedMod.glefs[0] != " "
+                    if (hazTravlir) {
+                        daylSteyt.pilTravlirTuHub(draggedMod!!.id, 1)
+                    } else {
+                        if (isMove) {
+                            daylSteyt.muvModyilTuParent(from + 1)
+                        } else {
+                            daylSteyt.kopeModyilTuParent(from + 1)
+                        }
+                    }
                 }
                 onSaveLayout("current")
             },
@@ -615,12 +635,12 @@ fun ModuleContent(
                     centerColor = Color.Red,
                     onMove = { _, _ -> },
                     onCopyToEmpty = { _, _ -> },
-                    onMuvTuSentir = { _ -> },
+                    onMuvTuSentir = { _, _ -> },
                     onDropOnFoldir = { _, _, _ -> },
                     onTap = { index ->
                         when (index) {
-                            1 -> { daylSteyt.undoModule(targetId); onSaveLayout("current") }
-                            2 -> { daylSteyt.redoModule(targetId); onSaveLayout("current") }
+                            1 -> { daylSteyt.unduModyil(targetId); onSaveLayout("current") }
+                            2 -> { daylSteyt.reduModyil(targetId); onSaveLayout("current") }
                             // 3 (replace) and 4 (restore) are ignored on tap to prevent accidents
                         }
                     },
@@ -631,8 +651,8 @@ fun ModuleContent(
                                 daylSteyt.pendingResetTargetId = null
                             }
                             4 -> {
-                                if (targetId == "dayl") {
-                                    daylSteyt.reset()
+                                if (targetId == "angol" || targetId == "dayl") {
+                                    daylSteyt.resetModyilTarget(targetId)
                                     onSaveLayout("current")
                                 } else {
                                     daylSteyt.resetModyilTarget(targetId)

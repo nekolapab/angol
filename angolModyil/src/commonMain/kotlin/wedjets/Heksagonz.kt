@@ -1,4 +1,4 @@
-﻿package wedjets
+package wedjets
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box

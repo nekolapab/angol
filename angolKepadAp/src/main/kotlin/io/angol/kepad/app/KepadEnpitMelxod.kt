@@ -226,9 +226,8 @@ class KepadEnpitMelxod : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                                 if (updatedModules.isNotEmpty()) {
                                     Log.d(TAG, "Received broadcast layout update ($env)")
                                     daylSteyt.updateModules(updatedModules)
-                                    scope.launch {
-                                        firebaseSirves.seyvModjilLeyawt(updatedModules, "current")
-                                    }
+                                    // NOTE: Do NOT call seyvModjilLeyawt here — it would
+                                    // broadcast again, creating an infinite loop.
                                 }
                             } catch (e: Exception) {
                                 Log.e(TAG, "Error parsing broadcast layout", e)
@@ -437,7 +436,8 @@ private fun startVoysEnpit() {
                     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                         val screenWidth = maxWidth
                         val screenHeight = maxHeight
-                        
+                        var isEditingKepad by remember { mutableStateOf(false) }
+
                         LaunchedEffect(Unit) {
                             firebaseSirves.watcModjilLeyawt("current").collect { updatedModules ->
                                 if (updatedModules.isNotEmpty()) {
@@ -450,7 +450,7 @@ private fun startVoysEnpit() {
                                     
                                     // AUTO-ACTIVATE: If nothing is active, find the first keypad module (not dayl) and show it!
                                     if (daylSteyt.activeModule == null) {
-                                        val firstKepad = updatedModules.find { it.type == "keypad" && it.id != "dayl" }
+                                        val firstKepad = updatedModules.find { it.type == "kepad" && it.id != "dayl" }
                                         if (firstKepad != null) {
                                             Log.d(TAG, "Auto-activating module: ${firstKepad.neym}")
                                             daylSteyt.akdeveytModyil(firstKepad.id)
@@ -460,7 +460,7 @@ private fun startVoysEnpit() {
                             }
                         }
 
-                        val activeMod = daylSteyt.modyilz.find { it.ezAkdev && it.type == "keypad" && it.id != "dayl" } ?: daylSteyt.modyilz.find { it.type == "keypad" && it.id != "dayl" } ?: return@BoxWithConstraints
+                        val activeMod = daylSteyt.modyilz.find { it.ezAkdev && it.type == "kepad" && it.id != "dayl" } ?: daylSteyt.modyilz.find { it.type == "kepad" && it.id != "dayl" } ?: return@BoxWithConstraints
                         val activeIndices = remember(activeMod.glefs) {
                             val set: MutableSet<Int> = activeMod.glefs.mapIndexedNotNull { i: Int, s: String -> if (s.isNotEmpty()) i else null }.toMutableSet()
                             set.add(0)
@@ -542,7 +542,7 @@ private fun startVoysEnpit() {
                                 .align(Alignment.BottomCenter),
                             contentAlignment = Alignment.BottomCenter
                         ) {
-                            KepadModyil(
+                        KepadModyil(
                                 kebordKontrolir = kebordKontrolir,
                                 platformServices = platfOrmSirvesez,
                                 voiceService = voiceService,
@@ -565,10 +565,40 @@ private fun startVoysEnpit() {
                                 sekondGlefsOverride = activeMod.sekondGlefs,
                                 contentWidthDp = gredDimz.width.dp,
                                 neym = activeMod.id,
-                                onReset = {
-                                    daylSteyt.pendingResetTargetId = activeMod.id
+                                isEditing = isEditingKepad,
+                                onMove = { from, to ->
+                                    if (to == -1) daylSteyt.muvGlefTuHub(activeMod.id, from, isCopy = false)
+                                    else daylSteyt.muvGlef(activeMod.id, from, to)
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
                                 },
-                                onKloz = if (daylSteyt.tempNestedMod != null) {
+                                onCopyToEmpty = { from, to ->
+                                    if (to == -1) daylSteyt.muvGlefTuHub(activeMod.id, from, isCopy = true)
+                                    else daylSteyt.kopeGlefTuEmpt(activeMod.id, from, to)
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                },
+                                onDelete = { from ->
+                                    daylSteyt.muvGlef(activeMod.id, from, -1)
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                },
+                                onMuvTuSentir = { from, isMove ->
+                                    daylSteyt.muvGlefTuHub(activeMod.id, from, isCopy = !isMove)
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                },
+                                onRepleys = { from, to, isMove, _ ->
+                                    if (to == -1) daylSteyt.muvGlefTuHub(activeMod.id, from, isCopy = !isMove)
+                                    else daylSteyt.repleysGlef(activeMod.id, from, to)
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                },
+                                onReset = {
+                                    if (isEditingKepad) {
+                                        isEditingKepad = false
+                                    } else {
+                                        daylSteyt.pendingResetTargetId = activeMod.id
+                                    }
+                                },
+                                onKloz = if (isEditingKepad) {
+                                    { isEditingKepad = false }
+                                } else if (daylSteyt.tempNestedMod != null) {
                                     { daylSteyt.closeNestedMod() }
                                 } else null,
                                 onTapGlef = { label ->
@@ -591,10 +621,10 @@ private fun startVoysEnpit() {
                                 contentAlignment = Alignment.Center
                             ) {
                                 val resetItems = listOf(
-                                    wedjets.GredUydem(index = 0, label = "undu", color = androidx.compose.ui.graphics.Color(0xFF808080)),
-                                    wedjets.GredUydem(index = 1, label = "redu", color = androidx.compose.ui.graphics.Color(0xFF808080)),
-                                    wedjets.GredUydem(index = 2, label = "restor", color = androidx.compose.ui.graphics.Color(0xFF808080)),
-                                    wedjets.GredUydem(index = 3, label = "repleys", color = androidx.compose.ui.graphics.Color(0xFF808080))
+                                    wedjets.GredUydem(index = 6, label = "undu", color = androidx.compose.ui.graphics.Color(0xFF404040)),    // Top Left
+                                    wedjets.GredUydem(index = 1, label = "redu", color = androidx.compose.ui.graphics.Color(0xFF404040)),    // Top Right
+                                    wedjets.GredUydem(index = 4, label = "restor", color = androidx.compose.ui.graphics.Color(0xFF404040)),  // Bottom Left
+                                    wedjets.GredUydem(index = 3, label = "repleys", color = androidx.compose.ui.graphics.Color(0xFF404040))  // Bottom Right
                                 )
                                 
                                 wedjets.HeksagonGred(
@@ -604,20 +634,29 @@ private fun startVoysEnpit() {
                                     centerColor = androidx.compose.ui.graphics.Color.Red,
                                     onMove = { _, _ -> },
                                     onCopyToEmpty = { _, _ -> },
-                                    onMuvTuSentir = { _ -> },
+                                    onMuvTuSentir = { _, _ -> },
                                     onDropOnFoldir = { _, _, _ -> },
                                     onTap = { index ->
                                         when (index) {
+                                            6 -> { 
+                                                daylSteyt.unduModyil(targetId)
+                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                            }
                                             1 -> { 
-                                                daylSteyt.undoModule(targetId)
+                                                daylSteyt.reduModyil(targetId)
                                                 scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
                                             }
-                                            2 -> { 
-                                                daylSteyt.redoModule(targetId)
-                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
-                                            }
+                                        }
+                                    },
+                                    onLonqPresUydem = { index ->
+                                        when (index) {
                                             3 -> {
-                                                if (targetId == "dayl") {
+                                                // Long pressing repleys in Kepad IME toggles editing mode so they can move keys
+                                                isEditingKepad = true
+                                                daylSteyt.pendingResetTargetId = null
+                                            }
+                                            4 -> {
+                                                if (targetId == "angol") {
                                                     daylSteyt.reset()
                                                 } else {
                                                     daylSteyt.resetModyilTarget(targetId)
@@ -625,15 +664,12 @@ private fun startVoysEnpit() {
                                                 scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
                                                 daylSteyt.pendingResetTargetId = null
                                             }
-                                            4 -> {
-                                                // trigger repleys logic (cloud sync)
-                                                scope.launch {
-                                                    firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current", true)
-                                                }
-                                                daylSteyt.pendingResetTargetId = null
-                                            }
                                         }
                                     },
+                                    fontSizeFactor = 12f/12f,
+                                    centerFontSizeFactor = 10f/12f,
+                                    ezKonsestentSayz = false,
+                                    centerEzKonsestentSayz = false,
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }

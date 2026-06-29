@@ -23,7 +23,8 @@ data class ModyilDeyda(
     val glefs: List<String> = emptyList(),
     val glefKulorz: List<Long> = emptyList(),
     val sekondGlefs: List<String> = emptyList(),
-    val type: String = "app"
+    val type: String = "app",
+    val parentId: String = "dayl"
 ) {
     val kulor: Color
         get() = Color(kulorLong.toInt())
@@ -38,7 +39,8 @@ data class ModyilDeyda(
         glefs: List<String>? = null,
         glefKulorz: List<Long>? = null,
         sekondGlefs: List<String>? = null,
-        type: String? = null
+        type: String? = null,
+        parentId: String? = null
     ): ModyilDeyda {
         val targetPozecon = pozecon ?: this.pozecon
         val absolutKulor = when (targetPozecon) {
@@ -61,7 +63,8 @@ data class ModyilDeyda(
             glefs = glefs ?: this.glefs,
             glefKulorz = glefKulorz ?: this.glefKulorz,
             sekondGlefs = sekondGlefs ?: this.sekondGlefs,
-            type = type ?: this.type
+            type = type ?: this.type,
+            parentId = parentId ?: this.parentId
         )
     }
 
@@ -75,7 +78,8 @@ data class ModyilDeyda(
             "glefs" to glefs,
             "glefKulorz" to glefKulorz,
             "sekondGlefs" to sekondGlefs,
-            "type" to type
+            "type" to type,
+            "parentId" to parentId
         )
     }
 
@@ -90,7 +94,8 @@ data class ModyilDeyda(
                 glefs = ((json["glefs"] ?: json["glefz"]) as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                 glefKulorz = (json["glefKulorz"] as? List<*>)?.mapNotNull { (it as? Number)?.toLong() } ?: emptyList(),
                 sekondGlefs = (json["sekondGlefs"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-                type = json["type"] as? String ?: "app"
+                type = json["type"] as? String ?: "app",
+                parentId = json["parentId"] as? String ?: "dayl"
             )
         }
     }

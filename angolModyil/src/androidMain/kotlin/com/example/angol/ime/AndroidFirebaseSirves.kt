@@ -127,15 +127,22 @@ class AndroidFirebaseSirves(
             }
         }
 
-        val jsonString = json.encodeToString(modyilz)
-        seyvLokale(modyilz, environment)
-        
-        // Broadcast to other apps (bridge dayl -> kepad)
-        val intent = Intent(ACTION_UPDATE_LAYOUT).apply {
-            putExtra(EXTRA_LAYOUT_JSON, jsonString)
-            putExtra(EXTRA_ENVIRONMENT, environment)
+        try {
+            val jsonString = json.encodeToString(modyilz)
+            seyvLokale(modyilz, environment)
+
+            // Broadcast to other apps (bridge dayl -> kepad), but ONLY if not already
+            // called from within the broadcast receiver to prevent an infinite loop.
+            if (!ezRepleys) {
+                val intent = Intent(ACTION_UPDATE_LAYOUT).apply {
+                    putExtra(EXTRA_LAYOUT_JSON, jsonString)
+                    putExtra(EXTRA_ENVIRONMENT, environment)
+                }
+                appContext.sendBroadcast(intent)
+            }
+        } catch (e: Exception) {
+            Log.e("AndroidFirebaseSirves", "Error encoding layout for broadcast/local save", e)
         }
-        appContext.sendBroadcast(intent)
     }
 
     private fun seyvLokale(modyilz: List<ModyilDeyda>, environment: String) {

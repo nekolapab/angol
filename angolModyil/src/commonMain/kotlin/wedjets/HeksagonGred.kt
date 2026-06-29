@@ -57,7 +57,7 @@ fun HeksagonGred(
     items: List<GredUydem>,
     onMove: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
-    onMuvTuSentir: (Int) -> Unit = {},
+    onMuvTuSentir: (Int, Boolean) -> Unit = { _, _ -> },
     onDropOnFoldir: (Int, Int, Boolean) -> Unit,
     onRepleys: ((Int, Int, Boolean, String?) -> Unit)? = null,
     onRotate: ((Double) -> Unit)? = null,
@@ -189,7 +189,7 @@ fun HeksagonGred(
             } else {
                 if (copyDragPolicy == CopyDragPolicy.TwoStepArmed) lastSameSpotIndex = null
                 if (toIdx == 0) {
-                    onMuvTuSentir(fromIdx)
+                    onMuvTuSentir(fromIdx, isMoveDrag)
                     return
                 }
 

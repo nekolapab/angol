@@ -1,24 +1,46 @@
 # Smart Updeyt Entayr Angol Sestem (Dayl + Kepad)
 $ErrorActionPreference = "Stop"
 
-$daylApk = "angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk"
-$kepadApk = "angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk"
+if ($args -contains "kler") {
+    Write-Host "klerenq blowt..." -ForegroundColor Yellow
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue .gradle, build, angolDaylAp\build, angolKepadAp\build, angolModyil\build, angolRebeldAp\build, C:\Users\nicli\angol_beld
+    Write-Host "kler dun." -ForegroundColor Green
+    exit 0
+}
+
+Write-Host "senkenq trejir tu C:\..." -ForegroundColor Cyan
+robocopy "H:\My Drive\angol" "C:\Users\nicli\angol_beld\angol_mirror" /MIR /XD .git build .gradle /R:0 /W:0 /NDL /NFL /NP | Out-Null
+
+$daylApk = "C:/Users/nicli/angol_beld/angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk"
+$kepadApk = "C:/Users/nicli/angol_beld/angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk"
 $trackFile = ".enstol_track"
 
+$gradleCache = "C:/Users/nicli/angol_beld/.gradle"
+New-Item -ItemType Directory -Force $gradleCache | Out-Null
+
+$gradleBin = "C:\Users\nicli\angol_beld\angol_mirror\gradlew.bat"
+$projDir = "C:\Users\nicli\angol_beld\angol_mirror"
+
 Write-Host "beldenq..." -ForegroundColor Cyan
-& .\gradlew --offline :angolDaylAp:assembleDebug :angolKepadAp:assembleDebug
+Push-Location $projDir
+& cmd /c $gradleBin --project-cache-dir $gradleCache --offline :angolDaylAp:assembleDebug :angolKepadAp:assembleDebug
 if ($LASTEXITCODE -ne 0) {
     Write-Host "beld feyld. atemptenq klen beld..." -ForegroundColor Yellow
-    & .\gradlew clean
-    & .\gradlew --offline :angolDaylAp:assembleDebug :angolKepadAp:assembleDebug
+    & cmd /c $gradleBin --project-cache-dir $gradleCache clean
+    & cmd /c $gradleBin --project-cache-dir $gradleCache --offline :angolDaylAp:assembleDebug :angolKepadAp:assembleDebug
     if ($LASTEXITCODE -ne 0) {
         Write-Host "beld feyld agen!" -ForegroundColor Red
+        Pop-Location
         exit 1
     }
 }
+Pop-Location
 
-$newDaylMod = if (Test-Path $daylApk) { (Get-Item $daylApk).LastWriteTime.Ticks } else { 0 }
-$newKepadMod = if (Test-Path $kepadApk) { (Get-Item $kepadApk).LastWriteTime.Ticks } else { 0 }
+$srcFiles = Get-ChildItem -Path . -Recurse -Include *.kt,*.xml,*.gradle.kts,*.ps1 -Exclude *build*
+$latestSrcMod = ($srcFiles | Measure-Object -Property LastWriteTime -Maximum).Maximum.Ticks
+
+$newDaylMod = if (Test-Path $daylApk) { $latestSrcMod } else { 0 }
+$newKepadMod = if (Test-Path $kepadApk) { $latestSrcMod } else { 0 }
 
 $devaysez = adb devices | Select-String -Pattern "`tdevice$" | ForEach-Object { $_.ToString().Split("`t")[0] }
 

@@ -1,9 +1,20 @@
 **prodjekt angol**
 —**golz**⌫
+Cursor sez 'The folder currently open doesn't have a Git repository...' cid ay [Initialize Repository]?
+1. okey. lets 'adding build and .gradle to your Google Drive exclusion list so it stops trying to sync them entirely'! and enelxenq els not trejurz.
+2. okey. ez et feksd?
+3. no. angol ez lhe kor muykro kirnol -not a hub! dayl ez lha hub. lha tuh ar mered. angol kan egzest welxawt dayl but dayl kan not egzest welxawt angol. kepad and poyntir kan egzest welxawt dayl but rebeld kan not bekuz ets rebeldenq wut dayl despleyz.
 
 
 
-Before I can deploy any functions, upgrade tu Blaze billing plan. https://console.firebase.google.com/project/angol-38753/usage/details
+kepad ap ez cowenq lha kepad modjul befor ay ekset. rebeld weyts untel ekset. cidint kepad ap du tuw?! we ned global mod sestom standards so we ar not blowdenq lhe kod welx multepil standardz. wut mod cid lhat be en? daylModjul bekuz lhats lha *modz standard*? not poyntirModjul bekuz lhats lha *mowcon standard*?, and not angolModjuwl bekuz lhats lha *sekyir cerd laybrere standard*?
+
+[undu] stel duz not wirk tu undu muvz. verefay an feks.
+
+1. resent ecuw: meyk kepad muv and kope az standard sestom. began at atempt tu solv ecuw 2.
+2. lonq lonq standenq ecuw!: meyk kepad ap and kepad mod ap yuz seym wan kodbeys kepad so kepad ap duz not oltirneyt betwen tuh virjonz. 
+kepad ap ez not cowenq lha kepad modjul. lhes taym ets not kulorz. ets pozeconz.
+
 
 senk_bredj seynk_bredj
 initialLoadDone enecolLodDun
@@ -12,33 +23,26 @@ saveLayout seyvLeyawt
 DaylSkrenEntry DaylSkrenEntre
 configChanges konfegTceynjez
 
-
--poyntir cid be standard sayz and kulor -not begir and grey but wuyt at sentir ensayd luyk standard mod sestom!
--dayl and kepad stel wont open modz ensayd! verefay and feks. 
--dayl stel wont pleys on angol sentir modjul lowkeycon. ets lhe onle wan lhat cid be eybil sens ets mirdjd olrede az lha seym ap welx angol.
-
-
--meyk modz en awdir speys not glow and kontrast untel koneked wonz tu lha sentir, ensted ov unglow on unpres
--dragenq blak reset tu dayl desaperz multepil reset modz on angol
-padenq: 
--kepad ap virdekal ez stel padenq ov 1/4 heksagon at bolx top and bodum.
--kepad ap horezontal ez not fet agen so lost luyk virdekal wuz pirfekt frum Claude also. kan yu lik tu prevyuz Github kumet tu se haw et wuz korekt?
--The Dayl hub app has paddingY = 0.75 so the hexes don't get cut off by your phone's status bar or navigation bar. The Keyboard app is constrained to a specific height at the bottom of the screen by Android. lxre aps ar abawt .4 lowir lhan angol.
-
++kirsor muv, swuyp, and delet tuh fengir lodjek: (se **poyntirModjul***kirsor)
++kan yu se may Firestore kod and haw et defirz frum Google Cloud storadj?
++Before I can deploy any functions, upgrade tu Blaze billing plan. https://console.firebase.google.com/project/angol-38753/usage/details
 +kan kepad ap go abuv kirsor feld ensted ov undir so kirsor feld wendow steyz at bodum? 
 +kan togil for lhat be aded at a 2/12 heksagon spot at bodum sentir left?
 +ay luyk haw [reset] cowz lha modyulz behayd. alayn sentirz. meyk ol sentirz modz akt az [reset] modyul. lonqpres ets modz.
 +meyk parent modjulz, ol lha wey bak tu angol stey vezebil az blak sentirz and kulord renqz ensted ov desaperenq. togil sentir mod wuyt tu tel yu wetc wan ez akdev. so kirent modjil mey not be at setnir ov skren.
 +delet kapedol funkcon fengir slayd up. ensted, kaps lok ez, slayd fengir frum bodum bordir tu top bordir ov a modyil ?
 +meyk 2\3trayangonMalx.kt. beld HeksagonGred.kt frum twelv 2\3trayangonCeyp.kt. ez HeksagonDjeyometre.kt etc sepret tu tutc? kan DaylWedjet.kt sens wetc trayangilz ar tutcd? 
-
-+kan yu se may Firestore kod and haw et defirz frum Google Cloud storadj?
+-poyntir cid be standard sayz and kulor -not begir and grey but wuyt at sentir ensayd luyk standard mod sestom!
+-meyk modz en awdir speys not glow and kontrast untel koneked wonz tu lha sentir, ensted ov unglow on unpres
+-dragenq blak reset tu dayl desaperz multepil reset modz on angol
+padenq: 
+-kepad ap virdekal ez stel padenq ov 1/4 heksagon at bolx top and bodum.
+-kepad ap horezontal ez not fet agen so lost luyk virdekal wuz pirfekt frum Claude also. kan yu lik tu prevyuz Github kumet tu se haw et wuz korekt?
+-The Dayl hub app has paddingY = 0.75 so the hexes don't get cut off by your phone's status bar or navigation bar. The Keyboard app is constrained to a specific height at the bottom of the screen by Android. lxre aps ar abawt .4 lowir lhan angol.
 -tceynj '.' en palxs tu '.' or ',' or ';' or '-' afdir palx leybil. so dayl, kepad, and rebeld sey 'angol' at lha top cid sey 'angol.' and modyilz en rebeld, for egzampil, sey 'angol.rebeld.' so ad ',' at end tu endekeyt.
 -meyk angol or dayl.kepad not edetabil wen rebeld ez not enstold.
 -roteyded 15 degrees klokwayz tu 12:30/6:30.
-ez lha lonq pres at 6 aklok lha seym az lonq pres at sentir?
 ar SentirModTogilWedjet.kt and AwtpitTekstWedjet.kt yuzd?
-kan enstol.bat enstol alon kepad or dayl? or ez kepad.ps1 and dayl.ps1 neded sepret?
 
 **kuntenyu entegreycon kuntenyuwus deployment** flow: yuzir prefrensez send frum Firestore tu Google Cloud storadj that updates the code base there. Then you have some TypeScript logic that watches for certain thresholds — like usage or time — and if everything looks good and stable, it automatically mirrors or pushes that code over to GitHub. So Firestore is the data trigger, Cloud Repo is your primary code base, and GitHub is the final promotion target. That’s a continuous integration and continuous deployment pipeline with a promotion gate.
 **klawd seynk**modyul leyawts senkronayz welx Firebase Firestore veya `FirebaseSirves`.
@@ -49,16 +53,16 @@ kan enstol.bat enstol alon kepad or dayl? or ez kepad.ps1 and dayl.ps1 neded sep
 
 
 —**arketekcir**—`Kotlin Multiplatform`onle updeyt tu best Kotlin MP (2.3.21), Compose (1.10.3), AGP (9.2.0), CompileSdk (37), WearOS (6).
-**angolModjuwl**enkludz`angolWedjet`*cerd laybrere*(`com.android.kotlin.multiplatform.library`) kor rawdir reprezents lha fawndeycon geytkepir sesdom etself ov cerd lodjek, sekyir tranzakconz, enkrepcon, AngolSteyt, deydabeys clawd entirakconz (`FirebaseSirves`), paslok, and yuteledez rekwayrd tu enstol-unenstol ol ap adenz. kopeleft alon open sors.
+**angolModjuwl***sekyir cerd laybrere standard*enkludz`angolWedjet`*cerd laybrere*(`com.android.kotlin.multiplatform.library`) kor rawdir reprezents lha fawndeycon geytkepir sesdom etself ov cerd lodjek, sekyir tranzakconz, enkrepcon, AngolSteyt, deydabeys clawd entirakconz (`FirebaseSirves`), paslok, and yuteledez rekwayrd tu enstol-unenstol ol ap adenz. kopeleft alon open sors.
     `src/commonMain/kotlin/`:
     `src/androidMain/kotlin/`: emplementeyconz (Android sirvesez, fayl storedj, tekst tu spetc).
 ez lher a**poyntirWedjet**dependz on`angolModjul`entirfeys?
 
-**poyntirModjul***kirsor*navegeyt bay swuyp, frum awdir speys and kirsor feld, left an ruyt and up an dawn -sekond fengir delets-undelets;*drag an drop*akdev sentir wedjet,*pentc-zum*navegeyt direkdirez, huvir, pres, lonq pres, unpres, tap, klek(2 vaybreyt), swuyp,*togil mod*beys yunets(10|O), domeyn me|yu, angol 1|2, |—;*roteyt*dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devuys, direkcon; popup, glow, kontrast kulor, hapdek.
-+PoyntirModyil kirsor muv, swuyp, and delet two-finger swipe logic:
-muvt: Your 1st finger acts solely as the cursor movement controller. It works continuously uninterrupted.
-swuyp: sekond fengir stel eneybilz first fengir tiw hayluyt.
-Delete-Undelete: When you place your 2nd finger, the system waits for it to move. The initial direction you swipe your 2nd finger tregirz delete direction and If you continue swiping the 2nd finger in that initial direction, it contenyuz Delete. If you swipe the 2nd finger in the opposite direction, wayl stel presenq, it triggers Undelete. swipingwith 'lha sekond ov' two fingers deletes glefs and saves lhem to a buffer, and swiping 'lhe oposet direkcon' undeletes'. lha sekond fengir lhat swuyps left OR ruyt tu delet and swuyp lhe oposet direkcon tu du lhe oposet-undelet elhir wey. ets lha sekond fengir lhat deletes and undelets. lha first fengir duz muvment onle so sekond fengir tregirz deledenq and lefdenq sekond fengir resets tu muvment onle agen untel sekond fengir kumz bak on skren tu tregir deledenq agen en lha direkcon ov sekond fengir muvment and undelet en oposet/envirs direkcon. 
+**poyntirModjul***mowcon standard* *kirsor*navegeyt bay swuyp, frum awdir speys and kirsor feld, left an ruyt and up an dawn -sekond fengir delets-undelets;*drag an drop*akdev sentir wedjet,*pentc-zum*navegeyt direkdirez, huvir, pres, lonq pres, unpres, tap, klek(2 vaybreyt), swuyp,*togil mod*beys yunets(10|O), domeyn me|yu, angol 1|2, |—;*roteyt*dayl(pentc: 3/12<[1/12]<4/12>[2/12]<6/12), devuys, direkcon; popup, glow, kontrast kulor, hapdek.
++kirsor muv, swuyp, and delet tuh fengir lodjek:
+muv: first fengir akts sole az lha kirsor muvment kontrolir. et wirks kuntenyuwusle unentirupded
+swuyp: sekond fengir stel not muvenq eneybilz first fengir tiw hayluyt.
+delet-undelet: wen yu pleys yor sekond fengir, lha sestom weyts for et tu muv. lhe enecol direkcon yu swuyp yor sekond fengir tregirz delet and kuntenyuz tu du so, savenq lhem tu a bufir. ef yu swuyp, wayl stel presenq, lhat sekond fengir tu oposet direkcon, undelets.  lha sekond fengir lhat swuyps left OR ruyt tu delet and swuyp lhe oposet direkcon tu du lhe oposet-undelet elhir wey. ets lha sekond fengir lhat deletes and undelets. lha first fengir duz muvment onle so sekond fengir tregirz deledenq and lefdenq sekond fengir resets tu muvment onle agen untel sekond fengir kumz bak on skren tu tregir deledenq agen en lha direkcon ov sekond fengir muvment and undelet en oposet/envirs direkcon. 
 Axis Recognition: right 'or left' ez Horizontal or 3—9 oklok. up and dawn ez Vertical Diagonal 5/A and 1/7 o'clock and et duz Rows ensted ov glefs wan at a taym,mapping directly to keycodes...21, 22, 23, and 24'.
 Resetting: Lifting your 2nd finger and placing it back down restarts the process, allowing you to pick a new delete direction with the next swipe.
 +repleys ⌫ funkcon on kepad:
@@ -68,7 +72,7 @@ Resetting: Lifting your 2nd finger and placing it back down restarts the process
 **virsModjul***spetc tu tekst an tekst tu spetc*ez et en DaylEnpitMelxod.kt?
 
 **angolDaylAp**{`angolModjul`+`daylModjul`+`poyntirModyil`+ rapir}*ap entre*(`com.android.application`) redjestirz az sesdom aps manadjir, and awtpit edetir.
-**daylModjul**enkludz`daylWedjet`aps publek repozecon, resent at enir renq an most at awdir, drag an drop lxru poyntirModjul, ad-remuv lxru angol modjul.
+**daylModjul***modz standard*enkludz`daylWedjet`aps publek repozecon, resent at enir renq an most at awdir, drag an drop lxru poyntirModjul, ad-remuv lxru angol modjul. standard mod sestom: sentirz ar olweyz standard wuyt wen akdev and blak wen anulhir ez akdev sutc az a travlir.
 **daylWedjet**dependz on`daylModjul`hub entirfeys leyawt ov ap adenz arawnd angol modjul.
 
 **angolKepadAp**{`angolModjul`+`kepadModyil`+`poyntirModyil`+ rapir} ekstencon redjestirz az`InputMethodService`opireydenq sestem enpit edetir.
@@ -89,6 +93,7 @@ modjil
 modyil 
 
 —**funkcon lodjek**
+**standard mod sestom**sentirz ar olweyz standard wuyt wen akdev and blak wen anulhir ez akdev sutc az a travlir.
 **kepad ap**sentir mod ' ':0ms, repleys ' ' welx '. ':500ms, delet bak '. ' and unpres entir go:1000ms.
 **ap separeycon**'dayl' and 'kepad' ar sepret aps (`io.angol.dayl` and `io.angol.kepad`) for sestom level enpit edetir redjestreycon and klen prodjekt strukcir.
 **brodkast senk (lha bredj)**tceyndjez meyd en 'rebeld' ap must kope/muv awt ov 'rebeld' tu repleys lhe ap on dayl (sutc az angol kepad ap) and ar not brodkast rel taym senkronayzeycon.

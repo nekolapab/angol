@@ -1,10 +1,10 @@
-﻿package modalz
+package modalz
 
 import androidx.compose.ui.graphics.Color
 
 object HeksagonKonfeg {
-    val innerLetterMode: List<String> = listOf("a", "e", "i", "u", "o", "Ã¢Å’Â«")
-    val innerNumberMode: List<String> = listOf("+", "*", "=", "(", "{", "Ã¢Å’Â«")
+    val innerLetterMode: List<String> = listOf("a", "e", "i", "u", "o", "âŒ«")
+    val innerNumberMode: List<String> = listOf("+", "*", "=", "(", "{", "âŒ«")
 
     // Clockwise from 1 o'clock
     val outerTap: List<String> = listOf(
@@ -24,7 +24,7 @@ object HeksagonKonfeg {
     )
 
     val innerLongPressNumber: List<String> = listOf(
-        "-", "/", ":", ")", "}", "Ã¢Å’Â«"
+        "-", "/", ":", ")", "}", "âŒ«"
     )
 
     val innerPunctuationMode: List<String> = listOf("?", "!", ",", ";", "'", "\n")

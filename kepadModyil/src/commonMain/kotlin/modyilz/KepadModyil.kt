@@ -49,7 +49,7 @@ fun KepadModyil(
     isEditing: Boolean = false,
     onMove: (Int, Int) -> Unit = { _, _ -> },
     onCopyToEmpty: (Int, Int) -> Unit = { _, _ -> },
-    onMuvTuSentir: (Int) -> Unit = { _ -> },
+    onMuvTuSentir: (Int, Boolean) -> Unit = { _, _ -> },
     onDropOnFoldir: (Int, Int, Boolean) -> Unit = { _, _, _ -> },
     onDelete: (Int) -> Unit = { _ -> },
     onRepleys: ((Int, Int, Boolean, String?) -> Unit)? = null,

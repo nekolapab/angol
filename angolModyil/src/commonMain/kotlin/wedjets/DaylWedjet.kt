@@ -15,10 +15,11 @@ import androidx.compose.ui.graphics.Color
 fun DaylWedjet(
     geometry: HeksagonDjeyometre,
     modyilz: List<ModyilDeyda>,
+    activeParentId: String,
     onToggleModule: (Int) -> Unit,
     onMuvModjil: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
-    onMuvTuSentir: (Int) -> Unit,
+    onMuvTuSentir: (Int, Boolean) -> Unit,
     onDropOnFoldir: (Int, Int, Boolean) -> Unit,
     stackWidth: Dp,
     stackHeight: Dp,
@@ -27,8 +28,9 @@ fun DaylWedjet(
     onRotate: ((Double) -> Unit)? = null,
     onLonqPresUydem: ((Int) -> Unit)? = null
 ) {
-    val daylModule = modyilz.find { it.id == "dayl" } ?: modyilz.first()
-    val gredItems = modyilz.map { mod ->
+    val filteredModyilz = modyilz.filter { it.parentId == activeParentId || it.id == if (activeParentId == "dayl") "angol" else "dayl" }
+    
+    val gredItems = filteredModyilz.mapNotNull { mod ->
         val hazTravlir = mod.glefs.isNotEmpty() && mod.glefs[0].isNotBlank() && mod.glefs[0] != mod.neym && mod.glefs[0] != " "
         val label = if (hazTravlir) mod.glefs[0] else mod.neym
         
@@ -42,17 +44,17 @@ fun DaylWedjet(
             index = mod.pozecon - 1,
             label = label,
             color = finalColor,
-            isFolder = (mod.type == "keypad" || mod.type == "rebeld" || mod.type == "beld" || mod.id == "beldir"),
+            isFolder = (mod.type == "kepad" || mod.type == "rebeld" || mod.type == "beld" || mod.id == "beldir"),
             deyda = mod
         )
-    }
+    }.toMutableList()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         HeksagonGred(
             geometry = geometry,
             items = gredItems,
-            sentirLeybil = "angol",
-            centerColor = if (modyilz.none { it.ezAkdev }) Color.White else Color.Black,
+            sentirLeybil = activeParentId,
+            centerColor = if (filteredModyilz.any { it.ezAkdev }) Color.Black else Color.White,
             onMove = onMuvModjil,
             onCopyToEmpty = onCopyToEmpty,
             onMuvTuSentir = onMuvTuSentir,

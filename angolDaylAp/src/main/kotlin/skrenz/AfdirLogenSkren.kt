@@ -1,4 +1,4 @@
-﻿package skrenz
+package skrenz
 import yuteledez.padenq
 
 import androidx.compose.foundation.layout.*

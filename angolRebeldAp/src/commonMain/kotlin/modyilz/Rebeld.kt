@@ -79,8 +79,12 @@ fun Rebeld(
                     }
                     syncRebeld()
                 },
-                onMuvTuParent = { from ->
-                    daylSteyt.muvGlefTuHub(mod.id, from)
+                onMuvTuParent = { from, isMove ->
+                    if (isMove) {
+                        daylSteyt.muvGlefTuHub(mod.id, from, isCopy = false)
+                    } else {
+                        daylSteyt.muvGlefTuHub(mod.id, from, isCopy = true)
+                    }
                     syncRebeld()
                 },
                 onReneymMod = { newNeym ->
@@ -129,7 +133,7 @@ fun Rebeld(
                 index = mod.pozecon - 1,
                 label = label,
                 color = color,
-                isFolder = (mod.type == "keypad" || mod.type == "beld" || mod.id == "beldir"),
+                isFolder = (mod.type == "kepad" || mod.type == "beld" || mod.id == "beldir"),
                 deyda = mod
             )
         }
@@ -206,8 +210,12 @@ fun Rebeld(
                         daylSteyt.kopeRebeldModyilTuEmpt(from + 1, to + 1)
                         syncRebeld()
                     },
-                    onMuvTuSentir = { from ->
-                        daylSteyt.muvModjilTuDayl(from)
+                    onMuvTuSentir = { from, isMove ->
+                        if (isMove) {
+                            daylSteyt.muvModjilTuDayl(from)
+                        } else {
+                            daylSteyt.kopeRebeldModyilEntuDayl(from)
+                        }
                         onAction("rebeld_steyt")
                         onAction("current")
                     },
@@ -305,7 +313,7 @@ fun BeldWedjet(
     onReneymGlef: (Int, String) -> Unit,
     onMuvGlef: (Int, Int) -> Unit,
     onCopyToEmpty: (Int, Int) -> Unit,
-    onMuvTuParent: (Int) -> Unit,
+    onMuvTuParent: (Int, Boolean) -> Unit,
     onReneymMod: (String) -> Unit,
     onRepleysMod: () -> Unit,
     onRepleys: (Int, Int, Boolean, String?) -> Unit
@@ -349,7 +357,7 @@ fun BeldWedjet(
                 androidx.compose.material.Text(text = path, color = Color.White, fontSize = 32.sp)
             }
             Box(modifier = Modifier.weight(1f)) {
-                val currentLabels = if (mod.type == "keypad") {
+                val currentLabels = if (mod.type == "kepad") {
                     KepadLodjek.getKirentOlLeybilz(null, true, false, false, mod.glefs)
                 } else {
                     val parseLabel = { raw: String ->
@@ -375,9 +383,9 @@ fun BeldWedjet(
                     add(null) // index 0: center, no secondary
                     // Inner ring (1..6): no secondary shown in editor (same as KepadModyil)
                     repeat(6) { add(null) }
-                    // Outer ring (7..18): show sekondRenqLonqPres letters
-                    modalz.HeksagonKonfeg.sekondRenqLonqPres.forEachIndexed { i, lp ->
-                        add(lp.ifEmpty { null })
+                    // Outer ring (7..18): show from mod.sekondGlefs
+                    for (i in 7..18) {
+                        add(mod.sekondGlefs.getOrNull(i)?.takeIf { it.isNotEmpty() })
                     }
                 }
                 val itemsForGred = currentLabels.mapIndexed { index, label ->

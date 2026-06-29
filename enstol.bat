@@ -28,7 +28,7 @@ goto :eof
 :angol
 :dayl
 :kepad
-powershell -ExecutionPolicy Bypass -File .\angol.ps1
+powershell -ExecutionPolicy Bypass -File .\angol.ps1 %TARGET% %MOD%
 goto :eof
 
 :WearOS

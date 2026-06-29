@@ -1,4 +1,4 @@
-﻿package io.angol.dayl
+package io.angol.dayl
 
 import android.content.Intent
 import android.os.Bundle
