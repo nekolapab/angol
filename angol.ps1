@@ -3,23 +3,23 @@ $ErrorActionPreference = "Stop"
 
 if ($args -contains "kler") {
     Write-Host "klerenq blowt..." -ForegroundColor Yellow
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue .gradle, build, angolDaylAp\build, angolKepadAp\build, angolModyil\build, angolRebeldAp\build, C:\Users\nicli\angol_beld
-    Write-Host "kler dun." -ForegroundColor Green
-    exit 0
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue .gradle, build, angolDaylAp\build, angolKepadAp\build, angolModjul\build, angolKepadModyil\build, angolPoyntirModyil\build, angolRebeldAp\build, C:\Users\nicli\angol_build\.gradle, C:\Users\nicli\angol_build\angol_mirror
+    Write-Host "kler dun. prosedeng tu odomadek beld..." -ForegroundColor Green
 }
 
 Write-Host "senkenq trejir tu C:\..." -ForegroundColor Cyan
-robocopy "H:\My Drive\angol" "C:\Users\nicli\angol_beld\angol_mirror" /MIR /XD .git build .gradle /R:0 /W:0 /NDL /NFL /NP | Out-Null
+robocopy "C:\Users\nicli\Dropbox\angol" "C:\Users\nicli\angol_build\angol_mirror" /MIR /XD .git build .gradle .kotlin /R:0 /W:0 /NDL /NFL /NP | Out-Null
 
-$daylApk = "C:/Users/nicli/angol_beld/angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk"
-$kepadApk = "C:/Users/nicli/angol_beld/angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk"
-$trackFile = ".enstol_track"
+$daylApk = "C:/Users/nicli/angol_build/angolDaylAp/build/outputs/apk/debug/angolDaylAp-debug.apk"
+$kepadApk = "C:/Users/nicli/angol_build/angolKepadAp/build/outputs/apk/debug/angolKepadAp-debug.apk"
+$trackFile = "C:\Users\nicli\angol_build\.enstol_track"
 
-$gradleCache = "C:/Users/nicli/angol_beld/.gradle"
+$gradleCache = "C:/Users/nicli/angol_build/.gradle"
 New-Item -ItemType Directory -Force $gradleCache | Out-Null
+Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "C:\Users\nicli\Dropbox\angol\.gradle"
 
-$gradleBin = "C:\Users\nicli\angol_beld\angol_mirror\gradlew.bat"
-$projDir = "C:\Users\nicli\angol_beld\angol_mirror"
+$gradleBin = "C:\Users\nicli\angol_build\angol_mirror\gradlew.bat"
+$projDir = "C:\Users\nicli\angol_build\angol_mirror"
 
 Write-Host "beldenq..." -ForegroundColor Cyan
 Push-Location $projDir
@@ -46,7 +46,7 @@ $devaysez = adb devices | Select-String -Pattern "`tdevice$" | ForEach-Object { 
 
 if ($devaysez.Count -eq 0) {
     Write-Host "no devaysez fawnd. atemptenq tu lontc emyuleydir..." -ForegroundColor Yellow
-    & .\WearOS.ps1
+    & .\funkconz\WearOS.ps1
     Write-Host "weydenq for emyuleydir..." -ForegroundColor Yellow
     $taymawt = 60
     $elapst = 0
@@ -62,7 +62,7 @@ if ($devaysez.Count -eq 0) {
 foreach ($dev in $devaysez) {
     Write-Host "--- prosesenq devays: $dev ---"
     
-    $devTrackFile = "$PSScriptRoot\.angol_last_install_$dev"
+    $devTrackFile = "C:\Users\nicli\angol_build\.angol_last_install_$dev"
     $installedDayl = 0
     $installedKepad = 0
     if (Test-Path $devTrackFile) {
@@ -103,3 +103,4 @@ foreach ($dev in $devaysez) {
 }
 
 Write-Host "Angol sestem updeyded!" -ForegroundColor Green
+

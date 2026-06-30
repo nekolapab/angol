@@ -17,8 +17,9 @@ dependencyResolutionManagement {
     }
 }
 
-include(":angolModyil")
+include(":angolModjul")
 include(":angolDaylAp")
 include(":angolKepadAp")
-include(":kepadModyil")
+include(":angolKepadModyil")
 include(":angolRebeldAp")
+include(":angolPoyntirModyil")

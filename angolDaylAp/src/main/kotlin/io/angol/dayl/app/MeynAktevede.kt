@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.LaunchedEffect
 import steyt.AngolSteyt
-import skrenz.DaylSkrenEntry
+import skrenz.DaylSkrenEntre
 import com.example.angol.ime.AndroidPlatformServices
 import com.example.angol.ime.AndroidFirebaseSirves
 import com.example.angol.ime.AndroidVoiceService
@@ -33,7 +33,7 @@ class MeynAktevede : ComponentActivity() {
         val kebordKontrolir = AndroidKeyboardController({ null }, { }, { })
 
         setContent {
-            DaylSkrenEntry(
+            DaylSkrenEntre(
                 kebordKontrolir = kebordKontrolir,
                 platformServices = platformServices,
                 voiceService = voiceService,

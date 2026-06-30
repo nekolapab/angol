@@ -51,10 +51,10 @@ import steyt.AngolSteyt
 import modalz.ModyilDeyda
 import modalz.HeksagonPozecon
 import yuteledez.HeksagonDjeyometre
-import modyilz.KepadModyil
-import modyilz.KeyboardController
-import modyilz.PlatformServices
-import modyilz.VoiceService
+import modjilz.KepadModyil
+import modjilz.KeyboardController
+import modjilz.PlatformServices
+import modjilz.VoiceService
 import yuteledez.AngolSpelenqMelxod
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.remember
@@ -460,7 +460,7 @@ private fun startVoysEnpit() {
                             }
                         }
 
-                        val activeMod = daylSteyt.modyilz.find { it.ezAkdev && it.type == "kepad" && it.id != "dayl" } ?: daylSteyt.modyilz.find { it.type == "kepad" && it.id != "dayl" } ?: return@BoxWithConstraints
+                        val activeMod = daylSteyt.modjilz.find { it.ezAkdev && it.type == "kepad" && it.id != "dayl" } ?: daylSteyt.modjilz.find { it.type == "kepad" && it.id != "dayl" } ?: return@BoxWithConstraints
                         val activeIndices = remember(activeMod.glefs) {
                             val set: MutableSet<Int> = activeMod.glefs.mapIndexedNotNull { i: Int, s: String -> if (s.isNotEmpty()) i else null }.toMutableSet()
                             set.add(0)
@@ -569,25 +569,25 @@ private fun startVoysEnpit() {
                                 onMove = { from, to ->
                                     if (to == -1) daylSteyt.muvGlefTuHub(activeMod.id, from, isCopy = false)
                                     else daylSteyt.muvGlef(activeMod.id, from, to)
-                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modjilz, "current") }
                                 },
                                 onCopyToEmpty = { from, to ->
                                     if (to == -1) daylSteyt.muvGlefTuHub(activeMod.id, from, isCopy = true)
                                     else daylSteyt.kopeGlefTuEmpt(activeMod.id, from, to)
-                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modjilz, "current") }
                                 },
                                 onDelete = { from ->
                                     daylSteyt.muvGlef(activeMod.id, from, -1)
-                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modjilz, "current") }
                                 },
                                 onMuvTuSentir = { from, isMove ->
                                     daylSteyt.muvGlefTuHub(activeMod.id, from, isCopy = !isMove)
-                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modjilz, "current") }
                                 },
                                 onRepleys = { from, to, isMove, _ ->
                                     if (to == -1) daylSteyt.muvGlefTuHub(activeMod.id, from, isCopy = !isMove)
                                     else daylSteyt.repleysGlef(activeMod.id, from, to)
-                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                    scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modjilz, "current") }
                                 },
                                 onReset = {
                                     if (isEditingKepad) {
@@ -614,7 +614,7 @@ private fun startVoysEnpit() {
                         
                         if (daylSteyt.pendingResetTargetId != null) {
                             val targetId = daylSteyt.pendingResetTargetId!!
-                            val targetMod = daylSteyt.modyilz.find { it.id == targetId }
+                            val targetMod = daylSteyt.modjilz.find { it.id == targetId }
                             val targetNeym = targetMod?.neym ?: targetId
                             Box(
                                 modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f)).klekabil { daylSteyt.pendingResetTargetId = null },
@@ -627,7 +627,7 @@ private fun startVoysEnpit() {
                                     wedjets.GredUydem(index = 3, label = "repleys", color = androidx.compose.ui.graphics.Color(0xFF404040))  // Bottom Right
                                 )
                                 
-                                wedjets.HeksagonGred(
+                                wedjets.AngolGred(
                                     geometry = geometry,
                                     items = resetItems,
                                     sentirLeybil = targetNeym,
@@ -640,11 +640,11 @@ private fun startVoysEnpit() {
                                         when (index) {
                                             6 -> { 
                                                 daylSteyt.unduModyil(targetId)
-                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modjilz, "current") }
                                             }
                                             1 -> { 
                                                 daylSteyt.reduModyil(targetId)
-                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modjilz, "current") }
                                             }
                                         }
                                     },
@@ -661,7 +661,7 @@ private fun startVoysEnpit() {
                                                 } else {
                                                     daylSteyt.resetModyilTarget(targetId)
                                                 }
-                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modyilz, "current") }
+                                                scope.launch { firebaseSirves.seyvModjilLeyawt(daylSteyt.modjilz, "current") }
                                                 daylSteyt.pendingResetTargetId = null
                                             }
                                         }

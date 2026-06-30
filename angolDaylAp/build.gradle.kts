@@ -56,8 +56,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":angolModyil"))
-    implementation(project(":kepadModyil"))
+    implementation(project(":angolModjul"))
+    implementation(project(":angolKepadModyil"))
+    implementation(project(":angolPoyntirModyil"))
     implementation(project(":angolRebeldAp"))
     
     implementation(libs.androidx.activity.compose)
@@ -78,3 +79,4 @@ dependencies {
     
     debugImplementation(libs.compose.ui.tooling)
 }
+

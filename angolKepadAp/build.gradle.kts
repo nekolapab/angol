@@ -41,8 +41,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":angolModyil"))
-    implementation(project(":kepadModyil"))
+    implementation(project(":angolModjul"))
+    implementation(project(":angolKepadModyil"))
     
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

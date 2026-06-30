@@ -8,6 +8,7 @@ if "%TARGET%"=="dayl" goto dayl
 if "%TARGET%"=="kepad" goto kepad
 if "%TARGET%"=="rebeld" goto dayl
 if "%TARGET%"=="WearOS" goto WearOS
+if "%TARGET%"=="funkconz" goto funkconz
 
 :usage
 echo Angol CLI Tool (enstol)
@@ -20,6 +21,7 @@ echo   dayl     The main Angol Dayl application (includes Rebeld)
 echo   kepad    The Angol Input Method (IME)
 echo   rebeld   Alias for dayl (Rebeld is bundled inside the Dayl app)
 echo   WearOS   Launch the Wear OS emulator
+echo   funkconz Deploy the Firebase functions to the cloud
 echo.
 echo Modifiers:
 echo   kler     Clean build and deep activation (for dayl/kepad/angol)
@@ -33,4 +35,8 @@ goto :eof
 
 :WearOS
 powershell -ExecutionPolicy Bypass -File .\WearOS.ps1
+goto :eof
+
+:funkconz
+powershell -ExecutionPolicy Bypass -File .\funkconz.ps1 %MOD%
 goto :eof
